@@ -151,7 +151,7 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"No application data policies defined for application '{application.Name}'.");
             }
 
-            return await applicationRepository.Update(application);
+            return await applicationRepository.UpdateAsync(application);
         }
 
         private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
@@ -209,7 +209,7 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
 
-            return await applicationRepository.Update(application);
+            return await applicationRepository.UpdateAsync(application);
         }
 
         private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)

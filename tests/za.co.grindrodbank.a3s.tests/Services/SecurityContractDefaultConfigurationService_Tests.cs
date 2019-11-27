@@ -21,11 +21,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
     {
         ISecurityContractDefaultConfigurationService securityContractDefaultConfigurationService;
 
-        public SecurityContractDefaultConfigurationService_Tests()
-        {
-          
-        }
-
         [Fact]
         public async Task ApplySecurityContractDefaultsAsync_WithValidNoSectionsInput_NoExceptionsThrown()
         {
@@ -382,6 +377,84 @@ namespace za.co.grindrodbank.a3s.tests.Services
             {
                 Assert.True(false, $"Unexpected Exception: '{e.Message}' thrown when applying security contract");
             }
+        }
+
+        [Fact]
+        public void InitSharedTransaction_Executed_ExecutesWithNoException()
+        {
+            var roleRepository = Substitute.For<IRoleRepository>();
+            var userRepository = Substitute.For<IUserRepository>();
+            var functionRepository = Substitute.For<IFunctionRepository>();
+            var teamRepository = Substitute.For<ITeamRepository>();
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
+            securityContractDefaultConfigurationService = new SecurityContractDefaultConfigurationService(roleRepository, userRepository, functionRepository, teamRepository, applicationRepository, applicationDataPolicyRepository, ldapAuthenticationModeRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractDefaultConfigurationService.InitSharedTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "InitSharedTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void CommitTransaction_Executed_ExecutesWithNoException()
+        {
+            var roleRepository = Substitute.For<IRoleRepository>();
+            var userRepository = Substitute.For<IUserRepository>();
+            var functionRepository = Substitute.For<IFunctionRepository>();
+            var teamRepository = Substitute.For<ITeamRepository>();
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
+            securityContractDefaultConfigurationService = new SecurityContractDefaultConfigurationService(roleRepository, userRepository, functionRepository, teamRepository, applicationRepository, applicationDataPolicyRepository, ldapAuthenticationModeRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractDefaultConfigurationService.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "CommitTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void RollbackTransaction_Executed_ExecutesWithNoException()
+        {
+            var roleRepository = Substitute.For<IRoleRepository>();
+            var userRepository = Substitute.For<IUserRepository>();
+            var functionRepository = Substitute.For<IFunctionRepository>();
+            var teamRepository = Substitute.For<ITeamRepository>();
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
+            securityContractDefaultConfigurationService = new SecurityContractDefaultConfigurationService(roleRepository, userRepository, functionRepository, teamRepository, applicationRepository, applicationDataPolicyRepository, ldapAuthenticationModeRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractDefaultConfigurationService.RollbackTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "RollbackTransaction must not throw an exception.");
         }
     }
 }

@@ -167,5 +167,64 @@ namespace za.co.grindrodbank.a3s.tests.Services
             Assert.True(updateClientResource.RedirectUris.First() == oauth2ClientSubmit.RedirectUris.First(), $"Retrieved RedirectUris first element: {updateClientResource.RedirectUris.First()} not the expected value: {oauth2ClientSubmit.RedirectUris.First()}");
         }
 
+        [Fact]
+        public void InitSharedTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.InitSharedTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "InitSharedTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void CommitTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "CommitTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void RollbackTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.RollbackTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "RollbackTransaction must not throw an exception.");
+        }
     }
 }
