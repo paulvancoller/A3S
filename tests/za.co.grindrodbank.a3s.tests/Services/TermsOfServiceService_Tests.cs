@@ -104,13 +104,14 @@ namespace za.co.grindrodbank.a3s.tests.Services
             Assert.True(termsOfServiceResource.Version == newVersion, $"TermsOfService Resource version: '{termsOfServiceResource.Version}' not the expected value: '{newVersion}'");
         }
 
-        [Fact]
-        public async Task CreateAsync_GivenFullProcessableModelInvalidPreviousVersion_ReturnsCreatedModel()
+        [Theory]
+        [InlineData("somepreviousVersion")]
+        [InlineData("text.text")]
+        public async Task CreateAsync_GivenFullProcessableModelInvalidPreviousVersion_ReturnsCreatedModel(string prevVersion)
         {
             // Arrange
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
-            var prevVersion = "somepreviousVersion;
             var newVersion = string.Concat(DateTime.Now.Year, ".2");
 
             mockedTermsOfServiceModel.Version = newVersion;
