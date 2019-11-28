@@ -3070,8 +3070,6 @@ components:
         - allowedScopes
         - allowedOfflineAccess
         - redirectUris
-        - allowedCorsOrigins
-        - postLogoutRedirectUris
       properties:
         clientId:
           type: string
