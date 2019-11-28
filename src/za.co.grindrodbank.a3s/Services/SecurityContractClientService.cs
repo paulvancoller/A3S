@@ -118,10 +118,10 @@ namespace za.co.grindrodbank.a3s.Services
                 });
             }
 
+            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
+
             if (oauth2ClientSubmit.PostLogoutRedirectUris != null && oauth2ClientSubmit.PostLogoutRedirectUris.Any())
             {
-                client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
-
                 foreach (var postLogoutRedirectUri in oauth2ClientSubmit.PostLogoutRedirectUris)
                 {
                     client.PostLogoutRedirectUris.Add(new ClientPostLogoutRedirectUri
@@ -132,10 +132,10 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
 
+            client.AllowedCorsOrigins = new List<ClientCorsOrigin>();
+
             if (oauth2ClientSubmit.AllowedCorsOrigins != null && oauth2ClientSubmit.AllowedCorsOrigins.Any())
             {
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin>();
-
                 foreach (var corsOrigin in oauth2ClientSubmit.AllowedCorsOrigins)
                 {
                     if (string.IsNullOrWhiteSpace(corsOrigin))
