@@ -22,6 +22,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
     {
         private bool signInSuccessful;
         private bool lockedOutResult;
+        private bool requireTwoFactor;
 
         public CustomSignInManagerFake(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<TUser>> logger, A3SContext a3SContext, IAuthenticationSchemeProvider authenticationSchemeProvider,
@@ -40,13 +41,23 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             lockedOutResult = value;
         }
 
+        public void SetTwoFactorState(bool value)
+        {
+            requireTwoFactor = value;
+        }
+
         public override Task<SignInResult> PasswordSignInAsync(string username, string password, bool isPersistent, bool lockoutOnFailure)
         {
             if (lockedOutResult)
                 return Task.FromResult(SignInResult.LockedOut);
 
             if (signInSuccessful)
-                return Task.FromResult(SignInResult.Success);
+            {
+                if (requireTwoFactor)
+                    return Task.FromResult(SignInResult.TwoFactorRequired);
+                else
+                    return Task.FromResult(SignInResult.Success);
+            }
             else
                 return Task.FromResult(SignInResult.Failed);
         }

@@ -20,6 +20,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
         private bool isAuthenticatorTokenVerified;
         private bool isAuthenticatorOtpValid;
         private UserModel userModel;
+        private string authenticatorKey = string.Empty;
 
         public CustomUserManagerFake(IUserStore<UserModel> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<UserModel> passwordHasher,
             IEnumerable<IUserValidator<UserModel>> userValidators, IEnumerable<IPasswordValidator<UserModel>> passwordValidators, ILookupNormalizer keyNormalizer,
@@ -53,6 +54,9 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
 
         public override Task<UserModel> FindByNameAsync(string userName)
         {
+            if (userModel == null)
+                return Task.FromResult<UserModel>(null);
+
             if (userModel.UserName == userName)
                 return Task.FromResult(userModel);
             else
@@ -62,6 +66,16 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
         public void SetUserModel(UserModel value)
         {
             userModel = value;
+        }
+
+        public override Task<string> GetAuthenticatorKeyAsync(UserModel user)
+        {
+            return Task.FromResult(authenticatorKey);
+        }
+
+        public void SetAuthenticatorKey(string value)
+        {
+            authenticatorKey = value;
         }
     }
 }

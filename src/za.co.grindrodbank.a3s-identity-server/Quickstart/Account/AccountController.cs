@@ -464,7 +464,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (user == null)
                 throw new Exception("Invalid login data");
 
-            if (!string.IsNullOrEmpty(await _userManager.GetAuthenticatorKeyAsync(user)))
+            if (!string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)))
                 return RedirectToAction("Verify2FAAuthenticator", new { redirectUrl = returnUrl, username });
 
             throw new TwoFactorAuthException("Invalid two-factor configration");

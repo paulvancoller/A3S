@@ -26,6 +26,7 @@ using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.tests.Fakes;
+using za.co.grindrodbank.a3sidentityserver.Exceptions;
 using za.co.grindrodbank.a3sidentityserver.Quickstart.UI;
 
 namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
@@ -398,10 +399,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "true";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -438,10 +437,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -478,10 +475,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
             client.RequirePkce = true;
 
@@ -525,10 +520,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -568,10 +561,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -617,10 +608,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -660,10 +649,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
@@ -689,6 +676,149 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             }
 
             Assert.True(errorFound, $"Account locked out should return error message '{AccountOptions.AccountLockedOutErrorMessage}'.");
+        }
+
+        [Fact]
+        public async Task Login_GivenRequiresTwoFactorResult_ViewResultReturned()
+        {
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+
+            var urlHelper = Substitute.For<IUrlHelper>();
+            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
+            accountController.Url = urlHelper;
+
+            var inputModel = new LoginInputModel()
+            {
+                Username = "username",
+                Password = "password",
+                RememberLogin = false,
+                ReturnUrl = string.Empty
+            };
+
+            fakeSignInManager.SetTwoFactorState(true);
+            fakeSignInManager.SetSignInSuccessful(true);
+            fakeUserManager.SetUserModel(userModel);
+            fakeUserManager.SetAuthenticatorKey("1234-1234-1234-1234");
+
+            var builder = new ConfigurationBuilder()
+              .SetBasePath(Directory.GetCurrentDirectory())
+              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+              .AddEnvironmentVariables();
+
+            var config = builder.Build();
+            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "true";
+            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
+            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+
+            // Act
+            var actionResult = await accountController.Login(inputModel, "login");
+
+            // Assert
+            var viewResult = actionResult as RedirectToActionResult;
+            Assert.NotNull(viewResult);
+
+            Assert.True(viewResult.ActionName == "Verify2FAAuthenticator", "Requires 2FA result must redirect to 'Verify2FAAuthenticator'.");
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData(null)]
+        public async Task Login_GivenRequiresTwoFactorResultWithEmptyKey_ThrowsTwoFactorAuthException(string authenticatorKey)
+        {
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+
+            var urlHelper = Substitute.For<IUrlHelper>();
+            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
+            accountController.Url = urlHelper;
+
+            var inputModel = new LoginInputModel()
+            {
+                Username = "username",
+                Password = "password",
+                RememberLogin = false,
+                ReturnUrl = string.Empty
+            };
+
+            fakeSignInManager.SetTwoFactorState(true);
+            fakeSignInManager.SetSignInSuccessful(true);
+            fakeUserManager.SetUserModel(userModel);
+            fakeUserManager.SetAuthenticatorKey(authenticatorKey);
+
+            var builder = new ConfigurationBuilder()
+              .SetBasePath(Directory.GetCurrentDirectory())
+              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+              .AddEnvironmentVariables();
+
+            var config = builder.Build();
+            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "true";
+            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
+            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+
+            // Act
+            Exception caughtException = null;
+
+            try
+            {
+                var actionResult = await accountController.Login(inputModel, "login");
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            // Assert
+            Assert.True(caughtException is TwoFactorAuthException, "Requires 2FA with a blank authenticator key must throw a TwoFactorAuthException.");
+        }
+
+        [Fact]
+        public async Task Login_GivenRequiresTwoFactorResultWithInvalidLoginData_ThrowsException()
+        {
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+
+            var urlHelper = Substitute.For<IUrlHelper>();
+            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
+            accountController.Url = urlHelper;
+
+            var inputModel = new LoginInputModel()
+            {
+                Username = "username",
+                Password = "password",
+                RememberLogin = false,
+                ReturnUrl = string.Empty
+            };
+
+            fakeSignInManager.SetTwoFactorState(true);
+            fakeSignInManager.SetSignInSuccessful(true);
+            fakeUserManager.SetUserModel(null);
+
+            var builder = new ConfigurationBuilder()
+              .SetBasePath(Directory.GetCurrentDirectory())
+              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+              .AddEnvironmentVariables();
+
+            var config = builder.Build();
+            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "true";
+            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
+            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+
+            // Act
+            Exception caughtException = null;
+
+            try
+            {
+                var actionResult = await accountController.Login(inputModel, "login");
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            // Assert
+            Assert.True(caughtException is Exception, "Requires 2FA with bad login data must throw a Exception.");
         }
 
         [Fact]
@@ -718,10 +848,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
               .AddEnvironmentVariables();
 
             var config = builder.Build();
-
             config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
             config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
