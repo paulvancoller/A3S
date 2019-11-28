@@ -243,22 +243,32 @@ namespace za.co.grindrodbank.a3s
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<A3SContext>();
 
+                var writePermission = context.Permission.Where(p => p.Name == "a3s.securityContracts.update").FirstOrDefault();
+
+                if(writePermission == null)
+                {
+                    writePermission = new PermissionModel
+                    {
+                        Name = "a3s.securityContracts.update",
+                        Description = "Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.",
+                        ChangedBy = Guid.Empty
+                    };
+                }
+
+                var readPermission = context.Permission.Where(p => p.Name == "a3s.securityContracts.read").FirstOrDefault();
+
+                if(readPermission == null)
+                {
+                    readPermission = new PermissionModel
+                    {
+                        Name = "a3s.securityContracts.read",
+                        Description = "Enables fetching of a security contract definition.",
+                        ChangedBy = Guid.Empty
+                    };
+                }
+                
                 // Ensure that the A3S application is createdd.
                 var application = context.Application.Where(a => a.Name == "a3s").FirstOrDefault();
-
-                var writePermission = new PermissionModel
-                {
-                    Name = "a3s.securityContracts.update",
-                    Description = "Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.",
-                    ChangedBy = Guid.Empty
-                };
-
-                var readPermission = new PermissionModel
-                {
-                    Name = "a3s.securityContracts.read",
-                    Description = "Enables fetching of a security contract definition.",
-                    ChangedBy = Guid.Empty
-                };
 
                 if (application == null)
                 {

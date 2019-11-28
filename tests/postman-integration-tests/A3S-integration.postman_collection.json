@@ -1,6 +1,6 @@
 ﻿{
 	"info": {
-		"_postman_id": "dcec171a-627e-4a45-a939-0f9bbb3dfbe8",
+		"_postman_id": "355fca5a-49cd-4711-a8b8-27065753311a",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -7336,6 +7336,246 @@
 							]
 						},
 						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the client that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Empty Non Required Client Fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "clients:\n  - clientId: test-security-contract-api\n    name: \"Test security contract client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - TestEmpty Non Required Client Fields - Expect Empty Values on Returned Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of clients has increased to 3.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients.length).to.equal(3);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly created client was correctly created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[2].clientId).to.eql('test-security-contract-api');",
+									"    pm.expect(jsonData.clients[2].name).to.eql('Test security contract client');",
+									"    pm.expect(jsonData.clients[2].allowedGrantTypes[0]).to.eql('authorization_code');",
+									"    pm.expect(jsonData.clients[2].allowedGrantTypes[1]).to.eql('password');",
+									"    pm.expect(jsonData.clients[2].redirectUris[0]).to.eql('https://www.getpostman.com/oauth2/callback');",
+									"    pm.expect(jsonData.clients[2].postLogoutRedirectUris.length).to.eql(0);",
+									"    pm.expect(jsonData.clients[2].allowedCorsOrigins.length).to.eql(0);",
+									"    pm.expect(jsonData.clients[2].allowedScopes[0]).to.eql('a3s');",
+									"    pm.expect(jsonData.clients[2].allowedScopes[1]).to.eql('dokuti');",
+									"    pm.expect(jsonData.clients[2].allowedScopes[2]).to.eql('openid');",
+									"    pm.expect(jsonData.clients[2].allowedScopes[3]).to.eql('profile');",
+									"    pm.expect(jsonData.clients[2].hashedClientSecrets[0]).to.eql('K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=');",
+									"    pm.expect(jsonData.clients[2].allowedOfflineAccess).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the client that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - New Client - Empty CORS Origins - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "clients:\n  - clientId: test-security-contract-api\n    name: \"Test security contract client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
 					},
 					"response": []
 				},

@@ -1,4 +1,4 @@
-﻿openapi: 3.0.0
+openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
@@ -3032,8 +3032,6 @@ components:
         - allowedScopes
         - allowedOfflineAccess
         - redirectUris
-        - allowedCorsOrigins
-        - postLogoutRedirectUris
       properties:
         clientId:
           type: string
