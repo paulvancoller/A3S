@@ -16,6 +16,7 @@ using IdentityServer4.EntityFramework.Entities;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
@@ -167,5 +168,48 @@ namespace za.co.grindrodbank.a3s.tests.Services
             Assert.True(updateClientResource.RedirectUris.First() == oauth2ClientSubmit.RedirectUris.First(), $"Retrieved RedirectUris first element: {updateClientResource.RedirectUris.First()} not the expected value: {oauth2ClientSubmit.RedirectUris.First()}");
         }
 
+        [Fact]
+        public async Task ApplyClientDefninition_EmptyAllowedCorsOriginArrayMember_ReturnsInvalidFormatException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            // The service will look for an existing client by it's ID, return null to trigger the client creation flow.
+            clientRespository.GetByClientIdAsync(Arg.Any<string>()).Returns(mockedClientEntity);
+            clientRespository.UpdateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
+
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+            var oauthClientSubmitMock = oauth2ClientSubmit;
+            // Set the allowed CORS orgin array member to an empty string field. This should throw a v
+            oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "" };
+            try
+            {
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            }
+            catch(Exception e)
+            {
+                Assert.True(e is InvalidFormatException);
+            }
+        }
+
+        [Fact]
+        public async Task ApplyClientDefninition_WhitespaceAllowedCorsOriginArrayMember_ReturnsInvalidFormatException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            // The service will look for an existing client by it's ID, return null to trigger the client creation flow.
+            clientRespository.GetByClientIdAsync(Arg.Any<string>()).Returns(mockedClientEntity);
+            clientRespository.UpdateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
+
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+            var oauthClientSubmitMock = oauth2ClientSubmit;
+            // Set the allowed CORS orgin array member to an empty string field. This should throw a v
+            oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "    " };
+            try
+            {
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            }
+            catch (Exception e)
+            {
+                Assert.True(e is InvalidFormatException);
+            }
+        }
     }
 }
