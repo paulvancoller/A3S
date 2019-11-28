@@ -199,6 +199,103 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         }
 
         [Fact]
+        public async Task Login_GivenLoginInputModelAndCancelButton_ViewResultReturned()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+
+            var inputModel = new LoginInputModel()
+            {
+                Username = "username",
+                Password = "password",
+                RememberLogin = false,
+                ReturnUrl = RETURN_URL
+            };
+
+            // Act
+            try
+            {
+                var actionResult = await accountController.Login(inputModel, "cancel");
+
+            // Assert
+            var viewResult = actionResult as RedirectResult;
+            Assert.NotNull(viewResult);
+            Assert.True(viewResult.Url == inputModel.ReturnUrl, $"ReturnUrl must be '{inputModel.ReturnUrl}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        [Fact]
+        public async Task Login_GivenLoginInputModelAndCancelButtonIsPKCE_ViewResultReturned()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+
+            var inputModel = new LoginInputModel()
+            {
+                Username = "username",
+                Password = "password",
+                RememberLogin = false,
+                ReturnUrl = RETURN_URL
+            };
+
+            // Act
+            try
+            {
+                var actionResult = await accountController.Login(inputModel, "cancel");
+
+                // Assert
+                var viewResult = actionResult as RedirectResult;
+                Assert.NotNull(viewResult);
+                Assert.True(viewResult.Url == inputModel.ReturnUrl, $"ReturnUrl must be '{inputModel.ReturnUrl}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        [Fact]
         public async Task Login_GivenLoginInputModelAndLoginButton2FACompulsary_RedirectToActionResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,

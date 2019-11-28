@@ -50,5 +50,10 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             else
                 return Task.FromResult(SignInResult.Failed);
         }
+
+        public override Task SignOutAsync()
+        {
+            return Task.Run(() => { Console.WriteLine("Sign out executed"); });
+        }
     }
 }
