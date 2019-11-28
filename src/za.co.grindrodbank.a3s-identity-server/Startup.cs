@@ -82,6 +82,7 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ILdapAuthenticationModeRepository, LdapAuthenticationModeRepository>();
+            services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
 
             // Register services
             services.AddScoped<ILdapConnectionService, LdapConnectionService>();

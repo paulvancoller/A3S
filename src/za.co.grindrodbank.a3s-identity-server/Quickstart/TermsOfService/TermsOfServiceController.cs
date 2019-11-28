@@ -1,15 +1,10 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 ﻿using System;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using za.co.grindrodbank.a3s.Managers;
+using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3sidentityserver.Quickstart.UI;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
@@ -19,10 +14,12 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
     public class TermsOfServiceController : Controller
     {
         private readonly CustomUserManager userManager;
+        private readonly ITermsOfServiceRepository termsOfServiceRepository;
 
-        public TermsOfServiceController(CustomUserManager userManager)
+        public TermsOfServiceController(CustomUserManager userManager, ITermsOfServiceRepository termsOfServiceRepository)
         {
             this.userManager = userManager;
+            this.termsOfServiceRepository = termsOfServiceRepository;
         }
 
         /// <summary>

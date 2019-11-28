@@ -155,5 +155,11 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceModel.cs">
       <Link>Models\TermsOfServiceModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ITermsOfServiceRepository.cs">
+      <Link>Repositories\ITermsOfServiceRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\TermsOfServiceRepository.cs">
+      <Link>Repositories\TermsOfServiceRepository.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

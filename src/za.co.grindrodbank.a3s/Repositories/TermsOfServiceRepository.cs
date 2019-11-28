@@ -100,5 +100,15 @@ namespace za.co.grindrodbank.a3s.Repositories
                 .Select((term) => term.Version)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<List<Guid>> GetAllOutstandingAgreementsByUserAsync(Guid userId)
+        {
+            return await a3SContext.TermsOfService
+                .OrderByDescending(x => x.SysPeriod.LowerBound)
+                .Take(1)
+                .Select((term) => term.Id)
+                .ToListAsync();
+        }
+
     }
 }

@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
@@ -18,6 +12,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.tests.Fakes;
 using za.co.grindrodbank.a3sidentityserver.Quickstart.UI;
 
@@ -28,6 +23,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         private readonly CustomUserManagerFake fakeUserManager;
         private readonly IConfiguration mockConfiguration;
         private readonly UserModel userModel;
+        private readonly ITermsOfServiceRepository termsOfServiceRepository;
 
         private const string RETURN_URL = "/returnUrl";
 
@@ -49,6 +45,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             fakeUserManager = new CustomUserManagerFake(fakesCustomUserStore, mockOptionsAccessor, mockPasswordHasher, mockUserValidators, mockPasswordValidators, mockKeyNormalizer,
                 mockErrors, mockServices, mockUserLogger);
 
+            termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+
             userModel = new UserModel()
             {
                 UserName = "username",
@@ -61,7 +59,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         {
             //Arrange
             var id = Guid.NewGuid().ToString();
-            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager)
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -93,7 +91,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         {
             //Arrange
             var id = Guid.NewGuid().ToString();
-            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager)
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository)
             {
                 ControllerContext = new ControllerContext()
                 {

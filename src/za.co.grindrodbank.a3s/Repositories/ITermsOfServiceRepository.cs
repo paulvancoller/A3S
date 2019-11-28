@@ -20,5 +20,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task DeleteAsync(TermsOfServiceModel termsOfService);
         Task<List<TermsOfServiceModel>> GetListAsync();
         Task<string> GetLastestVersionByAgreementName(string agreementName);
+        Task<List<Guid>> GetAllOutstandingAgreementsByUserAsync(Guid userId);
     }
 }
