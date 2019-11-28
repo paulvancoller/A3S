@@ -4756,7 +4756,7 @@
             "type" : "integer"
           }
         },
-        "required" : [ "allowedCorsOrigins", "allowedGrantTypes", "allowedOfflineAccess", "allowedScopes", "clientId", "name", "postLogoutRedirectUris", "redirectUris" ],
+        "required" : [ "allowedGrantTypes", "allowedOfflineAccess", "allowedScopes", "clientId", "name", "redirectUris" ],
         "type" : "object"
       },
       "Oauth2Client" : {

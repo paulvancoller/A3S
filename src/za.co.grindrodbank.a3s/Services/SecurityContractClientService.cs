@@ -118,30 +118,37 @@ namespace za.co.grindrodbank.a3s.Services
                 });
             }
 
-            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
-
-            foreach(var postLogoutRedirectUri in oauth2ClientSubmit.PostLogoutRedirectUris)
+            if (oauth2ClientSubmit.PostLogoutRedirectUris != null && oauth2ClientSubmit.PostLogoutRedirectUris.Any())
             {
-                client.PostLogoutRedirectUris.Add(new ClientPostLogoutRedirectUri
+                client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
+
+                foreach (var postLogoutRedirectUri in oauth2ClientSubmit.PostLogoutRedirectUris)
                 {
-                    Client = client,
-                    PostLogoutRedirectUri = postLogoutRedirectUri
-                });
+                    client.PostLogoutRedirectUris.Add(new ClientPostLogoutRedirectUri
+                    {
+                        Client = client,
+                        PostLogoutRedirectUri = postLogoutRedirectUri
+                    });
+                }
             }
 
-            client.AllowedCorsOrigins = new List<ClientCorsOrigin>();
-
-            foreach(var corsOrigin in oauth2ClientSubmit.AllowedCorsOrigins)
+            if (oauth2ClientSubmit.AllowedCorsOrigins != null && oauth2ClientSubmit.AllowedCorsOrigins.Any())
             {
-                if (string.IsNullOrWhiteSpace(corsOrigin))
-                {
-                    throw new InvalidFormatException($"Empty or null 'allowedCorsOrigin' declared for client: '{oauth2ClientSubmit.ClientId}'");
-                }
+                client.AllowedCorsOrigins = new List<ClientCorsOrigin>();
 
-                client.AllowedCorsOrigins.Add(new ClientCorsOrigin {
-                    Client = client,
-                    Origin = corsOrigin
-                });
+                foreach (var corsOrigin in oauth2ClientSubmit.AllowedCorsOrigins)
+                {
+                    if (string.IsNullOrWhiteSpace(corsOrigin))
+                    {
+                        throw new InvalidFormatException($"Empty or null 'allowedCorsOrigin' declared for client: '{oauth2ClientSubmit.ClientId}'");
+                    }
+
+                    client.AllowedCorsOrigins.Add(new ClientCorsOrigin
+                    {
+                        Client = client,
+                        Origin = corsOrigin
+                    });
+                }
             }
 
             if (newClient)
