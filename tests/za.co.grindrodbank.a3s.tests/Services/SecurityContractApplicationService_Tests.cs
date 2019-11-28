@@ -127,7 +127,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // Also, set the functions section of the application to null (just dont define it). This should set returned application model functions association to null.
             applicationSecurityContract.Fullname = mockedApplication.Name;
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new List<string>());
 
             Assert.True(returnedApplicationModel.Name == "Mocked Application Name", $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected valueL '{mockedApplication.Name}'");
             // Even though the mock application has application functions associated with it, they should have been removed owing to empty functions section defined in the app security contract.
@@ -158,7 +158,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // Also, set the functions section of the application to null (just dont define it). This should set returned application model functions association to null.
             applicationSecurityContract.Fullname = "Test Application Fullname";
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new List<string>());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected valueL '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they should have been removed owing to empty functions section defined in the app security contract.
@@ -203,7 +203,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new List<string>());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected value '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they would NOT have actually been removed as this requires the actual deletion to happen in order for the collection to be udpated.
@@ -248,7 +248,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new List<string>());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected value '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they would NOT have actually been removed as this requires the actual deletion to happen in order for the collection to be udpated.
