@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -71,6 +72,13 @@ namespace za.co.grindrodbank.a3s.Services
                 else
                 {
                     RollbackAllTransactions();
+
+                    var securityContractDryRunException = new SecurityContractDryRunException
+                    {
+                        validationErrors = validationErrors
+                    };
+
+                    throw securityContractDryRunException;
                 }
             }
             catch

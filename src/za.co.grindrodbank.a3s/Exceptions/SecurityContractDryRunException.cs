@@ -5,6 +5,7 @@
  * **************************************************
  */
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace za.co.grindrodbank.a3s.Exceptions
@@ -12,7 +13,9 @@ namespace za.co.grindrodbank.a3s.Exceptions
     [Serializable]
     public sealed class SecurityContractDryRunException : Exception
     {
-        private const string defaultMessage = "Item not processable.";
+        private const string defaultMessage = "Security Contract Dry Run Exceptions Detected.";
+        public List<string> validationErrors { get => validationErrors; set => validationErrors = value; }
+
 
         public SecurityContractDryRunException() : base(defaultMessage)
         {

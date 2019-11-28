@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using System.Linq;
 
 namespace GlobalErrorHandling.Extensions
 {
@@ -89,6 +90,34 @@ namespace GlobalErrorHandling.Extensions
                         {
                             Message = contextFeature.Error.Message
                         }.ToJson());
+
+                        return;
+                    }
+
+                    // Check for a SecurityContractDryRunException - This is not really an exception, just an always roll back dry run.
+                    if (contextFeature.Error is SecurityContractDryRunException)
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        var validationErrorResult = new SecurityContractValidationResult
+                        {
+                            Message = "No Errors Detected - Security contract OK."
+                        };
+
+                        if (((SecurityContractDryRunException)contextFeature.Error).validationErrors.Any())
+                        {
+                            validationErrorResult.Message = "Application of Security Contract Throws Errors.";
+
+                            foreach (var validationError in ((SecurityContractDryRunException)contextFeature.Error).validationErrors)
+                            {
+                                validationErrorResult.ValidationErrors.Add(new SecurityContractValidationError
+                                {
+                                    ErrorType = "Contract Error",
+                                    Message = validationError
+                                });
+                            }
+                        }
+
+                        await context.Response.WriteAsync(validationErrorResult.ToJson());
 
                         return;
                     }
