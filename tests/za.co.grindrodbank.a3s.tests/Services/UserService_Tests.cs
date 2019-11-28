@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -294,7 +294,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 caughtException = ex;
             }
 
-            Assert.True(caughtException is ItemNotProcessableException, "Correctly changing password should NOT throw any exeption");
+            Assert.True(caughtException is SecurityContractDryRunException, "Correctly changing password should NOT throw any exeption");
             Assert.True(caughtException.Message == "Old password must be specified.", "Missing old password returned should return 'Old password must be specified.'");
         }
 
@@ -327,7 +327,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 caughtException = ex;
             }
 
-            Assert.True(caughtException is ItemNotProcessableException, "Correctly changing password should NOT throw any exeption");
+            Assert.True(caughtException is SecurityContractDryRunException, "Correctly changing password should NOT throw any exeption");
             Assert.True(caughtException.Message == "New password and confirm new password fields do not match.", "Differing new passwords should return 'New password and confirm new password fields do not match.'");
         }
     }

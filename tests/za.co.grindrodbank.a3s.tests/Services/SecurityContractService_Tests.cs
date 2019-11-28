@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.MappingProfiles;
@@ -30,7 +30,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // A security contract with all it's sub components set to null is a valid security contract.
             var securityContract = new SecurityContract();
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
-           
+
             try
             {
                 await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, Guid.NewGuid());
@@ -170,7 +170,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>()).Returns(x => throw new ItemNotProcessableException());
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>()).Returns(x => throw new SecurityContractDryRunException());
 
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
 
@@ -184,7 +184,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 caughtException = ex;
             }
 
-            Assert.True(caughtException is ItemNotProcessableException);
+            Assert.True(caughtException is SecurityContractDryRunException);
         }
 
         [Fact]

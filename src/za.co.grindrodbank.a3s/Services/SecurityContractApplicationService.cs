@@ -35,7 +35,7 @@ namespace za.co.grindrodbank.a3s.Services
             this.applicationDataPolicyRepository = applicationDataPolicyRepository;
         }
 
-        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
             logger.Debug($"Applying application security contract definition for application: '{applicationSecurityContractDefinition.Fullname}'");
             // Attempt to load any existing application by name, as the name is essentially the API primary key.
@@ -44,13 +44,13 @@ namespace za.co.grindrodbank.a3s.Services
             if (application == null)
             {
                 logger.Debug($"Application '{applicationSecurityContractDefinition.Fullname}' not found in database. Creating new application.");
-                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById);
+                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
             }
             logger.Debug($"Application '{applicationSecurityContractDefinition.Fullname}' already exists. Updating it.");
-            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById);
+            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
         }
 
-        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
+        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
         {
             try
             {
@@ -70,7 +70,15 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 string errMessage = String.Format($"Error creating new resource on Identity Server: {e.Message}");
                 logger.Error(errMessage);
-                throw;
+
+                if (dryRun)
+                {
+                    validationErrors.Add(errMessage);
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             // Create the A3S representation of the resource.
@@ -90,17 +98,34 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
 
-            var newApplication = await applicationRepository.CreateAsync(application);
-            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid);
+            // Set an initial value to the un-saved model.
+            var newApplication = application;
+
+            try
+            {
+                newApplication = await applicationRepository.CreateAsync(application);
+            } catch(Exception e)
+            {
+                if (dryRun)
+                {
+                    validationErrors.Add($"Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
+            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid, dryRun, validationErrors);
         }
 
-        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition);
-            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById);
+            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition, dryRun, validationErrors);
+            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
         }
 
-        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
+        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, List<string> validationErrors)
         {
             if(application.ApplicationDataPolicies != null && application.ApplicationDataPolicies.Any())
             {
@@ -110,7 +135,21 @@ namespace za.co.grindrodbank.a3s.Services
                     if (applicationSecurityContractDefinition.DataPolicies == null || !applicationSecurityContractDefinition.DataPolicies.Exists(dp => dp.Name == application.ApplicationDataPolicies[i].Name))
                     {
                         logger.Debug($"Data Policy: '{application.ApplicationDataPolicies[i].Name}' is being unassigned from application '{application.Name}'!");
-                        await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]);
+                        try {
+                            await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]);
+                        }
+                        catch (Exception e)
+                        {
+                            if (dryRun)
+                            {
+                                validationErrors.Add($"Error deleting data-policy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        
                     }
                 }
             }
@@ -118,7 +157,7 @@ namespace za.co.grindrodbank.a3s.Services
             return application;
         }
 
-        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
             if (applicationSecurityContractDefinition.DataPolicies != null && applicationSecurityContractDefinition.DataPolicies.Any())
             {
@@ -151,27 +190,56 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"No application data policies defined for application '{application.Name}'.");
             }
 
-            return await applicationRepository.Update(application);
+            try
+            {
+                return await applicationRepository.Update(application);
+            } catch (Exception e)
+            {
+                if (dryRun)
+                {
+                    validationErrors.Add($"Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
+                    // The best we can do is return the non-updated application in an attempt to carry on.
+                    return application;
+                }
+
+                throw;
+            }
+            
         }
 
-        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById);
-            await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
-            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById);
+            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+
+            try
+            {
+                await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
+            } catch(Exception e)
+            {
+                if (dryRun)
+                {
+                    validationErrors.Add($"Error deleting permissions not assigned to applications. Error: '{e.Message}'");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
+            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
 
             return updatedApplication;
         }
 
-        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
+        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
         {
-            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid);
-            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition);
+            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid, dryRun, validationErrors);
+            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition, dryRun, validationErrors);
 
             return application;
         }
 
-        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
+        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
         {
             if (applicationSecurityContractDefinition.ApplicationFunctions == null)
                 return application;
@@ -209,10 +277,24 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
 
-            return await applicationRepository.Update(application);
+            try
+            {
+                return await applicationRepository.Update(application);
+            } catch (Exception e)
+            {
+                if (dryRun)
+                {
+                    validationErrors.Add($"Error updating functions for application '{application.Name}'. Error: '{e.Message}'");
+                    // The best we can do is return the application that was not updated.
+                    return application;
+                }
+            
+                throw;
+            }
+            
         }
 
-        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
+        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, List<string> validationErrors)
         {
             if (application.ApplicationFunctions.Count > 0)
             {
@@ -223,7 +305,21 @@ namespace za.co.grindrodbank.a3s.Services
                     {
                         logger.Debug($"Function: '{application.ApplicationFunctions[i].Name}' is being unassigned from application '{application.Name}' !");
                         // Note: This only removes the application function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
-                        await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
+                        try
+                        {
+                            await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
+                        } catch (Exception e)
+                        {
+                            if (dryRun)
+                            {
+                                validationErrors.Add($"Error deleting application function '{application.ApplicationFunctions[i].Name}' for application '{application.Name}'. Error: {e.Message} ");
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        
                     }
                 }
             }

@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -194,7 +194,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughEx is ItemNotProcessableException, "Unlinked permissions and applications must throw an ItemNotProcessableException.");
+            Assert.True(caughEx is SecurityContractDryRunException, "Unlinked permissions and applications must throw an ItemNotProcessableException.");
         }
 
         [Fact]
@@ -251,7 +251,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughEx is ItemNotProcessableException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
+            Assert.True(caughEx is SecurityContractDryRunException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
         }
 
         [Fact]
@@ -369,7 +369,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughEx is ItemNotProcessableException, "New taken name must throw an ItemNotProcessableException");
+            Assert.True(caughEx is SecurityContractDryRunException, "New taken name must throw an ItemNotProcessableException");
         }
 
         [Fact]

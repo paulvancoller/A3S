@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Exceptions;
@@ -42,7 +42,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 TeamModel existingTeam = await teamRepository.GetByNameAsync(teamSubmit.Name, false);
                 if (existingTeam != null)
-                    throw new ItemNotProcessableException($"Team with Name '{teamSubmit.Name}' already exist.");
+                    throw new SecurityContractDryRunException($"Team with Name '{teamSubmit.Name}' already exist.");
 
                 // This will only map the first level of members onto the model. User IDs and Policy IDs will not be.
                 var teamModel = mapper.Map<TeamModel>(teamSubmit);
@@ -96,7 +96,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 TeamModel existingTeam = await teamRepository.GetByIdAsync(teamSubmit.Uuid, true);
 
-                if(existingTeam == null)
+                if (existingTeam == null)
                     throw new ItemNotFoundException($"Team with ID '{teamSubmit.Uuid}' not found when attempting to update a team using this ID!");
 
                 if (existingTeam.Name != teamSubmit.Name)
@@ -104,7 +104,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // Confirm the new name is available
                     var checkExistingNameModel = await teamRepository.GetByNameAsync(teamSubmit.Name, false);
                     if (checkExistingNameModel != null)
-                        throw new ItemNotProcessableException($"Team with name '{teamSubmit.Name}' already exists.");
+                        throw new SecurityContractDryRunException($"Team with name '{teamSubmit.Name}' already exists.");
                 }
 
                 // Map the first level team submit attributes onto the team model.
@@ -139,7 +139,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task AssignTeamsToTeamFromTeamIdList(TeamModel teamModel, List<Guid> teamIds)
         {
             // It is not mandatory to have the teams set, so return here if the list is null.
-            if(teamIds == null)
+            if (teamIds == null)
             {
                 return;
             }
@@ -147,7 +147,7 @@ namespace za.co.grindrodbank.a3s.Services
             teamModel.ChildTeams = new List<TeamTeamModel>();
 
             // If the list is set, but there are no elements in it, this is intepretted as re-setting the associated teams.
-            if(teamIds.Count == 0)
+            if (teamIds.Count == 0)
             {
                 return;
             }
@@ -155,7 +155,7 @@ namespace za.co.grindrodbank.a3s.Services
             // Before adding any child teams to this team, ensure that is does not contain users, as compound teams with users are prohibited.
             if (teamModel.UserTeams != null && teamModel.UserTeams.Any())
             {
-                throw new ItemNotProcessableException($"Attempting to assign child teams to team '{teamModel.Name}', but it has users in it! Cannot create a compound team with users!");
+                throw new SecurityContractDryRunException($"Attempting to assign child teams to team '{teamModel.Name}', but it has users in it! Cannot create a compound team with users!");
             }
 
             foreach (var childTeamId in teamIds)
@@ -169,10 +169,10 @@ namespace za.co.grindrodbank.a3s.Services
                 }
 
                 //Teams can only be added to a team as a child if it has no children of it's own. This prevents having compound teams that contain child compound teams.
-                if(teamToAddAsChild.ChildTeams.Count > 0)
+                if (teamToAddAsChild.ChildTeams.Count > 0)
                 {
                     // Note: 'teamModel' may not have an ID as this function is potentially called from the createAsync function prior to persisting the team into the database. Use it's name when referencing it for safety.
-                    throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
+                    throw new SecurityContractDryRunException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
                 }
 
                 teamModel.ChildTeams.Add(new TeamTeamModel

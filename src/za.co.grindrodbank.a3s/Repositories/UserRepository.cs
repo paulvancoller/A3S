@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                 }
             } 
 
-            throw new ItemNotProcessableException($"User creation using Identity Server User store failed! Errors: {errors}");
+            throw new SecurityContractDryRunException($"User creation using Identity Server User store failed! Errors: {errors}");
         }
 
         public async Task DeleteAsync(UserModel user)

@@ -33,7 +33,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             LdapAuthenticationModeModel existingAuthenticationMode = await ldapAuthenticationModeRepository.GetByNameAsync(ldapAuthenticationModeSubmit.Name, includePassword: false);
             if (existingAuthenticationMode != null)
-                throw new ItemNotProcessableException($"LDAP Authentication Mode with Name '{ldapAuthenticationModeSubmit.Name}' already exist.");
+                throw new SecurityContractDryRunException($"LDAP Authentication Mode with Name '{ldapAuthenticationModeSubmit.Name}' already exist.");
 
             var LdapAuthenticationModeModel = mapper.Map<LdapAuthenticationModeModel>(ldapAuthenticationModeSubmit);
             LdapAuthenticationModeModel.ChangedBy = createdById;
@@ -63,7 +63,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Confirm the new name is available
                 LdapAuthenticationModeModel checkExistingNameModel = await ldapAuthenticationModeRepository.GetByNameAsync(ldapAuthenticationModeSubmit.Name, false);
                 if (checkExistingNameModel != null)
-                    throw new ItemNotProcessableException($"AuthenticationMode with name '{ldapAuthenticationModeSubmit.Name}' already exists.");
+                    throw new SecurityContractDryRunException($"AuthenticationMode with name '{ldapAuthenticationModeSubmit.Name}' already exists.");
             }
 
             existingAuthenticationMode.Name = ldapAuthenticationModeSubmit.Name;
@@ -96,14 +96,14 @@ namespace za.co.grindrodbank.a3s.Services
         {
             var authenticationMode = await ldapAuthenticationModeRepository.GetByIdAsync(ldapAuthenticationModeId, false, true);
 
-            if(authenticationMode == null)
+            if (authenticationMode == null)
             {
                 throw new ItemNotFoundException($"Authentication Mode with GUID '{ldapAuthenticationModeId}' not found.");
             }
 
             if (authenticationMode.Users != null && authenticationMode.Users.Any())
             {
-                throw new ItemNotProcessableException($"Authentication Mode has users still assigned to it. Only Authentication modes without users assigned can be deleted. Not deleting.");
+                throw new SecurityContractDryRunException($"Authentication Mode has users still assigned to it. Only Authentication modes without users assigned can be deleted. Not deleting.");
             }
 
             await ldapAuthenticationModeRepository.DeleteAsync(authenticationMode);

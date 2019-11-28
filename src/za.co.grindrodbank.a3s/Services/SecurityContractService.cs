@@ -27,21 +27,21 @@ namespace za.co.grindrodbank.a3s.Services
             this.securityContractDefaultConfigurationService = securityContractDefaultConfigurationService;
         }
 
-        public async Task ApplySecurityContractDefinitionAsync(SecurityContract securityContract, Guid updatedById)
+        public async Task ApplySecurityContractDefinitionAsync(SecurityContract securityContract, Guid updatedById, bool dryRun = false)
         {
             // Start transactions to allow complete rollback in case of an error
             BeginAllTransactions();
 
             try
             {
-
+                List<string> validationErrors = new List<string>();
                 // First apply all of the application(micro-service) definitions that present within the Security Contract.
                 // All the components of a security contract are optional, so check for this here.
                 if (securityContract.Applications != null && securityContract.Applications.Count > 0)
                 {
                     foreach (var applicationSecurityContractDefinition in securityContract.Applications)
                     {
-                        await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContractDefinition, updatedById);
+                        await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
                     }
                 }
 
@@ -63,8 +63,15 @@ namespace za.co.grindrodbank.a3s.Services
                     }
                 }
 
-                // All successful
-                CommitAllTransactions();
+                if (!dryRun)
+                {
+                    // All successful
+                    CommitAllTransactions();
+                }
+                else
+                {
+                    RollbackAllTransactions();
+                }
             }
             catch
             {

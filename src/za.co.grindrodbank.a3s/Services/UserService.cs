@@ -51,14 +51,14 @@ namespace za.co.grindrodbank.a3s.Services
                 userSubmit.Email = userSubmit.Email.Trim();
 
                 if (string.IsNullOrWhiteSpace(userSubmit.Password))
-                    throw new ItemNotProcessableException($"Password field required for user create.");
+                    throw new SecurityContractDryRunException($"Password field required for user create.");
 
                 if (userSubmit.Avatar != null && !userSubmit.Avatar.IsBase64String())
-                    throw new ItemNotProcessableException($"Avatar field is not a valid base64 string.");
+                    throw new SecurityContractDryRunException($"Avatar field is not a valid base64 string.");
 
                 UserModel checkUserModel = await userRepository.GetByUsernameAsync(userSubmit.Username, false);
                 if (checkUserModel != null)
-                    throw new ItemNotProcessableException($"User with user name '{userSubmit.Username}' already exists.");
+                    throw new SecurityContractDryRunException($"User with user name '{userSubmit.Username}' already exists.");
 
                 var userModel = mapper.Map<UserModel>(userSubmit);
                 // Check that the mapper did not assign a default GUID (happens if no GUID supplied).
@@ -125,7 +125,7 @@ namespace za.co.grindrodbank.a3s.Services
                 userSubmit.Email = userSubmit.Email.Trim();
 
                 if (userSubmit.Avatar != null && !userSubmit.Avatar.IsBase64String())
-                    throw new ItemNotProcessableException($"Avatar field is not a valid base64 string.");
+                    throw new SecurityContractDryRunException($"Avatar field is not a valid base64 string.");
 
                 UserModel userModel = await userRepository.GetByIdAsync(userSubmit.Uuid, true);
                 if (userModel == null)
@@ -177,7 +177,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Confirm the new username is available
                 UserModel checkUserModel = await userRepository.GetByUsernameAsync(userSubmit.Username, false);
                 if (checkUserModel != null)
-                    throw new ItemNotProcessableException($"User with user name '{userSubmit.Username}' already exists.");
+                    throw new SecurityContractDryRunException($"User with user name '{userSubmit.Username}' already exists.");
             }
         }
 
@@ -222,10 +222,10 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task ChangePasswordAsync(UserPasswordChangeSubmit changeSubmit)
         {
             if (string.Compare(changeSubmit.NewPassword, changeSubmit.NewPasswordConfirmed, StringComparison.Ordinal) != 0)
-                throw new ItemNotProcessableException("New password and confirm new password fields do not match.");
+                throw new SecurityContractDryRunException("New password and confirm new password fields do not match.");
 
             if (string.IsNullOrEmpty(changeSubmit.OldPassword))
-                throw new ItemNotProcessableException("Old password must be specified.");
+                throw new SecurityContractDryRunException("Old password must be specified.");
 
             await userRepository.ChangePassword(changeSubmit.Uuid, changeSubmit.OldPassword, changeSubmit.NewPassword);
         }
@@ -249,7 +249,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // If this team is a parent team, prevent it from being added to the user, as there is a business rule that prevents this!
                     if(team.ChildTeams.Any())
                     {
-                        throw new ItemNotProcessableException($"Unable to add team {team.Name} to user '{user.NormalizedUserName}', as it is a compound team. Users cannot be direct members of compound teams!");
+                        throw new SecurityContractDryRunException($"Unable to add team {team.Name} to user '{user.NormalizedUserName}', as it is a compound team. Users cannot be direct members of compound teams!");
                     }
 
                     user.UserTeams.Add(new UserTeamModel

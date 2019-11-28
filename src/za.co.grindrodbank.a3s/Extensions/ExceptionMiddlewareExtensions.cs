@@ -68,7 +68,7 @@ namespace GlobalErrorHandling.Extensions
                     }
 
                     // Check for a Item not processable error
-                    if (contextFeature.Error is ItemNotProcessableException)
+                    if (contextFeature.Error is SecurityContractDryRunException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
 

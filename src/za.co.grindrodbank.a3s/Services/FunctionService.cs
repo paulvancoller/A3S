@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +17,7 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public class FunctionService :IFunctionService
+    public class FunctionService : IFunctionService
     {
         private readonly IFunctionRepository functionRepository;
         private readonly IPermissionRepository permissionRepository;
@@ -42,7 +42,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 FunctionModel existingFunction = await functionRepository.GetByNameAsync(functionSubmit.Name);
                 if (existingFunction != null)
-                    throw new ItemNotProcessableException($"Function with Name '{functionSubmit.Name}' already exist.");
+                    throw new SecurityContractDryRunException($"Function with Name '{functionSubmit.Name}' already exist.");
 
                 var function = new FunctionModel();
 
@@ -70,7 +70,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             return mapper.Map<Function>(await functionRepository.GetByIdAsync(functionId));
         }
-         
+
         public async Task<List<Function>> GetListAsync()
         {
             return mapper.Map<List<Function>>(await functionRepository.GetListAsync());
@@ -85,7 +85,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 var function = await functionRepository.GetByIdAsync(functionSubmit.Uuid);
 
-                if(function == null)
+                if (function == null)
                     throw new ItemNotFoundException($"Function {functionSubmit.Uuid} not found!");
 
                 if (function.Name != functionSubmit.Name)
@@ -93,7 +93,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // Confirm the new name is available
                     var checkExistingNameModel = await functionRepository.GetByNameAsync(functionSubmit.Name);
                     if (checkExistingNameModel != null)
-                        throw new ItemNotProcessableException($"Function with name '{functionSubmit.Name}' already exists.");
+                        throw new SecurityContractDryRunException($"Function with name '{functionSubmit.Name}' already exists.");
                 }
 
                 function.Name = functionSubmit.Name;
@@ -157,7 +157,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // application. Functions cannot be created from permissions across applications.
                     if (permission.ApplicationFunctionPermissions.First().ApplicationFunction.Application.Id != functionSubmit.ApplicationId)
                     {
-                        throw new ItemNotProcessableException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
+                        throw new SecurityContractDryRunException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
                     }
 
                     function.FunctionPermissions.Add(new FunctionPermissionModel

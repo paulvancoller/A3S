@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,7 +48,7 @@ namespace za.co.grindrodbank.a3s.Services
             await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById);
         }
-        
+
         /// <summary>
         /// Applies all the default configurations for defined applications. This is essentially creating 'business' functions comprised of permissions for
         /// all applications that are defined within the applications section of the default configuration component of the security contract.
@@ -59,7 +59,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             logger.Debug($"Applying default application and function configuration for default config: '{securityContractDefaultConfiguration.Name}'");
 
-            if(securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
+            if (securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
             {
                 logger.Debug("No default application configuration section found...skipping.");
                 return;
@@ -162,7 +162,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (!permissionIsApplicationPermission)
                 {
                     throw new ItemNotFoundException($"Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.");
-                }           
+                }
             }
 
             // Persist the application function, but only if there is at least a single permission associated with it.
@@ -317,7 +317,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // asserted that the child row has no child roles attached to it.
                     if (existingChildRole.ChildRoles.Count > 0)
                     {
-                        throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
+                        throw new SecurityContractDryRunException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                     }
 
                     logger.Debug($"Child role '{existingChildRole}' exists and is being assigned to role '{defaultRole.Name}'.");
@@ -351,7 +351,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById)
         {
             logger.Debug($"Operating on default ldap auth mode '{defaultLdapAuthMode.Name}'.");
-            var defaultLdapAuthToApply = new LdapAuthenticationModeModel ();
+            var defaultLdapAuthToApply = new LdapAuthenticationModeModel();
 
             bool newLdapAuthMode = false;
             var existingLdapAuthMode = await ldapAuthenticationModeRepository.GetByNameAsync(defaultLdapAuthMode.Name, false);
@@ -436,7 +436,7 @@ namespace za.co.grindrodbank.a3s.Services
                 newUser = true;
                 // We can also bind the user's UUID here, but only if one is supplied. We should not bind it on any user updates, as UUIDs associated with users cannot be changed!
                 // Recall: The user ID within the dotnet Identity table is purposely a string. Convert the GUID representation accordingly.
-                if(defaultUser.Uuid != Guid.Empty)
+                if (defaultUser.Uuid != Guid.Empty)
                 {
                     defaultUserToApply.Id = defaultUser.Uuid.ToString();
                 }
@@ -536,7 +536,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             logger.Debug($"Applying default teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
 
-            if(securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
+            if (securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
                 return;
 
             // Execute only the simple team creation tasks in parallel
@@ -642,7 +642,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Users are not allowd to be directly assigned to a parent team. Check for this!
                 if (team.ChildTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot add users directly to team '{team.Name}', as this team is a parent team.");
+                    throw new SecurityContractDryRunException($"Cannot add users directly to team '{team.Name}', as this team is a parent team.");
                 }
 
                 foreach (var userName in userNames)
@@ -673,7 +673,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Check that the current team has no users! Users cannot be in a parent team, so the existence of users in a team prevents child teams being added to it.
                 if (teamModel.UserTeams != null && teamModel.UserTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!");
+                    throw new SecurityContractDryRunException($"Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!");
                 }
 
                 foreach (var teamToAdd in defaultTeamToApply.Teams)
@@ -691,7 +691,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // check that we are not attempting to add a compound team as a child, as this is prohibited.
                     if (existingchildTeam.ChildTeams.Any())
                     {
-                        throw new ItemNotProcessableException($"Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'");
+                        throw new SecurityContractDryRunException($"Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'");
                     }
 
                     logger.Debug($"Child team '{existingchildTeam}' exists and is being assigned to role '{defaultTeamToApply.Name}'.");
