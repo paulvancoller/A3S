@@ -43,5 +43,10 @@ namespace za.co.grindrodbank.a3s.Controllers
         {
             return Ok(await securityContractService.GetSecurityContractDefinitionAsync());
         }
+
+        public override Task<IActionResult> ValidateSecurityContractAsync([FromBody] SecurityContract securityContract)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
