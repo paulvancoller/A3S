@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
@@ -818,7 +819,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             }
 
             // Assert
-            Assert.True(caughtException is Exception, "Requires 2FA with bad login data must throw a Exception.");
+            Assert.True(caughtException is AuthenticationException, "Requires 2FA with bad login data must throw an AuthenticationException.");
         }
 
         [Fact]

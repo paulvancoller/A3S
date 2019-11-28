@@ -37,6 +37,7 @@
     <Folder Include="Quickstart\" />
     <Folder Include="Quickstart\Account\" />
     <Folder Include="Quickstart\Home\" />
+    <Folder Include="Quickstart\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\za.co.grindrodbank.a3s-identity-server\za.co.grindrodbank.a3s-identity-server.csproj" />

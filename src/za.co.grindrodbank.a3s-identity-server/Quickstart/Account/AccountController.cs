@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Extensions;
+using System.Security.Authentication;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
@@ -191,7 +192,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             var vm = new LoginSuccessfulViewModel()
             {
@@ -269,7 +270,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             await _userManager.RemoveAuthenticationTokenAsync(user, _tokenOptions.GetAspNetUserStoreProviderName(), _tokenOptions.GetRecoverCodesName());
             await _userManager.RemoveAuthenticationTokenAsync(user, _tokenOptions.GetAspNetUserStoreProviderName(), _tokenOptions.GetAuthenticatorKeyName());
@@ -287,7 +288,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             if (!_userManager.IsAuthenticatorTokenVerified(user))
                 throw new TwoFactorAuthException("Invalid authenticator data");
@@ -306,7 +307,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             if (!_userManager.IsAuthenticatorTokenVerified(user))
                 throw new TwoFactorAuthException("Invalid authenticator data");
@@ -448,7 +449,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                throw new Exception("Invalid user");
+                throw new AuthenticationException("Invalid user");
 
             if (!(_userManager.IsAuthenticatorTokenVerified(user)))
                 await _userManager.SetTwoFactorEnabledAsync(user, false);
@@ -459,7 +460,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             if (!string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)))
                 return RedirectToAction("Verify2FAAuthenticator", new { redirectUrl = returnUrl, username });
@@ -599,7 +600,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             return new RegisterTwoFactorViewModel()
             {
@@ -639,7 +640,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             // Load the authenticator key & QR code URI to display on the form]
             string unformattedKey = string.Empty;
@@ -670,7 +671,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             IEnumerable<string> recoveryCodes = null;
             if (await _userManager.CountRecoveryCodesAsync(user) == 0)
@@ -692,7 +693,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             return new TwoFactorViewModel
             {
