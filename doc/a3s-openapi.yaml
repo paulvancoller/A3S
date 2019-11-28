@@ -2248,12 +2248,10 @@ paths:
           content:
             application/x-yaml:
               schema:
-                $ref: '#/components/schemas/SecurityContract'
+                $ref: '#/components/schemas/SecurityContractValidationResult'
             application/json:
               schema:
-                $ref: '#/components/schemas/SecurityContract'
-        '204':
-          description: No Content.
+                $ref: '#/components/schemas/SecurityContractValidationResult'
         '400':
           description: Bad Request.
           content:
@@ -2266,14 +2264,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Non-Processible Entity - The security contract was correctly structured, but there are business rule or constraint violations, preventing it from being applied.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden - Not authorized to apply Security Contracts.
+          description: Forbidden - Not authorized to validate Security Contracts.
           content:
             application/json:
               schema:

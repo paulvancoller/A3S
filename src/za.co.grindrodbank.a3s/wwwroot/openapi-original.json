@@ -3413,19 +3413,16 @@
             "content" : {
               "application/x-yaml" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
                 }
               },
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
                 }
               }
             },
             "description" : "OK."
-          },
-          "204" : {
-            "description" : "No Content."
           },
           "400" : {
             "content" : {
@@ -3447,16 +3444,6 @@
             },
             "description" : "Not authenticated."
           },
-          "422" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Non-Processible Entity - The security contract was correctly structured, but there are business rule or constraint violations, preventing it from being applied."
-          },
           "403" : {
             "content" : {
               "application/json" : {
@@ -3465,7 +3452,7 @@
                 }
               }
             },
-            "description" : "Forbidden - Not authorized to apply Security Contracts."
+            "description" : "Forbidden - Not authorized to validate Security Contracts."
           },
           "500" : {
             "content" : {
@@ -5779,6 +5766,16 @@
       },
       "SecurityContractValidationResult" : {
         "description" : "Models the result of a security contract dry run validation.",
+        "example" : {
+          "validationErrors" : [ {
+            "errorType" : "errorType",
+            "message" : "message"
+          }, {
+            "errorType" : "errorType",
+            "message" : "message"
+          } ],
+          "message" : "message"
+        },
         "properties" : {
           "message" : {
             "type" : "string"
@@ -5795,6 +5792,10 @@
       },
       "SecurityContractValidationError" : {
         "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
+        "example" : {
+          "errorType" : "errorType",
+          "message" : "message"
+        },
         "properties" : {
           "errorType" : {
             "type" : "string"
