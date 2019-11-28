@@ -46,7 +46,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IEventService _events;
         private readonly UrlEncoder _urlEncoder;
         private readonly IConfiguration _configuration;
-        private readonly IUserRepository _userRepository;
         private readonly TokenOptions _tokenOptions = new TokenOptions();
 
         private const string AUTHENTICATOR_URI_FORMAT = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
@@ -60,8 +59,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
             UrlEncoder urlEncoder,
-            IConfiguration configuration,
-            IUserRepository userRepository
+            IConfiguration configuration
             )
         {
             _userManager = userManager;
@@ -72,7 +70,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             _events = events;
             _urlEncoder = urlEncoder;
             _configuration = configuration;
-            _userRepository = userRepository;
         }
 
         /// <summary>

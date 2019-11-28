@@ -24,6 +24,7 @@
     <Folder Include="Extensions\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Repositories\" />
+    <Folder Include="Quickstart\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="nlog.config">

@@ -116,7 +116,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_Executed_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             // Act
             var actionResult = await accountController.Login(RETURN_URL);
@@ -130,7 +130,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_ExecutedWithExternalIdentityProvider_RedirectToActionResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
@@ -146,7 +146,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_ExecutedWithInternalIdentityProvider_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             authorizationRequest.IdP = null;
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
@@ -163,7 +163,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButton_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
@@ -205,7 +205,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var id = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -247,7 +247,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var id = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -297,7 +297,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var id = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -340,7 +340,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var id = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -378,7 +378,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButton2FACompulsary_RedirectToActionResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
@@ -416,7 +416,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButton2FAAuthenticatorEnabled_RedirectToActionResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
@@ -454,7 +454,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButtonAndIsPkceClient_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
@@ -497,7 +497,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButtonLocalUrl_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(true);
@@ -538,7 +538,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButtonNonLocalUrl_ThrowsException()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -585,7 +585,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLoginInputModelAndLoginButtonEmptyUrl_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -626,7 +626,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenLockedOutResult_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -682,7 +682,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenRequiresTwoFactorResult_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -728,7 +728,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenRequiresTwoFactorResultWithEmptyKey_ThrowsTwoFactorAuthException(string authenticatorKey)
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -777,7 +777,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenRequiresTwoFactorResultWithInvalidLoginData_ThrowsException()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -825,7 +825,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
         public async Task Login_GivenUnsuccesfulLogin_ViewResultReturned()
         {
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository);
+                mockEventService, urlTestEncoder, mockConfiguration);
 
             var urlHelper = Substitute.For<IUrlHelper>();
             urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
@@ -883,7 +883,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var userId = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -926,7 +926,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var userId = Guid.NewGuid().ToString();
 
             using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+                mockEventService, urlTestEncoder, mockConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
