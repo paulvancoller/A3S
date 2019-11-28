@@ -37,7 +37,6 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// </summary>
         /// <remarks>Idempotently applies a security contract definition to the A3S instance.</remarks>
         /// <param name="securityContract"></param>
-        /// <response code="200">OK.</response>
         /// <response code="204">No Content.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -47,7 +46,6 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [HttpPut]
         [Route("/securityContracts")]
         [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(SecurityContract))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
@@ -76,5 +74,28 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> GetSecurityContractAsync();
+
+        /// <summary>
+        /// Validates a security contract by doing a dry run.
+        /// </summary>
+        /// <remarks>Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.</remarks>
+        /// <param name="securityContract"></param>
+        /// <response code="200">OK.</response>
+        /// <response code="204">No Content.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="422">Non-Processible Entity - The security contract was correctly structured, but there are business rule or constraint violations, preventing it from being applied.</response>
+        /// <response code="403">Forbidden - Not authorized to apply Security Contracts.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPut]
+        [Route("/securityContracts/validate")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(SecurityContract))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> ValidateSecurityContractAsync([FromBody]SecurityContract securityContract);
     }
 }

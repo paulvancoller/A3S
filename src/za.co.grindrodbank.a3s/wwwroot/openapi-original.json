@@ -3337,6 +3337,78 @@
           }
         },
         "responses" : {
+          "204" : {
+            "description" : "No Content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible Entity - The security contract was correctly structured, but there are business rule or constraint violations, preventing it from being applied."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to apply Security Contracts."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Idempotently applies a security contract definition.",
+        "tags" : [ "SecurityContract" ]
+      }
+    },
+    "/securityContracts/validate" : {
+      "put" : {
+        "description" : "Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.",
+        "operationId" : "validateSecurityContract",
+        "requestBody" : {
+          "content" : {
+            "application/x-yaml" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SecurityContract"
+              }
+            }
+          }
+        },
+        "responses" : {
           "200" : {
             "content" : {
               "application/x-yaml" : {
@@ -3406,7 +3478,7 @@
             "description" : "An unexpected error occurred."
           }
         },
-        "summary" : "Idempotently applies a security contract definition.",
+        "summary" : "Validates a security contract by doing a dry run.",
         "tags" : [ "SecurityContract" ]
       }
     },
@@ -5703,6 +5775,35 @@
             "type" : "array"
           }
         },
+        "type" : "object"
+      },
+      "SecurityContractValidationResult" : {
+        "description" : "Models the result of a security contract dry run validation.",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "validationErrors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationError"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationError" : {
+        "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
+        "properties" : {
+          "errorType" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "errorType", "message" ],
         "type" : "object"
       },
       "LdapAuthenticationModeId" : {
