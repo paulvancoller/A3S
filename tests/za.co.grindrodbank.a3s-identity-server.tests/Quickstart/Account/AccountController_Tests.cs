@@ -876,5 +876,91 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
 
             Assert.True(errorFound, $"Account locked out should return error message '{AccountOptions.InvalidCredentialsErrorMessage}'.");
         }
+
+        [Fact]
+        public async Task LoginSuccessful_ExecutedWithout2FA_ViewResultReturned()
+        {
+            var userId = Guid.NewGuid().ToString();
+
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, userId),
+                            new Claim("sub", userId),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+            fakeUserManager.SetUserModel(userModel);
+
+            var urlHelper = Substitute.For<IUrlHelper>();
+            accountController.Url = urlHelper;
+
+            // Act
+            var actionResult = await accountController.LoginSuccessful(RETURN_URL, show2FARegMessage: false);
+
+            // Assert
+            var viewResult = actionResult as ViewResult;
+            Assert.NotNull(viewResult);
+
+            var model = viewResult.Model as LoginSuccessfulViewModel;
+            Assert.NotNull(model);
+
+            Assert.True(model.RedirectUrl == RETURN_URL, $"Model redirect must be '{RETURN_URL}'.");
+            Assert.True(model.Show2FARegMessage == false, $"Model show2FARegMessage must be 'false'.");
+            Assert.True(model.TwoFAAlreadyEnabled == false, $"Model TwoFAAlreadyEnabled must be 'false'.");
+            Assert.True(model.UserId == userId, $"Model UserId must be '{userId}'.");
+        }
+
+        [Fact]
+        public async Task LoginSuccessful_ExecutedWith2FABut2FANotRegisteredYet_ViewResultReturned()
+        {
+            var userId = Guid.NewGuid().ToString();
+
+            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+                mockEventService, urlTestEncoder, mockConfiguration, mockUserRepository)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, userId),
+                            new Claim("sub", userId),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+            fakeUserManager.SetUserModel(userModel);
+
+            var urlHelper = Substitute.For<IUrlHelper>();
+            accountController.Url = urlHelper;
+
+            // Act
+            var actionResult = await accountController.LoginSuccessful(RETURN_URL, show2FARegMessage: true);
+
+            // Assert
+            var viewResult = actionResult as ViewResult;
+            Assert.NotNull(viewResult);
+
+            var model = viewResult.Model as LoginSuccessfulViewModel;
+            Assert.NotNull(model);
+
+            Assert.True(model.RedirectUrl == RETURN_URL, $"Model redirect must be '{RETURN_URL}'.");
+            Assert.True(model.Show2FARegMessage == true, $"Model show2FARegMessage must be 'true'.");
+            Assert.True(model.TwoFAAlreadyEnabled == false, $"Model TwoFAAlreadyEnabled must be 'false'.");
+            Assert.True(model.UserId == userId, $"Model UserId must be '{userId}'.");
+        }
     }
 }

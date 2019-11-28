@@ -6,6 +6,7 @@
  */
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -42,14 +43,9 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
                 return Task.FromResult(false);
         }
 
-        public void SetAuthenticatorTokenVerified(bool value)
+        public override Task<UserModel> GetUserAsync(ClaimsPrincipal principal)
         {
-            isAuthenticatorTokenVerified = value;
-        }
-
-        public void SetAuthenticatorOtpValid(bool value)
-        {
-            isAuthenticatorOtpValid = value;
+            return Task.FromResult(userModel);
         }
 
         public override Task<UserModel> FindByNameAsync(string userName)
@@ -61,6 +57,19 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
                 return Task.FromResult(userModel);
             else
                 return Task.FromResult<UserModel>(null);
+        }
+
+
+
+
+        public void SetAuthenticatorTokenVerified(bool value)
+        {
+            isAuthenticatorTokenVerified = value;
+        }
+
+        public void SetAuthenticatorOtpValid(bool value)
+        {
+            isAuthenticatorOtpValid = value;
         }
 
         public void SetUserModel(UserModel value)
