@@ -71,14 +71,15 @@ namespace za.co.grindrodbank.a3s.Services
                 }
                 else
                 {
-                    RollbackAllTransactions();
+                    Console.WriteLine("Rolling back because of dry run.");
+                    //RollbackAllTransactions();
 
-                    var securityContractDryRunException = new SecurityContractDryRunException
+                    var ItemNotProcessableException = new SecurityContractDryRunException
                     {
                         validationErrors = validationErrors
                     };
 
-                    throw securityContractDryRunException;
+                    throw ItemNotProcessableException;
                 }
             }
             catch

@@ -89,15 +89,15 @@ namespace za.co.grindrodbank.a3s.Services
                 List<string> archiveFiles = archiveHelper.ReturnFilesListInTarGz(fileContents, true);
 
                 if (!archiveFiles.Contains("terms_of_service.html"))
-                    throw new SecurityContractDryRunException("Agreement file archive does not contain a 'terms_of_service.html' file.");
+                    throw new ItemNotProcessableException("Agreement file archive does not contain a 'terms_of_service.html' file.");
 
                 if (!archiveFiles.Contains("terms_of_service.css"))
-                    throw new SecurityContractDryRunException("Agreement file archive does not contain a 'terms_of_service.css' file.");
+                    throw new ItemNotProcessableException("Agreement file archive does not contain a 'terms_of_service.css' file.");
             }
             catch (ArchiveException ex)
             {
                 logger.Error(ex);
-                throw new SecurityContractDryRunException("An archive error occurred during the validation of the agreement file.");
+                throw new ItemNotProcessableException("An archive error occurred during the validation of the agreement file.");
             }
         }
 

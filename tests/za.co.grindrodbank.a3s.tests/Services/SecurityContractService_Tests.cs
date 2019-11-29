@@ -170,7 +170,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>()).Returns(x => throw new SecurityContractDryRunException());
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>()).Returns(x => throw new ItemNotProcessableException());
 
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
 
@@ -184,7 +184,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 caughtException = ex;
             }
 
-            Assert.True(caughtException is SecurityContractDryRunException);
+            Assert.True(caughtException is ItemNotProcessableException);
         }
 
         [Fact]

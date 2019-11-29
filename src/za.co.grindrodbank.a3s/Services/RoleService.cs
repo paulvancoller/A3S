@@ -42,7 +42,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 RoleModel existingRole = await roleRepository.GetByNameAsync(roleSubmit.Name);
                 if (existingRole != null)
-                    throw new SecurityContractDryRunException($"Role with Name '{roleSubmit.Name}' already exist.");
+                    throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
@@ -93,7 +93,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // Confirm the new name is available
                     var checkExistingNameModel = await roleRepository.GetByNameAsync(roleSubmit.Name);
                     if (checkExistingNameModel != null)
-                        throw new SecurityContractDryRunException($"Role with name '{roleSubmit.Name}' already exists.");
+                        throw new ItemNotProcessableException($"Role with name '{roleSubmit.Name}' already exists.");
                 }
 
                 role.Name = roleSubmit.Name;
@@ -179,7 +179,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (roleToAddAsChildRole.ChildRoles.Count > 0)
                 {
                     // Note. This function is called by create role and update role functions within this class. Therefore, the 'roleModel' object will not have an ID set if called from the create context. Use it's name.
-                    throw new SecurityContractDryRunException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
+                    throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                 }
 
                 roleModel.ChildRoles.Add(new RoleRoleModel

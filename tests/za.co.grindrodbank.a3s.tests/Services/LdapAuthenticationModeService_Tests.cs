@@ -138,7 +138,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughtEx is SecurityContractDryRunException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
+            Assert.True(caughtEx is ItemNotProcessableException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
         }
 
         [Fact]
@@ -219,7 +219,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughtEx is SecurityContractDryRunException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
+            Assert.True(caughtEx is ItemNotProcessableException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
         }
 
         [Fact]
@@ -335,7 +335,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughtEx is SecurityContractDryRunException, "Delete on a findable GUID with users still attached must throw an ItemNotProcessableException.");
+            Assert.True(caughtEx is ItemNotProcessableException, "Delete on a findable GUID with users still attached must throw an ItemNotProcessableException.");
         }
 
         [Theory]

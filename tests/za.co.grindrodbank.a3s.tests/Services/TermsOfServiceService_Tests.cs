@@ -129,7 +129,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughtException is SecurityContractDryRunException, $"A non-terms-of-service archive musth throw an ItemNotProcessable exception.");
+            Assert.True(caughtException is ItemNotProcessableException, $"A non-terms-of-service archive musth throw an ItemNotProcessable exception.");
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             }
 
             // Assert
-            Assert.True(caughEx is SecurityContractDryRunException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
+            Assert.True(caughEx is ItemNotProcessableException, "Attempted create with an already used name must throw an ItemNotProcessableException.");
         }
 
         [Fact]

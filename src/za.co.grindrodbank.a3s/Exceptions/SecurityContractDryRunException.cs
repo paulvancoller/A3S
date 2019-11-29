@@ -14,7 +14,7 @@ namespace za.co.grindrodbank.a3s.Exceptions
     public sealed class SecurityContractDryRunException : Exception
     {
         private const string defaultMessage = "Security Contract Dry Run Exceptions Detected.";
-        public List<string> validationErrors { get => validationErrors; set => validationErrors = value; }
+        public List<string> validationErrors { get; set; }
 
 
         public SecurityContractDryRunException() : base(defaultMessage)
