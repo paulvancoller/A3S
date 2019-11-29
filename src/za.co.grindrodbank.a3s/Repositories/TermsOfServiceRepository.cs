@@ -103,11 +103,30 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<List<Guid>> GetAllOutstandingAgreementsByUserAsync(Guid userId)
         {
+            /*return await a3SContext.TermsOfService.FromSql("select team.* " +
+                          // Select the teams that users are directly in.
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team ON team.id = user_team.team_id " +
+                          "WHERE application_user.id = {0} " +
+                          // Select the parent teams where the user is in a child team of the parent.
+                          "UNION " +
+                          "select \"ParentTeam\".* " +
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
+                          "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
+                          "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
+                          "WHERE application_user.id = {0} "
+                          , context.Subject.GetSubjectId()).ToListAsync();*/
+
+
             return await a3SContext.TermsOfService
                 .OrderByDescending(x => x.SysPeriod.LowerBound)
                 .Take(1)
                 .Select((term) => term.Id)
                 .ToListAsync();
+                
         }
 
     }
