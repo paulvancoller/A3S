@@ -51,7 +51,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     foreach (var clientSecurityContractDefinition in securityContract.Clients)
                     {
-                        await clientService.ApplyClientDefinitionAsync(clientSecurityContractDefinition);
+                        await clientService.ApplyClientDefinitionAsync(clientSecurityContractDefinition, dryRun, validationErrors);
                     }
                 }
 
