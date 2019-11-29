@@ -194,7 +194,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
+                    validationErrors.Add($"[applications.fullname: '{application.Name}'].[dataPolicies]: Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
                     // The best we can do is return the non-updated application in an attempt to carry on.
                     return application;
                 }
@@ -215,7 +215,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"Error deleting permissions not assigned to applications. Error: '{e.Message}'");
+                    validationErrors.Add($"Error purging old permissions not assigned to applications. Error: '{e.Message}'");
                 }
                 else
                 {
@@ -281,7 +281,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"Error updating functions for application '{application.Name}'. Error: '{e.Message}'");
+                    validationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions]: Error updating applicationFunctions for application '{application.Name}'. Error: '{e.Message}'");
                     // The best we can do is return the application that was not updated.
                     return application;
                 }
