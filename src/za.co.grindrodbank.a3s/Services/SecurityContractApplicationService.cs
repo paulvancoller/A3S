@@ -108,7 +108,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
+                    validationErrors.Add($"[application.fullname:'{application.Name}']: Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
                 }
                 else
                 {
@@ -142,14 +142,13 @@ namespace za.co.grindrodbank.a3s.Services
                         {
                             if (dryRun)
                             {
-                                validationErrors.Add($"Error deleting data-policy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
+                                validationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting data-policy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
                             }
                             else
                             {
                                 throw;
                             }
                         }
-                        
                     }
                 }
             }
