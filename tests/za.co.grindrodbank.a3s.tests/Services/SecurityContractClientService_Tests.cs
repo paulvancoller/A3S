@@ -135,7 +135,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             clientRespository.CreateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var createClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            var createClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new List<string>());
 
             Assert.True(createClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {createClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
             Assert.True(createClientResource.ClientId == oauth2ClientSubmit.ClientId, $"Retrieved clientId: {createClientResource.ClientId} not the same as the expected name: {oauth2ClientSubmit.ClientId}");
@@ -156,7 +156,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             clientRespository.UpdateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new List<string>());
 
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
             Assert.True(updateClientResource.ClientId == oauth2ClientSubmit.ClientId, $"Retrieved clientId: {updateClientResource.ClientId} not the same as the expected name: {oauth2ClientSubmit.ClientId}");
@@ -182,7 +182,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "" };
             try
             {
-                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new List<string>());
             }
             catch(Exception e)
             {
@@ -204,7 +204,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "    " };
             try
             {
-                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new List<string>());
             }
             catch (Exception e)
             {
@@ -225,7 +225,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = null;
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock, false, new List<string>());
 
            
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
@@ -251,7 +251,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.PostLogoutRedirectUris = null;
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock, false, new List<string>());
 
 
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
