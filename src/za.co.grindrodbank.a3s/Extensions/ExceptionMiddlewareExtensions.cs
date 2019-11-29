@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace GlobalErrorHandling.Extensions
 {
@@ -40,11 +41,10 @@ namespace GlobalErrorHandling.Extensions
                         return;
                     }
 
-                    WriteException(contextFeature.Error);
-
                     // Check for a YAML structure error
                     if (contextFeature.Error is YamlDotNet.Core.SyntaxErrorException || contextFeature.Error is YamlDotNet.Core.YamlException)
                     {
+                        WriteException(contextFeature.Error);
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                         await context.Response.WriteAsync(new ErrorResponse()
@@ -58,6 +58,7 @@ namespace GlobalErrorHandling.Extensions
                     // Check for a Item not found error
                     if (contextFeature.Error is ItemNotFoundException)
                     {
+                        WriteException(contextFeature.Error);
                         context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                         await context.Response.WriteAsync(new ErrorResponse()
@@ -71,6 +72,7 @@ namespace GlobalErrorHandling.Extensions
                     // Check for a Item not processable error
                     if (contextFeature.Error is ItemNotProcessableException)
                     {
+                        WriteException(contextFeature.Error);
                         context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
 
                         await context.Response.WriteAsync(new ErrorResponse()
@@ -84,6 +86,7 @@ namespace GlobalErrorHandling.Extensions
                     // Check for a Invalid Format Exception error
                     if (contextFeature.Error is InvalidFormatException)
                     {
+                        WriteException(contextFeature.Error);
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                         await context.Response.WriteAsync(new ErrorResponse()
@@ -98,6 +101,7 @@ namespace GlobalErrorHandling.Extensions
                     if (contextFeature.Error is SecurityContractDryRunException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
+
                         var validationErrorResult = new SecurityContractValidationResult
                         {
                             Message = "No Errors Detected - Security contract OK."
@@ -106,15 +110,20 @@ namespace GlobalErrorHandling.Extensions
                         if (((SecurityContractDryRunException)contextFeature.Error).validationErrors.Any())
                         {
                             validationErrorResult.Message = "Application of Security Contract Throws Errors.";
+                            var validationErrorList = new List<SecurityContractValidationError>();
 
                             foreach (var validationError in ((SecurityContractDryRunException)contextFeature.Error).validationErrors)
                             {
-                                validationErrorResult.ValidationErrors.Add(new SecurityContractValidationError
+                                var newError = new SecurityContractValidationError
                                 {
                                     ErrorType = "Contract Error",
                                     Message = validationError
-                                });
+                                };
+
+                                validationErrorList.Add(newError);
                             }
+
+                            validationErrorResult.ValidationErrors = validationErrorList;
                         }
 
                         await context.Response.WriteAsync(validationErrorResult.ToJson());
@@ -123,6 +132,7 @@ namespace GlobalErrorHandling.Extensions
                     }
 
                     // Default 500 Catch All
+                    WriteException(contextFeature.Error);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                     await context.Response.WriteAsync(new ErrorResponse()
