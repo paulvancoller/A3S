@@ -32,6 +32,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Models\TermsOfServiceUserAcceptance.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\PermissionModel.cs">
       <Link>Models\PermissionModel.cs</Link>
     </Compile>
@@ -160,6 +163,9 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\TermsOfServiceRepository.cs">
       <Link>Repositories\TermsOfServiceRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceUserAcceptanceModel.cs">
+      <Link>Models\TermsOfServiceUserAcceptanceModel.cs</Link>
     </Compile>
 </ItemGroup>
 </Project>

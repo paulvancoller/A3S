@@ -17,6 +17,6 @@ namespace za.co.grindrodbank.a3s.Models
         public byte[] AgreementFile { get; set; }
 
         public List<TeamModel> Teams { get; set; }
-
+        public List<TermsOfServiceUserAcceptanceModel> TermsOfServiceAcceptances { get; set; }
     }
 }
