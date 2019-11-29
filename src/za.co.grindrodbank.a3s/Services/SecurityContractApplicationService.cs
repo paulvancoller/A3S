@@ -130,10 +130,9 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 for (int i = application.ApplicationDataPolicies.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether application data policy: '{application.ApplicationDataPolicies[i].Name}' should unassigned from application '{application.Name}'.");
                     if (applicationSecurityContractDefinition.DataPolicies == null || !applicationSecurityContractDefinition.DataPolicies.Exists(dp => dp.Name == application.ApplicationDataPolicies[i].Name))
                     {
-                        logger.Debug($"Data Policy: '{application.ApplicationDataPolicies[i].Name}' is being unassigned from application '{application.Name}'!");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name]: Data Policy: '{application.ApplicationDataPolicies[i].Name}' was historically assigned to application '{application.Name}', but no longer is within thse security contract being processed. Removing dataPolicy '{application.ApplicationDataPolicies[i].Name}' from application '{application.Name}'!");
                         try {
                             await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]);
                         }
@@ -141,7 +140,7 @@ namespace za.co.grindrodbank.a3s.Services
                         {
                             if (dryRun)
                             {
-                                validationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting data-policy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
+                                validationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting dataPolicy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
                             }
                             else
                             {
@@ -161,12 +160,12 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var dataPolicyToAdd in applicationSecurityContractDefinition.DataPolicies)
                 {
-                    logger.Debug($"Adding data policy from security contract: {dataPolicyToAdd.Name}");
+                    logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Adding data policy '{dataPolicyToAdd.Name}' to application '{application.Name}'.");
                     var existingDataPolicy = application.ApplicationDataPolicies.Find(adp => adp.Name == dataPolicyToAdd.Name);
 
                     if(existingDataPolicy == null)
                     {
-                        logger.Debug($"Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
                         application.ApplicationDataPolicies.Add(new ApplicationDataPolicyModel
                         {
                             Name = dataPolicyToAdd.Name,
@@ -176,7 +175,7 @@ namespace za.co.grindrodbank.a3s.Services
                     }
                     else
                     {
-                        logger.Debug($"Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
                         // Bind possible changes to the editable components of the data policy.
                         existingDataPolicy.Description = dataPolicyToAdd.Description;
                         existingDataPolicy.ChangedBy = updatedById;
@@ -185,7 +184,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             else
             {
-                logger.Debug($"No application data policies defined for application '{application.Name}'.");
+                logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies]: No application data policies defined for application '{application.Name}'.");
             }
 
             try
@@ -298,10 +297,9 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 for (int i = application.ApplicationFunctions.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether application function: '{application.ApplicationFunctions[i].Name}' should unassigned from application '{application.Name}'.");
                     if (applicationSecurityContractDefinition.ApplicationFunctions == null || !applicationSecurityContractDefinition.ApplicationFunctions.Exists(f => f.Name == application.ApplicationFunctions[i].Name))
                     {
-                        logger.Debug($"Function: '{application.ApplicationFunctions[i].Name}' is being unassigned from application '{application.Name}' !");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: ApplicationFunction: '{application.ApplicationFunctions[i].Name}' was previously assigned to application '{application.Name}' but no longer is within the security contract being processed. Un-assigning ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'!");
                         // Note: This only removes the application function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
                         try
                         {
@@ -310,7 +308,7 @@ namespace za.co.grindrodbank.a3s.Services
                         {
                             if (dryRun)
                             {
-                                validationErrors.Add($"Error deleting application function '{application.ApplicationFunctions[i].Name}' for application '{application.Name}'. Error: {e.Message} ");
+                                validationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: Error removing ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'. Error: {e.Message} ");
                             }
                             else
                             {
@@ -333,7 +331,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (!functionResource.Permissions.Exists(fp => fp.Name == applicationFunction.ApplicationFunctionPermissions[i].Permission.Name))
                 {
-                    logger.Debug($"[applications.fullname: '{applicationFunction.Application.Name}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}']: Permission: {applicationFunction.ApplicationFunctionPermissions[i].Permission.Name} was previously assigned to applicationFunction: '{applicationFunction.Name}' but is no longer assigned in the current security contract. Removing permission '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}' from function '{applicationFunction.Name}'!");
+                    logger.Debug($"[applications.fullname: '{applicationFunction.Application.Name}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}']: Permission: {applicationFunction.ApplicationFunctionPermissions[i].Permission.Name} was previously assigned to applicationFunction: '{applicationFunction.Name}' but is no longer assigned in the security contract being processed. Removing permission '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}' from function '{applicationFunction.Name}'!");
                     // Note: This only removes the function permissions association. The permission will still exist.
                     applicationFunction.ApplicationFunctionPermissions.Remove(applicationFunction.ApplicationFunctionPermissions[i]);
                 }
@@ -366,7 +364,7 @@ namespace za.co.grindrodbank.a3s.Services
         private void AddPermissionToFunctionIfNotAlreadyAssigned(ApplicationFunctionModel applicationFunction, SecurityContractPermission permission, Guid updatedByGuid, string applicationName)
         {
             // add the permission if it does not exist.
-            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Assigning permission '{permission.Name}' is assigned to function: '{applicationFunction.Name}'.");
+            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Assigning permission '{permission.Name}' to function: '{applicationFunction.Name}'.");
             var applicationPermission = applicationFunction.ApplicationFunctionPermissions.Find(fp => fp.Permission.Name == permission.Name);
 
             if (applicationPermission == null)
