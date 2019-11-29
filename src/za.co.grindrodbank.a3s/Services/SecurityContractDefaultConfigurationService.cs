@@ -145,7 +145,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Ensure the permission actually exists in at least one of the application functions. Only add the permission to the function if it does.
                 if (application.ApplicationFunctions == null || application.ApplicationFunctions.Count == 0)
                 {
-                    logger.Warn($"Application '{defaultApplication.Name}' does not have any associated application functions!");
+                    logger.Warn($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not have any associated application functions!");
                     break;
                 }
 
@@ -154,7 +154,7 @@ namespace za.co.grindrodbank.a3s.Services
                     var permission = applicationFunction.ApplicationFunctionPermissions.Find(afp => afp.Permission.Name == permissionToAddToFunction);
                     if (permission != null)
                     {
-                        logger.Debug($"Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
+                        logger.Debug($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
                         permission.ChangedBy = updatedById;
                         permissionIsApplicationPermission = true;
                         functionModelToAdd.FunctionPermissions.Add(new FunctionPermissionModel
@@ -175,7 +175,7 @@ namespace za.co.grindrodbank.a3s.Services
             // Persist the application function, but only if there is at least a single permission associated with it.
             if (functionModelToAdd.FunctionPermissions.Count > 0)
             {
-                logger.Debug($"Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
+                logger.Debug($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
                 application.Functions.Add(functionModelToAdd);
             }
         }
