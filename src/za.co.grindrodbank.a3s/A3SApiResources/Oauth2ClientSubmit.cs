@@ -68,7 +68,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         /// Sets the allowed CORS origins for JavaScript clients.
         /// </summary>
         /// <value>Sets the allowed CORS origins for JavaScript clients.</value>
-        [Required]
         [DataMember(Name="allowedCorsOrigins", EmitDefaultValue=false)]
         public List<string> AllowedCorsOrigins { get; set; }
 
@@ -76,7 +75,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         /// Specifies the allowed URIs to redirect to after logout.
         /// </summary>
         /// <value>Specifies the allowed URIs to redirect to after logout.</value>
-        [Required]
         [DataMember(Name="postLogoutRedirectUris", EmitDefaultValue=false)]
         public List<string> PostLogoutRedirectUris { get; set; }
 

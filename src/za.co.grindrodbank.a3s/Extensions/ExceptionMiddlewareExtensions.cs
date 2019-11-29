@@ -80,6 +80,19 @@ namespace GlobalErrorHandling.Extensions
                         return;
                     }
 
+                    // Check for a Invalid Format Exception error
+                    if (contextFeature.Error is InvalidFormatException)
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                        await context.Response.WriteAsync(new ErrorResponse()
+                        {
+                            Message = contextFeature.Error.Message
+                        }.ToJson());
+
+                        return;
+                    }
+
                     // Default 500 Catch All
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
