@@ -39,10 +39,10 @@ namespace za.co.grindrodbank.a3s.Services
             this.ldapAuthenticationModeRepository = ldapAuthenticationModeRepository;
         }
 
-        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            logger.Debug($"Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
-            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById);
+            logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}']: Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
+            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
             await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById);
@@ -55,39 +55,46 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            logger.Debug($"Applying default application and function configuration for default config: '{securityContractDefaultConfiguration.Name}'");
-
             if (securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
             {
-                logger.Debug("No default application configuration section found...skipping.");
+                logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[applications]: Null or empty applications section. Skipping!");
                 return;
             }
 
+
             foreach (var defaultApplication in securityContractDefaultConfiguration.Applications)
-                await ApplyIndividualDefaultApplication(defaultApplication, updatedById);
+                await ApplyIndividualDefaultApplication(defaultApplication, updatedById, securityContractDefaultConfiguration.Name, dryRun, validationErrors);
         }
 
-        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById)
+        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById, string defaultConfigurationName, bool dryRun, List<string> validationErrors)
         {
             // Ensure that the application actually exists. Obtain all the application function relations too, as they will be used for validation.
             var application = await applicationRepository.GetByNameAsync(defaultApplication.Name);
 
             if (application == null)
             {
-                logger.Warn($"Application '{defaultApplication.Name}' does not exist! Skipping and ignoring default application configuration for this application.");
-                return;
+                var errrMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not exist within A3S. Cannot assign functions to it!";
+                if (dryRun)
+                {
+                    // add to the validation errors and attempt to continue
+                    validationErrors.Add(errrMessage);
+                }
+                else
+                {
+                    throw new ItemNotFoundException(errrMessage);
+                }
             }
 
             if (defaultApplication.Functions == null || defaultApplication.Functions.Count == 0)
             {
-                logger.Warn($"Default application '{defaultApplication.Name}' has no 'functions' configuration. Ignoring default configuration for this application.");
+                logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Default application '{defaultApplication.Name}' has no 'functions' defined within it. Ignoring default configuration for this application.");
                 return;
             }
 
             // Use the currrent state of the assigned application functions to determine which ones are potentially no longer in the YAML.
-            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions);
+            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, dryRun, validationErrors, defaultApplication.Name, defaultConfigurationName);
 
             // Reset the state of the application functions, as the security contract declares the desired state and we have already used to the historic state
             // to clear any functions that don't appear within the security contract.
@@ -179,17 +186,17 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="application"></param>
         /// <param name="securityContractDefaultConfigurationFunctions"></param>
         /// <returns></returns>
-        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions)
+        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, bool dryRun, List<string> validationErrors, string applicationName, string defaultConfigurationName)
         {
             if (application.Functions.Count > 0)
             {
-                logger.Debug($"Application Functions Count: {application.Functions.Count}");
+                //logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}']: {application.Functions.Count}");
                 for (int i = application.Functions.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether function: '{application.Functions[i].Name}' should be removed from application '{application.Name}'.");
+                    logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}'].[functions.name: '{application.Functions[i].Name}']: Checking whether function: '{application.Functions[i].Name}' should be removed from application '{application.Name}'.");
                     if (!securityContractDefaultConfigurationFunctions.Exists(f => f.Name == application.Functions[i].Name))
                     {
-                        logger.Debug($"Function: '{application.Functions[i].Name}' is being removed from '{application.Name}' as it is no longer defined withn the defaults YAML!");
+                        logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}'].[functions.name: '{application.Functions[i].Name}']: Function: '{application.Functions[i].Name}' is being removed from application '{application.Name}' as it is currently assigned to the application within A3S, but is no longer defined within the security contract being processed!");
                         // Note: This only removes the function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
                         await functionRepository.DeleteAsync(application.Functions[i]);
                     }

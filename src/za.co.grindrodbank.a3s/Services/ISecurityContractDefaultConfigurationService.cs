@@ -16,7 +16,7 @@ namespace za.co.grindrodbank.a3s.Services
     /// </summary>
     public interface ISecurityContractDefaultConfigurationService : ITransactableService
     {
-        Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById);
+        Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors);
         Task<SecurityContractDefaultConfiguration> GetDefaultConfigurationDefinitionAsync();
     }
 }

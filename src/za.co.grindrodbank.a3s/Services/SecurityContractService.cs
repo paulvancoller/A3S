@@ -60,7 +60,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     foreach (var defaultConfiguration in securityContract.DefaultConfigurations)
                     {
-                        await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(defaultConfiguration, updatedById);
+                        await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(defaultConfiguration, updatedById, dryRun, validationErrors);
                     }
                 }
 

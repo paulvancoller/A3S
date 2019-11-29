@@ -208,6 +208,11 @@ defaultConfigurations:
               - a3s.ldapAuthenticationModes.update
               - a3s.ldapAuthenticationModes.delete
               - a3s.twoFactorAuth.validateOtp
+          - name: "a3s.securityContractMaintenance"
+            description: "Functionality to apply security contracts for micro-services."
+            permissions:
+              - a3s.securityContracts.read
+              - a3s.securityContracts.update
     # Default Roles to be created. Contains the functions that will be assigned to the Roles.
     roles:
       - name: "A3S Super Admin"
