@@ -42,7 +42,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 FunctionModel existingFunction = await functionRepository.GetByNameAsync(functionSubmit.Name);
                 if (existingFunction != null)
-                    throw new SecurityContractDryRunException($"Function with Name '{functionSubmit.Name}' already exist.");
+                    throw new ItemNotProcessableException($"Function with Name '{functionSubmit.Name}' already exist.");
 
                 var function = new FunctionModel();
 
@@ -93,7 +93,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // Confirm the new name is available
                     var checkExistingNameModel = await functionRepository.GetByNameAsync(functionSubmit.Name);
                     if (checkExistingNameModel != null)
-                        throw new SecurityContractDryRunException($"Function with name '{functionSubmit.Name}' already exists.");
+                        throw new ItemNotProcessableException($"Function with name '{functionSubmit.Name}' already exists.");
                 }
 
                 function.Name = functionSubmit.Name;
@@ -157,7 +157,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // application. Functions cannot be created from permissions across applications.
                     if (permission.ApplicationFunctionPermissions.First().ApplicationFunction.Application.Id != functionSubmit.ApplicationId)
                     {
-                        throw new SecurityContractDryRunException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
+                        throw new ItemNotProcessableException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
                     }
 
                     function.FunctionPermissions.Add(new FunctionPermissionModel

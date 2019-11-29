@@ -71,9 +71,6 @@ namespace za.co.grindrodbank.a3s.Services
                 }
                 else
                 {
-                    Console.WriteLine("Rolling back because of dry run.");
-                    //RollbackAllTransactions();
-
                     var ItemNotProcessableException = new SecurityContractDryRunException
                     {
                         validationErrors = validationErrors

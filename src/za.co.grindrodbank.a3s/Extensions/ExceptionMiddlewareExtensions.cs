@@ -26,7 +26,6 @@ namespace GlobalErrorHandling.Extensions
             {
                 appError.Run(async context =>
                 {
-                    Console.WriteLine("In exception handler.");
                     context.Response.ContentType = "application/json";
 
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
@@ -98,7 +97,6 @@ namespace GlobalErrorHandling.Extensions
                     // Check for a ItemNotProcessableException - This is not really an exception, just an always roll back dry run.
                     if (contextFeature.Error is SecurityContractDryRunException)
                     {
-                        Console.WriteLine("Processing Security contract validation exception.");
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
                         var validationErrorResult = new SecurityContractValidationResult
                         {
