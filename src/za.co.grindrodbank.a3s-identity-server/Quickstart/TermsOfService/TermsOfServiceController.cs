@@ -66,7 +66,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (outstandingTerms.Count == 0)
                 return await CompleteTokenRetrievalProcess(returnUrl, user);
 
-            var vm = await BuildTermsOfServiceViewModel(returnUrl, user, outstandingTerms);
+            var vm = await BuildTermsOfServiceViewModel(returnUrl, outstandingTerms);
             return View(vm);
         }
 
@@ -78,7 +78,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /************************************************/
         /* helper APIs for the TermsOfServiceController */
         /************************************************/
-        private async Task<TermsOfServiceViewModel> BuildTermsOfServiceViewModel(string returnUrl, UserModel user, List<Guid> outstandingTerms)
+        private async Task<TermsOfServiceViewModel> BuildTermsOfServiceViewModel(string returnUrl, List<Guid> outstandingTerms)
         {
             var termsOfService = await termsOfServiceRepository.GetByIdAsync(outstandingTerms[0], includeRelations: false, includeFileContents: true);
 
@@ -87,11 +87,12 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
             return new TermsOfServiceViewModel()
             {
-                TermCount = outstandingTerms.Count,
-                TermName = termsOfService.AgreementName,
+                AgreementCount = outstandingTerms.Count,
+                AgreementName = termsOfService.AgreementName,
                 TermsOfServiceId = termsOfService.Id,
                 CssContents = termsOfService.CssContents,
-                HtmlContents = termsOfService.HtmlContents
+                HtmlContents = termsOfService.HtmlContents,
+                ReturnUrl = returnUrl
             };
         }
 

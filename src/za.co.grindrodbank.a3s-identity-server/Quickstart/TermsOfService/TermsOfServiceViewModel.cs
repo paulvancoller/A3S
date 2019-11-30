@@ -11,7 +11,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
     {
         public string HtmlContents { get; set; }
         public string CssContents { get; set; }
-        public int TermCount { get; set; }
-        public string TermName { get; set; }
+        public int AgreementCount { get; set; }
+        public string AgreementName { get; set; }
     }
 }
