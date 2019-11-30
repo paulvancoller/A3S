@@ -70,7 +70,7 @@ namespace za.co.grindrodbank.a3s.Services
             if (termsOfServiceId == null)
                 return;
 
-            TermsOfServiceModel existingTermsOfService = await termsOfServiceRepository.GetByIdAsync((Guid)termsOfServiceId, false);
+            TermsOfServiceModel existingTermsOfService = await termsOfServiceRepository.GetByIdAsync((Guid)termsOfServiceId, includeRelations: false, includeFileContents: false);
 
             if (existingTermsOfService == null)
                 throw new ItemNotFoundException($"TermsOfService entry with Id '{termsOfServiceId} not found.");

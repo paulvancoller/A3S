@@ -63,7 +63,7 @@ namespace za.co.grindrodbank.a3s.Services
 
         public async Task DeleteAsync(Guid termsOfServiceId)
         {
-            var termsOfService = await termsOfServiceRepository.GetByIdAsync(termsOfServiceId, false);
+            var termsOfService = await termsOfServiceRepository.GetByIdAsync(termsOfServiceId, includeRelations: false, includeFileContents: false);
 
             if (termsOfService == null)
                 throw new ItemNotFoundException($"Terms of Service entry with GUID '{termsOfServiceId}' not found.");
@@ -73,7 +73,7 @@ namespace za.co.grindrodbank.a3s.Services
 
         public async Task<TermsOfService> GetByIdAsync(Guid termsOfServiceId, bool includeRelations = false)
         {
-            return mapper.Map<TermsOfService>(await termsOfServiceRepository.GetByIdAsync(termsOfServiceId, includeRelations));
+            return mapper.Map<TermsOfService>(await termsOfServiceRepository.GetByIdAsync(termsOfServiceId, includeRelations, includeFileContents: false));
         }
 
         public async Task<List<TermsOfService>> GetListAsync()

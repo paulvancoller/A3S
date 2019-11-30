@@ -182,5 +182,8 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Exceptions\ArchiveException.cs">
       <Link>Exceptions\ArchiveException.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\InMemoryFile.cs">
+      <Link>Models\InMemoryFile.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

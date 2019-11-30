@@ -66,7 +66,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.GetByIdAsync(termsOfServiceGuid, Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.GetByIdAsync(termsOfServiceGuid, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
 
             var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
             var termsOfServiceResource = await termsOfServiceService.GetByIdAsync(termsOfServiceGuid);
@@ -263,8 +263,8 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
-            termsOfServiceRepository.GetByAgreementNameAsync(mockedTermsOfServiceSubmitModel.AgreementName, Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.GetByAgreementNameAsync(mockedTermsOfServiceSubmitModel.AgreementName, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(new List<string>());
 
@@ -317,7 +317,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
 
             var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
 

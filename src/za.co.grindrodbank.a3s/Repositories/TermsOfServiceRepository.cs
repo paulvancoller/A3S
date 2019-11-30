@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
@@ -16,6 +17,13 @@ namespace za.co.grindrodbank.a3s.Repositories
     public class TermsOfServiceRepository : ITermsOfServiceRepository
     {
         private readonly A3SContext a3SContext;
+        private readonly IArchiveHelper archiveHelper;
+
+        public TermsOfServiceRepository(A3SContext a3SContext, IArchiveHelper archiveHelper)
+        {
+            this.a3SContext = a3SContext;
+            this.archiveHelper = archiveHelper;
+        }
 
         public void InitSharedTransaction()
         {
@@ -35,11 +43,6 @@ namespace za.co.grindrodbank.a3s.Repositories
                 a3SContext.Database.CurrentTransaction.Rollback();
         }
 
-        public TermsOfServiceRepository(A3SContext a3SContext)
-        {
-            this.a3SContext = a3SContext;
-        }
-
         public async Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService)
         {
             a3SContext.TermsOfService.Add(termsOfService);
@@ -54,19 +57,28 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.SaveChangesAsync();
         }
 
-        public async Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations)
+        public async Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations, bool includeFileContents)
         {
+            TermsOfServiceModel termsOfServiceModel = null;
+
             if (includeRelations)
             {
-                return await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
+                termsOfServiceModel = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
                                       .Include(t => t.Teams)
                                       .FirstOrDefaultAsync();
             }
 
-            return await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId).FirstOrDefaultAsync();
+            termsOfServiceModel = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId).FirstOrDefaultAsync();
+
+            if (includeFileContents)
+            {
+                
+            }
+
+            return termsOfServiceModel;
         }
 
-        public async Task<TermsOfServiceModel> GetByAgreementNameAsync(string name, bool includeRelations)
+        public async Task<TermsOfServiceModel> GetByAgreementNameAsync(string name, bool includeRelations, bool includeFileContents)
         {
             if (includeRelations)
             {

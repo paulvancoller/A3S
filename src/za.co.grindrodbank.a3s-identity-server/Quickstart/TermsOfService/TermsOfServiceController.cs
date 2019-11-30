@@ -80,7 +80,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /************************************************/
         private async Task<TermsOfServiceViewModel> BuildTermsOfServiceViewModel(string returnUrl, UserModel user, List<Guid> outstandingTerms)
         {
-            var termsOfService = await termsOfServiceRepository.GetByIdAsync(outstandingTerms[0], includeRelations: false);
+            var termsOfService = await termsOfServiceRepository.GetByIdAsync(outstandingTerms[0], includeRelations: false, includeFileContents: true);
 
             if (termsOfService == null)
                 throw new ItemNotFoundException($"Terms of service entry '{outstandingTerms[0]}' not found.");

@@ -18,5 +18,8 @@ namespace za.co.grindrodbank.a3s.Models
 
         public List<TeamModel> Teams { get; set; }
         public List<TermsOfServiceUserAcceptanceModel> TermsOfServiceAcceptances { get; set; }
+
+        public string HtmlContents { get; set; }
+        public string CssContents { get; set; }
     }
 }
