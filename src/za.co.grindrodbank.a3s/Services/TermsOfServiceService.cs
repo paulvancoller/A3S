@@ -88,11 +88,11 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 List<string> archiveFiles = archiveHelper.ReturnFilesListInTarGz(fileContents, true);
                 
-                if (!archiveFiles.Contains("terms_of_service.html"))
-                    throw new ItemNotProcessableException("Agreement file archive does not contain a 'terms_of_service.html' file.");
+                if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_HTML_FILE))
+                    throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_HTML_FILE}' file.");
 
-                if (!archiveFiles.Contains("terms_of_service.css"))
-                    throw new ItemNotProcessableException("Agreement file archive does not contain a 'terms_of_service.css' file.");
+                if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_CSS_FILE))
+                    throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_CSS_FILE}' file.");
             }
             catch (ArchiveException ex)
             {

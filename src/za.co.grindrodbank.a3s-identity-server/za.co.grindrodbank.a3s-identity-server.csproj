@@ -185,5 +185,8 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\InMemoryFile.cs">
       <Link>Models\InMemoryFile.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\A3SConstants.cs">
+      <Link>A3SConstants.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

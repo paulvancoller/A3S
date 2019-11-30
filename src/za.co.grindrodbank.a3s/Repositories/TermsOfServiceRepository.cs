@@ -59,35 +59,41 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations, bool includeFileContents)
         {
-            TermsOfServiceModel termsOfServiceModel = null;
+            TermsOfServiceModel termsOfService = null;
 
             if (includeRelations)
             {
-                termsOfServiceModel = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
+                termsOfService = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
                                       .Include(t => t.Teams)
                                       .FirstOrDefaultAsync();
             }
 
-            termsOfServiceModel = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId).FirstOrDefaultAsync();
+            termsOfService = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId).FirstOrDefaultAsync();
 
             if (includeFileContents)
-            {
-                
-            }
+                GetFileContents(ref termsOfService);
 
-            return termsOfServiceModel;
+            return termsOfService;
         }
 
         public async Task<TermsOfServiceModel> GetByAgreementNameAsync(string name, bool includeRelations, bool includeFileContents)
         {
+            TermsOfServiceModel termsOfService = null;
+
             if (includeRelations)
             {
-                return await a3SContext.TermsOfService.Where(t => t.AgreementName == name)
+                termsOfService = await a3SContext.TermsOfService.Where(t => t.AgreementName == name)
                                       .Include(t => t.Teams)
                                       .FirstOrDefaultAsync();
             }
 
-            return await a3SContext.TermsOfService.Where(t => t.AgreementName == name).FirstOrDefaultAsync();
+            termsOfService = await a3SContext.TermsOfService.Where(t => t.AgreementName == name).FirstOrDefaultAsync();
+
+            if (includeFileContents)
+                GetFileContents(ref termsOfService);
+
+            return termsOfService;
+
         }
 
         public async Task<List<TermsOfServiceModel>> GetListAsync()
@@ -140,6 +146,23 @@ namespace za.co.grindrodbank.a3s.Repositories
                             "WHERE tsua.acceptance_time IS NULL; ", userId)
                 .Select(x => x.Id)
                 .ToListAsync();
+        }
+
+        private void GetFileContents(ref TermsOfServiceModel termsOfService)
+        {
+            List<InMemoryFile> extractedFiles = archiveHelper.ExtractFilesFromTarGz(termsOfService.AgreementFile);
+
+            // Extract Html File
+            var htmlFile = extractedFiles.Where(x => x.FileName.Trim() == A3SConstants.TERMS_OF_SERVICE_HTML_FILE).FirstOrDefault();
+
+            if (htmlFile != null)
+                termsOfService.HtmlContents = BitConverter.ToString(htmlFile.FileContents);
+
+            // Extract CSS File
+            var cssFile = extractedFiles.Where(x => x.FileName.Trim() == A3SConstants.TERMS_OF_SERVICE_CSS_FILE).FirstOrDefault();
+
+            if (cssFile != null)
+                termsOfService.HtmlContents = BitConverter.ToString(cssFile.FileContents);
         }
     }
 }
