@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -28,7 +28,6 @@ using System.Text.Encodings.Web;
 using Microsoft.Extensions.Configuration;
 using za.co.grindrodbank.a3sidentityserver.Exceptions;
 using System.Collections.Generic;
-using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Extensions;
 using System.Security.Authentication;
@@ -130,8 +129,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                         return RedirectToAction("Register2FA", new { redirectUrl = model.ReturnUrl });
                     }
 
-                    // Redirect to 2fa offer screen if any options are available
-                    if (Any2FAEnabled())
+                    // Redirect to after success management screen if applicable
+                    if (ShowAfterSuccessManagementScreen())
                         return RedirectToAction("LoginSuccessful", new { redirectUrl = model.ReturnUrl, show2FARegMessage = true });
 
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
@@ -625,14 +624,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return _configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("OrganizationEnforced");
         }
 
-        private bool Any2FAEnabled()
+        private bool ShowAfterSuccessManagementScreen()
         {
-            bool twoFAEnabled = false;
+            bool showAfterSuccessManagementScreen = false;
 
             if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
-                twoFAEnabled = true;
+                showAfterSuccessManagementScreen = true;
 
-            return twoFAEnabled;
+            return showAfterSuccessManagementScreen;
         }
 
         private async Task<RegisterTwoFactorAuthenticatorViewModel> GetRegister2FAAuthenticatorViewModel(string redirectUrl, string userId, bool resetUnverifiedAuthenticatorKey)

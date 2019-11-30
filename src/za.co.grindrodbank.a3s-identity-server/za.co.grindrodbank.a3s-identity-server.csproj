@@ -4,6 +4,12 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>latestmajor</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>latestmajor</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
@@ -166,6 +172,15 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceUserAcceptanceModel.cs">
       <Link>Models\TermsOfServiceUserAcceptanceModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Helpers\ArchiveHelper.cs">
+      <Link>Helpers\ArchiveHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Helpers\IArchiveHelper.cs">
+      <Link>Helpers\IArchiveHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Exceptions\ArchiveException.cs">
+      <Link>Exceptions\ArchiveException.cs</Link>
     </Compile>
 </ItemGroup>
 </Project>

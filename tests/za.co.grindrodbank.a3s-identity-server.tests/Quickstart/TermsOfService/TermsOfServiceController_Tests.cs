@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
+using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.tests.Fakes;
@@ -30,6 +33,10 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         private readonly IConfiguration mockConfiguration;
         private readonly UserModel userModel;
         private readonly ITermsOfServiceRepository termsOfServiceRepository;
+        private readonly IClientStore mockClientStore;
+        private readonly IEventService mockEventService;
+        private readonly IIdentityServerInteractionService mockIdentityServerInteractionService;
+        private readonly IArchiveHelper mockArchiveHelper;
 
         private const string RETURN_URL = "/returnUrl";
 
@@ -52,6 +59,10 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
                 mockErrors, mockServices, mockUserLogger);
 
             termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+            mockClientStore = Substitute.For<IClientStore>();
+            mockEventService = Substitute.For<IEventService>();
+            mockIdentityServerInteractionService = Substitute.For<IIdentityServerInteractionService>();
+            mockArchiveHelper = Substitute.For<IArchiveHelper>();
 
             userModel = new UserModel()
             {
@@ -65,7 +76,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         {
             //Arrange
             var id = Guid.NewGuid().ToString();
-            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository)
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -97,7 +109,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         {
             //Arrange
             var id = Guid.NewGuid().ToString();
-            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository)
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper)
             {
                 ControllerContext = new ControllerContext()
                 {
