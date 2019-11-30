@@ -31,6 +31,7 @@
     <Folder Include="Exceptions\" />
     <Folder Include="Repositories\" />
     <Folder Include="Quickstart\TermsOfService\" />
+    <Folder Include="Views\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="nlog.config">
