@@ -85,15 +85,13 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (termsOfService == null)
                 throw new ItemNotFoundException($"Terms of service entry '{outstandingTerms[0]}' not found.");
 
-            // TODO: Extract file 
-
             return new TermsOfServiceViewModel()
             {
                 TermCount = outstandingTerms.Count,
                 TermName = termsOfService.AgreementName,
                 TermsOfServiceId = termsOfService.Id,
-                CssContents = "",
-                HtmlContents = ""
+                CssContents = termsOfService.CssContents,
+                HtmlContents = termsOfService.HtmlContents
             };
         }
 
