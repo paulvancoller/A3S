@@ -46,7 +46,7 @@ namespace za.co.grindrodbank.a3s.Services
             await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
             await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
             await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById);
+            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
         }
 
         /// <summary>
@@ -581,11 +581,10 @@ namespace za.co.grindrodbank.a3s.Services
                         if (dryRun)
                         {
                             validationErrors.Add(errorMessage);
+                            continue;
                         }
-                        else
-                        {
-                            throw new ItemNotFoundException(errorMessage);
-                        }
+  
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'].[roles.name: '{roleToApply}']: Assigning role '{roleToApply}' to user '{defaultUser.Username}'.");
@@ -604,16 +603,24 @@ namespace za.co.grindrodbank.a3s.Services
         {
             if (!string.IsNullOrWhiteSpace(defaultUser.LdapAuthenticationMode))
             {
-                logger.Debug($"Attempting to add Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' to user '{defaultUser.Username}'");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Attempting to add Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' to user '{defaultUser.Username}'");
                 // Ensure the Ldap Auth mode actually exists first. If it does not, ignore the Ldap Auth mode assignment.
                 var existingLdapAuthMode = await ldapAuthenticationModeRepository.GetByNameAsync(defaultUser.LdapAuthenticationMode);
 
                 if (existingLdapAuthMode == null)
                 {
-                    throw new ItemNotFoundException($"Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' not found when attempting to apply it to user '{defaultUser.Username}'.");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' not found when attempting to apply it to user '{defaultUser.Username}'";
+
+                    if (dryRun)
+                    {
+                        validationErrors.Add(errorMessage);
+                        return;
+                    }
+
+                    throw new ItemNotFoundException(errorMessage);
                 }
 
-                logger.Debug($"Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' does exist within the database. Assigning it to user '{defaultUser.Username}'.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' does exist. Assigning it to user '{defaultUser.Username}'.");
                 defaultUserToApply.LdapAuthenticationMode = existingLdapAuthMode;
                 defaultUserToApply.LdapAuthenticationModeId = existingLdapAuthMode.Id;
             }
@@ -625,38 +632,36 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            logger.Debug($"Applying default teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[teams]: Applying teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
 
             if (securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
                 return;
 
             // Execute only the simple team creation tasks in parallel
-            logger.Debug("Applying simple team...");
-            foreach (var simpleTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams == null || x.Teams.Count == 0))
-                await ApplyDefaultTeam(simpleTeam, updatedById);
+            foreach (var simpleTeam in securityContractDefaultConfiguration.Teams)
+                await ApplyDefaultTeam(simpleTeam, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
 
-            logger.Debug("Simple team applied.");
+            //// Now that all simple teams are created, execute the compound team creation tasks in parallel
+            //logger.Debug("Applying compound team...");
+            //foreach (var compoundTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams != null && x.Teams.Count > 0))
+            //    await ApplyDefaultTeam(compoundTeam, updatedById);
 
-            // Now that all simple teams are created, execute the compound team creation tasks in parallel
-            logger.Debug("Applying compound team...");
-            foreach (var compoundTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams != null && x.Teams.Count > 0))
-                await ApplyDefaultTeam(compoundTeam, updatedById);
-
-            logger.Debug("Compound team applied.");
+            //logger.Debug("Compound team applied.");
         }
 
-        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById)
+        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             var teamModel = new TeamModel();
             bool newTeam = false;
 
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Processing team '{defaultTeamToApply.Name}'");
             var existingTeam = await teamRepository.GetByNameAsync(defaultTeamToApply.Name, true);
 
             if (existingTeam == null)
             {
-                logger.Debug($"No existing team with name '{defaultTeamToApply.Name}'. Creating a new team.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: No existing team with name '{defaultTeamToApply.Name}'. Creating a new team.");
                 newTeam = true;
 
                 // We can also bind the team's UUID here, but only if one is supplied. We should not bind it on any team updates, as UUIDs associated with teams cannot be changed!
@@ -665,7 +670,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             else
             {
-                logger.Debug($"Existing team with name: '{defaultTeamToApply.Name}' found. Updating the existing team.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Existing team with name: '{defaultTeamToApply.Name}' found. Updating the existing team.");
                 teamModel = existingTeam;
             }
 
@@ -675,39 +680,62 @@ namespace za.co.grindrodbank.a3s.Services
             teamModel.ChildTeams = new List<TeamTeamModel>();
 
             // It is very important to do the team assignments first, as the udpated teams configuration may affect whether users are able to be assigned to the team (Users cannot be directly assgined to compound teams)!
-            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById);
+            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById, dryRun, validationErrors, defaultConfigurationName);
             await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById);
-            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById);
+            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, validationErrors, defaultConfigurationName);
 
-            if (newTeam)
+            try
             {
-                logger.Debug($"Persisting new team with name: '{defaultTeamToApply.Name}' to the database.");
-                await teamRepository.CreateAsync(teamModel);
-            }
-            else
+                if (newTeam)
+                {
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting new team '{defaultTeamToApply.Name}'.");
+                    await teamRepository.CreateAsync(teamModel);
+                }
+                else
+                {
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting updated team '{defaultTeamToApply.Name}'.");
+                    await teamRepository.UpdateAsync(teamModel);
+                }
+            } catch(Exception e)
             {
-                logger.Debug($"Persisting updated existing team with name: '{defaultTeamToApply.Name}' to the database.");
-                await teamRepository.UpdateAsync(teamModel);
+                if (dryRun)
+                {
+                    validationErrors.Add($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Error persisting team '{defaultTeamToApply.Name}'. Error: {e.Message}");
+                }
+                else
+                {
+                    throw;
+                }
+
             }
         }
 
-        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById)
+        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             // The application data policy associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.ApplicationDataPolicies = new List<TeamApplicationDataPolicyModel>();
 
             if (applicationDataPolicies != null && applicationDataPolicies.Count > 0)
             {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Processing data policies for team '{team.Name}'");
                 foreach (var applicationDataPolicy in applicationDataPolicies)
                 {
                     var existingApplicationDataPolicy = await applicationDataPolicyRepository.GetByNameAsync(applicationDataPolicy);
 
                     if (existingApplicationDataPolicy == null)
                     {
-                        throw new ItemNotFoundException($"Unable to find an application data policy with name: '{applicationDataPolicy}' when attempting to assing the application data policy to team '{team.Name}'");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Unable to find an application data policy with name: '{applicationDataPolicy}' when attempting to assing the application data policy to team '{team.Name}'";
+                        if (dryRun)
+                        {
+                            validationErrors.Add(errorMessage);
+                        }
+                        else
+                        {
+                            throw new ItemNotFoundException(errorMessage);
+                        }
                     }
 
-                    logger.Debug($"Adding application data policy '{applicationDataPolicy}' to team: {team.Name}");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Adding application data policy '{applicationDataPolicy}' to team: {team.Name}");
 
                     team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                     {
@@ -759,35 +787,65 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById)
+        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             if (defaultTeamToApply.Teams != null && defaultTeamToApply.Teams.Count > 0)
             {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Processing child teams for team {defaultTeamToApply.Name}.");
                 // Check that the current team has no users! Users cannot be in a parent team, so the existence of users in a team prevents child teams being added to it.
                 if (teamModel.UserTeams != null && teamModel.UserTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!";
+
+                    if (dryRun)
+                    {
+                        validationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
+                    
                 }
 
                 foreach (var teamToAdd in defaultTeamToApply.Teams)
                 {
-                    logger.Debug($"Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
 
                     // Ensure that the role exists.
                     var existingchildTeam = await teamRepository.GetByNameAsync(teamToAdd, true);
 
                     if (existingchildTeam == null)
                     {
-                        throw new ItemNotFoundException($"Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.";
+
+                        if (dryRun)
+                        {
+                            validationErrors.Add(errorMessage);
+                        }
+                        else
+                        {
+                            throw new ItemNotFoundException(errorMessage);
+                        }
                     }
 
                     // check that we are not attempting to add a compound team as a child, as this is prohibited.
                     if (existingchildTeam.ChildTeams.Any())
                     {
-                        throw new ItemNotProcessableException($"Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'";
+
+                        if (dryRun)
+                        {
+                            validationErrors.Add(errorMessage);
+                        }
+                        else
+                        {
+                            throw new ItemNotProcessableException(errorMessage);
+                        }
                     }
 
-                    logger.Debug($"Child team '{existingchildTeam}' exists and is being assigned to role '{defaultTeamToApply.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{existingchildTeam.Name}'is being assigned to team '{defaultTeamToApply.Name}'.");
+
                     teamModel.ChildTeams.Add(new TeamTeamModel
                     {
                         ParentTeam = teamModel,
