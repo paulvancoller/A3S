@@ -44,6 +44,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await securityContractService.GetSecurityContractDefinitionAsync());
         }
 
+        [Authorize(Policy = "permission:a3s.securityContracts.update")]
         public async override Task<IActionResult> ValidateSecurityContractAsync([FromBody] SecurityContract securityContract)
         {
             if (securityContract == null)

@@ -140,7 +140,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     if (string.IsNullOrWhiteSpace(corsOrigin))
                     {
-                        var errMessage = $"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Empty or null 'allowedCorsOrigin' declared for client: '{oauth2ClientSubmit.ClientId}'";
+                        var errMessage = $"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Empty or null 'allowedCorsOrigin' element declared for client: '{oauth2ClientSubmit.ClientId}'";
 
                         if (dryRun)
                         {
