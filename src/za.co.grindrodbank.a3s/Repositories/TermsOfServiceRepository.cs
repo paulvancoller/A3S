@@ -129,7 +129,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                             "	JOIN _a3s.user_team ut ON u.id = ut.user_id " +
                             "	JOIN _a3s.team t ON t.id = ut.team_id " +
                             "	WHERE t.terms_of_service_id IS NOT NULL " +
-                            "   AND	u.id = {0} " +
+                            "   AND	u.id = {0}::text " +
                             "	UNION " +
                             "	SELECT pt.terms_of_service_id " +
                             "	FROM _a3s.application_user u " +
@@ -138,12 +138,12 @@ namespace za.co.grindrodbank.a3s.Repositories
                             "	JOIN _a3s.team_team tt ON tt.child_team_id = ct.id " +
                             "	JOIN _a3s.team pt ON tt.parent_team_id = pt.id " +
                             "	WHERE pt.terms_of_service_id IS NOT NULL " +
-                            "   AND	u.id = {0} " +
-                            "   ) tsids ON ts.id = tsids.terms_of_service_id" +
-                            "LEFT OUTER JOIN " +
+                            "   AND	u.id = {0}::text " +
+                            "   ) tsids ON ts.id = tsids.terms_of_service_id " +
+                            "LEFT JOIN " +
                             "	_a3s.terms_of_service_user_acceptance tsua on tsua.terms_of_service_id = tsids.terms_of_service_id " +
-                            "	and tsua.user_id = {0} " +
-                            "WHERE tsua.acceptance_time IS NULL; ", userId)
+                            "	and tsua.user_id = {0}::text " +
+                            "WHERE tsua.acceptance_time IS NULL ", userId)
                 .Select(x => x.Id)
                 .ToListAsync();
         }
