@@ -75,15 +75,15 @@ namespace za.co.grindrodbank.a3s.Services
 
             if (application == null)
             {
-                var errrMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not exist within A3S. Cannot assign functions to it!";
+                var errorMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not exist within A3S. Cannot assign functions to it!";
                 if (dryRun)
                 {
                     // add to the validation errors and attempt to continue
-                    validationErrors.Add(errrMessage);
+                    validationErrors.Add(errorMessage);
                 }
                 else
                 {
-                    throw new ItemNotFoundException(errrMessage);
+                    throw new ItemNotFoundException(errorMessage);
                 }
             }
 
@@ -103,8 +103,13 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var defaultFunction in defaultApplication.Functions)
             {
+                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: Preparing to add function '{defaultFunction.Name}' to application '{defaultApplication.Name}'.");
                 if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
-                    break;
+                {
+                    logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}' ");
+
+                    continue;
+                }
 
                 var functionModelToAdd = new FunctionModel();
                 // check to see if there is an existing function.
@@ -121,7 +126,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Clear the current permissions assigned to the function as they are to be re-created.
                 functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
 
-                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById);
+                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, validationErrors);
             }
 
             // Update the application with its new application function state.
@@ -137,7 +142,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="defaultApplication"></param>
         /// <param name="functionModelToAdd"></param>
         private void AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(ApplicationModel application, SecurityContractDefaultConfigurationFunction defaultFunction,
-            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById)
+            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById, string defaultConfigurationName, bool dryRun, List<string> validationErrors)
         {
             foreach (var permissionToAddToFunction in defaultFunction.Permissions)
             {
@@ -145,7 +150,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Ensure the permission actually exists in at least one of the application functions. Only add the permission to the function if it does.
                 if (application.ApplicationFunctions == null || application.ApplicationFunctions.Count == 0)
                 {
-                    logger.Warn($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not have any associated application functions!");
+                    logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: ");
                     break;
                 }
 
@@ -154,7 +159,7 @@ namespace za.co.grindrodbank.a3s.Services
                     var permission = applicationFunction.ApplicationFunctionPermissions.Find(afp => afp.Permission.Name == permissionToAddToFunction);
                     if (permission != null)
                     {
-                        logger.Debug($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
+                        logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}'].[permission.name: '{permissionToAddToFunction}']: Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
                         permission.ChangedBy = updatedById;
                         permissionIsApplicationPermission = true;
                         functionModelToAdd.FunctionPermissions.Add(new FunctionPermissionModel
@@ -168,14 +173,22 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (!permissionIsApplicationPermission)
                 {
-                    throw new ItemNotFoundException($"Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.");
+                    var errorMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}'].[permission.name: '{permissionToAddToFunction}']: Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.";
+                    if (dryRun)
+                    {
+                        validationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotFoundException(errorMessage);
+                    }
                 }
             }
 
             // Persist the application function, but only if there is at least a single permission associated with it.
             if (functionModelToAdd.FunctionPermissions.Count > 0)
             {
-                logger.Debug($"[defaultConfigurations.applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
+                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
                 application.Functions.Add(functionModelToAdd);
             }
         }
