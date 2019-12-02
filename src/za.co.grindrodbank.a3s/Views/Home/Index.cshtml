@@ -1,8 +1,42 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var version = typeof(za.co.grindrodbank.a3s.A3SConstants).Assembly.GetName().Version.ToString();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="welcome-page">
+    <div class="row page-header">
+        <div class="col-sm-10">
+            <h1>
+                Welcome to A3S
+                <small>(version @version) </small>
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <p>
+                <i>
+                    An enterprise framework that makes effortless management of centralized authorization, authentication, and accounting. A3S supports OpenID and OAuth 2.0 identity protocols.
+                </i>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h1>Introduction</h1>
+            <p>Being able to log in once and securely gain access to a variaty of shared or stand-alone resources is one of the most important parts of developing an enterprise system. Additionally, effectively determining permissions to said resources is equally important. Finally, ensuring that both these concepts are implemented with the best security and engineering practices is vital to ensure your central users and protect resources are safe against theft and break-in attempts.</p>
+            <p>A3S makes this process simple for any project by offering all this right out of the box. It can be deployed on virtually any system, and integrate with virtually any technology.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h1>Documentation</h1>
+            <p>
+                Access the A3S documentation <a href="https://github.com/GrindrodBank/A3S/blob/master/README.md">here</a>.
+            </p>
+        </div>
+    </div>
 </div>
