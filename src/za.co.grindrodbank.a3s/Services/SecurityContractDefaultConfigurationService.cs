@@ -43,7 +43,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}']: Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
             await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById);
+            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
             await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById);
@@ -225,45 +225,38 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
         {
-            logger.Debug($"Applying default roles configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfiguration.name: '{securityContractDefaultConfiguration.Name}'][roles]: Preparing to apply roles for default config: '{securityContractDefaultConfiguration.Name}'");
             // Ensure all default roles are created first.
             // Recall, this is an optional component of the default configuration so ensure that it is persent.
             if (securityContractDefaultConfiguration.Roles == null || securityContractDefaultConfiguration.Roles.Count == 0)
                 return;
 
-            // Execute only the simple role creation tasks in parallel
-            logger.Debug("Applying simple roles...");
-            foreach (var simpleRole in securityContractDefaultConfiguration.Roles.Where(x => x.Roles == null || x.Roles.Count == 0))
-                await ApplyDefaultRole(simpleRole, updatedById);
+            logger.Debug($"[defaultConfiguration.name: '{securityContractDefaultConfiguration.Name}'][roles]: Applying roles...");
 
-            logger.Debug("Simple roles applied.");
-
-            // Now that all simple roles are created, execute the compound role creation tasks in parallel
-            logger.Debug("Applying compound roles...");
-            foreach (var compoundRole in securityContractDefaultConfiguration.Roles.Where(x => x.Roles != null && x.Roles.Count > 0))
-                await ApplyDefaultRole(compoundRole, updatedById);
-
-            logger.Debug("Compound roles applied.");
+            foreach (var simpleRole in securityContractDefaultConfiguration.Roles)
+            {
+                await ApplyDefaultRole(simpleRole, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
+            }
         }
 
-        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById)
+        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             var defaultRoleToApply = new RoleModel();
             bool roleIsNew = false;
 
-            logger.Debug($"Applying default role: '{defaultRole.Name}'");
+            logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Processing role: '{defaultRole.Name}'");
             var existingRole = await roleRepository.GetByNameAsync(defaultRole.Name);
 
             if (existingRole != null)
             {
-                logger.Debug($"Default role: '{defaultRole.Name}' already exist. Updating it.");
+                logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}' already exist. Updating it.");
                 defaultRoleToApply = existingRole;
             }
             else
             {
-                logger.Debug($"Default role: '{defaultRole.Name}' does not exist. Creating it.");
+                logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}' does not exist. Creating it.");
                 roleIsNew = true;
             }
 
@@ -272,8 +265,8 @@ namespace za.co.grindrodbank.a3s.Services
             defaultRoleToApply.Description = defaultRole.Description;
             defaultRoleToApply.ChangedBy = updatedById;
 
-            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById);
-            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById);
+            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, validationErrors, defaultConfigurationName);
+            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, validationErrors, defaultConfigurationName);
 
             if (roleIsNew)
             {
@@ -287,7 +280,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById)
+        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             defaultRoleToApply.RoleFunctions = new List<RoleFunctionModel>();
 
@@ -295,7 +288,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var functionToAdd in defaultRole.Functions)
                 {
-                    logger.Debug($"Attempting to add function: '{functionToAdd}' to role '{defaultRole.Name}'.");
+                    logger.Debug($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Attempting to add function: '{functionToAdd}' to role '{defaultRole.Name}'.");
                     // Ensure that the function exists.
                     var existingFunction = await functionRepository.GetByNameAsync(functionToAdd);
 
@@ -304,7 +297,8 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotFoundException($"Function '{functionToAdd}' does not exists. Cannot assign it to role '{defaultRole.Name}'.");
                     }
 
-                    logger.Debug($"Function '{functionToAdd}' exists and is being assigned to role '{defaultRole.Name}'.");
+                    logger.Debug($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Function '{functionToAdd}' exists and is being assigned to role '{defaultRole.Name}'.");
+
                     defaultRoleToApply.RoleFunctions.Add(new RoleFunctionModel
                     {
                         Role = defaultRoleToApply,
@@ -315,7 +309,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById)
+        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             defaultRoleToApply.ChildRoles = new List<RoleRoleModel>();
 
@@ -323,24 +317,24 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var roleToAdd in defaultRole.Roles)
                 {
-                    logger.Debug($"Attempting to add child role: '{roleToAdd}' to role '{defaultRole.Name}'.");
+                    logger.Debug($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Attempting to add child role: '{roleToAdd}' to role '{defaultRole.Name}'.");
 
                     // Ensure that the role exists.
                     var existingChildRole = await roleRepository.GetByNameAsync(roleToAdd);
 
                     if (existingChildRole == null)
                     {
-                        throw new ItemNotFoundException($"Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRole.Name}'.");
+                        throw new ItemNotFoundException($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRole.Name}'.");
                     }
 
                     // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
                     // asserted that the child row has no child roles attached to it.
                     if (existingChildRole.ChildRoles.Count > 0)
                     {
-                        throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
+                        throw new ItemNotProcessableException($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                     }
 
-                    logger.Debug($"Child role '{existingChildRole}' exists and is being assigned to role '{defaultRole.Name}'.");
+                    logger.Debug($"defaultConfiguration.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{existingChildRole.Name}' exists and is being assigned to role '{defaultRole.Name}'.");
                     defaultRoleToApply.ChildRoles.Add(new RoleRoleModel
                     {
                         ParentRole = defaultRoleToApply,
