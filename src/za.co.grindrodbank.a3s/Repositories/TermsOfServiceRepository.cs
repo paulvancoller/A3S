@@ -7,6 +7,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using za.co.grindrodbank.a3s.Helpers;
@@ -156,13 +157,23 @@ namespace za.co.grindrodbank.a3s.Repositories
             var htmlFile = extractedFiles.Where(x => x.FileName.Trim() == A3SConstants.TERMS_OF_SERVICE_HTML_FILE).FirstOrDefault();
 
             if (htmlFile != null)
-                termsOfService.HtmlContents = BitConverter.ToString(htmlFile.FileContents);
+                termsOfService.HtmlContents = ByteArrayToString(htmlFile.FileContents);
 
             // Extract CSS File
             var cssFile = extractedFiles.Where(x => x.FileName.Trim() == A3SConstants.TERMS_OF_SERVICE_CSS_FILE).FirstOrDefault();
 
             if (cssFile != null)
-                termsOfService.HtmlContents = BitConverter.ToString(cssFile.FileContents);
+                termsOfService.CssContents = ByteArrayToString(cssFile.FileContents);
+        }
+
+        private string ByteArrayToString(byte[] inputBytes)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < inputBytes.Length; i++)
+                builder.Append(Convert.ToChar(inputBytes[i]));
+
+            return builder.ToString();
         }
     }
 }
