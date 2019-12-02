@@ -1,7 +1,7 @@
 ﻿@model TermsOfServiceViewModel
 
-<h1>Terms of Service Agreements.</h1>
-<p>@Html.Raw($"{Model.AgreementCount} remaining.")</p>
+<h1>Terms of Service Agreements (@Model.AgreementCount)</h1>
+<p></p>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -9,7 +9,7 @@
     </div>
 
     <div class="panel-body">
-        @Model.HtmlContents
+        @Html.Raw(Model.HtmlContents)
     </div>
 </div>
 
