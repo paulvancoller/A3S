@@ -1,6 +1,6 @@
 ﻿{
 	"info": {
-		"_postman_id": "253e9555-fd98-4deb-b415-861290b76e67",
+		"_postman_id": "3bc08c07-4edd-4903-806c-f9210f4be21c",
 		"name": "A3S",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -788,7 +788,7 @@
 			"name": "TermsOfService",
 			"item": [
 				{
-					"name": "CreateTermsOfService",
+					"name": "CreateTermsOfService - Simple agreement",
 					"event": [
 						{
 							"listen": "test",
@@ -833,7 +833,129 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAF3V110AA+3T0QqCMBQG4K73FHuB9KibQkmvIstmCtPFNo2I3j1t4E1SN6YE+27OBoftjPF7vuGq1pksMs1VV+Xcy7XezAoAYkLwUJOYviqEdm+REAcRjWlCQwKAIUgigA2GeceY1mrDVD/KhbWiY00uheBqoq9vK4oP59iX4LH+iaM83fAd4V4hG7O98upcmh1upKqZ2KMHWntC55e89/yXphaz3vE1/yGM+acBGfJPaOzyv4R0+O0DQqlvF2vP4ziO4yzjCdehEDwADAAA\"\n}"
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAB4F5V0AA+1V32/jNgy+5/wVRJ42wEuTrG2wrivgJEojzLED27muTwfFlmttjmVISoNg2P8+Sk4vbdf9eCjuMCBEAJkS+ZEfJTK9M8PVRn+SxSfN1aPIeC/T+sO7Sr/fvzw/B7uOLi/c2h+2upPBxSUMvr8YDYZWOYf+YDQc9T9A/33TeFu22jCFqTRsWz2yOpNVxdUbdmhWFP+A01KBz+v/RNYy38PvHUApZG2+23HxUJorqKXasOrHzh+dTq/kLBf1w1tma1nlrRHfNCXTQj+30mZf8SsQhlUis2Zfm+1JXkvvr/1fmk31rjH+pf+H58Nh2/+D0Wg0GNn+Px8NTv3/JeTa3vaNa9lr2+c312duaXfsdGg/ndpAVjGtf+oeJkL3eGZlIpu9snMBhv3BD3CrRJ0rmcOY1b9BIDbC8PwIdtbcdJ5Bv4Ra4qMUWgtZA46Ukiu+3sODYjVCeFAozkEWkJVMPXAPjARW76HhSqODXBsmajuwGGSYkrU0JcJoWZgdUxyNc0AeMhMM8SCX2XbDa8OMjVeIimv4xpQcusnBo/utC5JzVoGowZ49HcFOmFJuDSiujRKZxfDQKKu2bmg+HVeWfxvBurs6aQu61cjA5unBRuaisCt3tJrtuhK69CAXFnq9Nbip7WbGa+uFPM6kAs2ryiIIzNtxPWbnbGyUxhbUHErk4u5KuXnJBEtUbFWNIbnzySWWzEX8lWfG7ljzAjtE7iy1TNa5sIz01X+81hT92Vo+cke4fSu1NMinzdPeUnO8+sORLhkSXPNDVTE5vAP2jLOyOWKD1kbgBTVSuaRe16L3t0k+Peun/7BX7zqdE0iiWXrnxwRoAss4+kinZApdP0G968EdTefRKgW0iP0wvYdoBn54Dz/TcOoB+WUZkySBKAa6WAaU4B4NJ8FqSsNbGKNfGKUQ0AVNETSNXMADFCWJBVuQeDJH1R/TgKb3HsxoGlrMGYL6sPTjlE5WgR/DchUvo4Rg+CnChjScxRiFLEiY9jAq7gH5iAokcz8IXCh/hdnHLr9JtLyP6e08hXkUTAlujglm5o8D0oZCUpPApwsPpv7CvyXOK0KU2JkdsrubE7eF8Xz8TVIahZbGJArTGFUPWcbpZ9c7mhAP/JgmtiCzOEJ4W070iBwI+oWkRbGlfnkjaGL1VUKOuUyJHyBWYp2fG796A+1HO+Vw8LlR+LUn8klOcpKTfBn5E+xQqtkAEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService - Simple agreement with css styling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAIf+5F0AA+1VUY/iNhC+5/0Vo3tqJQphl13UdnWSAbNYDQlKzG336RQSp1gNNrLNrlDV/95xwt5yunC9h22vlRghOWPG3zfzTTzp9pwwG/tBlx+sMI8yF93c2jevakEQ3AwG4NfhzXW9BpeN39jgEvpX18N+H/8ObiDoD6+CwRsIXjeNdttZlxlMZZvtqsdM5bqqhGmJw7Cy/AJOUwl8XP8nttLFHv64ALRSK/fDk5C/rd1PoLTZZNXPF39efOsMz/ZPWvfz+792m+pVOf7m/l8Or/rP93/YD4b+/g9urs/3/9+wW9/td/X9v12LrHh326uXZsdPh+axdrcvz97ujFSF0QWMMvU7hHIjnSheontH4Scxxnq7N37kwHf593AZ9H/8GtiTcKSqQKrSDy8ntYIcZ1omlShgLYyQCqTtQKYKMGKD+xbcWsDW6K0wbg+6xJIN9L6izC5wPCmVE/i+5G6XVTWsE/layRw9ZM7F1tmjFFqwD1llpsnCSIFv4x6cbmetOQ7BSOV3VhhtskKAFbkRDtpYtMEsnnWusqcuLK3oQCGtFRupGqkwyAjELXZ545cojrTHcvZwEUZidS0kGGqdkbmr9vgpMStZFELBTlXCWsxXIv6Tkc7hJqq9QW7Pgqf06qBPafTmhNqn2+/bkK30ozgqUWmHg6xpiC/hiO/wl11n+KasfAfzalcgue9C1VoY4kphvT52t8IxoJxXYKuNl8Q2OglIdemesDVfSPUTVD6jkMZTfk8SCiyFRRK/ZxM6gbckRf9tB+4Zn8VLDhiRkIg/QDwFEj3ALyyadID+ukhomkKctOXM5ouQUQxj0ThcTlh0ByOEimIOIZszjjw8rnM4oDOaevw5TcYzdMmIhYw/dNqwp4xHnnmK1AQWJOFsvAxJAotlsohTiklOkCli0TRBYjqnEe9iIrgH9D06kM5IGNbsLfBkiWUndWHjePGQsLsZh1kcTihujijmT0YhbdhRjXFI2LwDEzInd7Q+FSNwqyj+5KGs+xmtozArgr8xZ3Hk6x/HEU/Q7aA8Cf+Ids9S2gGSsNQrOU3ieasyvlsIEte4CBXRBth38tOGY4j3lyl9yXhCSYjwqT98Qpvn893Pp+xtrxnWOL/rif6tPyxnO9vZ/vP2Fw5s7A8AEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService - Larger agreement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"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\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/termsOfService",
