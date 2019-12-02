@@ -681,7 +681,7 @@ namespace za.co.grindrodbank.a3s.Services
 
             // It is very important to do the team assignments first, as the udpated teams configuration may affect whether users are able to be assigned to the team (Users cannot be directly assgined to compound teams)!
             await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById, dryRun, validationErrors, defaultConfigurationName);
-            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById);
+            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById, dryRun, validationErrors, defaultConfigurationName);
             await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, validationErrors, defaultConfigurationName);
 
             try
@@ -728,6 +728,7 @@ namespace za.co.grindrodbank.a3s.Services
                         if (dryRun)
                         {
                             validationErrors.Add(errorMessage);
+                            continue;
                         }
                         else
                         {
@@ -753,29 +754,49 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="userNames"></param>
         /// <returns></returns>
-        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById)
+        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
         {
             // The user associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.UserTeams = new List<UserTeamModel>();
 
             if (userNames != null && userNames.Count > 0)
             {
-                // Users are not allowd to be directly assigned to a parent team. Check for this!
+                // Users are not allowed to be directly assigned to a parent team. Check for this!
                 if (team.ChildTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot add users directly to team '{team.Name}', as this team is a parent team.");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'].[users]: Cannot add users directly to team '{team.Name}', as this team is a parent team.";
+
+                    if (dryRun)
+                    {
+                        validationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
                 }
 
                 foreach (var userName in userNames)
                 {
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attmepting to add user '{userName}' to tea, '{team.Name}'");
                     var user = await userRepository.GetByUsernameAsync(userName, false);
 
                     if (user == null)
                     {
-                        throw new ItemNotFoundException($"Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.";
+
+                        if (dryRun)
+                        {
+                            validationErrors.Add(errorMessage);
+                            continue;
+                        }
+                        else
+                        {
+                            throw new ItemNotFoundException(errorMessage);
+                        } 
                     }
 
-                    logger.Debug($"Adding user '{userName}' to team: {team.Name}");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Adding user '{userName}' to team: {team.Name}");
 
                     team.UserTeams.Add(new UserTeamModel
                     {
