@@ -790,10 +790,8 @@ namespace za.co.grindrodbank.a3s.Services
                             validationErrors.Add(errorMessage);
                             continue;
                         }
-                        else
-                        {
-                            throw new ItemNotFoundException(errorMessage);
-                        } 
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Adding user '{userName}' to team: {team.Name}");
