@@ -14,12 +14,12 @@
 </div>
 
 <form asp-route="Index">
+    <input class="form-control" placeholder="Username" asp-for="Accepted" autofocus>
     <button class="btn btn-primary" name="btnAccept" id="btnAccept" value="btnAccept">Accept</button>
     <button class="btn btn-default" name="btnReject" id="btnReject" value="btnReject">Reject</button>
 
     <input type="hidden" name="RedirectUrl" id="RedirectUrl" value="@Model.ReturnUrl" />
     <input type="hidden" name="TermsOfServiceId" id="TermsOfServiceId" value="@Model.TermsOfServiceId" />
-    <button class="btn btn-default" name="btnContinueWithRedirect" id="btnContinueWithRedirect" value="btnContinueWithRedirect">Continue with Redirect</button>
 </form>
 @section scripts {
     <script src="~/js/terms-of-service.js"></script>

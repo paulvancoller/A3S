@@ -10,6 +10,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
     public class TermsOfServiceInputModel
     {
         public Guid TermsOfServiceId { get; set; }
+        public bool Accepted { get; set; }
         public string ReturnUrl { get; set; }
     }
 }
