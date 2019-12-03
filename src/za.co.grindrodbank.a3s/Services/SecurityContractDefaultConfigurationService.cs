@@ -639,16 +639,8 @@ namespace za.co.grindrodbank.a3s.Services
             if (securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
                 return;
 
-            // Execute only the simple team creation tasks in parallel
             foreach (var simpleTeam in securityContractDefaultConfiguration.Teams)
                 await ApplyDefaultTeam(simpleTeam, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
-
-            //// Now that all simple teams are created, execute the compound team creation tasks in parallel
-            //logger.Debug("Applying compound team...");
-            //foreach (var compoundTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams != null && x.Teams.Count > 0))
-            //    await ApplyDefaultTeam(compoundTeam, updatedById);
-
-            //logger.Debug("Compound team applied.");
         }
 
         public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
@@ -730,10 +722,8 @@ namespace za.co.grindrodbank.a3s.Services
                             securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
-                        else
-                        {
-                            throw new ItemNotFoundException(errorMessage);
-                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Adding application data policy '{applicationDataPolicy}' to team: {team.Name}");
