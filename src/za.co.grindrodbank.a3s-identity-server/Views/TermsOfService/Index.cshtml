@@ -17,10 +17,10 @@
     <p>
         @Html.CheckBoxFor(x => x.Accepted)&nbsp; @Html.LabelFor(x => x.Accepted) 
     </p>
-    <button class="btn btn-primary" name="btnAccept" id="btnAccept" value="btnAccept" disabled="disabled">Accept</button>
-    <button class="btn btn-default" name="btnReject" id="btnReject" value="btnReject">Reject</button>
+    <button class="btn btn-primary" name="button" id="btnAccept" value="accept" disabled="disabled">Accept</button>
+    <button class="btn btn-default" name="button" id="btnReject" value="reject">Reject</button>
 
-    <input type="hidden" name="RedirectUrl" id="RedirectUrl" value="@Model.ReturnUrl" />
+    <input type="hidden" name="ReturnUrl" id="ReturnUrl" value="@Model.ReturnUrl" />
     <input type="hidden" name="TermsOfServiceId" id="TermsOfServiceId" value="@Model.TermsOfServiceId" />
 </form>
 @section scripts {

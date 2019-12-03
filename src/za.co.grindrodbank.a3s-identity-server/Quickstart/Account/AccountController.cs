@@ -129,7 +129,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                         return RedirectToAction("Register2FA", new { redirectUrl = model.ReturnUrl });
                     }
 
-                    return RedirectToAction("Index", "TermsOfService", new { redirectUrl = model.ReturnUrl });
+                    return RedirectToAction("Index", "TermsOfService", new { returnUrl = model.ReturnUrl });
 
                     // Redirect to after success management screen if applicable
                     if (ShowAfterSuccessManagementScreen())

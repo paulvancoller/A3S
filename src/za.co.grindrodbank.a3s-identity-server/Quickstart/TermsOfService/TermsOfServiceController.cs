@@ -9,9 +9,12 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using IdentityServer4.Events;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using za.co.grindrodbank.a3s.Exceptions;
@@ -32,7 +35,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IIdentityServerInteractionService interaction;
         private readonly IEventService events;
         private readonly IClientStore clientStore;
-        private readonly IArchiveHelper archiveHelper; 
+        private readonly IArchiveHelper archiveHelper;
+        private readonly SignInManager<UserModel> signInManager;
 
         public TermsOfServiceController(
             CustomUserManager userManager,
@@ -41,7 +45,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IIdentityServerInteractionService interaction,
             IEventService events,
             IClientStore clientStore,
-            IArchiveHelper archiveHelper)
+            IArchiveHelper archiveHelper,
+            SignInManager<UserModel> signInManager)
         {
             this.userManager = userManager;
             this.termsOfServiceRepository = termsOfServiceRepository;
@@ -50,6 +55,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             this.events = events;
             this.clientStore = clientStore;
             this.archiveHelper = archiveHelper;
+            this.signInManager = signInManager;
         }
 
         /// <summary>
@@ -64,7 +70,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
             List<Guid> outstandingTerms = await termsOfServiceRepository.GetAllOutstandingAgreementsByUserAsync(Guid.Parse(user.Id));
             if (outstandingTerms.Count == 0)
-                return await CompleteTokenRetrievalProcess(returnUrl, user);
+                return await CompleteTokenRequest(returnUrl, user);
 
             var vm = await BuildTermsOfServiceViewModel(returnUrl, outstandingTerms);
             return View(vm);
@@ -80,6 +86,9 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await userManager.GetUserAsync(HttpContext.User);
             if (user == null)
                 throw new AuthenticationException("Invalid login data");
+
+            if (button != "accept")
+                return await CancelTokenRequest(model.ReturnUrl);
 
             await userManager.AgreeToTermsOfService(user, model.TermsOfServiceId);
 
@@ -122,7 +131,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return showAfterSuccessManagementScreen;
         }
 
-        private async Task<IActionResult> CompleteTokenRetrievalProcess(string returnUrl, UserModel user)
+        private async Task<IActionResult> CompleteTokenRequest(string returnUrl, UserModel user)
         {
             // Redirect to after success management screen if applicable
             if (ShowAfterSuccessManagementScreen())
@@ -155,6 +164,30 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
             // user might have clicked on a malicious link - should be logged
             throw new Exception("invalid return URL");
+        }
+
+        private async Task<IActionResult> CancelTokenRequest(string returnUrl)
+        {
+            if (User?.Identity.IsAuthenticated == true)
+            {
+                await signInManager.SignOutAsync();
+                await events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
+            }
+
+            var context = await interaction.GetAuthorizationContextAsync(returnUrl);
+
+            if (context != null)
+            {
+                // Access denied
+                await interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+
+                if (await clientStore.IsPkceClientAsync(context.ClientId))
+                    return View("Redirect", new RedirectViewModel { RedirectUrl = returnUrl });
+
+                return Redirect(returnUrl);
+            }
+            else
+                return Redirect("~/");
         }
     }
 }
