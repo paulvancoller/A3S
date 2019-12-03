@@ -49,7 +49,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)
@@ -91,7 +91,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)
@@ -174,7 +174,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)
@@ -243,7 +243,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)
@@ -304,7 +304,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)
@@ -375,7 +375,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             try
             {
-                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new List<string>());
+                await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(securityContract.DefaultConfigurations.First(), Guid.NewGuid(), false, new SecurityContractDryRunResult());
                 Assert.True(true);
             }
             catch (Exception e)

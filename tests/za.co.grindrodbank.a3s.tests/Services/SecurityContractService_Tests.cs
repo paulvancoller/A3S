@@ -14,6 +14,7 @@ using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
@@ -134,7 +135,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<List<string>>()).Returns(x => throw new ItemNotFoundException());
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new ItemNotFoundException());
 
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
 
@@ -170,7 +171,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<List<string>>()).Returns(x => throw new ItemNotProcessableException());
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new ItemNotProcessableException());
 
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
 
@@ -206,7 +207,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<List<string>>()).Returns(x => throw new Exception());
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new Exception());
 
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
 
