@@ -14,8 +14,10 @@
 </div>
 
 <form asp-route="Index">
-    <input class="form-control" placeholder="Username" asp-for="Accepted" autofocus>
-    <button class="btn btn-primary" name="btnAccept" id="btnAccept" value="btnAccept">Accept</button>
+    <p>
+        @Html.CheckBoxFor(x => x.Accepted)&nbsp; @Html.LabelFor(x => x.Accepted) 
+    </p>
+    <button class="btn btn-primary" name="btnAccept" id="btnAccept" value="btnAccept" disabled="disabled">Accept</button>
     <button class="btn btn-default" name="btnReject" id="btnReject" value="btnReject">Reject</button>
 
     <input type="hidden" name="RedirectUrl" id="RedirectUrl" value="@Model.ReturnUrl" />

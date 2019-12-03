@@ -5,12 +5,16 @@
  * **************************************************
  */
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
     public class TermsOfServiceInputModel
     {
         public Guid TermsOfServiceId { get; set; }
-        public bool Accepted { get; set; }
         public string ReturnUrl { get; set; }
+
+        [Display(Name = "I have read and agree to these terms of service")]
+        public bool Accepted { get; set; }
     }
 }
