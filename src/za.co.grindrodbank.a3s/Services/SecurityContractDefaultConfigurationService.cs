@@ -841,11 +841,10 @@ namespace za.co.grindrodbank.a3s.Services
                         if (dryRun)
                         {
                             securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
                         }
-                        else
-                        {
-                            throw new ItemNotFoundException(errorMessage);
-                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     // check that we are not attempting to add a compound team as a child, as this is prohibited.
@@ -856,11 +855,10 @@ namespace za.co.grindrodbank.a3s.Services
                         if (dryRun)
                         {
                             securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
                         }
-                        else
-                        {
-                            throw new ItemNotProcessableException(errorMessage);
-                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
                     }
 
                     logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{existingchildTeam.Name}'is being assigned to team '{defaultTeamToApply.Name}'.");

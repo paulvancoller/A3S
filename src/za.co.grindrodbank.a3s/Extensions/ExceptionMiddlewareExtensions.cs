@@ -97,19 +97,37 @@ namespace GlobalErrorHandling.Extensions
                         return;
                     }
 
-                    // Check for a ItemNotProcessableException - This is not really an exception, just an always roll back dry run.
+                    // Check for a SecurityContractDryRunException - This is not really an exception, just an always roll back dry run.
                     if (contextFeature.Error is SecurityContractDryRunException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-                        var validationErrorResult = new SecurityContractValidationResult
+                        var validationResult = new SecurityContractValidationResult
                         {
                             Message = "No Errors Detected - Security contract OK."
                         };
 
+                        if (((SecurityContractDryRunException)contextFeature.Error).ValidationWarnings.Any())
+                        {
+                            validationResult.Message = "No Errors Detected - But there are some warnings.";
+                            var validationWarningList = new List<SecurityContractValidationWarning>();
+
+                            foreach (var validationWarning in ((SecurityContractDryRunException)contextFeature.Error).ValidationWarnings)
+                            {
+                                var newWarning = new SecurityContractValidationWarning
+                                {
+                                    Message = validationWarning
+                                };
+
+                                validationWarningList.Add(newWarning);
+                            }
+
+                            validationResult.ValidationWarnings = validationWarningList;
+                        }
+
                         if (((SecurityContractDryRunException)contextFeature.Error).ValidationErrors.Any())
                         {
-                            validationErrorResult.Message = "Application of Security Contract Throws Errors.";
+                            validationResult.Message = "There are errors within the security contract.";
                             var validationErrorList = new List<SecurityContractValidationError>();
 
                             foreach (var validationError in ((SecurityContractDryRunException)contextFeature.Error).ValidationErrors)
@@ -122,10 +140,10 @@ namespace GlobalErrorHandling.Extensions
                                 validationErrorList.Add(newError);
                             }
 
-                            validationErrorResult.ValidationErrors = validationErrorList;
+                            validationResult.ValidationErrors = validationErrorList;
                         }
 
-                        await context.Response.WriteAsync(validationErrorResult.ToJson());
+                        await context.Response.WriteAsync(validationResult.ToJson());
 
                         return;
                     }

@@ -27,10 +27,10 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Models the result of a security contract dry run validation.
+    /// Models an individual validation warning that may be returned when performing a security contract validation request.
     /// </summary>
     [DataContract]
-    public partial class SecurityContractValidationResult : IEquatable<SecurityContractValidationResult>
+    public partial class SecurityContractValidationWarning : IEquatable<SecurityContractValidationWarning>
     { 
         /// <summary>
         /// Gets or Sets Message
@@ -40,28 +40,14 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or Sets ValidationErrors
-        /// </summary>
-        [DataMember(Name="validationErrors", EmitDefaultValue=false)]
-        public List<SecurityContractValidationError> ValidationErrors { get; set; }
-
-        /// <summary>
-        /// Gets or Sets ValidationWarnings
-        /// </summary>
-        [DataMember(Name="validationWarnings", EmitDefaultValue=false)]
-        public List<SecurityContractValidationWarning> ValidationWarnings { get; set; }
-
-        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class SecurityContractValidationResult {\n");
+            sb.Append("class SecurityContractValidationWarning {\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
-            sb.Append("  ValidationErrors: ").Append(ValidationErrors).Append("\n");
-            sb.Append("  ValidationWarnings: ").Append(ValidationWarnings).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -84,15 +70,15 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((SecurityContractValidationResult)obj);
+            return obj.GetType() == GetType() && Equals((SecurityContractValidationWarning)obj);
         }
 
         /// <summary>
-        /// Returns true if SecurityContractValidationResult instances are equal
+        /// Returns true if SecurityContractValidationWarning instances are equal
         /// </summary>
-        /// <param name="other">Instance of SecurityContractValidationResult to be compared</param>
+        /// <param name="other">Instance of SecurityContractValidationWarning to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(SecurityContractValidationResult other)
+        public bool Equals(SecurityContractValidationWarning other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -102,18 +88,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Message == other.Message ||
                     Message != null &&
                     Message.Equals(other.Message)
-                ) && 
-                (
-                    ValidationErrors == other.ValidationErrors ||
-                    ValidationErrors != null &&
-                    other.ValidationErrors != null &&
-                    ValidationErrors.SequenceEqual(other.ValidationErrors)
-                ) && 
-                (
-                    ValidationWarnings == other.ValidationWarnings ||
-                    ValidationWarnings != null &&
-                    other.ValidationWarnings != null &&
-                    ValidationWarnings.SequenceEqual(other.ValidationWarnings)
                 );
         }
 
@@ -129,10 +103,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                 // Suitable nullity checks etc, of course :)
                     if (Message != null)
                     hashCode = hashCode * 59 + Message.GetHashCode();
-                    if (ValidationErrors != null)
-                    hashCode = hashCode * 59 + ValidationErrors.GetHashCode();
-                    if (ValidationWarnings != null)
-                    hashCode = hashCode * 59 + ValidationWarnings.GetHashCode();
                 return hashCode;
             }
         }
@@ -140,12 +110,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(SecurityContractValidationResult left, SecurityContractValidationResult right)
+        public static bool operator ==(SecurityContractValidationWarning left, SecurityContractValidationWarning right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(SecurityContractValidationResult left, SecurityContractValidationResult right)
+        public static bool operator !=(SecurityContractValidationWarning left, SecurityContractValidationWarning right)
         {
             return !Equals(left, right);
         }

@@ -20,6 +20,8 @@ namespace za.co.grindrodbank.a3s.Exceptions
 
         public SecurityContractDryRunException() : base(defaultMessage)
         {
+            ValidationErrors = new List<string>();
+            ValidationWarnings = new List<string>();
         }
 
         public SecurityContractDryRunException(string message) : base(!string.IsNullOrEmpty(message) ? message : defaultMessage)

@@ -5767,6 +5767,11 @@
       "SecurityContractValidationResult" : {
         "description" : "Models the result of a security contract dry run validation.",
         "example" : {
+          "validationWarnings" : [ {
+            "message" : "message"
+          }, {
+            "message" : "message"
+          } ],
           "validationErrors" : [ {
             "message" : "message"
           }, {
@@ -5783,6 +5788,12 @@
               "$ref" : "#/components/schemas/SecurityContractValidationError"
             },
             "type" : "array"
+          },
+          "validationWarnings" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationWarning"
+            },
+            "type" : "array"
           }
         },
         "required" : [ "message" ],
@@ -5790,6 +5801,19 @@
       },
       "SecurityContractValidationError" : {
         "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
+        "example" : {
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationWarning" : {
+        "description" : "Models an individual validation warning that may be returned when performing a security contract validation request.",
         "example" : {
           "message" : "message"
         },
