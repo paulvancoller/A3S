@@ -203,9 +203,11 @@ namespace za.co.grindrodbank.a3s.Stores
 
             if (agreementEntry == null)
             {
-                agreementEntry.UserId = userId;
-                agreementEntry.TermsOfServiceId = termsOfServiceId;
-
+                agreementEntry = new TermsOfServiceUserAcceptanceModel()
+                {
+                    UserId = userId,
+                    TermsOfServiceId = termsOfServiceId
+                };
                 a3SContext.TermsOfServiceUserAcceptance.Add(agreementEntry);
                 await a3SContext.SaveChangesAsync();
             }

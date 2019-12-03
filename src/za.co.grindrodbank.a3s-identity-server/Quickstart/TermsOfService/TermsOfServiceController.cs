@@ -135,7 +135,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             // Redirect to after success management screen if applicable
             if (ShowAfterSuccessManagementScreen())
-                return RedirectToAction("LoginSuccessful", new { redirectUrl = returnUrl, show2FARegMessage = true });
+                return RedirectToAction("LoginSuccessful", "Account", new { redirectUrl = returnUrl, show2FARegMessage = true });
 
             // check if we are in the context of an authorization request
             var context = await interaction.GetAuthorizationContextAsync(returnUrl);
