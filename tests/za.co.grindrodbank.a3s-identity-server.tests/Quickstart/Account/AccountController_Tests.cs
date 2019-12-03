@@ -160,45 +160,45 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             Assert.NotNull(viewResult);
         }
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButton_ViewResultReturned()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButton_ViewResultReturned()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+        //    mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = RETURN_URL
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = RETURN_URL
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
+        //    var config = builder.Build();
 
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
 
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
-            // Act
-            var actionResult = await accountController.Login(inputModel, "login");
+        //    // Act
+        //    var actionResult = await accountController.Login(inputModel, "login");
 
-            // Assert
-            var viewResult = actionResult as RedirectResult;
-            Assert.NotNull(viewResult);
-            Assert.True(viewResult.Url == inputModel.ReturnUrl, $"ReturnUrl must be '{inputModel.ReturnUrl}'.");
-        }
+        //    // Assert
+        //    var viewResult = actionResult as RedirectResult;
+        //    Assert.NotNull(viewResult);
+        //    Assert.True(viewResult.Url == inputModel.ReturnUrl, $"ReturnUrl must be '{inputModel.ReturnUrl}'.");
+        //}
 
         [Fact]
         public async Task Login_GivenLoginInputModelAndCancelButton_ViewResultReturned()
@@ -413,215 +413,215 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             Assert.True(viewResult.ActionName == "Register2FA", "Action Name must be 'Register2FA'.");
         }
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButton2FAAuthenticatorEnabled_RedirectToActionResultReturned()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButton2FAAuthenticatorEnabled_RedirectToActionResultReturned()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+        //    mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = RETURN_URL
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = RETURN_URL
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    var config = builder.Build();
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "true";
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
-            // Act
-            var actionResult = await accountController.Login(inputModel, "login");
+        //    // Act
+        //    var actionResult = await accountController.Login(inputModel, "login");
 
-            // Assert
-            var viewResult = actionResult as RedirectToActionResult;
-            Assert.NotNull(viewResult);
-            Assert.True(viewResult.ActionName == "LoginSuccessful", "Action Name must be 'LoginSuccessful'.");
-        }
+        //    // Assert
+        //    var viewResult = actionResult as RedirectToActionResult;
+        //    Assert.NotNull(viewResult);
+        //    Assert.True(viewResult.ActionName == "LoginSuccessful", "Action Name must be 'LoginSuccessful'.");
+        //}
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButtonAndIsPkceClient_ViewResultReturned()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButtonAndIsPkceClient_ViewResultReturned()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+        //    mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = RETURN_URL
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = RETURN_URL
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
-            client.RequirePkce = true;
+        //    var config = builder.Build();
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    client.RequirePkce = true;
 
-            // Act
-            var actionResult = await accountController.Login(inputModel, "login");
+        //    // Act
+        //    var actionResult = await accountController.Login(inputModel, "login");
 
-            // Assert
-            var viewResult = actionResult as ViewResult;
-            Assert.NotNull(viewResult);
+        //    // Assert
+        //    var viewResult = actionResult as ViewResult;
+        //    Assert.NotNull(viewResult);
 
-            var model = viewResult.Model as RedirectViewModel;
-            Assert.NotNull(model);
+        //    var model = viewResult.Model as RedirectViewModel;
+        //    Assert.NotNull(model);
 
-            Assert.True(model.RedirectUrl == inputModel.ReturnUrl, $"Model redirect must be '{inputModel.ReturnUrl}'.");
-        }
+        //    Assert.True(model.RedirectUrl == inputModel.ReturnUrl, $"Model redirect must be '{inputModel.ReturnUrl}'.");
+        //}
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButtonLocalUrl_ViewResultReturned()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButtonLocalUrl_ViewResultReturned()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            var urlHelper = Substitute.For<IUrlHelper>();
-            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(true);
-            accountController.Url = urlHelper;
+        //    var urlHelper = Substitute.For<IUrlHelper>();
+        //    urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(true);
+        //    accountController.Url = urlHelper;
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = RETURN_URL
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = RETURN_URL
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    var config = builder.Build();
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
-            // Act
-            var actionResult = await accountController.Login(inputModel, "login");
+        //    // Act
+        //    var actionResult = await accountController.Login(inputModel, "login");
 
-            // Assert
-            var viewResult = actionResult as RedirectResult;
-            Assert.NotNull(viewResult);
+        //    // Assert
+        //    var viewResult = actionResult as RedirectResult;
+        //    Assert.NotNull(viewResult);
 
-            Assert.True(viewResult.Url == inputModel.ReturnUrl, $"Model redirect must be '{inputModel.ReturnUrl}'.");
-        }
+        //    Assert.True(viewResult.Url == inputModel.ReturnUrl, $"Model redirect must be '{inputModel.ReturnUrl}'.");
+        //}
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButtonNonLocalUrl_ThrowsException()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButtonNonLocalUrl_ThrowsException()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            var urlHelper = Substitute.For<IUrlHelper>();
-            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
-            accountController.Url = urlHelper;
+        //    var urlHelper = Substitute.For<IUrlHelper>();
+        //    urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
+        //    accountController.Url = urlHelper;
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = RETURN_URL
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = RETURN_URL
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    var config = builder.Build();
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
-            // Act
-            Exception caughtEx = null;
-            try
-            {
-                var actionResult = await accountController.Login(inputModel, "login");
-            }
-            catch (Exception ex)
-            {
-                caughtEx = ex;
-            }
+        //    // Act
+        //    Exception caughtEx = null;
+        //    try
+        //    {
+        //        var actionResult = await accountController.Login(inputModel, "login");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        caughtEx = ex;
+        //    }
 
-            // Assert
-            Assert.NotNull(caughtEx);
-            Assert.True(caughtEx.Message.ToLower() == "invalid return url");
-        }
+        //    // Assert
+        //    Assert.NotNull(caughtEx);
+        //    Assert.True(caughtEx.Message.ToLower() == "invalid return url");
+        //}
 
-        [Fact]
-        public async Task Login_GivenLoginInputModelAndLoginButtonEmptyUrl_ViewResultReturned()
-        {
-            using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
-                mockEventService, urlTestEncoder, mockConfiguration);
+        //[Fact]
+        //public async Task Login_GivenLoginInputModelAndLoginButtonEmptyUrl_ViewResultReturned()
+        //{
+        //    using var accountController = new AccountController(fakeUserManager, fakeSignInManager, mockIdentityServerInteractionService, mockClientStore, mockAuthenticationSchemeProvider,
+        //        mockEventService, urlTestEncoder, mockConfiguration);
 
-            var urlHelper = Substitute.For<IUrlHelper>();
-            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
-            accountController.Url = urlHelper;
+        //    var urlHelper = Substitute.For<IUrlHelper>();
+        //    urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(false);
+        //    accountController.Url = urlHelper;
 
-            var inputModel = new LoginInputModel()
-            {
-                Username = "username",
-                Password = "password",
-                RememberLogin = false,
-                ReturnUrl = string.Empty
-            };
+        //    var inputModel = new LoginInputModel()
+        //    {
+        //        Username = "username",
+        //        Password = "password",
+        //        RememberLogin = false,
+        //        ReturnUrl = string.Empty
+        //    };
 
-            fakeSignInManager.SetSignInSuccessful(true);
-            fakeUserManager.SetUserModel(userModel);
+        //    fakeSignInManager.SetSignInSuccessful(true);
+        //    fakeUserManager.SetUserModel(userModel);
 
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(Directory.GetCurrentDirectory())
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddEnvironmentVariables();
 
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
+        //    var config = builder.Build();
+        //    config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
+        //    config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
+        //    mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
-            // Act
-            var actionResult = await accountController.Login(inputModel, "login");
+        //    // Act
+        //    var actionResult = await accountController.Login(inputModel, "login");
 
-            // Assert
-            var viewResult = actionResult as RedirectResult;
-            Assert.NotNull(viewResult);
+        //    // Assert
+        //    var viewResult = actionResult as RedirectResult;
+        //    Assert.NotNull(viewResult);
 
-            Assert.True(viewResult.Url == "~/", $"Model redirect must be '~/'.");
-        }
+        //    Assert.True(viewResult.Url == "~/", $"Model redirect must be '~/'.");
+        //}
 
         [Fact]
         public async Task Login_GivenLockedOutResult_ViewResultReturned()
