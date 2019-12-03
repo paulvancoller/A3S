@@ -71,12 +71,13 @@ namespace za.co.grindrodbank.a3s.Services
                 }
                 else
                 {
-                    var ItemNotProcessableException = new SecurityContractDryRunException
+                    var securityContractDryRunException = new SecurityContractDryRunException
                     {
-                        ValidationErrors = securityContractDryRunResult.ValidationErrors
+                        ValidationErrors = securityContractDryRunResult.ValidationErrors,
+                        ValidationWarnings = securityContractDryRunResult.ValidationWarnings
                     };
 
-                    throw ItemNotProcessableException;
+                    throw securityContractDryRunException;
                 }
             }
             catch

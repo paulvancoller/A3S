@@ -89,7 +89,15 @@ namespace za.co.grindrodbank.a3s.Services
 
             if (defaultApplication.Functions == null || defaultApplication.Functions.Count == 0)
             {
-                logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Default application '{defaultApplication.Name}' has no 'functions' defined within it. Ignoring default configuration for this application.");
+                var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Default application '{defaultApplication.Name}' has no 'functions' defined within it. Ignoring default configuration for this application.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                }
+
+                logger.Warn(warningMessage);
+
                 return;
             }
 
@@ -106,7 +114,14 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: Preparing to add function '{defaultFunction.Name}' to application '{defaultApplication.Name}'.");
                 if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
                 {
-                    logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}' ");
+                    var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}'.";
+
+                    logger.Warn(warningMessage);
+
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                    }
 
                     continue;
                 }
