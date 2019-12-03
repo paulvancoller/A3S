@@ -82,7 +82,7 @@ ALTER TABLE ONLY _a3s.team
 CREATE TABLE _a3s.terms_of_service_user_acceptance (
     terms_of_service_id uuid NOT NULL,
     user_id text NOT NULL,
-    acceptance_time tstzrange NOT NULL
+    acceptance_time tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
 );
 
 
@@ -109,7 +109,7 @@ COMMENT ON COLUMN _a3s.terms_of_service_user_acceptance.acceptance_time IS 'The 
 CREATE TABLE _a3s.terms_of_service_user_acceptance_history (
     terms_of_service_id uuid NOT NULL,
     user_id text NOT NULL,
-    acceptance_time tstzrange NOT NULL
+    acceptance_time tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
 );
 
 

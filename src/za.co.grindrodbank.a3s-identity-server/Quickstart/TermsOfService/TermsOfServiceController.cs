@@ -70,6 +70,21 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return View(vm);
         }
 
+        /// <summary>
+        /// Entry point into the terms of service workflow
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(TermsOfServiceInputModel model, string button, string returnUrl)
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
+                throw new AuthenticationException("Invalid login data");
+
+            await userManager.AgreeToTermsOfService(user, model.TermsOfServiceId);
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
 
 
 

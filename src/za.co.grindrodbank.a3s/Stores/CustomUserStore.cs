@@ -188,6 +188,29 @@ namespace za.co.grindrodbank.a3s.Stores
             await a3SContext.SaveChangesAsync();
         }
 
+        public async Task AgreeToTermsOfService(string userId, Guid termsOfServiceId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentNullException(nameof(userId));
+
+            if (termsOfServiceId == Guid.Empty)
+                throw new ArgumentNullException(nameof(termsOfServiceId));
+
+            var agreementEntry =
+                await a3SContext.TermsOfServiceUserAcceptance.SingleOrDefaultAsync(
+                    x =>
+                        x.TermsOfServiceId == termsOfServiceId && x.UserId == userId);
+
+            if (agreementEntry == null)
+            {
+                agreementEntry.UserId = userId;
+                agreementEntry.TermsOfServiceId = termsOfServiceId;
+
+                a3SContext.TermsOfServiceUserAcceptance.Add(agreementEntry);
+                await a3SContext.SaveChangesAsync();
+            }
+        }
+
         private async Task StoreEncryptedValue(UserModel user, string loginProvider, string name, string value)
         {
             await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.application_user_token SET value = _a3s.pgp_sym_encrypt({0}, {1}) where user_id = {2} and login_provider = {3} and name = {4};",
