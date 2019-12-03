@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -18,7 +19,6 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ISecurityContractClientService clientService;
         private readonly ISecurityContractApplicationService securityContractApplicationService;
         private readonly ISecurityContractDefaultConfigurationService securityContractDefaultConfigurationService;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public SecurityContractService(ISecurityContractApplicationService securityContractApplicationService, ISecurityContractClientService clientService,
             ISecurityContractDefaultConfigurationService securityContractDefaultConfigurationService)
@@ -35,14 +35,14 @@ namespace za.co.grindrodbank.a3s.Services
 
             try
             {
-                List<string> validationErrors = new List<string>();
+                SecurityContractDryRunResult securityContractDryRunResult = new SecurityContractDryRunResult();
                 // First apply all of the application(micro-service) definitions that present within the Security Contract.
                 // All the components of a security contract are optional, so check for this here.
                 if (securityContract.Applications != null && securityContract.Applications.Count > 0)
                 {
                     foreach (var applicationSecurityContractDefinition in securityContract.Applications)
                     {
-                        await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+                        await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
                     }
                 }
 
@@ -51,7 +51,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     foreach (var clientSecurityContractDefinition in securityContract.Clients)
                     {
-                        await clientService.ApplyClientDefinitionAsync(clientSecurityContractDefinition, dryRun, validationErrors);
+                        await clientService.ApplyClientDefinitionAsync(clientSecurityContractDefinition, dryRun, securityContractDryRunResult);
                     }
                 }
 
@@ -60,7 +60,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     foreach (var defaultConfiguration in securityContract.DefaultConfigurations)
                     {
-                        await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(defaultConfiguration, updatedById, dryRun, validationErrors);
+                        await securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(defaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
                     }
                 }
 
@@ -73,7 +73,7 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     var ItemNotProcessableException = new SecurityContractDryRunException
                     {
-                        validationErrors = validationErrors
+                        ValidationErrors = securityContractDryRunResult.ValidationErrors
                     };
 
                     throw ItemNotProcessableException;

@@ -39,14 +39,14 @@ namespace za.co.grindrodbank.a3s.Services
             this.ldapAuthenticationModeRepository = ldapAuthenticationModeRepository;
         }
 
-        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}']: Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
-            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
-            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById, dryRun, validationErrors);
+            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
             {
@@ -65,10 +65,10 @@ namespace za.co.grindrodbank.a3s.Services
 
 
             foreach (var defaultApplication in securityContractDefaultConfiguration.Applications)
-                await ApplyIndividualDefaultApplication(defaultApplication, updatedById, securityContractDefaultConfiguration.Name, dryRun, validationErrors);
+                await ApplyIndividualDefaultApplication(defaultApplication, updatedById, securityContractDefaultConfiguration.Name, dryRun, securityContractDryRunResult);
         }
 
-        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById, string defaultConfigurationName, bool dryRun, List<string> validationErrors)
+        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById, string defaultConfigurationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             // Ensure that the application actually exists. Obtain all the application function relations too, as they will be used for validation.
             var application = await applicationRepository.GetByNameAsync(defaultApplication.Name);
@@ -79,7 +79,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (dryRun)
                 {
                     // add to the validation errors and attempt to continue
-                    validationErrors.Add(errorMessage);
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             // Use the currrent state of the assigned application functions to determine which ones are potentially no longer in the YAML.
-            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, dryRun, validationErrors, defaultApplication.Name, defaultConfigurationName);
+            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, dryRun, securityContractDryRunResult, defaultApplication.Name, defaultConfigurationName);
 
             // Reset the state of the application functions, as the security contract declares the desired state and we have already used to the historic state
             // to clear any functions that don't appear within the security contract.
@@ -126,7 +126,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Clear the current permissions assigned to the function as they are to be re-created.
                 functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
 
-                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, validationErrors);
+                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
             }
 
             // Update the application with its new application function state.
@@ -142,7 +142,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="defaultApplication"></param>
         /// <param name="functionModelToAdd"></param>
         private void AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(ApplicationModel application, SecurityContractDefaultConfigurationFunction defaultFunction,
-            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById, string defaultConfigurationName, bool dryRun, List<string> validationErrors)
+            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById, string defaultConfigurationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             foreach (var permissionToAddToFunction in defaultFunction.Permissions)
             {
@@ -176,7 +176,7 @@ namespace za.co.grindrodbank.a3s.Services
                     var errorMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}'].[permission.name: '{permissionToAddToFunction}']: Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.";
                     if (dryRun)
                     {
-                        validationErrors.Add(errorMessage);
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                     }
                     else
                     {
@@ -199,7 +199,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="application"></param>
         /// <param name="securityContractDefaultConfigurationFunctions"></param>
         /// <returns></returns>
-        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, bool dryRun, List<string> validationErrors, string applicationName, string defaultConfigurationName)
+        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string applicationName, string defaultConfigurationName)
         {
             if (application.Functions.Count > 0)
             {
@@ -225,7 +225,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'][roles]: Processing roles for default config: '{securityContractDefaultConfiguration.Name}'");
             // Ensure all default roles are created first.
@@ -235,11 +235,11 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var simpleRole in securityContractDefaultConfiguration.Roles)
             {
-                await ApplyDefaultRole(simpleRole, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
+                await ApplyDefaultRole(simpleRole, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
             }
         }
 
-        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             var defaultRoleToApply = new RoleModel();
             bool roleIsNew = false;
@@ -263,8 +263,8 @@ namespace za.co.grindrodbank.a3s.Services
             defaultRoleToApply.Description = defaultRole.Description;
             defaultRoleToApply.ChangedBy = updatedById;
 
-            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, validationErrors, defaultConfigurationName);
-            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, validationErrors, defaultConfigurationName);
+            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             try
             {
@@ -281,7 +281,7 @@ namespace za.co.grindrodbank.a3s.Services
                 var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Error persisting role '{defaultRole.Name}' to the data store. Exception: {e.Message}";
                 if (dryRun)
                 {
-                    validationErrors.Add(errorMessage);
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                 }
                 else
                 {
@@ -291,7 +291,7 @@ namespace za.co.grindrodbank.a3s.Services
            
         }
 
-        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             defaultRoleToApply.RoleFunctions = new List<RoleFunctionModel>();
 
@@ -309,7 +309,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
 
@@ -328,7 +328,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             defaultRoleToApply.ChildRoles = new List<RoleRoleModel>();
 
@@ -347,7 +347,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
 
@@ -362,7 +362,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
 
@@ -387,7 +387,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[ldapAuthenticationModes]: Applying default LDAP Authentication modes configuration.");
 
@@ -395,10 +395,10 @@ namespace za.co.grindrodbank.a3s.Services
                 return;
 
             foreach (var defaultLdapAuthMode in securityContractDefaultConfiguration.LdapAuthenticationModes)
-                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
+                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
         }
 
-        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Operating on default ldap auth mode '{defaultLdapAuthMode.Name}'.");
             var defaultLdapAuthToApply = new LdapAuthenticationModeModel();
@@ -457,7 +457,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (dryRun)
                 {
-                    validationErrors.Add(errorMessage);
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                 }
                 else
                 {
@@ -473,7 +473,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultUsers(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task ApplyAllDefaultUsers(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[users]: Processing users configuration.");
 
@@ -481,10 +481,10 @@ namespace za.co.grindrodbank.a3s.Services
                 return;
 
             foreach (var defaultUser in securityContractDefaultConfiguration.Users)
-                await ApplyIndividualDefaultUser(defaultUser, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
+                await ApplyIndividualDefaultUser(defaultUser, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
         }
 
-        private async Task ApplyIndividualDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyIndividualDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Processing user '{defaultUser.Username}'.");
             var defaultUserToApply = new UserModel();
@@ -530,8 +530,8 @@ namespace za.co.grindrodbank.a3s.Services
             // Overwrite any potentially assigned roles, as the declarative representation in the defaultUser is the authoratative version and must overwite any existing state.
             defaultUserToApply.UserRoles = new List<UserRoleModel>();
 
-            await ApplyRolesToDefaultUser(defaultUser, defaultUserToApply, updatedById, dryRun, validationErrors, defaultConfigurationName);
-            await ApplyLdapAuthModeToDefaultUser(defaultUser, defaultUserToApply, dryRun, validationErrors, defaultConfigurationName);
+            await ApplyRolesToDefaultUser(defaultUser, defaultUserToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await ApplyLdapAuthModeToDefaultUser(defaultUser, defaultUserToApply, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             try
             {
@@ -555,7 +555,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (dryRun)
                 {
-                    validationErrors.Add(errorMessage);
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                 }
                 else
                 {
@@ -564,7 +564,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyRolesToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyRolesToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (defaultUser.Roles != null && defaultUser.Roles.Count > 0)
             {
@@ -580,7 +580,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
   
@@ -599,7 +599,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyLdapAuthModeToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task ApplyLdapAuthModeToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (!string.IsNullOrWhiteSpace(defaultUser.LdapAuthenticationMode))
             {
@@ -613,7 +613,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if (dryRun)
                     {
-                        validationErrors.Add(errorMessage);
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                         return;
                     }
 
@@ -632,7 +632,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[teams]: Applying teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
 
@@ -641,7 +641,7 @@ namespace za.co.grindrodbank.a3s.Services
 
             // Execute only the simple team creation tasks in parallel
             foreach (var simpleTeam in securityContractDefaultConfiguration.Teams)
-                await ApplyDefaultTeam(simpleTeam, updatedById, dryRun, validationErrors, securityContractDefaultConfiguration.Name);
+                await ApplyDefaultTeam(simpleTeam, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
 
             //// Now that all simple teams are created, execute the compound team creation tasks in parallel
             //logger.Debug("Applying compound team...");
@@ -651,7 +651,7 @@ namespace za.co.grindrodbank.a3s.Services
             //logger.Debug("Compound team applied.");
         }
 
-        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             var teamModel = new TeamModel();
             bool newTeam = false;
@@ -680,9 +680,9 @@ namespace za.co.grindrodbank.a3s.Services
             teamModel.ChildTeams = new List<TeamTeamModel>();
 
             // It is very important to do the team assignments first, as the udpated teams configuration may affect whether users are able to be assigned to the team (Users cannot be directly assgined to compound teams)!
-            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById, dryRun, validationErrors, defaultConfigurationName);
-            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById, dryRun, validationErrors, defaultConfigurationName);
-            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, validationErrors, defaultConfigurationName);
+            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             try
             {
@@ -700,7 +700,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Error persisting team '{defaultTeamToApply.Name}'. Error: {e.Message}");
+                    securityContractDryRunResult.ValidationErrors.Add($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Error persisting team '{defaultTeamToApply.Name}'. Error: {e.Message}");
                 }
                 else
                 {
@@ -710,7 +710,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             // The application data policy associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.ApplicationDataPolicies = new List<TeamApplicationDataPolicyModel>();
@@ -727,7 +727,7 @@ namespace za.co.grindrodbank.a3s.Services
                         var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Unable to find an application data policy with name: '{applicationDataPolicy}' when attempting to assing the application data policy to team '{team.Name}'";
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
                         else
@@ -754,7 +754,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="userNames"></param>
         /// <returns></returns>
-        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             // The user associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.UserTeams = new List<UserTeamModel>();
@@ -768,7 +768,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if (dryRun)
                     {
-                        validationErrors.Add(errorMessage);
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                     }
                     else
                     {
@@ -787,7 +787,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                             continue;
                         }
 
@@ -806,7 +806,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, List<string> validationErrors, string defaultConfigurationName)
+        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (defaultTeamToApply.Teams != null && defaultTeamToApply.Teams.Count > 0)
             {
@@ -818,7 +818,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if (dryRun)
                     {
-                        validationErrors.Add(errorMessage);
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                     }
                     else
                     {
@@ -840,7 +840,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                         }
                         else
                         {
@@ -855,7 +855,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errorMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
                         }
                         else
                         {

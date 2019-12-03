@@ -34,7 +34,7 @@ namespace za.co.grindrodbank.a3s.Services
             this.applicationDataPolicyRepository = applicationDataPolicyRepository;
         }
 
-        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
+        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Applying application security contract definition for application: '{applicationSecurityContractDefinition.Fullname}'");
             // Attempt to load any existing application by name, as the name is essentially the API primary key.
@@ -43,13 +43,13 @@ namespace za.co.grindrodbank.a3s.Services
             if (application == null)
             {
                 logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' not found in database. Creating new application.");
-                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
             }
             logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' already exists. Updating it.");
-            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (dryRun)
                 {
-                    validationErrors.Add(errMessage);
+                    securityContractDryRunResult.ValidationErrors.Add(errMessage);
                 }
                 else
                 {
@@ -107,7 +107,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"[application.fullname:'{application.Name}']: Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
+                    securityContractDryRunResult.ValidationErrors.Add($"[application.fullname:'{application.Name}']: Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
                 }
                 else
                 {
@@ -115,16 +115,16 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
             
-            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid, dryRun, validationErrors);
+            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition, dryRun, validationErrors);
-            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
+            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if(application.ApplicationDataPolicies != null && application.ApplicationDataPolicies.Any())
             {
@@ -140,7 +140,7 @@ namespace za.co.grindrodbank.a3s.Services
                         {
                             if (dryRun)
                             {
-                                validationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting dataPolicy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
+                                securityContractDryRunResult.ValidationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting dataPolicy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
                             }
                             else
                             {
@@ -154,7 +154,7 @@ namespace za.co.grindrodbank.a3s.Services
             return application;
         }
 
-        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (applicationSecurityContractDefinition.DataPolicies != null && applicationSecurityContractDefinition.DataPolicies.Any())
             {
@@ -194,7 +194,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"[applications.fullname: '{application.Name}'].[dataPolicies]: Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
+                    securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[dataPolicies]: Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
                     // The best we can do is return the non-updated application in an attempt to carry on.
                     return application;
                 }
@@ -204,9 +204,9 @@ namespace za.co.grindrodbank.a3s.Services
             
         }
 
-        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
 
             try
             {
@@ -215,7 +215,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"Error purging old permissions not assigned to applications. Error: '{e.Message}'");
+                    securityContractDryRunResult.ValidationErrors.Add($"Error purging old permissions not assigned to applications. Error: '{e.Message}'");
                 }
                 else
                 {
@@ -223,20 +223,20 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
             
-            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, validationErrors);
+            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
 
             return updatedApplication;
         }
 
-        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid, dryRun, validationErrors);
-            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition, dryRun, validationErrors);
+            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
+            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
 
             return application;
         }
 
-        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (applicationSecurityContractDefinition.ApplicationFunctions == null)
                 return application;
@@ -281,7 +281,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 if (dryRun)
                 {
-                    validationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions]: Error updating applicationFunctions for application '{application.Name}'. Error: '{e.Message}'");
+                    securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions]: Error updating applicationFunctions for application '{application.Name}'. Error: '{e.Message}'");
                     // The best we can do is return the application that was not updated.
                     return application;
                 }
@@ -291,7 +291,7 @@ namespace za.co.grindrodbank.a3s.Services
             
         }
 
-        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, List<string> validationErrors)
+        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (application.ApplicationFunctions.Count > 0)
             {
@@ -308,7 +308,7 @@ namespace za.co.grindrodbank.a3s.Services
                         {
                             if (dryRun)
                             {
-                                validationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: Error removing ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'. Error: {e.Message} ");
+                                securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: Error removing ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'. Error: {e.Message} ");
                             }
                             else
                             {

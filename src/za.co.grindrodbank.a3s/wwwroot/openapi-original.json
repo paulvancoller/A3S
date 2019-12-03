@@ -5768,10 +5768,8 @@
         "description" : "Models the result of a security contract dry run validation.",
         "example" : {
           "validationErrors" : [ {
-            "errorType" : "errorType",
             "message" : "message"
           }, {
-            "errorType" : "errorType",
             "message" : "message"
           } ],
           "message" : "message"
@@ -5793,18 +5791,14 @@
       "SecurityContractValidationError" : {
         "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
         "example" : {
-          "errorType" : "errorType",
           "message" : "message"
         },
         "properties" : {
-          "errorType" : {
-            "type" : "string"
-          },
           "message" : {
             "type" : "string"
           }
         },
-        "required" : [ "errorType", "message" ],
+        "required" : [ "message" ],
         "type" : "object"
       },
       "LdapAuthenticationModeId" : {

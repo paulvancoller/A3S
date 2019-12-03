@@ -14,6 +14,7 @@ using IdentityServer4.Models;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -29,7 +30,7 @@ namespace za.co.grindrodbank.a3s.Services
             this.mapper = mapper;
         }
 
-        public async Task<Oauth2Client> ApplyClientDefinitionAsync(Oauth2ClientSubmit oauth2ClientSubmit, bool dryRun, List<string> validationErrors)
+        public async Task<Oauth2Client> ApplyClientDefinitionAsync(Oauth2ClientSubmit oauth2ClientSubmit, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Applying client definition for client: '{oauth2ClientSubmit.ClientId}'.");
             IdentityServer4.EntityFramework.Entities.Client client = await identityClientRepository.GetByClientIdAsync(oauth2ClientSubmit.ClientId);
@@ -144,7 +145,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                         if (dryRun)
                         {
-                            validationErrors.Add(errMessage);
+                            securityContractDryRunResult.ValidationErrors.Add(errMessage);
                         }
                         else
                         {

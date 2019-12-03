@@ -33,13 +33,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
     public partial class SecurityContractValidationError : IEquatable<SecurityContractValidationError>
     { 
         /// <summary>
-        /// Gets or Sets ErrorType
-        /// </summary>
-        [Required]
-        [DataMember(Name="errorType", EmitDefaultValue=false)]
-        public string ErrorType { get; set; }
-
-        /// <summary>
         /// Gets or Sets Message
         /// </summary>
         [Required]
@@ -54,7 +47,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             var sb = new StringBuilder();
             sb.Append("class SecurityContractValidationError {\n");
-            sb.Append("  ErrorType: ").Append(ErrorType).Append("\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -93,11 +85,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
 
             return 
                 (
-                    ErrorType == other.ErrorType ||
-                    ErrorType != null &&
-                    ErrorType.Equals(other.ErrorType)
-                ) && 
-                (
                     Message == other.Message ||
                     Message != null &&
                     Message.Equals(other.Message)
@@ -114,8 +101,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (ErrorType != null)
-                    hashCode = hashCode * 59 + ErrorType.GetHashCode();
                     if (Message != null)
                     hashCode = hashCode * 59 + Message.GetHashCode();
                 return hashCode;

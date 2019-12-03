@@ -107,16 +107,15 @@ namespace GlobalErrorHandling.Extensions
                             Message = "No Errors Detected - Security contract OK."
                         };
 
-                        if (((SecurityContractDryRunException)contextFeature.Error).validationErrors.Any())
+                        if (((SecurityContractDryRunException)contextFeature.Error).ValidationErrors.Any())
                         {
                             validationErrorResult.Message = "Application of Security Contract Throws Errors.";
                             var validationErrorList = new List<SecurityContractValidationError>();
 
-                            foreach (var validationError in ((SecurityContractDryRunException)contextFeature.Error).validationErrors)
+                            foreach (var validationError in ((SecurityContractDryRunException)contextFeature.Error).ValidationErrors)
                             {
                                 var newError = new SecurityContractValidationError
                                 {
-                                    ErrorType = "Contract Error",
                                     Message = validationError
                                 };
 

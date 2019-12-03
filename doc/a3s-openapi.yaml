@@ -3504,11 +3504,8 @@ components:
       description: Models an individual validation error that may be returned when performing a security contract validation request.
       type: object
       required:
-        - errorType
         - message
       properties:
-        errorType:
-          type: string
         message:
           type:
             string        
