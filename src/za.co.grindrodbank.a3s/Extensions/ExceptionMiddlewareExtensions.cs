@@ -49,7 +49,7 @@ namespace GlobalErrorHandling.Extensions
 
                         await context.Response.WriteAsync(new ErrorResponse()
                         {
-                            Message = "Error De-serialising YAML."
+                            Message = $"Error De-serialising YAML: {contextFeature.Error.Message}"
                         }.ToJson());
 
                         return;
