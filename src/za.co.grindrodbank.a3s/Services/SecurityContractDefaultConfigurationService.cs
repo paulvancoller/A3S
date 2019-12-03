@@ -59,7 +59,13 @@ namespace za.co.grindrodbank.a3s.Services
         {
             if (securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
             {
-                logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[applications]: Null or empty applications section. Skipping!");
+                var warningMessage = $"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[applications]: Null or empty applications section. Skipping!";
+
+                if (dryRun)
+                    securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+
+                logger.Debug(warningMessage);
+
                 return;
             }
 
@@ -115,7 +121,6 @@ namespace za.co.grindrodbank.a3s.Services
                 if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
                 {
                     var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}'.";
-
                     logger.Warn(warningMessage);
 
                     if (dryRun)
