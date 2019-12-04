@@ -7,33 +7,34 @@
     **************************************************
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>za.co.grindrodbank</groupId>
-  <artifactId>security</artifactId>
-  <version>0.0.5</version>
-  <packaging>jar</packaging>
+	<groupId>za.co.grindrodbank</groupId>
+	<artifactId>security</artifactId>
+	<version>0.0.5</version>
+	<packaging>jar</packaging>
 
-  <name>security</name>
-  <description>Shared library for permission attribute validation</description>
+	<name>security</name>
+	<description>Shared library for permission attribute validation</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-	    <version>2.1.8.RELEASE</version> <!-- NOTE: if this is upgraded make sure to correct/check on the overidden versions within <dependencyManagement> section of pom -->
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>2.1.8.RELEASE</version>		<!-- NOTE: if this is upgraded make sure to correct/check on the overidden versions within <dependencyManagement> section of pom -->
+		<relativePath/>
+		<!-- lookup parent from repository -->
 	</parent>
 
-  <properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-  </properties>
+	</properties>
 
-  <dependencies>
-  
+	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -43,9 +44,9 @@
 			<groupId>org.springframework.security.oauth.boot</groupId>
 			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
 			<version>2.1.8.RELEASE</version>
-		</dependency>		
-		  
-        <dependency>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -64,26 +65,38 @@
 			<version>2.0.0</version>
 			<scope>test</scope>
 		</dependency>
-		  
-  </dependencies>
 
-     <build>
-        <plugins>
+	</dependencies>
 
-<plugin>
-<artifactId>maven-deploy-plugin</artifactId>
-<version>2.8.2</version>
-<executions>
-<execution>
-<id>default-deploy</id>
-<phase>deploy</phase>
-<goals>
-<goal>deploy</goal>
-</goals>
-</execution>
-</executions>
-</plugin>
+	<build>
+		<plugins>
+
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+				<executions>
+					<execution>
+						<id>default-deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-  
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+			</url>
+		</repository>
+	</distributionManagement>
+
 </project>
