@@ -1,0 +1,16 @@
+<settings>
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <!-- from https://stackoverflow.com/a/28074776/1319337 -->
+            <!-- ossrh username/password                           -->
+            <!-- can now be specified using mvn flag of            -->
+            <!-- mvn -s <this settings file> \                     -->
+            <!--     -Dossrh.repo.jira-id=some_username \          -->
+            <!--     -Dossrh.repo.jira-pwd=some_password \         -->
+            <!---    ...etc. etc. etc.                             -->
+            <username>${ossrh.repo.jira-id}</username>
+            <password>${ossrh.repo.jira-pwd}</password>
+        </server>
+    </servers>
+</settings>

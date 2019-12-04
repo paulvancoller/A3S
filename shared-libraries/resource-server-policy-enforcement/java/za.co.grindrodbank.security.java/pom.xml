@@ -87,6 +87,14 @@
 		</plugins>
 	</build>
 
+
+	<scm> git@github.com:GrindrodBank/A3S.git
+		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
+		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
+		<url>https://github.com/GrindrodBank/A3S</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
