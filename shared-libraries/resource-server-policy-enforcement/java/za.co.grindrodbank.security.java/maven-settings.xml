@@ -6,11 +6,22 @@
             <!-- ossrh username/password                           -->
             <!-- can now be specified using mvn flag of            -->
             <!-- mvn -s <this settings file> \                     -->
-            <!--     -Dossrh.repo.jira-id=some_username \          -->
-            <!--     -Dossrh.repo.jira-pwd=some_password \         -->
+            <!-- -Dossrh.repo.jira-id=some_username \          -->
+            <!-- -Dossrh.repo.jira-pwd=some_password \         -->
             <!---    ...etc. etc. etc.                             -->
             <username>${ossrh.repo.jira-id}</username>
             <password>${ossrh.repo.jira-pwd}</password>
         </server>
     </servers>
+    <profiles>
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.passphrase>${ossrh.gpg.passphrase}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
 </settings>
