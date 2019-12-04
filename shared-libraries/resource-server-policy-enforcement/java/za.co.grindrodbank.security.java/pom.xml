@@ -131,41 +131,60 @@
 			</plugin>
 
 
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.10.4</version>
+
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
-				<execuations>
+				<executions>
 					<execution>
 						<id>attach-javadoc</id>
 						<goals>
-							<execution>
-							</executions>
-						</plugin>
-					</plugins>
-				</build>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 
-				<scm> git@github.com:GrindrodBank/A3S.git
-					<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
-					<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
-					<url>https://github.com/GrindrodBank/A3S</url>
-					<tag>HEAD</tag>
-				</scm>
+	<scm> git@github.com:GrindrodBank/A3S.git
+		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
+		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
+		<url>https://github.com/GrindrodBank/A3S</url>
+		<tag>HEAD</tag>
+	</scm>
 
-				<distributionManagement>
-					<snapshotRepository>
-						<id>ossrh</id>
-						<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-					</snapshotRepository>
-					<repository>
-						<id>ossrh</id>
-						<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
-						</url>
-					</repository>
-				</distributionManagement>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+			</url>
+		</repository>
+	</distributionManagement>
 
-			</project>
+</project>
