@@ -13,6 +13,7 @@ using za.co.grindrodbank.a3s.Repositories;
 using IdentityServer4.EntityFramework.Entities;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -51,33 +52,16 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            try
-            {
-                // Note: Always added 'permission' as the user claims that need to be mapped into access tokens for this API Resource.
-                ApiResource identityServerApiResource = await identityApiResourceRespository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
+            // Note: Always added 'permission' as the user claims that need to be mapped into access tokens for this API Resource.
+            ApiResource identityServerApiResource = await identityApiResourceRespository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
 
-                if(identityServerApiResource == null)
-                {
-                    await identityApiResourceRespository.CreateAsync(applicationSecurityContractDefinition.Fullname, new[] { "permission" });
-                }
-                else
-                {
-                    logger.Warn($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: The API Resource with name '{applicationSecurityContractDefinition.Fullname}' already exists on the Identity Server. Not creating a new one!");
-                }
+            if(identityServerApiResource == null)
+            {
+                await identityApiResourceRespository.CreateAsync(applicationSecurityContractDefinition.Fullname, new[] { "permission" });
             }
-            catch (Exception e)
+            else
             {
-                string errMessage = String.Format($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Error creating new API resource for application '{applicationSecurityContractDefinition.Fullname}' on Identity Server: {e.Message}");
-                logger.Error(errMessage);
-
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add(errMessage);
-                }
-                else
-                {
-                    throw;
-                }
+                logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: The API Resource with name '{applicationSecurityContractDefinition.Fullname}' already exists on the Identity Server. Not creating a new one!");
             }
 
             // Create the A3S representation of the resource.
@@ -93,28 +77,28 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var function in applicationSecurityContractDefinition.ApplicationFunctions)
                 {
+                    // Application functions should be unique, check that another one does not exist prior to attempting to add it to the application.
+                    var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(function.Name);
+
+                    if(existingApplicationFunction != null)
+                    {
+                        var errorMessage = $"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}'].[applicationFunctions.name: '{function.Name}']: Cannot create application function '{function.Name}', as there is already an application function with this name.";
+                        logger.Error(errorMessage);
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            // Attempting to add the function anyway would result in a uniqueness contraint violation and break the transaction.
+                            continue;
+                        }
+                    }
+
+                    logger.Error($"Adding function {function.Name} to application.");
                     application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(function, updatedByGuid, applicationSecurityContractDefinition.Fullname));
                 }
             }
-
             // Set an initial value to the un-saved model.
-            var newApplication = application;
+            ApplicationModel newApplication = await applicationRepository.CreateAsync(application);
 
-            try
-            {
-                newApplication = await applicationRepository.CreateAsync(application);
-            } catch(Exception e)
-            {
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add($"[application.fullname:'{application.Name}']: Error saving new application with name: '{application.Name}'. Exception: {e.Message}");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            
             return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
         }
 
@@ -133,20 +117,7 @@ namespace za.co.grindrodbank.a3s.Services
                     if (applicationSecurityContractDefinition.DataPolicies == null || !applicationSecurityContractDefinition.DataPolicies.Exists(dp => dp.Name == application.ApplicationDataPolicies[i].Name))
                     {
                         logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name]: Data Policy: '{application.ApplicationDataPolicies[i].Name}' was historically assigned to application '{application.Name}', but no longer is within thse security contract being processed. Removing dataPolicy '{application.ApplicationDataPolicies[i].Name}' from application '{application.Name}'!");
-                        try {
-                            await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]);
-                        }
-                        catch (Exception e)
-                        {
-                            if (dryRun)
-                            {
-                                securityContractDryRunResult.ValidationErrors.Add($"[application.fullname:'{application.Name}'].[dataPolicies.name: '{application.ApplicationDataPolicies[i].Name}']: Error deleting dataPolicy {application.ApplicationDataPolicies[i].Name} from application '{application.Name}'. Exception: '{e.Message}'");
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
+                        await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]); 
                     }
                 }
             }
@@ -165,6 +136,20 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if(existingDataPolicy == null)
                     {
+                        //check that the data policy does not exist within other applications.
+                        var dataPolicyAttachedToOtherApplication = await applicationDataPolicyRepository.GetByNameAsync(dataPolicyToAdd.Name);
+                        if(dataPolicyAttachedToOtherApplication != null)
+                        {
+                            var errorMessage = $"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy with name alreay exists in another application. Not adding it!";
+                            if (dryRun)
+                            {
+                                securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                                continue;
+                            }
+
+                            throw new ItemNotProcessableException(errorMessage);
+                        }
+
                         logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
                         application.ApplicationDataPolicies.Add(new ApplicationDataPolicyModel
                         {
@@ -187,42 +172,14 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies]: No application data policies defined for application '{application.Name}'.");
             }
 
-            try
-            {
-                return await applicationRepository.Update(application);
-            } catch (Exception e)
-            {
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[dataPolicies]: Error updating application '{application.Name}' with data-policies. Error: '{e.Message}'");
-                    // The best we can do is return the non-updated application in an attempt to carry on.
-                    return application;
-                }
-
-                throw;
-            }
-            
+            return await applicationRepository.Update(application);
         }
 
         private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
 
-            try
-            {
-                await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
-            } catch(Exception e)
-            {
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add($"Error purging old permissions not assigned to applications. Error: '{e.Message}'");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            
+            await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
             await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
 
             return updatedApplication;
@@ -247,6 +204,21 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (applicationFunction == null)
                 {
+                    //We now know this application does not have a function with the name assigned. However, another one might, check for this.
+                    var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(functionResource.Name);
+
+                    if(existingApplicationFunction != null)
+                    {
+                        var errorMessage = $"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists in another application. Cannot assign it to application: '{application.Name}'";
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
+
                     application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname));
                 }
                 else
@@ -274,21 +246,7 @@ namespace za.co.grindrodbank.a3s.Services
                 }
             }
 
-            try
-            {
-                return await applicationRepository.Update(application);
-            } catch (Exception e)
-            {
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions]: Error updating applicationFunctions for application '{application.Name}'. Error: '{e.Message}'");
-                    // The best we can do is return the application that was not updated.
-                    return application;
-                }
-            
-                throw;
-            }
-            
+            return await applicationRepository.Update(application);
         }
 
         private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
@@ -301,21 +259,7 @@ namespace za.co.grindrodbank.a3s.Services
                     {
                         logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: ApplicationFunction: '{application.ApplicationFunctions[i].Name}' was previously assigned to application '{application.Name}' but no longer is within the security contract being processed. Un-assigning ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'!");
                         // Note: This only removes the application function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
-                        try
-                        {
-                            await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
-                        } catch (Exception e)
-                        {
-                            if (dryRun)
-                            {
-                                securityContractDryRunResult.ValidationErrors.Add($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: Error removing ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'. Error: {e.Message} ");
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                        
+                        await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
                     }
                 }
             }

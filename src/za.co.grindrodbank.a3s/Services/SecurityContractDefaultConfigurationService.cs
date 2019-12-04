@@ -69,7 +69,6 @@ namespace za.co.grindrodbank.a3s.Services
                 return;
             }
 
-
             foreach (var defaultApplication in securityContractDefaultConfiguration.Applications)
                 await ApplyIndividualDefaultApplication(defaultApplication, updatedById, securityContractDefaultConfiguration.Name, dryRun, securityContractDryRunResult);
         }
