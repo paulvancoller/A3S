@@ -13,7 +13,7 @@
 
 	<groupId>za.co.grindrodbank</groupId>
 	<artifactId>security</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>security</name>
@@ -93,6 +93,9 @@
 					<pushChanges>false</pushChanges>
 					<mavenExecutorId>forked-path</mavenExecutorId>
 					<arguments>-Dgpg.passphrase=${ossrh.gpg.passphrase}</arguments>
+					<checkModificationExcludes>
+						<checkModificationExclude>pom.xml</checkModificationExclude>
+					</checkModificationExcludes>
 				</configuration>
 				<dependencies>
 					<dependency>
