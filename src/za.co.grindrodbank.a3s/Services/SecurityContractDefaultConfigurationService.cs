@@ -285,29 +285,14 @@ namespace za.co.grindrodbank.a3s.Services
             await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
             await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
-            try
+            if (roleIsNew)
             {
-                if (roleIsNew)
-                {
-                    await roleRepository.CreateAsync(defaultRoleToApply);
-                }
-                else
-                {
-                    await roleRepository.UpdateAsync(defaultRoleToApply);
-                }
-            } catch (Exception e)
-            {
-                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Error persisting role '{defaultRole.Name}' to the data store. Exception: {e.Message}";
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                }
-                else
-                {
-                    throw;
-                }
+                await roleRepository.CreateAsync(defaultRoleToApply);
             }
-           
+            else
+            {
+                await roleRepository.UpdateAsync(defaultRoleToApply);
+            }
         }
 
         private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
@@ -458,32 +443,16 @@ namespace za.co.grindrodbank.a3s.Services
                 });
             }
 
-            try
+            if (newLdapAuthMode)
             {
-                if (newLdapAuthMode)
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Persisting new Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
-                    await ldapAuthenticationModeRepository.CreateAsync(defaultLdapAuthToApply);
-                }
-                else
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Updating existing Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
-                    await ldapAuthenticationModeRepository.UpdateAsync(defaultLdapAuthToApply);
-                }
-            } catch (Exception e)
-            {
-                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Error persisting LDAP Auth Mode '{defaultLdapAuthMode.Name}'. Error: '{e.Message}'";
-
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                }
-                else
-                {
-                    throw;
-                }
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Persisting new Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
+                await ldapAuthenticationModeRepository.CreateAsync(defaultLdapAuthToApply);
             }
-            
+            else
+            {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Updating existing Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
+                await ldapAuthenticationModeRepository.UpdateAsync(defaultLdapAuthToApply);
+            }
         }
 
         /// <summary>
@@ -552,34 +521,19 @@ namespace za.co.grindrodbank.a3s.Services
             await ApplyRolesToDefaultUser(defaultUser, defaultUserToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
             await ApplyLdapAuthModeToDefaultUser(defaultUser, defaultUserToApply, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
-            try
+            if (newUser)
             {
-                if (newUser)
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting new user '{defaultUser.Username}'.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting new user '{defaultUser.Username}'.");
 
-                    if (string.IsNullOrWhiteSpace(defaultUser.HashedPassword))
-                        await userRepository.CreateAsync(defaultUserToApply, defaultUser.Password, isPlainTextPassword: true);
-                    else
-                        await userRepository.CreateAsync(defaultUserToApply, defaultUser.HashedPassword, isPlainTextPassword: false);
-                }
+                if (string.IsNullOrWhiteSpace(defaultUser.HashedPassword))
+                    await userRepository.CreateAsync(defaultUserToApply, defaultUser.Password, isPlainTextPassword: true);
                 else
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting existing user '{defaultUser.Username}'.");
-                    await userRepository.UpdateAsync(defaultUserToApply);
-                }
-            } catch (Exception e)
+                    await userRepository.CreateAsync(defaultUserToApply, defaultUser.HashedPassword, isPlainTextPassword: false);
+            }
+            else
             {
-                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Error persisting user. Error: {e.Message}";
-
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                }
-                else
-                {
-                    throw;
-                }
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting existing user '{defaultUser.Username}'.");
+                await userRepository.UpdateAsync(defaultUserToApply);
             }
         }
 
@@ -695,29 +649,15 @@ namespace za.co.grindrodbank.a3s.Services
             await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
             await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
-            try
+            if (newTeam)
             {
-                if (newTeam)
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting new team '{defaultTeamToApply.Name}'.");
-                    await teamRepository.CreateAsync(teamModel);
-                }
-                else
-                {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting updated team '{defaultTeamToApply.Name}'.");
-                    await teamRepository.UpdateAsync(teamModel);
-                }
-            } catch(Exception e)
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting new team '{defaultTeamToApply.Name}'.");
+                await teamRepository.CreateAsync(teamModel);
+            }
+            else
             {
-                if (dryRun)
-                {
-                    securityContractDryRunResult.ValidationErrors.Add($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Error persisting team '{defaultTeamToApply.Name}'. Error: {e.Message}");
-                }
-                else
-                {
-                    throw;
-                }
-
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting updated team '{defaultTeamToApply.Name}'.");
+                await teamRepository.UpdateAsync(teamModel);
             }
         }
 
