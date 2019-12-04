@@ -1,3 +1,9 @@
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
 /*
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file

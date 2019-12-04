@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    *************************************************
+    Copyright (c) 2019, Grindrod Bank Limited
+    License MIT: https://opensource.org/licenses/MIT
+    **************************************************
+
+-->
 <profiles version="16">
 <profile kind="CodeFormatterProfile" name="SecurityLibJavaCodeFormatting" version="16">
 <setting id="org.eclipse.jdt.core.formatter.insert_space_after_ellipsis" value="insert"/>
