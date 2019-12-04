@@ -82,7 +82,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if(existingApplicationFunction != null)
                     {
-                        var errorMessage = $"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}'].[applicationFunctions.name: '{function.Name}']: Cannot create application function '{function.Name}', as there is already an application function with this name.";
+                        var errorMessage = $"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}'].[applicationFunctions.name: '{function.Name}']: Cannot create application function '{function.Name}', as there is already an application function with this nam assigned to another application.";
                         logger.Error(errorMessage);
                         if (dryRun)
                         {
