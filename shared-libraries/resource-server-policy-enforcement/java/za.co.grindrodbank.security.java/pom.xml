@@ -7,13 +7,12 @@
     **************************************************
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>za.co.grindrodbank</groupId>
 	<artifactId>security</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>security</name>
@@ -23,7 +22,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.8.RELEASE</version>		<!-- NOTE: if this is upgraded make sure to correct/check on the overidden versions within <dependencyManagement> section of pom -->
-		<relativePath/>
+		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
 
@@ -175,7 +174,7 @@
 		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
 		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
 		<url>https://github.com/GrindrodBank/A3S</url>
-		<tag>HEAD</tag>
+		<tag>security-0.0.1</tag>
 	</scm>
 
 	<distributionManagement>
