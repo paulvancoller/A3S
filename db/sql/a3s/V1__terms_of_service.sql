@@ -203,13 +203,11 @@ ALTER TABLE _a3s.application_data_policy ALTER COLUMN sys_period SET NOT NULL;
 ALTER TABLE _a3s.team_application_data_policy ALTER COLUMN sys_period SET NOT NULL;
 
 
--- FUNCTION: _a3s."terms_of_service_acceptance archive"(uuid)
+-- FUNCTION: _a3s.terms_of_service_acceptance_archive(uuid)
 
--- DROP FUNCTION _a3s."terms_of_service_acceptance archive"(uuid);
-
-CREATE OR REPLACE FUNCTION _a3s."terms_of_service_acceptance archive"(
+CREATE OR REPLACE FUNCTION _a3s.terms_of_service_acceptance_archive(
 	terms_of_service_guid uuid)
-    RETURNS boolean
+    RETURNS VOID
     LANGUAGE 'sql'
 
     COST 100
@@ -224,12 +222,10 @@ WHERE terms_of_service_id = terms_of_service_guid;
 -- Remove copied records from source
 DELETE FROM _a3s.terms_of_service_user_acceptance where terms_of_service_id = terms_of_service_guid;
 
--- All done
-select true;
 $BODY$;
 
-ALTER FUNCTION _a3s."terms_of_service_acceptance archive"(uuid)
+ALTER FUNCTION _a3s.terms_of_service_acceptance_archive(uuid)
     OWNER TO postgres;
 
-COMMENT ON FUNCTION _a3s."terms_of_service_acceptance archive"(uuid)
+COMMENT ON FUNCTION _a3s.terms_of_service_acceptance_archive(uuid)
     IS 'Archives the Terms of Service acceptance records from the terms_of_service_user_acceptance table to the terms_of_service_user_acceptance_history table.';
