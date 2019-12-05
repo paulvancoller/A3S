@@ -338,7 +338,13 @@ namespace za.co.grindrodbank.a3s.Services
                 // This check will be true if the permission is assigned to another function attached to the application.
                 if(applicationFunctionPermission == null)
                 {
-                    logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' already assigned to another function within '{applicationName}'. Adding it to additional function '{applicationFunction.Name}'");
+                    var warningMessage = $"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' already assigned to another application function within '{applicationName}'. Adding it to additional function '{applicationFunction.Name}'";
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                    }
+
+                    logger.Warn(warningMessage);
 
                     // Still check if the permission is to be updated.
                     if (existingPermission.Description != permission.Description)
@@ -364,17 +370,16 @@ namespace za.co.grindrodbank.a3s.Services
             else
             {
                 logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' does not exist in A3S. Adding it.");
-                PermissionModel permissionToAdd = new PermissionModel
-                {
-                    Name = permission.Name,
-                    Description = permission.Description,
-                    ChangedBy = updatedByGuid
-                };
 
                 applicationFunction.ApplicationFunctionPermissions.Add(new ApplicationFunctionPermissionModel
                 {
                     ApplicationFunction = applicationFunction,
-                    Permission = permissionToAdd,
+                    Permission = new PermissionModel
+                    {
+                        Name = permission.Name,
+                        Description = permission.Description,
+                        ChangedBy = updatedByGuid
+                    },
                     ChangedBy = updatedByGuid
                 });
             }
