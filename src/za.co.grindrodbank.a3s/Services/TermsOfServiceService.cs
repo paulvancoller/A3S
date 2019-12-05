@@ -39,7 +39,6 @@ namespace za.co.grindrodbank.a3s.Services
 
             try
             {
-                // This will only map the first level of members onto the model. User IDs and Policy IDs will not be.
                 var termsOfServiceModel = mapper.Map<TermsOfServiceModel>(termsOfServiceSubmit);
                 termsOfServiceModel.ChangedBy = createdById;
                 termsOfServiceModel.AgreementName = termsOfServiceModel.AgreementName.Trim();

@@ -226,8 +226,8 @@ DELETE FROM _a3s.terms_of_service_user_acceptance WHERE terms_of_service_id in
 
 $BODY$;
 
-ALTER FUNCTION _a3s.terms_of_service_acceptance_archive(uuid)
+ALTER FUNCTION _a3s.terms_of_service_acceptance_archive(text)
     OWNER TO postgres;
 
-COMMENT ON FUNCTION _a3s.terms_of_service_acceptance_archive(uuid)
+COMMENT ON FUNCTION _a3s.terms_of_service_acceptance_archive(text)
     IS 'Archives the Terms of Service acceptance records from the terms_of_service_user_acceptance table to the terms_of_service_user_acceptance_history table (for all previous agreements, keeping the latest agreement records.';

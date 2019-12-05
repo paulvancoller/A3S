@@ -46,6 +46,10 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService)
         {
+            // Archive any previous agreement acceptance records
+            await a3SContext.Database.ExecuteSqlCommandAsync($"SELECT _a3s.terms_of_service_acceptance_archive('{termsOfService.AgreementName}');");
+
+            // Save new agreement version
             a3SContext.TermsOfService.Add(termsOfService);
             await a3SContext.SaveChangesAsync();
 
