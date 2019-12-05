@@ -44,19 +44,19 @@ namespace za.co.grindrodbank.a3s.Services
             if (application == null)
             {
                 logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' not found in database. Creating new application.");
-                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
+                return await CreateApplication(applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
             }
 
             logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' already exists. Updating it.");
-            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
+            return await UpdateExistingApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private async Task CreateApiResourceForApplicationOnIdentityServer(SecurityContractApplication applicationSecurityContractDefinition)
         {
             // Note: Always added 'permission' as the user claims that need to be mapped into access tokens for this API Resource.
             ApiResource identityServerApiResource = await identityApiResourceRespository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
 
-            if(identityServerApiResource == null)
+            if (identityServerApiResource == null)
             {
                 await identityApiResourceRespository.CreateAsync(applicationSecurityContractDefinition.Fullname, new[] { "permission" });
             }
@@ -64,6 +64,11 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: The API Resource with name '{applicationSecurityContractDefinition.Fullname}' already exists on the Identity Server. Not creating a new one!");
             }
+        }
+
+        private async Task<ApplicationModel> CreateApplication(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            await CreateApiResourceForApplicationOnIdentityServer(applicationSecurityContractDefinition);
 
             // Create the A3S representation of the resource.
             ApplicationModel application = new ApplicationModel
@@ -84,7 +89,7 @@ namespace za.co.grindrodbank.a3s.Services
                     if(existingApplicationFunction != null)
                     {
                         var errorMessage = $"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}'].[applicationFunctions.name: '{function.Name}']: Cannot create application function '{function.Name}', as there is already an application function with this nam assigned to another application.";
-                        logger.Error(errorMessage);
+
                         if (dryRun)
                         {
                             securityContractDryRunResult.ValidationErrors.Add(errorMessage);
@@ -96,7 +101,7 @@ namespace za.co.grindrodbank.a3s.Services
                     }
 
                     logger.Error($"Adding function {function.Name} to application.");
-                    application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(function, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
+                    application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(function, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
                 }
             }
             // Set an initial value to the un-saved model.
@@ -175,14 +180,12 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies]: No application data policies defined for application '{application.Name}'.");
             }
 
-            return await applicationRepository.Update(application);
+            return application;
         }
 
-        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private async Task<ApplicationModel> UpdateExistingApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
-
-            //await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
             await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
 
             return updatedApplication;
@@ -209,7 +212,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (applicationFunction == null)
                 {
                     logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' does not exist. Creating it.");
-                    //We now know this application does not have a function with the name assigned. However, another one might, check for this.
+                    // We now know this application does not have a function with the name assigned. However, another one might, check for this.
                     var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(functionResource.Name);
 
                     if(existingApplicationFunction != null)
@@ -224,7 +227,7 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotProcessableException(errorMessage);
                     }
 
-                    application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
+                    application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
                 }
                 else
                 {
@@ -289,7 +292,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private ApplicationFunctionModel CreateNewFunctionFromResourceServerFunction(SecurityContractFunction functionResource, Guid updatedByGuid, string applicationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private ApplicationFunctionModel CreateNewApplicationFunctionFromSecurityContractApplicationFunction(SecurityContractFunction functionResource, Guid updatedByGuid, string applicationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{functionResource.Name}']: Adding function '{functionResource.Name}' to application '{applicationName}'.");
             ApplicationFunctionModel newFunction = new ApplicationFunctionModel
