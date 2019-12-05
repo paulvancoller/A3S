@@ -8,7 +8,8 @@
         <h3 class="panel-title">@Model.AgreementName</h3>
     </div>
 
-    <div class="panel-body">
+    <div class="panel-body" id="terms-body">
+        @Html.Raw($"<style>{Model.CssContents}</style>")
         @Html.Raw(Model.HtmlContents)
     </div>
 </div>

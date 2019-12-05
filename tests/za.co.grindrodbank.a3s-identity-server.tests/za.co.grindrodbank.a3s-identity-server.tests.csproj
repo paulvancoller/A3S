@@ -52,6 +52,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Fakes\FakeStyleSheetParser.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomUserManagerFake.cs">
       <Link>Fakes\CustomUserManagerFake.cs</Link>
     </Compile>
@@ -63,6 +66,9 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomSignInManagerFake.cs">
       <Link>Fakes\CustomSignInManagerFake.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\StylesheetParserFake.cs">
+      <Link>Fakes\StylesheetParserFake.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

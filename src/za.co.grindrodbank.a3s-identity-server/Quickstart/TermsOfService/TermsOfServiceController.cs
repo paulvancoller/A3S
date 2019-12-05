@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using ExCSS;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -37,7 +38,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IClientStore clientStore;
         private readonly IArchiveHelper archiveHelper;
         private readonly SignInManager<UserModel> signInManager;
-
+        private readonly StylesheetParser stylesheetParser;
+        
         public TermsOfServiceController(
             CustomUserManager userManager,
             ITermsOfServiceRepository termsOfServiceRepository,
@@ -46,7 +48,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IEventService events,
             IClientStore clientStore,
             IArchiveHelper archiveHelper,
-            SignInManager<UserModel> signInManager)
+            SignInManager<UserModel> signInManager,
+            StylesheetParser stylesheetParser)
         {
             this.userManager = userManager;
             this.termsOfServiceRepository = termsOfServiceRepository;
@@ -56,6 +59,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             this.clientStore = clientStore;
             this.archiveHelper = archiveHelper;
             this.signInManager = signInManager;
+            this.stylesheetParser = stylesheetParser;
         }
 
         /// <summary>
@@ -114,12 +118,26 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 AgreementCount = outstandingTerms.Count,
                 AgreementName = termsOfService.AgreementName,
                 TermsOfServiceId = termsOfService.Id,
-                CssContents = termsOfService.CssContents,
+                CssContents = LocaliseStyleSheetItems(termsOfService.CssContents),
                 HtmlContents = termsOfService.HtmlContents,
                 ReturnUrl = returnUrl
             };
         }
 
+        private string LocaliseStyleSheetItems(string stylesheetContents)
+        {
+            var currentStyleSheet = stylesheetParser.Parse(stylesheetContents);
+            var newStyleSheet = stylesheetParser.Parse(string.Empty);
+
+            int ruleCount = 0;
+            foreach (StyleRule rule in currentStyleSheet.StyleRules)
+            {
+                rule.SelectorText = $"#terms-body {rule.SelectorText}";
+                newStyleSheet.Insert(rule.ToCss(), ruleCount++);
+            }
+
+            return newStyleSheet.ToCss();
+        }
 
         private bool ShowAfterSuccessManagementScreen()
         {
