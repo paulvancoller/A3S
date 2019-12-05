@@ -10,6 +10,7 @@ using System.IO;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ExCSS;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -48,7 +49,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         private readonly IUserRepository mockUserRepository;
         private readonly IAuthenticationSchemeProvider mockAuthenticationSchemeProvider;
         private readonly CustomSignInManagerFake<UserModel> fakeSignInManager;
-        private readonly StylesheetParserFake fakeStylesheetParser;
+        private readonly StylesheetParser stylesheetParser;
 
         private const string RETURN_URL = "/returnUrl";
 
@@ -111,6 +112,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             {
                 EnableLocalLogin = true
             };
+
+            stylesheetParser = new StylesheetParser();
         }
 
         [Fact]
@@ -119,7 +122,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -164,7 +167,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -211,7 +214,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -252,7 +255,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -297,7 +300,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -344,7 +347,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -397,7 +400,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -446,7 +449,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -495,7 +498,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             //Arrange
             var id = Guid.NewGuid().ToString();
             using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, fakeStylesheetParser)
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager, stylesheetParser)
             {
                 ControllerContext = new ControllerContext()
                 {

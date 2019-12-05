@@ -68,6 +68,9 @@ namespace za.co.grindrodbank.a3s.Services
             if (termsOfService == null)
                 throw new ItemNotFoundException($"Terms of Service entry with GUID '{termsOfServiceId}' not found.");
 
+            if (termsOfService.TermsOfServiceAcceptances.Count > 0)
+                throw new ItemNotProcessableException("This terms of service agreement has already been agreed to by at least one user. It cannot be deleted.");
+
             await termsOfServiceRepository.DeleteAsync(termsOfService);
         }
 

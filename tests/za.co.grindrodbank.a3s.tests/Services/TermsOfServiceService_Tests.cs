@@ -41,7 +41,8 @@ namespace za.co.grindrodbank.a3s.tests.Services
             mockedTermsOfServiceModel = new TermsOfServiceModel
             {
                 AgreementName = "Test TermsOfService",
-                Id = termsOfServiceGuid
+                Id = termsOfServiceGuid,
+                TermsOfServiceAcceptances = new List<TermsOfServiceUserAcceptanceModel>()
             };
 
             mockedTermsOfServiceModel.Teams = new List<TeamModel>
@@ -358,6 +359,35 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             // Assert
             Assert.True(caughtEx is ItemNotFoundException, "Delete on an unfindable GUID must throw an ItemNotFoundException.");
+        }
+
+        [Fact]
+        public async Task DeleteAsync_GivenAcceptedAgreement_ThrowsItemProcessableFoundException()
+        {
+            // Arrange
+            var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+            var archiveHelper = Substitute.For<IArchiveHelper>();
+
+            mockedTermsOfServiceModel.TermsOfServiceAcceptances = new List<TermsOfServiceUserAcceptanceModel>();
+            mockedTermsOfServiceModel.TermsOfServiceAcceptances.Add(new TermsOfServiceUserAcceptanceModel());
+
+            termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
+
+            var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
+
+            // Act
+            Exception caughtEx = null;
+            try
+            {
+                await termsOfServiceService.DeleteAsync(mockedTermsOfServiceSubmitModel.Uuid);
+            }
+            catch (Exception ex)
+            {
+                caughtEx = ex;
+            }
+
+            // Assert
+            Assert.True(caughtEx is ItemNotProcessableException, "Delete on an accepted agreement must throw an ItemNotProcessableException.");
         }
     }
 }

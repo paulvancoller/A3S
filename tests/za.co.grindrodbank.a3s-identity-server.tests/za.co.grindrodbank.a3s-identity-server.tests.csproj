@@ -67,9 +67,6 @@
     <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomSignInManagerFake.cs">
       <Link>Fakes\CustomSignInManagerFake.cs</Link>
     </Compile>
-    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\StylesheetParserFake.cs">
-      <Link>Fakes\StylesheetParserFake.cs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />
