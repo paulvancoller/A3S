@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -66,6 +66,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             {
                 termsOfService = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
                                       .Include(t => t.Teams)
+                                      .Include(a => a.TermsOfServiceAcceptances)
                                       .FirstOrDefaultAsync();
             }
 
@@ -85,6 +86,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             {
                 termsOfService = await a3SContext.TermsOfService.Where(t => t.AgreementName == name)
                                       .Include(t => t.Teams)
+                                      .Include(a => a.TermsOfServiceAcceptances)
                                       .FirstOrDefaultAsync();
             }
 
