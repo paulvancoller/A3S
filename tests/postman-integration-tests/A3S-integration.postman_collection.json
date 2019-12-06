@@ -8804,6 +8804,68 @@
 					"response": []
 				},
 				{
+					"name": "PutSecurityContractDefinition - Duplicate Permission Assignment - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is 422 - Non-Processable Entity\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission-updated.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "PutSecurityContractDefinition - New Default Configs Only",
 					"event": [
 						{
