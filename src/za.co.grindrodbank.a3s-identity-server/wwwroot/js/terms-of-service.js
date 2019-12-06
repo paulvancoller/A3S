@@ -10,3 +10,11 @@ if (chkAccepted) {
 
     });
 }
+
+// Print click event
+var btnPrint = document.getElementById("btnPrint")
+if (btnPrint) {
+    btnPrint.addEventListener("click", function () {
+        window.print();
+    });
+}

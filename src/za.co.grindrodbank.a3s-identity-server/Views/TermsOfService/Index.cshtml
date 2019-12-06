@@ -1,7 +1,9 @@
 ﻿@model TermsOfServiceViewModel
 
 <h1>Terms of Service Agreements (@Model.AgreementCount)</h1>
-<p></p>
+<p>
+    <button class="btn btn-default" name="btnPrint" id="btnPrint" value="btnPrint" title="Print">Print Agreement</button>
+</p>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -9,8 +11,10 @@
     </div>
 
     <div class="panel-body" id="terms-body">
-        @Html.Raw($"<style>{Model.CssContents}</style>")
-        @Html.Raw(Model.HtmlContents)
+        <div id="section-to-print">
+            @Html.Raw($"<style>{Model.CssContents}</style>")
+            @Html.Raw(Model.HtmlContents)
+        </div>
     </div>
 </div>
 
