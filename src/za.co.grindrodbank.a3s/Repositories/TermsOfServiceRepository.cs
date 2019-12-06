@@ -47,7 +47,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService)
         {
             // Archive any previous agreement acceptance records
-            await a3SContext.Database.ExecuteSqlCommandAsync($"SELECT _a3s.terms_of_service_acceptance_archive('{termsOfService.AgreementName}');");
+            ArchiveTermsOfServiceAcceptanceRecords(termsOfService.AgreementName);
 
             // Save new agreement version
             a3SContext.TermsOfService.Add(termsOfService);
@@ -180,6 +180,19 @@ namespace za.co.grindrodbank.a3s.Repositories
                 builder.Append(Convert.ToChar(inputBytes[i]));
 
             return builder.ToString();
+        }
+
+        private void ArchiveTermsOfServiceAcceptanceRecords(string agreementName)
+        {
+            // Copy records and set upper bound acceptance_time
+            a3SContext.Database.ExecuteSqlCommandAsync("INSERT INTO _a3S.terms_of_service_user_acceptance_history " +
+                "SELECT terms_of_service_id, user_id, tstzrange(lower(acceptance_time), CURRENT_TIMESTAMP) FROM _a3s.terms_of_service_user_acceptance " +
+                "WHERE terms_of_service_id in " +
+                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = {0}) ", agreementName);
+
+            // Remove copied records from source
+            a3SContext.Database.ExecuteSqlCommandAsync("DELETE FROM _a3s.terms_of_service_user_acceptance WHERE terms_of_service_id in " +
+                "(SELECT id from _a3s.terms_of_service WHERE agreement_name = {0}) ", agreementName);
         }
     }
 }

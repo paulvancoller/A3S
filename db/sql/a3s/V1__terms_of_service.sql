@@ -201,33 +201,3 @@ ALTER TABLE _a3s.team_team ALTER COLUMN sys_period SET NOT NULL;
 ALTER TABLE _a3s.role_role ALTER COLUMN sys_period SET NOT NULL;
 ALTER TABLE _a3s.application_data_policy ALTER COLUMN sys_period SET NOT NULL;
 ALTER TABLE _a3s.team_application_data_policy ALTER COLUMN sys_period SET NOT NULL;
-
-
--- FUNCTION: _a3s.terms_of_service_acceptance_archive(uuid)
-
-CREATE OR REPLACE FUNCTION _a3s.terms_of_service_acceptance_archive(
-	agreement_name_in text)
-    RETURNS VOID
-    LANGUAGE 'sql'
-
-    COST 100
-    VOLATILE 
-AS $BODY$
-
--- Copy records and set upper bound acceptance_time
-INSERT INTO _a3S.terms_of_service_user_acceptance_history
-SELECT terms_of_service_id, user_id, tstzrange(lower(acceptance_time), CURRENT_TIMESTAMP) FROM _a3s.terms_of_service_user_acceptance
-WHERE terms_of_service_id in 
-	(SELECT id from _a3s.terms_of_service WHERE agreement_name = agreement_name_in);
-
--- Remove copied records from source
-DELETE FROM _a3s.terms_of_service_user_acceptance WHERE terms_of_service_id in 
-	(SELECT id from _a3s.terms_of_service WHERE agreement_name = agreement_name_in);
-
-$BODY$;
-
-ALTER FUNCTION _a3s.terms_of_service_acceptance_archive(text)
-    OWNER TO postgres;
-
-COMMENT ON FUNCTION _a3s.terms_of_service_acceptance_archive(text)
-    IS 'Archives the Terms of Service acceptance records from the terms_of_service_user_acceptance table to the terms_of_service_user_acceptance_history table (for all previous agreements, keeping the latest agreement records.';
