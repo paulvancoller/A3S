@@ -86,7 +86,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var newVersion = string.Concat(DateTime.Now.Year, ".2");
 
             mockedTermsOfServiceModel.Version = newVersion;
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             termsOfServiceRepository.GetLastestVersionByAgreementName(Arg.Any<string>()).Returns(prevVersion);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(
                 new List<string>()
@@ -116,7 +116,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var newVersion = string.Concat(DateTime.Now.Year, ".2");
 
             mockedTermsOfServiceModel.Version = newVersion;
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             termsOfServiceRepository.GetLastestVersionByAgreementName(Arg.Any<string>()).Returns(prevVersion);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(
                 new List<string>()
@@ -145,7 +145,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var newVersion = string.Concat(DateTime.Now.Year, ".2");
 
             mockedTermsOfServiceModel.Version = newVersion;
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             termsOfServiceRepository.GetLastestVersionByAgreementName(Arg.Any<string>()).Returns(prevVersion);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(
                 new List<string>()
@@ -171,7 +171,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(
                 new List<string>()
                 {
@@ -204,7 +204,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(
                 new List<string>()
                 {
@@ -237,7 +237,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var archiveHelper = Substitute.For<IArchiveHelper>();
 
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             archiveHelper.When(x => x.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>())).Do(x => throw new ArchiveException());
 
             var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
@@ -266,7 +266,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             termsOfServiceRepository.GetByIdAsync(mockedTermsOfServiceModel.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             termsOfServiceRepository.GetByAgreementNameAsync(mockedTermsOfServiceSubmitModel.AgreementName, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
-            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>()).Returns(mockedTermsOfServiceModel);
+            termsOfServiceRepository.CreateAsync(Arg.Any<TermsOfServiceModel>(), Arg.Any<bool>()).Returns(mockedTermsOfServiceModel);
             archiveHelper.ReturnFilesListInTarGz(Arg.Any<byte[]>(), Arg.Any<bool>()).Returns(new List<string>());
 
             var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
