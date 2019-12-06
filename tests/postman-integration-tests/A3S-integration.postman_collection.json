@@ -9222,17 +9222,6 @@
 									"        }",
 									"    }",
 									"    pm.expect(true).to.eql(result);",
-									"    ",
-									"    // The order of returned items in the lists is not longer deterministic, as results are ordered by updated time now, not alphabetically as they used to be.",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].name).to.equal(\"a3s.TestPipeline.Reader\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].permissions.length).to.equal(1);",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].permissions[0]).to.equal(\"a3s-pipeline-test.test.read\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].name).to.equal(\"a3s.TestPipeline.SuperAdmin\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions.length).to.equal(4);",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[0]).to.equal(\"a3s-pipeline-test.test.archive\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[1]).to.equal(\"a3s-pipeline-test.test.create\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[2]).to.equal(\"a3s-pipeline-test.test.read\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[3]).to.equal(\"a3s-pipeline-test.test.update\");",
 									"});",
 									"",
 									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
@@ -9250,6 +9239,278 @@
 									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
 									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
 									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the default configuration that was created in the previous partial security contract upload."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Create Compound Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "defaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S-Pipeline-Test-Config\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s-pipeline-test\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.TestPipeline.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n              - a3s-pipeline-test.test.create\n              - a3s-pipeline-test.test.update\n              - a3s-pipeline-test.test.archive\n          - name: \"a3s.TestPipeline.Reader\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Test Pipeline Super Admin\"\n        description: An A3S Test Pipeline Super Admin Role that has all the A3S test Pipeline functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.TestPipeline.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Test Pipeline Role for reading things..\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n    # Defines a section for declaring new users and mapping roles to them.\n    users:\n      - username: a3s-test-pipeline-user\n        name: a3s-test-pipeline-user\n        surname: pipeline-test-surname\n        email: a3s-pipeline-test@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        phoneNumber: \"+27110110117\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Test Pipeline Super Admin\"\n\n    teams:\n      - name: default-test-pipeline-team\n        description: A simple test default team.\n        users:\n          - a3s-test-pipeline-user\n      - name: default-test-pipeline-compound-team\n        description: A simple test default team.\n        teams:\n          - default-test-pipeline-team\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Create Compound Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that the new compound team has the correct child team.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.defaultConfigurations[0].teams.length; loop++)",
+									"    {",
+									"        if (jsonData.defaultConfigurations[0].teams[loop].name === \"default-test-pipeline-compound-team\")",
+									"        {",
+									"            if(jsonData.defaultConfigurations[0].teams[loop].teams[0] === \"default-test-pipeline-team\")",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the default configuration that was created in the previous partial security contract upload."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Create Compound Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "defaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S-Pipeline-Test-Config\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s-pipeline-test\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.TestPipeline.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n              - a3s-pipeline-test.test.create\n              - a3s-pipeline-test.test.update\n              - a3s-pipeline-test.test.archive\n          - name: \"a3s.TestPipeline.Reader\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Test Pipeline Super Admin\"\n        description: An A3S Test Pipeline Super Admin Role that has all the A3S test Pipeline functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.TestPipeline.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Test Pipeline Role for reading things..\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n      - name: \"Test-Compound-Role\"\n        description: An A3S Test Compound Role.\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n        roles:\n          - \"A3S User Manager\"\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Create Compound Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that the new compound role has the correct child role.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.defaultConfigurations[0].roles.length; loop++)",
+									"    {",
+									"        if (jsonData.defaultConfigurations[0].roles[loop].name === \"Test-Compound-Role\")",
+									"        {",
+									"            if(jsonData.defaultConfigurations[0].roles[loop].roles[0] === \"A3S User Manager\")",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									""
 								],
 								"type": "text/javascript"
 							}
