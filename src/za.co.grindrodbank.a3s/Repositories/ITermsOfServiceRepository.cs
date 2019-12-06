@@ -15,7 +15,7 @@ namespace za.co.grindrodbank.a3s.Repositories
     {
         Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations, bool includeFileContents);
         Task<TermsOfServiceModel> GetByAgreementNameAsync(string agreementName, bool includeRelations, bool includeFileContents);
-        Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService);
+        Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService, bool autoAssignToPreviouslyLinkedTeams);
         Task<TermsOfServiceModel> UpdateAsync(TermsOfServiceModel termsOfService);
         Task DeleteAsync(TermsOfServiceModel termsOfService);
         Task<List<TermsOfServiceModel>> GetListAsync();

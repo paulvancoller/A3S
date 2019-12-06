@@ -338,7 +338,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                     result = await _signInManager.TwoFactorAuthenticatorSignInAsync(model.OTP, false, false);
 
                 if (result.Succeeded)
-                    return RedirectToAction("LoginSuccessful", new { redirectUrl = model.RedirectUrl, show2FARegMessage = true });
+                    return RedirectToAction("Index", "TermsOfService", new { returnUrl = model.RedirectUrl });
 
                 if (result.IsLockedOut)
                 {

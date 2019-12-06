@@ -46,7 +46,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 ValidateFileCompatibility(termsOfServiceModel.AgreementFile);
 
-                var createdTermsOfService = mapper.Map<TermsOfService>(await termsOfServiceRepository.CreateAsync(termsOfServiceModel));
+                var createdTermsOfService = mapper.Map<TermsOfService>(await termsOfServiceRepository.CreateAsync(termsOfServiceModel, termsOfServiceSubmit.AutoUpdate));
 
                 // All successful
                 CommitAllTransactions();

@@ -44,14 +44,17 @@ namespace za.co.grindrodbank.a3s.Repositories
                 a3SContext.Database.CurrentTransaction.Rollback();
         }
 
-        public async Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService)
+        public async Task<TermsOfServiceModel> CreateAsync(TermsOfServiceModel termsOfService, bool autoAssignToPreviouslyLinkedTeams)
         {
-            // Archive any previous agreement acceptance records
-            await ArchiveTermsOfServiceAcceptanceRecords(termsOfService.AgreementName);
-
             // Save new agreement version
             a3SContext.TermsOfService.Add(termsOfService);
             await a3SContext.SaveChangesAsync();
+
+            if (autoAssignToPreviouslyLinkedTeams)
+            {
+                await AssignNewTermsOfServiceEntryToTeams(termsOfService.Id);
+                await ArchiveTermsOfServiceAcceptanceRecords(termsOfService.AgreementName);
+            }
 
             return termsOfService;
         }
@@ -180,6 +183,15 @@ namespace za.co.grindrodbank.a3s.Repositories
                 builder.Append(Convert.ToChar(inputBytes[i]));
 
             return builder.ToString();
+        }
+
+        private async Task AssignNewTermsOfServiceEntryToTeams(Guid termsOfServiceId)
+        {
+            // Copy records and set upper bound acceptance_time
+            await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.team SET terms_of_service_id = {0} " +
+                "WHERE terms_of_service_id in " +
+                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = (SELECT agreement_name FROM _a3s.terms_of_service WHERE id = {0}) ", termsOfServiceId);
+
         }
 
         private async Task ArchiveTermsOfServiceAcceptanceRecords(string agreementName)
