@@ -96,7 +96,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             var authenticationMode = await ldapAuthenticationModeRepository.GetByIdAsync(ldapAuthenticationModeId, false, true);
 
-            if(authenticationMode == null)
+            if (authenticationMode == null)
             {
                 throw new ItemNotFoundException($"Authentication Mode with GUID '{ldapAuthenticationModeId}' not found.");
             }

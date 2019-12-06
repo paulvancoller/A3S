@@ -87,7 +87,7 @@ namespace za.co.grindrodbank.a3s.Services
             try
             {
                 List<string> archiveFiles = archiveHelper.ReturnFilesListInTarGz(fileContents, true);
-                
+
                 if (!archiveFiles.Contains("terms_of_service.html"))
                     throw new ItemNotProcessableException("Agreement file archive does not contain a 'terms_of_service.html' file.");
 

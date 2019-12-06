@@ -2198,15 +2198,6 @@ paths:
             schema:
               $ref: '#/components/schemas/SecurityContract'
       responses:
-        '200':
-          description: OK.
-          content:
-            application/x-yaml:
-              schema:
-                $ref: '#/components/schemas/SecurityContract'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SecurityContract'
         '204':
           description: No Content.
         '400':
@@ -2239,6 +2230,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  '/securityContracts/validate':
+    put:
+      tags:
+        - SecurityContract
+      summary: Validates a security contract by doing a dry run.
+      description: Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.
+      operationId: validateSecurityContract
+      requestBody:
+        content:
+          application/x-yaml:
+            schema:
+              $ref: '#/components/schemas/SecurityContract'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/SecurityContractValidationResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityContractValidationResult'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to validate Security Contracts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+     
   # End Region - Security Contracts
     
   #region - AuthenticationModes    
@@ -3448,6 +3486,43 @@ components:
           type: array
           items:
              $ref: '#/components/schemas/SecurityContractDefaultConfiguration'
+             
+    SecurityContractValidationResult:
+      description: Models the result of a security contract dry run validation.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityContractValidationError'
+        validationWarnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityContractValidationWarning'
+          
+    SecurityContractValidationError:
+      description: Models an individual validation error that may be returned when performing a security contract validation request.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type:
+            string
+            
+    SecurityContractValidationWarning:
+      description: Models an individual validation warning that may be returned when performing a security contract validation request.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type:
+            string  
     # End Region - Security Contract
     
     #region - Authentication Model
