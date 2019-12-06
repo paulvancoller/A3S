@@ -150,7 +150,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             termsOfServiceRepository.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<bool>()).Returns(termsOfServiceModel);
 
             // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL);
+            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
 
             // Assert
             var viewResult = actionResult as ViewResult;
@@ -197,7 +197,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
 
             try
             {
-                var actionResult = await termsOfServiceController.Index(RETURN_URL);
+                var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
             }
             catch (Exception ex)
             {
@@ -238,7 +238,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
 
             try
             {
-                var actionResult = await termsOfServiceController.Index(RETURN_URL);
+                var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
             }
             catch (Exception ex)
             {
@@ -286,7 +286,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
 
             // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL);
+            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
 
             // Assert
             var viewResult = actionResult as RedirectToActionResult;
@@ -333,7 +333,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
 
             // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL);
+            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
 
             // Assert
             var viewResult = actionResult as RedirectResult;
@@ -383,7 +383,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             mockClientStore.FindEnabledClientByIdAsync(Arg.Any<string>()).Returns(client);
 
             // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL);
+            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
 
             // Assert
             var viewResult = actionResult as ViewResult;
@@ -435,7 +435,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             termsOfServiceController.Url = urlHelper;
 
             // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL);
+            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
 
             // Assert
             var viewResult = actionResult as RedirectResult;
@@ -484,7 +484,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             termsOfServiceController.Url = urlHelper;
 
             // Act
-            var actionResult = await termsOfServiceController.Index(returnUrl: string.Empty);
+            var actionResult = await termsOfServiceController.Index(returnUrl: string.Empty, 0);
 
             // Assert
             var viewResult = actionResult as RedirectResult;
@@ -535,7 +535,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             // Act
             try
             {
-                var actionResult = await termsOfServiceController.Index(returnUrl: "http://www.test.me/redirect");
+                var actionResult = await termsOfServiceController.Index(returnUrl: "http://www.test.me/redirect", 0);
 
                 // Assert
                 Assert.True(false, "Non-local redirect with no context must throw Exception.");

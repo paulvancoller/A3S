@@ -1,6 +1,6 @@
 ﻿@model TermsOfServiceViewModel
 
-<h1>Terms of Service Agreements (@Model.AgreementCount)</h1>
+<h1>Terms of Service Agreements (@(Model.InitialAgreementCount - Model.AgreementCount + 1) of @Model.InitialAgreementCount)</h1>
 <p>
     <button class="btn btn-default" name="btnPrint" id="btnPrint" value="btnPrint" title="Print">Print Agreement</button>
 </p>
@@ -27,6 +27,7 @@
 
     <input type="hidden" name="ReturnUrl" id="ReturnUrl" value="@Model.ReturnUrl" />
     <input type="hidden" name="TermsOfServiceId" id="TermsOfServiceId" value="@Model.TermsOfServiceId" />
+    <input type="hidden" name="InitialAgreementCount" id="InitialAgreementCount" value="@Model.InitialAgreementCount" />
 </form>
 @section scripts {
     <script src="~/js/terms-of-service.js"></script>

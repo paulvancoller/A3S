@@ -66,7 +66,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /// Entry point into the terms of service workflow
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> Index(string returnUrl)
+        public async Task<IActionResult> Index(string returnUrl, int initialAgreementCount)
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
             if (user == null)
@@ -76,7 +76,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (outstandingTerms.Count == 0)
                 return await CompleteTokenRequest(returnUrl, user);
 
-            var vm = await BuildTermsOfServiceViewModel(returnUrl, outstandingTerms);
+            var vm = await BuildTermsOfServiceViewModel(returnUrl, outstandingTerms, initialAgreementCount);
             return View(vm);
         }
 
@@ -96,7 +96,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
             await userManager.AgreeToTermsOfService(user, model.TermsOfServiceId);
 
-            return RedirectToAction("Index", new { returnUrl });
+            return RedirectToAction("Index", new { returnUrl, initialAgreementCount = model.InitialAgreementCount });
         }
 
 
@@ -106,7 +106,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /************************************************/
         /* helper APIs for the TermsOfServiceController */
         /************************************************/
-        private async Task<TermsOfServiceViewModel> BuildTermsOfServiceViewModel(string returnUrl, List<Guid> outstandingTerms)
+        private async Task<TermsOfServiceViewModel> BuildTermsOfServiceViewModel(string returnUrl, List<Guid> outstandingTerms, int initialAgreementCount)
         {
             var termsOfService = await termsOfServiceRepository.GetByIdAsync(outstandingTerms[0], includeRelations: false, includeFileContents: true);
 
@@ -120,7 +120,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 TermsOfServiceId = termsOfService.Id,
                 CssContents = LocaliseStyleSheetItems(termsOfService.CssContents),
                 HtmlContents = termsOfService.HtmlContents,
-                ReturnUrl = returnUrl
+                ReturnUrl = returnUrl,
+                InitialAgreementCount = (initialAgreementCount > 0 ? initialAgreementCount : outstandingTerms.Count)
             };
         }
 

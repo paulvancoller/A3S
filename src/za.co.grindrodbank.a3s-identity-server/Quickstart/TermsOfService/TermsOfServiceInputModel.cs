@@ -13,6 +13,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
     {
         public Guid TermsOfServiceId { get; set; }
         public string ReturnUrl { get; set; }
+        public int InitialAgreementCount { get; set; }
 
         [Display(Name = "I have read and agree to this terms of service")]
         public bool Accepted { get; set; }
