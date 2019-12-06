@@ -340,7 +340,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
         [Theory]
         [InlineData(false)]
-        [InlineData(true)]  
+        [InlineData(true)]
         public async Task TestAsync_GivenFullProcessableModel_ReturnsTestResultsl(bool ldapTestResult)
         {
             // Arrange

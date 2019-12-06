@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +17,7 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public class FunctionService :IFunctionService
+    public class FunctionService : IFunctionService
     {
         private readonly IFunctionRepository functionRepository;
         private readonly IPermissionRepository permissionRepository;
@@ -69,7 +69,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             return mapper.Map<Function>(await functionRepository.GetByIdAsync(functionId));
         }
-         
+
         public async Task<List<Function>> GetListAsync()
         {
             return mapper.Map<List<Function>>(await functionRepository.GetListAsync());
@@ -84,7 +84,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 var function = await functionRepository.GetByIdAsync(functionSubmit.Uuid);
 
-                if(function == null)
+                if (function == null)
                     throw new ItemNotFoundException($"Function {functionSubmit.Uuid} not found!");
 
                 if (function.Name != functionSubmit.Name)

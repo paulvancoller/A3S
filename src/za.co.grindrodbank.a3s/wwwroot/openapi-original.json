@@ -3337,21 +3337,6 @@
           }
         },
         "responses" : {
-          "200" : {
-            "content" : {
-              "application/x-yaml" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
-                }
-              },
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
-                }
-              }
-            },
-            "description" : "OK."
-          },
           "204" : {
             "description" : "No Content."
           },
@@ -3407,6 +3392,80 @@
           }
         },
         "summary" : "Idempotently applies a security contract definition.",
+        "tags" : [ "SecurityContract" ]
+      }
+    },
+    "/securityContracts/validate" : {
+      "put" : {
+        "description" : "Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.",
+        "operationId" : "validateSecurityContract",
+        "requestBody" : {
+          "content" : {
+            "application/x-yaml" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SecurityContract"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/x-yaml" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to validate Security Contracts."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Validates a security contract by doing a dry run.",
         "tags" : [ "SecurityContract" ]
       }
     },
@@ -5703,6 +5762,67 @@
             "type" : "array"
           }
         },
+        "type" : "object"
+      },
+      "SecurityContractValidationResult" : {
+        "description" : "Models the result of a security contract dry run validation.",
+        "example" : {
+          "validationWarnings" : [ {
+            "message" : "message"
+          }, {
+            "message" : "message"
+          } ],
+          "validationErrors" : [ {
+            "message" : "message"
+          }, {
+            "message" : "message"
+          } ],
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "validationErrors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationError"
+            },
+            "type" : "array"
+          },
+          "validationWarnings" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationWarning"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationError" : {
+        "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
+        "example" : {
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationWarning" : {
+        "description" : "Models an individual validation warning that may be returned when performing a security contract validation request.",
+        "example" : {
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ],
         "type" : "object"
       },
       "LdapAuthenticationModeId" : {

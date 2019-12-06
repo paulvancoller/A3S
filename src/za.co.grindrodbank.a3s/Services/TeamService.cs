@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Exceptions;
@@ -95,7 +95,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 TeamModel existingTeam = await teamRepository.GetByIdAsync(teamSubmit.Uuid, true);
 
-                if(existingTeam == null)
+                if (existingTeam == null)
                     throw new ItemNotFoundException($"Team with ID '{teamSubmit.Uuid}' not found when attempting to update a team using this ID!");
 
                 if (existingTeam.Name != teamSubmit.Name)
@@ -138,7 +138,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task AssignTeamsToTeamFromTeamIdList(TeamModel teamModel, List<Guid> teamIds)
         {
             // It is not mandatory to have the teams set, so return here if the list is null.
-            if(teamIds == null)
+            if (teamIds == null)
             {
                 return;
             }
@@ -146,7 +146,7 @@ namespace za.co.grindrodbank.a3s.Services
             teamModel.ChildTeams = new List<TeamTeamModel>();
 
             // If the list is set, but there are no elements in it, this is intepretted as re-setting the associated teams.
-            if(teamIds.Count == 0)
+            if (teamIds.Count == 0)
             {
                 return;
             }
@@ -168,7 +168,7 @@ namespace za.co.grindrodbank.a3s.Services
                 }
 
                 //Teams can only be added to a team as a child if it has no children of it's own. This prevents having compound teams that contain child compound teams.
-                if(teamToAddAsChild.ChildTeams.Count > 0)
+                if (teamToAddAsChild.ChildTeams.Count > 0)
                 {
                     // Note: 'teamModel' may not have an ID as this function is potentially called from the createAsync function prior to persisting the team into the database. Use it's name when referencing it for safety.
                     throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");

@@ -8,12 +8,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using IdentityServer4.EntityFramework.Entities;
 using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -35,43 +35,40 @@ namespace za.co.grindrodbank.a3s.Services
             this.applicationDataPolicyRepository = applicationDataPolicyRepository;
         }
 
-        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        public async Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying application security contract definition for application: '{applicationSecurityContractDefinition.Fullname}'");
+            logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Applying application security contract definition for application: '{applicationSecurityContractDefinition.Fullname}'");
             // Attempt to load any existing application by name, as the name is essentially the API primary key.
             var application = await applicationRepository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
 
             if (application == null)
             {
-                logger.Debug($"Application '{applicationSecurityContractDefinition.Fullname}' not found in database. Creating new application.");
-                return await CreateNewResourceServer(applicationSecurityContractDefinition, updatedById);
+                logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' not found in database. Creating new application.");
+                return await CreateApplication(applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
             }
-            logger.Debug($"Application '{applicationSecurityContractDefinition.Fullname}' already exists. Updating it.");
-            return await UpdateExistingResourceServer(application, applicationSecurityContractDefinition, updatedById);
+
+            logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: Application '{applicationSecurityContractDefinition.Fullname}' already exists. Updating it.");
+            return await UpdateExistingApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> CreateNewResourceServer(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
+        private async Task CreateApiResourceForApplicationOnIdentityServer(SecurityContractApplication applicationSecurityContractDefinition)
         {
-            try
-            {
-                // Note: Always added 'permission' as the user claims that need to be mapped into access tokens for this API Resource.
-                ApiResource identityServerApiResource = await identityApiResourceRespository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
+            // Note: Always added 'permission' as the user claims that need to be mapped into access tokens for this API Resource.
+            ApiResource identityServerApiResource = await identityApiResourceRespository.GetByNameAsync(applicationSecurityContractDefinition.Fullname);
 
-                if(identityServerApiResource == null)
-                {
-                    await identityApiResourceRespository.CreateAsync(applicationSecurityContractDefinition.Fullname, new[] { "permission" });
-                }
-                else
-                {
-                    logger.Warn($"The API Resource with name '{applicationSecurityContractDefinition.Fullname}' already exists on the Identity Server. Not creating a new one!");
-                }
-            }
-            catch (Exception e)
+            if (identityServerApiResource == null)
             {
-                string errMessage = String.Format($"Error creating new resource on Identity Server: {e.Message}");
-                logger.Error(errMessage);
-                throw;
+                await identityApiResourceRespository.CreateAsync(applicationSecurityContractDefinition.Fullname, new[] { "permission" });
             }
+            else
+            {
+                logger.Debug($"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}']: The API Resource with name '{applicationSecurityContractDefinition.Fullname}' already exists on the Identity Server. Not creating a new one!");
+            }
+        }
+
+        private async Task<ApplicationModel> CreateApplication(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            await CreateApiResourceForApplicationOnIdentityServer(applicationSecurityContractDefinition);
 
             // Create the A3S representation of the resource.
             ApplicationModel application = new ApplicationModel
@@ -86,31 +83,49 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var function in applicationSecurityContractDefinition.ApplicationFunctions)
                 {
-                    application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(function, updatedByGuid));
+                    // Application functions should be unique, check that another one does not exist prior to attempting to add it to the application.
+                    var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(function.Name);
+
+                    if(existingApplicationFunction != null)
+                    {
+                        var errorMessage = $"[applications.fullname: '{applicationSecurityContractDefinition.Fullname}'].[applicationFunctions.name: '{function.Name}']: Cannot create application function '{function.Name}', as there is already an application function with this nam assigned to another application.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            // Attempting to add the function anyway would result in a uniqueness contraint violation and break the transaction.
+                            continue;
+                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
+
+                    logger.Error($"Adding function {function.Name} to application.");
+                    application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(function, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
                 }
             }
+            // Set an initial value to the un-saved model.
+            ApplicationModel newApplication = await applicationRepository.CreateAsync(application);
 
-            var newApplication = await applicationRepository.CreateAsync(application);
-            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid);
+            return await SynchroniseApplicationDataPoliciesWithSecurityContract(newApplication, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition);
-            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById);
+            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
+            return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
+        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if(application.ApplicationDataPolicies != null && application.ApplicationDataPolicies.Any())
             {
                 for (int i = application.ApplicationDataPolicies.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether application data policy: '{application.ApplicationDataPolicies[i].Name}' should unassigned from application '{application.Name}'.");
                     if (applicationSecurityContractDefinition.DataPolicies == null || !applicationSecurityContractDefinition.DataPolicies.Exists(dp => dp.Name == application.ApplicationDataPolicies[i].Name))
                     {
-                        logger.Debug($"Data Policy: '{application.ApplicationDataPolicies[i].Name}' is being unassigned from application '{application.Name}'!");
-                        await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]);
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name]: Data Policy: '{application.ApplicationDataPolicies[i].Name}' was historically assigned to application '{application.Name}', but no longer is within thse security contract being processed. Removing dataPolicy '{application.ApplicationDataPolicies[i].Name}' from application '{application.Name}'!");
+                        await applicationDataPolicyRepository.DeleteAsync(application.ApplicationDataPolicies[i]); 
                     }
                 }
             }
@@ -118,18 +133,32 @@ namespace za.co.grindrodbank.a3s.Services
             return application;
         }
 
-        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
+        private async Task<ApplicationModel> AddApplicationDataPoliciesFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (applicationSecurityContractDefinition.DataPolicies != null && applicationSecurityContractDefinition.DataPolicies.Any())
             {
                 foreach (var dataPolicyToAdd in applicationSecurityContractDefinition.DataPolicies)
                 {
-                    logger.Debug($"Adding data policy from security contract: {dataPolicyToAdd.Name}");
+                    logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Adding data policy '{dataPolicyToAdd.Name}' to application '{application.Name}'.");
                     var existingDataPolicy = application.ApplicationDataPolicies.Find(adp => adp.Name == dataPolicyToAdd.Name);
 
                     if(existingDataPolicy == null)
                     {
-                        logger.Debug($"Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
+                        //check that the data policy does not exist within other applications.
+                        var dataPolicyAttachedToOtherApplication = await applicationDataPolicyRepository.GetByNameAsync(dataPolicyToAdd.Name);
+                        if(dataPolicyAttachedToOtherApplication != null)
+                        {
+                            var errorMessage = $"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy with name alreay exists in another application. Not adding it!";
+                            if (dryRun)
+                            {
+                                securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                                continue;
+                            }
+
+                            throw new ItemNotProcessableException(errorMessage);
+                        }
+
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
                         application.ApplicationDataPolicies.Add(new ApplicationDataPolicyModel
                         {
                             Name = dataPolicyToAdd.Name,
@@ -139,7 +168,7 @@ namespace za.co.grindrodbank.a3s.Services
                     }
                     else
                     {
-                        logger.Debug($"Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
                         // Bind possible changes to the editable components of the data policy.
                         existingDataPolicy.Description = dataPolicyToAdd.Description;
                         existingDataPolicy.ChangedBy = updatedById;
@@ -148,30 +177,30 @@ namespace za.co.grindrodbank.a3s.Services
             }
             else
             {
-                logger.Debug($"No application data policies defined for application '{application.Name}'.");
+                logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies]: No application data policies defined for application '{application.Name}'.");
             }
-
-            return await applicationRepository.UpdateAsync(application);
-        }
-
-        private async Task<ApplicationModel> UpdateExistingResourceServer(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById)
-        {
-            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById);
-            await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
-            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById);
-
-            return updatedApplication;
-        }
-
-        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
-        {
-            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid);
-            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition);
 
             return application;
         }
 
-        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid)
+        private async Task<ApplicationModel> UpdateExistingApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            var updatedApplication = await SynchroniseFunctions(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
+            await SynchroniseApplicationDataPoliciesWithSecurityContract(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
+
+            return updatedApplication;
+        }
+
+        private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
+            await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
+            await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
+
+            return application;
+        }
+
+        private async Task<ApplicationModel> SynchroniseFunctionsFromResourceServerDefinitionToApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (applicationSecurityContractDefinition.ApplicationFunctions == null)
                 return application;
@@ -182,10 +211,27 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (applicationFunction == null)
                 {
-                    application.ApplicationFunctions.Add(CreateNewFunctionFromResourceServerFunction(functionResource, updatedByGuid));
+                    logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' does not exist. Creating it.");
+                    // We now know this application does not have a function with the name assigned. However, another one might, check for this.
+                    var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(functionResource.Name);
+
+                    if(existingApplicationFunction != null)
+                    {
+                        var errorMessage = $"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists in another application. Cannot assign it to application: '{application.Name}'";
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
+
+                    application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
                 }
                 else
                 {
+                    logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists. Updating it.");
                     // Edit an existing function.
                     applicationFunction.Name = functionResource.Name;
                     applicationFunction.Description = functionResource.Description;
@@ -193,13 +239,13 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if (functionResource.Permissions != null)
                     {
+                        DetectAndUnassignPermissionsRemovedFromFunctions(applicationFunction, functionResource);
+
                         // Add any new permissions to the function.
                         foreach (var permission in functionResource.Permissions)
                         {
-                            AddPermissionToFunctionIfNotAlreadyAssigned(applicationFunction, permission, updatedByGuid);
+                            AddSecurityContractPermissionToApplicationFunctionAndUpdatePermissionIfChanged(applicationFunction, permission, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult);
                         }
-
-                        DetectAndUnassignPermissionsRemovedFromFunctions(applicationFunction, functionResource);
                     }
                     else
                     {
@@ -212,18 +258,18 @@ namespace za.co.grindrodbank.a3s.Services
             return await applicationRepository.UpdateAsync(application);
         }
 
-        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
+        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             if (application.ApplicationFunctions.Count > 0)
             {
                 for (int i = application.ApplicationFunctions.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether application function: '{application.ApplicationFunctions[i].Name}' should unassigned from application '{application.Name}'.");
                     if (applicationSecurityContractDefinition.ApplicationFunctions == null || !applicationSecurityContractDefinition.ApplicationFunctions.Exists(f => f.Name == application.ApplicationFunctions[i].Name))
                     {
-                        logger.Debug($"Function: '{application.ApplicationFunctions[i].Name}' is being unassigned from application '{application.Name}' !");
+                        logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: ApplicationFunction: '{application.ApplicationFunctions[i].Name}' was previously assigned to application '{application.Name}' but no longer is within the security contract being processed. Un-assigning ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'!");
                         // Note: This only removes the application function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
                         await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
+                        //application.ApplicationFunctions.RemoveAt(i);
                     }
                 }
             }
@@ -237,18 +283,18 @@ namespace za.co.grindrodbank.a3s.Services
             // Note! We are deleting items from the List so we cannot use a foreach.
             for (int i = applicationFunction.ApplicationFunctionPermissions.Count - 1; i >= 0; i--)
             {
-                logger.Debug($"Checking whether permission: {applicationFunction.ApplicationFunctionPermissions[i].Permission.Name} should unassigned from function '" + applicationFunction.Name + "'.");
                 if (!functionResource.Permissions.Exists(fp => fp.Name == applicationFunction.ApplicationFunctionPermissions[i].Permission.Name))
                 {
-                    logger.Debug($"Permission: {applicationFunction.ApplicationFunctionPermissions[i].Permission.Name} is being unassigned from function {applicationFunction.Name}!");
+                    logger.Debug($"[applications.fullname: '{applicationFunction.Application.Name}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}']: Permission: {applicationFunction.ApplicationFunctionPermissions[i].Permission.Name} was previously assigned to applicationFunction: '{applicationFunction.Name}' but is no longer assigned in the security contract being processed. Removing permission '{applicationFunction.ApplicationFunctionPermissions[i].Permission.Name}' from function '{applicationFunction.Name}'!");
                     // Note: This only removes the function permissions association. The permission will still exist.
                     applicationFunction.ApplicationFunctionPermissions.Remove(applicationFunction.ApplicationFunctionPermissions[i]);
                 }
             }
         }
 
-        private ApplicationFunctionModel CreateNewFunctionFromResourceServerFunction(SecurityContractFunction functionResource, Guid updatedByGuid)
+        private ApplicationFunctionModel CreateNewApplicationFunctionFromSecurityContractApplicationFunction(SecurityContractFunction functionResource, Guid updatedByGuid, string applicationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
+            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{functionResource.Name}']: Adding function '{functionResource.Name}' to application '{applicationName}'.");
             ApplicationFunctionModel newFunction = new ApplicationFunctionModel
             {
                 Name = functionResource.Name,
@@ -262,54 +308,90 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var permission in functionResource.Permissions)
                 {
-                    AddResourcePermissionToFunction(newFunction, permission, updatedByGuid);
+                    AddSecurityContractPermissionToApplicationFunctionAndUpdatePermissionIfChanged(newFunction, permission, updatedByGuid, applicationName, dryRun, securityContractDryRunResult);
                 }
             }
 
             return newFunction;
         }
 
-        private void AddPermissionToFunctionIfNotAlreadyAssigned(ApplicationFunctionModel applicationFunction, SecurityContractPermission permission, Guid updatedByGuid)
+        private void AddSecurityContractPermissionToApplicationFunctionAndUpdatePermissionIfChanged(ApplicationFunctionModel applicationFunction, SecurityContractPermission permission, Guid updatedByGuid, string applicationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            // add the permission if it does not exist.
-            var applicationPermission = applicationFunction.ApplicationFunctionPermissions.Find(fp => fp.Permission.Name == permission.Name);
-
-            if (applicationPermission == null)
-            {
-                AddResourcePermissionToFunction(applicationFunction, permission, updatedByGuid);
-            }
-        }
-
-        private void AddResourcePermissionToFunction(ApplicationFunctionModel applicationFuction, SecurityContractPermission permission, Guid updatedByGuid)
-        {
-            logger.Debug($"Assinging permission {permission.Name} to function: {applicationFuction.Name}.");
-            // Check if there is an existing permission within the database. Add this one if found, else create a new one and add it.
-            var existingPermission = permissionRepository.GetByName(permission.Name);
-
-            PermissionModel permissionToAdd = new PermissionModel
-            {
-                Name = permission.Name,
-                Description = permission.Description,
-                ChangedBy = updatedByGuid
-            };
+            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Attempting to assign permission '{permission.Name}' to function: {applicationFunction.Name}.");
+            // Check if there is an existing permission within the database. Add this one if found, but only if it is assigned to the current application, else create a new one and add it.
+            var existingPermission = permissionRepository.GetByName(permission.Name, true);
 
             if (existingPermission != null)
             {
-                logger.Debug($"Permission {permission.Name} already exists within the database. Not adding it.");
-                permissionToAdd = existingPermission;
+                AssignExistingPermissionToApplicationFunction(existingPermission, applicationName, applicationFunction, permission, dryRun, securityContractDryRunResult, updatedByGuid);
             }
             else
             {
-                logger.Debug($"Permission {permission.Name} does not exist in the database. Adding it.");
+                AssignNewPermissionToApplicationFunction(applicationName, applicationFunction, permission, updatedByGuid);
             }
+        }
 
-            applicationFuction.ApplicationFunctionPermissions.Add(new ApplicationFunctionPermissionModel
+        private void AssignNewPermissionToApplicationFunction(string applicationName, ApplicationFunctionModel applicationFunction, SecurityContractPermission permission, Guid updatedByGuid)
+        {
+            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' does not exist in A3S. Adding it.");
+
+            applicationFunction.ApplicationFunctionPermissions.Add(new ApplicationFunctionPermissionModel
             {
-                ApplicationFunction = applicationFuction,
-                Permission = permissionToAdd,
+                ApplicationFunction = applicationFunction,
+                Permission = new PermissionModel
+                {
+                    Name = permission.Name,
+                    Description = permission.Description,
+                    ChangedBy = updatedByGuid
+                },
                 ChangedBy = updatedByGuid
             });
         }
+
+        private void AssignExistingPermissionToApplicationFunction(PermissionModel existingPermission, string applicationName, ApplicationFunctionModel applicationFunction, SecurityContractPermission permission, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, Guid updatedByGuid)
+        {
+            if (ExistingPermissionIsAssignedToAnotherApplication(existingPermission, applicationName))
+            {
+                var errorMessage = $"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission name exists, but is not assigned to application '{applicationName}'. Cannot assign it to application '{applicationName}', as permissions can only be assigned to a single application";
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotProcessableException(errorMessage);
+            }
+
+            logger.Debug($"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' already assigned to application '{applicationName}'. Updating it.");
+            var applicationFunctionPermission = applicationFunction.ApplicationFunctionPermissions.Find(fp => fp.Permission.Name == permission.Name);
+
+            // This check will be true if the permission was assigned to another function attached to the same application. Prevent this!
+            if (applicationFunctionPermission == null)
+            {
+                var errorMessage = $"[applications.fullname: '{applicationName}'].[applicationFunctions.name: '{applicationFunction.Name}'].[permissions.name: '{permission.Name}']: Permission '{permission.Name}' already assigned to another application function within application '{applicationName}'. This is prohibited.";
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotProcessableException(errorMessage);
+            }
+
+            // Still check if the permission is to be updated.
+            if (applicationFunctionPermission.Permission.Description != permission.Description)
+            {
+                applicationFunctionPermission.Permission.Description = permission.Description;
+                applicationFunctionPermission.Permission.ChangedBy = updatedByGuid;
+            }
+        }
+
+        private bool ExistingPermissionIsAssignedToAnotherApplication(PermissionModel existingPermission, string applicationName)
+        {
+            // Check that the existing permission is not assigned to another application.
+            return (existingPermission.ApplicationFunctionPermissions.Find(afp => afp.ApplicationFunction.Application.Name == applicationName) == null);
+        }
+
 
         public async Task<List<SecurityContractApplication>> GetResourceServerDefinitionsAsync()
         {
