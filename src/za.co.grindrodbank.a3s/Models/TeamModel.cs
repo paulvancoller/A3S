@@ -22,5 +22,7 @@ namespace za.co.grindrodbank.a3s.Models
         public List<TeamTeamModel> ChildTeams{ get; set; }
         public List<TeamTeamModel> ParentTeams { get; set; }
         public List<TeamApplicationDataPolicyModel> ApplicationDataPolicies { get; set; }
+        public Guid? TermsOfServiceId { get; set; }
+        public TermsOfServiceModel TermsOfService { get; set; }
     }
 }

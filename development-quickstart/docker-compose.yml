@@ -67,13 +67,6 @@ services:
     environment:
       - PHPLDAPADMIN_LDAP_HOSTS=open-ldap
       - PHPLDAPADMIN_HTTPS=false
-
-  smtp:
-    networks:
-      - a3s-development
-    image: "namshi/smtp:latest"
-    ports:
-      - "25:25"
       
 networks:
   a3s-development:

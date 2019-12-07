@@ -14,7 +14,6 @@ namespace za.co.grindrodbank.a3s.Repositories
     public interface IFunctionRepository : ITransactableRepository
     {
         Task<FunctionModel> GetByNameAsync(string name);
-        FunctionModel GetByName(string name);
         Task<FunctionModel> GetByIdAsync(Guid functionId);
         Task<FunctionModel> CreateAsync(FunctionModel function);
         Task<FunctionModel> UpdateAsync(FunctionModel function);

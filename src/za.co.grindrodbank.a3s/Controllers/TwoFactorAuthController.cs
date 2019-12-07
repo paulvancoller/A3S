@@ -4,11 +4,12 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.AbstractApiControllers;
 using za.co.grindrodbank.a3s.Services;
 
@@ -31,6 +32,15 @@ namespace za.co.grindrodbank.a3s.Controllers
 
             await twoFactorAuthService.RemoveTwoFactorAuthenticationAsync(userId);
             return NoContent();
+        }
+
+        [Authorize(Policy = "permission:a3s.twoFactorAuth.validateOtp")]
+        public async override Task<IActionResult> ValidateTwoFactorAuthenticationOTPAsync([FromBody] TwoFactorAuthOTP twoFactorAuthOTP)
+        {
+            if (twoFactorAuthOTP.UserId == Guid.Empty)
+                return BadRequest();
+
+            return Ok(await twoFactorAuthService.ValidateTwoFactorAuthenticationOTPAsync(twoFactorAuthOTP));
         }
     }
 }

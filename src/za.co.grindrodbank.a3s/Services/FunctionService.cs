@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,13 +17,12 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public class FunctionService :IFunctionService
+    public class FunctionService : IFunctionService
     {
         private readonly IFunctionRepository functionRepository;
         private readonly IPermissionRepository permissionRepository;
         private readonly IApplicationRepository applicationRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public FunctionService(IFunctionRepository functionRepository, IPermissionRepository permissionRepository, IApplicationRepository applicationRepository, IMapper mapper)
         {
@@ -40,6 +39,10 @@ namespace za.co.grindrodbank.a3s.Services
 
             try
             {
+                FunctionModel existingFunction = await functionRepository.GetByNameAsync(functionSubmit.Name);
+                if (existingFunction != null)
+                    throw new ItemNotProcessableException($"Function with Name '{functionSubmit.Name}' already exist.");
+
                 var function = new FunctionModel();
 
                 function.Name = functionSubmit.Name;
@@ -55,9 +58,8 @@ namespace za.co.grindrodbank.a3s.Services
 
                 return mapper.Map<Function>(await functionRepository.CreateAsync(function));
             }
-            catch (Exception ex)
+            catch
             {
-                logger.Error(ex);
                 RollbackAllTransactions();
                 throw;
             }
@@ -67,7 +69,7 @@ namespace za.co.grindrodbank.a3s.Services
         {
             return mapper.Map<Function>(await functionRepository.GetByIdAsync(functionId));
         }
-         
+
         public async Task<List<Function>> GetListAsync()
         {
             return mapper.Map<List<Function>>(await functionRepository.GetListAsync());
@@ -82,7 +84,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 var function = await functionRepository.GetByIdAsync(functionSubmit.Uuid);
 
-                if(function == null)
+                if (function == null)
                     throw new ItemNotFoundException($"Function {functionSubmit.Uuid} not found!");
 
                 if (function.Name != functionSubmit.Name)
@@ -106,12 +108,23 @@ namespace za.co.grindrodbank.a3s.Services
 
                 return mapper.Map<Function>(await functionRepository.UpdateAsync(function));
             }
-            catch (Exception ex)
+            catch
             {
-                logger.Error(ex);
                 RollbackAllTransactions();
                 throw;
             }
+        }
+
+        public async Task DeleteAsync(Guid functionId)
+        {
+            var function = await functionRepository.GetByIdAsync(functionId);
+
+            if (function == null)
+            {
+                throw new ItemNotFoundException($"Function with UUID '{functionId}' not found.");
+            }
+
+            await functionRepository.DeleteAsync(function);
         }
 
         private async Task CheckForApplicationAndAssignToFunctionIfExists(FunctionModel function, FunctionSubmit functionSubmit)
@@ -174,18 +187,6 @@ namespace za.co.grindrodbank.a3s.Services
             permissionRepository.RollbackTransaction();
             applicationRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
-        }
-
-        public async Task DeleteUserAsync(Guid functionId)
-        {
-            var function = await functionRepository.GetByIdAsync(functionId);
-
-            if(function == null)
-            {
-                throw new ItemNotFoundException($"Function with UUID '{functionId}' not found.");
-            }
-
-            await functionRepository.DeleteAsync(function);
         }
     }
 }

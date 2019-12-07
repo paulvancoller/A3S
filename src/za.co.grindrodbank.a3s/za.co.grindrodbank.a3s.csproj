@@ -3,8 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <ReleaseVersion>1.0.1</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App">
       <PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
@@ -23,12 +30,12 @@
     <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="2.3.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
     <PackageReference Include="YamlDotNet" Version="8.0.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="ContentFormatters\" />
     <Folder Include="MediaTypeHeaders\" />
-    <Folder Include="SecurityContractApiResources\" />
     <Folder Include="Services\" />
     <Folder Include="Repositories\" />
     <Folder Include="MappingProfiles\" />
@@ -38,6 +45,11 @@
     <Folder Include="Exceptions\" />
     <Folder Include="Helpers\" />
     <Folder Include="Inspectors\" />
+    <Folder Include="Managers\" />
+    <Folder Include="Stores\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Views\Home\Privacy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="nlog.config">

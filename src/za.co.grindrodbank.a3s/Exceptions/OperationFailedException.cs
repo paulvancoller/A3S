@@ -6,7 +6,6 @@
  */
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace za.co.grindrodbank.a3s.Exceptions
 {

@@ -12,10 +12,9 @@ only-tags: &only-tags
     branches:
       ignore: /.*/
 
+
 # Orbs need to be enabled as a security setting. Third party orb access needs to be enabled by a circle CI admin.
 version: 2.1
-orbs:
-  newman: postman/newman@0.0.2
 jobs:
   unit-test:
     docker:
@@ -31,7 +30,6 @@ jobs:
           root: ~/build
           paths:
             - tests/*
-          
   static-analysis:
     docker:
       - image: newtmitch/sonar-scanner:alpine
@@ -55,8 +53,8 @@ jobs:
           -Dsonar.projectBaseDir=$CI_PROJECT_DIR \
           -Dsonar.sourceEncoding=UTF-8 \
           -Dsonar.test.inclusions=tests/**/* \
-          -Dsonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/** \
-          -Dsonar.coverage.exclusions=**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/** \
+          -Dsonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/**,**/shared-libraries/** \
+          -Dsonar.coverage.exclusions=**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/shared-libraries/** \
           -Dsonar.sources=. \
           -Dsonar.cs.opencover.reportsPaths=../workspace/tests/za.co.grindrodbank.a3s.tests/coverage.opencover.xml,../workspace/tests/za.co.grindrodbank.a3s-identity-server.tests/coverage.opencover.xml
 
@@ -110,7 +108,7 @@ jobs:
       - run: docker-compose -f ~/repo/quickstart/docker-compose.yml up -d
       - run: sleep 5
       # # Run the Newman orb to execute the collection against the quickstart environment.
-      - run: newman run ~/repo/postman/A3S-pipeline.postman_collection.json -r cli -e ~/repo/postman/A3S-quickstart.postman_environment.json
+      - run: newman run ~/repo/tests/postman-integration-tests/A3S-integration.postman_collection.json -r cli -e ~/repo/postman/A3S-quickstart.postman_environment.json
 
   generate-axios-client:
     working_directory: ~/repo
@@ -149,7 +147,43 @@ jobs:
           command: cd ~/repo/workspace/a3s-typescript-axios && yarn build
       - run: 
           name: Publish to NPM with Yarn.
-          command: cd ~/repo/workspace/a3s-typescript-axios && yarn publish
+          command: cd ~/repo/workspace/a3s-typescript-axios && yarn publish --access public
+
+  build-dotnet-libs:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+    working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/cs
+    steps:
+      - checkout:
+          path: ~/build
+      - run: cp ~/build/LICENSE ./a3s-policy-enforcement/LICENSE.txt
+      - run: 
+          name: Retrieving build tag and setting in package
+          command: |
+              echo "Adding Build $CIRCLE_TAG to version"	             
+              export PKG_VERSION=${CIRCLE_TAG:-v0.0.1}
+              export PKG_VERSION=${PKG_VERSION/v/}
+              export THE_FILE=./a3s-policy-enforcement/a3s-policy-enforcement.csproj
+              cp $THE_FILE $THE_FILE.old
+              sed -i "s/XXX_VERSION_XXX/$PKG_VERSION/" $THE_FILE
+              diff  $THE_FILE.old $THE_FILE || true
+      - run: dotnet restore
+      - run: dotnet build
+      - run: dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover       
+      - run: dotnet pack
+      - persist_to_workspace:
+          root: ~/build
+          paths:
+            - shared-libraries/resource-server-policy-enforcement/cs
+  publish-dotnet-libs:
+    working_directory: ~/repo/workspace/shared-libraries/resource-server-policy-enforcement/cs
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+    steps:
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run:
+          command: 'dotnet nuget push **/*.nupkg -n true -k ${NUGET_API_KEY} -s https://api.nuget.org/v3/index.json'     
 
   a3s-docker-build-push:
     docker:
@@ -233,6 +267,7 @@ workflows:
       - vulnerability-test
       - license-headers
       - postman-integration-tests
+      - build-dotnet-libs
       - fossa-scan:
           filters:    
             branches:    
@@ -250,6 +285,7 @@ workflows:
       - fossa-scan: *only-tags
       - postman-integration-tests: *only-tags
       - generate-axios-client: *only-tags
+      - build-dotnet-libs: *only-tags
       - a3s-docker-build-push:
           requires:
           - unit-test
@@ -272,3 +308,8 @@ workflows:
           - postman-integration-tests
           - generate-axios-client
           <<: *only-tags
+      - publish-dotnet-libs:
+          requires:
+          - build-dotnet-libs
+          <<: *only-tags
+          

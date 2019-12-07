@@ -105,7 +105,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         }
 
         [Fact]
-        public async Task UpdateRoleAsync_WithEmptyGuid__ReturnsBadRequest()
+        public async Task UpdateRoleAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
             var roleService = Substitute.For<IRoleService>();
@@ -148,6 +148,48 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             // Act
             IActionResult actionResult = await controller.UpdateRoleAsync(inputModel.Uuid, inputModel);
+
+            // Assert
+            var okResult = actionResult as OkObjectResult;
+            Assert.NotNull(okResult);
+
+            var role = okResult.Value as Role;
+            Assert.NotNull(role);
+            Assert.True(role.Uuid == inputModel.Uuid, $"Retrieved Id {role.Uuid} not the same as sample id {inputModel.Uuid}.");
+            Assert.True(role.Name == inputModel.Name, $"Retrieved Name {role.Name} not the same as sample Name {inputModel.Name}.");
+            Assert.True(role.FunctionIds[0] == inputModel.FunctionIds[0], $"Retrieved function id {role.FunctionIds[0]} not the same as sample function id {inputModel.FunctionIds[0]}.");
+            Assert.True(role.FunctionIds[1] == inputModel.FunctionIds[1], $"Retrieved function id {role.FunctionIds[1]} not the same as sample function id {inputModel.FunctionIds[1]}.");
+        }
+
+        [Fact]
+        public async Task CreateRoleAsync_WithTestRole_ReturnsCreatesdRole()
+        {
+            // Arrange
+            var roleService = Substitute.For<IRoleService>();
+            var inputModel = new RoleSubmit()
+            {
+                Uuid = Guid.NewGuid(),
+                Name = "Test Role Name",
+                FunctionIds = new List<Guid>()
+                {
+                    new Guid(),
+                    new Guid(),
+                }
+            };
+
+            roleService.CreateAsync(inputModel, Arg.Any<Guid>())
+                .Returns(new Role()
+                {
+                    Uuid = inputModel.Uuid,
+                    Name = inputModel.Name,
+                    FunctionIds = inputModel.FunctionIds
+                }
+                );
+
+            var controller = new RoleController(roleService);
+
+            // Act
+            IActionResult actionResult = await controller.CreateRoleAsync(inputModel);
 
             // Assert
             var okResult = actionResult as OkObjectResult;

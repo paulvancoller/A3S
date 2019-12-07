@@ -4,28 +4,72 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
 
     <IsPackable>false</IsPackable>
+    <ReleaseVersion>1.0.1</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="2.7.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.App">
+      <PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
+      <Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="IdentityServer4" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Managers\" />
+    <Folder Include="Quickstart\" />
+    <Folder Include="Quickstart\Account\" />
+    <Folder Include="Quickstart\Home\" />
+    <Folder Include="Quickstart\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\za.co.grindrodbank.a3s-identity-server\za.co.grindrodbank.a3s-identity-server.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="appsettings.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Fakes\FakeStyleSheetParser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomUserManagerFake.cs">
+      <Link>Fakes\CustomUserManagerFake.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomUserStoreFake.cs">
+      <Link>Fakes\CustomUserStoreFake.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\A3SContextFake.cs">
+      <Link>Fakes\A3SContextFake.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomSignInManagerFake.cs">
+      <Link>Fakes\CustomSignInManagerFake.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+    <None Remove="appsettings.Development.json" />
   </ItemGroup>
 </Project>

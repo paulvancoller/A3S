@@ -1,3 +1,9 @@
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
@@ -27,7 +33,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 }
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-                var csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts allow-modals; base-uri 'self';";
+                var csp = GetCsp(context);
                 // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
                 //csp += "upgrade-insecure-requests;";
                 // also an example if you need client images to be displayed from twitter
@@ -51,6 +57,32 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                     context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);
                 }
             }
+        }
+
+        private string GetCsp(ResultExecutingContext context)
+        {
+            var csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts; base-uri 'self';font-src 'self' data:;";
+
+            string controller = context.RouteData.Values["Controller"]?.ToString();
+            string action = context.RouteData.Values["Action"]?.ToString();
+
+            if (controller != null)
+            {
+                if (controller == "Account" &&
+                    (action == "Register2FAAuthenticatorComplete" || action == "DisplayResetRecoveryCodes"))
+                {
+                    // Allow modals for print popup
+                    csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts allow-modals; base-uri 'self';font-src 'self' data:;";
+                }
+
+                if (controller == "TermsOfService" && action == "Index")
+                {
+                    // Allow inline styling for terms of service
+                    csp = "default-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts allow-modals; base-uri 'self';font-src 'self' data:;";
+                }
+            }
+
+            return csp;
         }
     }
 }

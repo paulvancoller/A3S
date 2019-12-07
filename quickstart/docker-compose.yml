@@ -80,12 +80,5 @@ services:
     depends_on:
       - a3s
 
-  smtp:
-    networks:
-      - a3s-quickstart
-    image: "namshi/smtp:latest"
-    ports:
-      - "25:25"
-
 networks:
   a3s-quickstart:

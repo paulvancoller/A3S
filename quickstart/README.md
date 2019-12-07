@@ -31,10 +31,10 @@ The purpose of the quickstart is to get the core A3S components and optional dep
   ```
 * Deploy the environment using `docker-compose`.
   ```bash
-  docker-compose up
+  docker-compose up -d
   ```
 
-* **NB!** The quickstart docker-compose will attempt to bind the various services to local ports: `80`, `8081`, `389`, `636`, `5478` and `25`. Please ensure that no other applications are bound to these ports on the host or the `docker-compose up` command will throw errors.
+* **NB!** The quickstart docker-compose will attempt to bind the various services to local ports: `80`, `8081`, `8085`, `389`, `636`, `5478`. Please ensure that no other applications are bound to these ports on the host or the `docker-compose up` command will throw errors.
 
 * The Identity Server and A3S modules will migrate their own database schemas into the supporting Postgres instance using [Flyway](https://flywaydb.org) migrations on initialisation.
 
@@ -47,7 +47,6 @@ After bringing up the quickstart environment, the following components will be d
 * A [Postgresql](https://www.postgresql.org) instance.
 * An instance of [Open LDAP](https://www.openldap.org) for providing an LDAP authentication source.
 * An instance of [PHP LDAP Admin](http://phpldapadmin.sourceforge.net), which is a browser-based UI for accessing the Open LDAP instance. Added purely for convenience.
-* An SMTP server, which enables configuring a backup email-based authenticator for Two Factor Authentication.
 
 # Configure A3S for Quickstart Using the API
 
@@ -60,10 +59,12 @@ Once the containers are deployed, the following components will be accessible fr
 
 ## Postman Collection
 
-A [Postman](https://www.getpostman.com) collection and corresponding quickstart environment files are available within the `postman` folder. 
+A [Postman](https://www.getpostman.com) collection and corresponding quickstart environment files are available within the `A3S/postman` folder.
 
 * `A3S.postman_collection.json` for the collection.
 * `A3S-quickstart.postman_environment.json` for the environment file.
+
+**Note**: a third file, `A3S-development-quickstart.postman_environment.json` exists in this folder, but wil **not** be used in this guide.
 
 Import these two files into Postman. Once `A3S` the collection is imported, you should see several folders, each pertaining to a portion of the API exposed by A3S and IDS4. Select the `A3S - Quickstart` environment from the environment drop-down in Postman. This is usually located in the top right of the screen when using the Postman client.
 
@@ -97,9 +98,18 @@ A3S is pre-configured with a single user called `a3s-bootstrap-admin`. This user
 Security contracts are applied using the `Security Contracts` API. 
 
 * Obtain an access token from the API. Open the `AccessToken` folder within the Postman collection and run the `Get Access Token - Bootstrap Admin - Password Grant` request. **Note:** The body of this request has been pre-configured to fetch a token for the 'a3s-bootstrap-admin' user, which only has permission to access the security contract API.
-* Verify that the access token has a `permission` user claims section and that it contains a single permission called `a3s.securityContracts.update`. To do this, visit [this JWT decoding site](https://jwt.io) and paste the contents from the returned `access_token` field in the `Get Access Token` response.
+* Verify that the access token has the following `permission` user claims section:
+
+```x-yamls
+"permission": [
+    "a3s.securityContracts.read",
+    "a3s.securityContracts.update"
+  ]
+```
+
+To do this, visit [this JWT decoding site](https://jwt.io) and paste the contents from the returned `access_token` field in the `Get Access Token` response.
 * Open the `SecurityContracts` folder within the Postman collection.
-* Execute the `PutSecurityContractDefinition` request within this folder. Note: The body of this request has been pre-populated with a security contract YAML definition tailored for the quickstart. It configures A3S with superuser called `a3s-admin`. This user has been configured with all possible A3S permissions, enabling access to all the functions within the API.
+* Execute the `PutSecurityContractDefinition` request within this folder. Note: The body of this request has been pre-populated with a security contract YAML definition tailored for the quickstart. It configures A3S with a superuser called `a3s-admin`. This user has been configured with all possible A3S permissions, enabling access to all the functions within the API.
 
 # Explore the API.
 
@@ -111,30 +121,31 @@ Security contracts are applied using the `Security Contracts` API.
 
 # Cleaning Up When Done
 
-To stop all the containers, simply type `ctrl + c` within the terminal that you ran `docker-compose up` in. This will terminate the environment, but preserve the state of the stack. To restore a previously terminated environment, simply run 
+To stop all the containers, but still keep their state, simply run:
 
-```bash 
-docker-compose up
+```bash
+docker-compose stop
 ```
 
-To completely clean up all trace of the environment, including any possible state, run 
+To completely clean up all trace of the environment, including any possible state, run:
+
 ```bash
 docker-compose down
-``` 
+```
 
 within the `./docker-compose/quickstart` folder.
 
-# Bonus - Run Pipeline (Integration) Postman Collection
+# Bonus - Run Integration Postman Collection
 
 If you would like to gain further insight into the API it may be useful to investigate and/or run the Postman collection that is used for integration testing of the A3S API. This collection contains many more requests, details and nuances about the API's functionality. Additionally, there are many more examples for understanding how the various APIs relate to one another. 
 
 The requests in this collection are designed to run, in order, from top to bottom, and give insight into how the API is practically used. Many of the environment GUIDs used in URLs or request bodies of most requests are set in the execution of earlier requests in the collection, allowing for chaining of various API calls to test complex scenarios.
 
-## Import the Pipeline (Integration) Postman Collection
+## Import the Integration Postman Collection
 
-Import the `A3S-pipeline.postman_collection.json` Postman collection, found within the `postman` folder of the A3S repository. If you have not already done so, import the `A3S-quickstart.postman_environment.json` environment file, as this will be used in conjunction with the integration collection.
+Import the `A3S-integration.postman_collection.json` Postman collection, found within the `A3S/tests/postman-integration-tests` folder of the A3S repository. If you have not already done so, import the `A3S-quickstart.postman_environment.json` environment file, as this will be used in conjunction with the integration collection.
 
-## Run the Pipeline (Integration) Postman Collection
+## Run the Integration Postman Collection
 
 ### Deploy a Clean Quickstart Environment
 
@@ -152,6 +163,6 @@ within the `quickstart` folder of the cloned repository, prior to brining up a n
 
 Postman has a feature called the `Collection Runner`, which automatically runs all requests within a Postman collection. It can be accessed by clicking the `Runner` button in Postman. 
 
-* Once the runner is open, select `A3S - Pipeline` as the collection to run.
+* Once the runner is open, select `A3S - Integration` as the collection to run.
 * Select `A3S - Quickstart` from the Environment drop down.
-* Click `Start Run`. This should result in the entire `A3S - Pipeline` Postman collection being executed against the `Quickstart Environment`.
+* Click `Start Run`. This should result in the entire `A3S - Integration` Postman collection being executed against the `Quickstart Environment`.

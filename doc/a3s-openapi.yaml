@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.0.0
+  version: 1.0.2
   title: A3S
 paths:
   #region - User
@@ -422,6 +422,8 @@ paths:
           schema:
             $ref: '#/components/schemas/UserId'
       responses:
+        '204':
+          description: No Content.
         '400':
           description: Bad Request.
           content:
@@ -436,6 +438,55 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden - You are not authorized to remove two-factor authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/twoFactorAuth/validate':
+    post:
+      tags:
+        - TwoFactorAuth
+      description: Validates a two-factor authenticator OTP.
+      summary: Validates a two-factor authenticator OTP.
+      operationId: validateTwoFactorAuthenticationOTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorAuthOTP'
+      responses:
+        '200':    
+          description: Successful. OTP validation ran successfully. Check Success parameter and results for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResultResponse'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to validate two-factor authentication OTP's.
           content:
             application/json:
               schema:
@@ -1445,6 +1496,231 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   #endregion
   
+  #region - TermsOfService
+  '/termsOfService':
+    get:
+      tags:
+        - TermsOfService
+      description: Search for terms of service entries.
+      summary: Search for terms of service entries.
+      operationId: listTermsOfServices
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 0
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: orderBy
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: >-
+            a comma separated list of fields in their sort order. Ascending
+            order is assumed. Append desc after a field to indicate descending
+            order.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Pagination:
+              description: Pagination header.
+              schema:
+                $ref: '#/components/schemas/PaginationHeaderResponse'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TermsOfService'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the list of terms of service entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - TermsOfService
+      summary: Create a new terms of service entry.
+      description: Create a new terms of service entry.
+      operationId: createTermsOfService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TermsOfServiceSubmit'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermsOfService'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to create terms of service entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/termsOfService/{termsOfServiceId}':
+    get:
+      tags:
+        - TermsOfService
+      summary: Get a terms of service entry.
+      description: Get a terms of service entry by its UUID.
+      operationId: getTermsOfService
+      parameters:
+        - name: termsOfServiceId
+          in: path
+          description: Terms of service entry
+          required: true
+          schema:
+            $ref: '#/components/schemas/TermsOfServiceId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermsOfService'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the terms of service entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Terms of service entry not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - TermsOfService
+      summary: Delete a terms of service entry.
+      description: Deletes a terms of service entry from A3S.
+      operationId: deleteTermsOfService
+      parameters:
+        - name: termsOfServiceId
+          description: The UUID of the terms of service entry to delete.
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/TermsOfServiceId'
+      responses:
+        '204':
+          description: No Content.
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to delete terms of service entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Terms of service entry not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Terms of service entry cannot be deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  #endregion
   
   # Region - Functions
   '/functions':
@@ -1922,15 +2198,6 @@ paths:
             schema:
               $ref: '#/components/schemas/SecurityContract'
       responses:
-        '200':
-          description: OK.
-          content:
-            application/x-yaml:
-              schema:
-                $ref: '#/components/schemas/SecurityContract'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SecurityContract'
         '204':
           description: No Content.
         '400':
@@ -1963,6 +2230,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  '/securityContracts/validate':
+    put:
+      tags:
+        - SecurityContract
+      summary: Validates a security contract by doing a dry run.
+      description: Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.
+      operationId: validateSecurityContract
+      requestBody:
+        content:
+          application/x-yaml:
+            schema:
+              $ref: '#/components/schemas/SecurityContract'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/SecurityContractValidationResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityContractValidationResult'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to validate Security Contracts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+     
   # End Region - Security Contracts
     
   #region - AuthenticationModes    
@@ -2266,11 +2580,11 @@ paths:
               $ref: '#/components/schemas/LdapAuthenticationModeSubmit'
       responses:
         '200':    
-          description: Successful. LDAP Authentication Model successfully tested.
+          description: Successful. LDAP Authentication Model successfully tested. Check Success parameter and results for more information.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LdapAuthenticationModeTestResult'
+                $ref: '#/components/schemas/ValidationResultResponse'
         '400':
           description: Invalid parameters.
           content:
@@ -2459,7 +2773,42 @@ components:
           type: string
 
     # End Region - Permissions      
-          
+
+    # Region - TermsOfService
+    TermsOfServiceId:
+      type: string
+      format: uuid
+
+    TermsOfService:
+      description: |
+        An agreement the needs to be agreed to by a user
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TermsOfServiceId'
+        agreementName:
+          type: string
+        version:
+          type: string
+        agreementFileData:
+          type: string
+
+    TermsOfServiceSubmit:
+      description: |
+        An agreement the needs to be agreed to by a user
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TermsOfServiceId'
+        agreementName:
+          type: string
+        agreementFileData:
+          type: string
+        autoUpdate:
+          type: boolean
+
+    # End Region - TermsOfService      
+
     # Region - Functions
 
     FunctionId:
@@ -2674,6 +3023,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationDataPolicyId'
+        termsOfServiceId:
+            $ref: '#/components/schemas/TermsOfServiceId'
         
 
     TeamSubmit:
@@ -2701,6 +3052,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationDataPolicyId'
+        termsOfServiceId:
+            type: string
+            format: uuid
+            nullable: true
     #endregion
     
     # Region -  Clients
@@ -2714,6 +3069,7 @@ components:
         - allowedGrantTypes
         - allowedScopes
         - allowedOfflineAccess
+        - redirectUris
       properties:
         clientId:
           type: string
@@ -2762,6 +3118,12 @@ components:
         allowedOfflineAccess:
           description: Defines whether offline access with refresh tokens is permitted for this client.
           type: boolean
+        accessTokenLifetime:
+          description: The amount of time that access tokens issued for this client will be valid (in seconds) for. Default is 3600.
+          type: integer
+        identityTokenLifetime:
+          description: The amount of time that ID tokens issued for this client will be valid (in seconds) for. Default is 3600.
+          type: integer
             
     Oauth2Client:
       description: |
@@ -3124,6 +3486,43 @@ components:
           type: array
           items:
              $ref: '#/components/schemas/SecurityContractDefaultConfiguration'
+             
+    SecurityContractValidationResult:
+      description: Models the result of a security contract dry run validation.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityContractValidationError'
+        validationWarnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityContractValidationWarning'
+          
+    SecurityContractValidationError:
+      description: Models an individual validation error that may be returned when performing a security contract validation request.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type:
+            string
+            
+    SecurityContractValidationWarning:
+      description: Models an individual validation warning that may be returned when performing a security contract validation request.
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type:
+            string  
     # End Region - Security Contract
     
     #region - Authentication Model
@@ -3220,19 +3619,21 @@ components:
           description: A list of LDAP attribute to user field mappings
           items:
             $ref: '#/components/schemas/LdapAttributeLink'
-    LdapAuthenticationModeTestResult:
-      description: |
-        An LdapAuthenticationMode test result
-      type: object
-      properties:
-        success:
-          type: boolean
-        messages:
-          type: array
-          items:
-            type: string           
     #endregion
     
+    #region - TwoFactorAuth
+    TwoFactorAuthOTP:
+      description: |
+        A OTP for a specific user.
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        OTP:
+          type: string
+
+    #endregion
     # Begin Region Application Data Policies
     # This is the same model as the 'SecurityContractApplicationDataPolicy', but for use outside of the context of security contracts.    
     ApplicationDataPolicy:
@@ -3330,6 +3731,17 @@ components:
             link includes the page, size, filter, orderBy and fields query
             parameters. If this is the last page in the result set then this will
             be [null].
+    ValidationResultResponse:
+      description: |
+        A validation result.
+      type: object
+      properties:
+        success:
+          type: boolean
+        messages:
+          type: array
+          items:
+            type: string           
 
 
     #endregion

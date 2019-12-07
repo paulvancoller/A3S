@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.MappingProfiles;
@@ -13,6 +13,8 @@ using AutoMapper;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
@@ -29,7 +31,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // A security contract with all it's sub components set to null is a valid security contract.
             var securityContract = new SecurityContract();
             var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
-           
+
             try
             {
                 await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, Guid.NewGuid());
@@ -112,6 +114,114 @@ namespace za.co.grindrodbank.a3s.tests.Services
             {
                 Assert.True(false, $"Unexpected Exception: '{e.Message}' thrown when applying security contract");
             }
+        }
+
+        [Fact]
+        public async Task ApplySecurityContractAsync_WithDefaultConfigurationServiceThrowingItemNotFoundException_ItemNotFoundExceptionThrown()
+        {
+            //Arrange
+            var securityContractClientService = Substitute.For<ISecurityContractClientService>();
+            var securityContractDefaultConfigurationService = Substitute.For<ISecurityContractDefaultConfigurationService>();
+            var securityContractApplicationService = Substitute.For<ISecurityContractApplicationService>();
+
+            // A security contract with all it's sub components set to null is a valid security contract.
+            var securityContract = new SecurityContract();
+
+            securityContract.DefaultConfigurations = new List<SecurityContractDefaultConfiguration>
+            {
+                new SecurityContractDefaultConfiguration
+                {
+                    Name = "test default configuration"
+                }
+            };
+
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new ItemNotFoundException());
+
+            var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
+
+            Exception caughtException = null;
+            try
+            {
+                await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, Guid.NewGuid());
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException is ItemNotFoundException);
+        }
+
+        [Fact]
+        public async Task ApplySecurityContractAsync_WithDefaultConfigurationServiceThrowingItemNotProcessableException_ItemNotProcessableExceptionThrown()
+        {
+            //Arrange
+            var securityContractClientService = Substitute.For<ISecurityContractClientService>();
+            var securityContractDefaultConfigurationService = Substitute.For<ISecurityContractDefaultConfigurationService>();
+            var securityContractApplicationService = Substitute.For<ISecurityContractApplicationService>();
+
+            // A security contract with all it's sub components set to null is a valid security contract.
+            var securityContract = new SecurityContract();
+
+            securityContract.DefaultConfigurations = new List<SecurityContractDefaultConfiguration>
+            {
+                new SecurityContractDefaultConfiguration
+                {
+                    Name = "test default configuration"
+                }
+            };
+
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new ItemNotProcessableException());
+
+            var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
+
+            Exception caughtException = null;
+            try
+            {
+                await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, Guid.NewGuid());
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException is ItemNotProcessableException);
+        }
+
+        [Fact]
+        public async Task ApplySecurityContractAsync_WithApplicationServiceThrowingException_ExceptionThrown()
+        {
+            //Arrange
+            var securityContractClientService = Substitute.For<ISecurityContractClientService>();
+            var securityContractDefaultConfigurationService = Substitute.For<ISecurityContractDefaultConfigurationService>();
+            var securityContractApplicationService = Substitute.For<ISecurityContractApplicationService>();
+
+            // A security contract with all it's sub components set to null is a valid security contract.
+            var securityContract = new SecurityContract();
+
+            securityContract.DefaultConfigurations = new List<SecurityContractDefaultConfiguration>
+            {
+                new SecurityContractDefaultConfiguration
+                {
+                    Name = "test default configuration"
+                }
+            };
+
+            securityContractDefaultConfigurationService.ApplyDefaultConfigurationDefinitionAsync(Arg.Any<SecurityContractDefaultConfiguration>(), Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<SecurityContractDryRunResult>()).Returns(x => throw new Exception());
+
+            var securityContractService = new SecurityContractService(securityContractApplicationService, securityContractClientService, securityContractDefaultConfigurationService);
+
+            Exception caughtException = null;
+            try
+            {
+                await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, Guid.NewGuid());
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException is Exception);
         }
 
         [Fact]

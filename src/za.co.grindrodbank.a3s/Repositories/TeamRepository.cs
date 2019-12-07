@@ -123,8 +123,8 @@ namespace za.co.grindrodbank.a3s.Repositories
                           "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
                           "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
                           "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
-                          "WHERE application_user.id = {1} "
-                          , teamMemberUserGuid.ToString(), teamMemberUserGuid.ToString())
+                          "WHERE application_user.id = {0} "
+                          , teamMemberUserGuid.ToString())
                           .Include(t => t.UserTeams)
                               .ThenInclude(ut => ut.User)
                           .Include(t => t.ChildTeams)

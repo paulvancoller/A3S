@@ -3,7 +3,7 @@
   "info" : {
     "description" : "API Definition for the A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
-    "version" : "1.0.0"
+    "version" : "1.0.2"
   },
   "servers" : [ {
     "url" : "/"
@@ -637,6 +637,9 @@
           "style" : "simple"
         } ],
         "responses" : {
+          "204" : {
+            "description" : "No Content."
+          },
           "400" : {
             "content" : {
               "application/json" : {
@@ -689,6 +692,85 @@
           }
         },
         "summary" : "Removes two-factor authentication for a user, as well as any registered devices and methods.",
+        "tags" : [ "TwoFactorAuth" ]
+      }
+    },
+    "/twoFactorAuth/validate" : {
+      "post" : {
+        "description" : "Validates a two-factor authenticator OTP.",
+        "operationId" : "validateTwoFactorAuthenticationOTP",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TwoFactorAuthOTP"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationResultResponse"
+                }
+              }
+            },
+            "description" : "Successful. OTP validation ran successfully. Check Success parameter and results for more information."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to validate two-factor authentication OTP's."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Validates a two-factor authenticator OTP.",
         "tags" : [ "TwoFactorAuth" ]
       }
     },
@@ -2201,6 +2283,350 @@
         "tags" : [ "Permission" ]
       }
     },
+    "/termsOfService" : {
+      "get" : {
+        "description" : "Search for terms of service entries.",
+        "operationId" : "listTermsOfServices",
+        "parameters" : [ {
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "explode" : false,
+          "in" : "query",
+          "name" : "orderBy",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/TermsOfService"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK",
+            "headers" : {
+              "X-Pagination" : {
+                "description" : "Pagination header.",
+                "explode" : false,
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginationHeaderResponse"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the list of terms of service entries."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Search for terms of service entries.",
+        "tags" : [ "TermsOfService" ]
+      },
+      "post" : {
+        "description" : "Create a new terms of service entry.",
+        "operationId" : "createTermsOfService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TermsOfServiceSubmit"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TermsOfService"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to create terms of service entries."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Create a new terms of service entry.",
+        "tags" : [ "TermsOfService" ]
+      }
+    },
+    "/termsOfService/{termsOfServiceId}" : {
+      "delete" : {
+        "description" : "Deletes a terms of service entry from A3S.",
+        "operationId" : "deleteTermsOfService",
+        "parameters" : [ {
+          "description" : "The UUID of the terms of service entry to delete.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "termsOfServiceId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/TermsOfServiceId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid parameters."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to delete terms of service entry."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Terms of service entry not found."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Terms of service entry cannot be deleted."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Delete a terms of service entry.",
+        "tags" : [ "TermsOfService" ]
+      },
+      "get" : {
+        "description" : "Get a terms of service entry by its UUID.",
+        "operationId" : "getTermsOfService",
+        "parameters" : [ {
+          "description" : "Terms of service entry",
+          "explode" : false,
+          "in" : "path",
+          "name" : "termsOfServiceId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/TermsOfServiceId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TermsOfService"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the terms of service entry."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Terms of service entry not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred"
+          }
+        },
+        "summary" : "Get a terms of service entry.",
+        "tags" : [ "TermsOfService" ]
+      }
+    },
     "/functions" : {
       "get" : {
         "description" : "Search for functions.",
@@ -2911,21 +3337,6 @@
           }
         },
         "responses" : {
-          "200" : {
-            "content" : {
-              "application/x-yaml" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
-                }
-              },
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SecurityContract"
-                }
-              }
-            },
-            "description" : "OK."
-          },
           "204" : {
             "description" : "No Content."
           },
@@ -2981,6 +3392,80 @@
           }
         },
         "summary" : "Idempotently applies a security contract definition.",
+        "tags" : [ "SecurityContract" ]
+      }
+    },
+    "/securityContracts/validate" : {
+      "put" : {
+        "description" : "Validates a security contract by doing a dry run. Attempts to process the entire security contract, even if errors are detected, in order to repoert as many errors as possible.",
+        "operationId" : "validateSecurityContract",
+        "requestBody" : {
+          "content" : {
+            "application/x-yaml" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SecurityContract"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/x-yaml" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SecurityContractValidationResult"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to validate Security Contracts."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Validates a security contract by doing a dry run.",
         "tags" : [ "SecurityContract" ]
       }
     },
@@ -3450,11 +3935,11 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/LdapAuthenticationModeTestResult"
+                  "$ref" : "#/components/schemas/ValidationResultResponse"
                 }
               }
             },
-            "description" : "Successful. LDAP Authentication Model successfully tested."
+            "description" : "Successful. LDAP Authentication Model successfully tested. Check Success parameter and results for more information."
           },
           "400" : {
             "content" : {
@@ -3768,6 +4253,60 @@
         },
         "type" : "object"
       },
+      "TermsOfServiceId" : {
+        "format" : "uuid",
+        "type" : "string"
+      },
+      "TermsOfService" : {
+        "description" : "An agreement the needs to be agreed to by a user\n",
+        "example" : {
+          "agreementName" : "agreementName",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "version" : "version",
+          "agreementFileData" : "agreementFileData"
+        },
+        "properties" : {
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "agreementName" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          },
+          "agreementFileData" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "TermsOfServiceSubmit" : {
+        "description" : "An agreement the needs to be agreed to by a user\n",
+        "example" : {
+          "autoUpdate" : true,
+          "agreementName" : "agreementName",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "agreementFileData" : "agreementFileData"
+        },
+        "properties" : {
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "agreementName" : {
+            "type" : "string"
+          },
+          "agreementFileData" : {
+            "type" : "string"
+          },
+          "autoUpdate" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
       "FunctionId" : {
         "format" : "uuid",
         "type" : "string"
@@ -3911,6 +4450,7 @@
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
+            "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "dataPolicyIds" : [ null, null ],
             "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
@@ -3918,6 +4458,7 @@
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
+            "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "dataPolicyIds" : [ null, null ],
             "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
@@ -4095,6 +4636,7 @@
           "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
           "name" : "name",
           "description" : "description",
+          "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "dataPolicyIds" : [ null, null ],
           "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
@@ -4131,6 +4673,10 @@
               "$ref" : "#/components/schemas/ApplicationDataPolicyId"
             },
             "type" : "array"
+          },
+          "termsOfServiceId" : {
+            "format" : "uuid",
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -4140,6 +4686,7 @@
         "example" : {
           "name" : "name",
           "description" : "description",
+          "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "dataPolicyIds" : [ null, null ],
           "teamIds" : [ null, null ]
@@ -4168,6 +4715,11 @@
               "$ref" : "#/components/schemas/ApplicationDataPolicyId"
             },
             "type" : "array"
+          },
+          "termsOfServiceId" : {
+            "format" : "uuid",
+            "nullable" : true,
+            "type" : "string"
           }
         },
         "required" : [ "description", "name", "uuid" ],
@@ -4181,11 +4733,13 @@
           "clientId" : "clientId",
           "clientSecrets" : [ "clientSecrets", "clientSecrets" ],
           "allowedCorsOrigins" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+          "identityTokenLifetime" : 6,
           "hashedClientSecrets" : [ "hashedClientSecrets", "hashedClientSecrets" ],
           "postLogoutRedirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
           "name" : "name",
           "redirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
-          "allowedScopes" : [ "allowedScopes", "allowedScopes" ]
+          "allowedScopes" : [ "allowedScopes", "allowedScopes" ],
+          "accessTokenLifetime" : 0
         },
         "properties" : {
           "clientId" : {
@@ -4251,9 +4805,17 @@
           "allowedOfflineAccess" : {
             "description" : "Defines whether offline access with refresh tokens is permitted for this client.",
             "type" : "boolean"
+          },
+          "accessTokenLifetime" : {
+            "description" : "The amount of time that access tokens issued for this client will be valid (in seconds) for. Default is 3600.",
+            "type" : "integer"
+          },
+          "identityTokenLifetime" : {
+            "description" : "The amount of time that ID tokens issued for this client will be valid (in seconds) for. Default is 3600.",
+            "type" : "integer"
           }
         },
-        "required" : [ "allowedGrantTypes", "allowedOfflineAccess", "allowedScopes", "clientId", "name" ],
+        "required" : [ "allowedGrantTypes", "allowedOfflineAccess", "allowedScopes", "clientId", "name", "redirectUris" ],
         "type" : "object"
       },
       "Oauth2Client" : {
@@ -4581,7 +5143,7 @@
             "userField" : "userField",
             "ldapField" : "ldapField"
           } ],
-          "port" : 0,
+          "port" : 1,
           "name" : "name",
           "isLdaps" : true,
           "baseDn" : "baseDn",
@@ -4759,7 +5321,7 @@
               "userField" : "userField",
               "ldapField" : "ldapField"
             } ],
-            "port" : 0,
+            "port" : 1,
             "name" : "name",
             "isLdaps" : true,
             "baseDn" : "baseDn",
@@ -4773,7 +5335,7 @@
               "userField" : "userField",
               "ldapField" : "ldapField"
             } ],
-            "port" : 0,
+            "port" : 1,
             "name" : "name",
             "isLdaps" : true,
             "baseDn" : "baseDn",
@@ -4878,22 +5440,26 @@
             "clientId" : "clientId",
             "clientSecrets" : [ "clientSecrets", "clientSecrets" ],
             "allowedCorsOrigins" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+            "identityTokenLifetime" : 6,
             "hashedClientSecrets" : [ "hashedClientSecrets", "hashedClientSecrets" ],
             "postLogoutRedirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
             "name" : "name",
             "redirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
-            "allowedScopes" : [ "allowedScopes", "allowedScopes" ]
+            "allowedScopes" : [ "allowedScopes", "allowedScopes" ],
+            "accessTokenLifetime" : 0
           }, {
             "allowedOfflineAccess" : true,
             "allowedGrantTypes" : [ "allowedGrantTypes", "allowedGrantTypes" ],
             "clientId" : "clientId",
             "clientSecrets" : [ "clientSecrets", "clientSecrets" ],
             "allowedCorsOrigins" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+            "identityTokenLifetime" : 6,
             "hashedClientSecrets" : [ "hashedClientSecrets", "hashedClientSecrets" ],
             "postLogoutRedirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
             "name" : "name",
             "redirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
-            "allowedScopes" : [ "allowedScopes", "allowedScopes" ]
+            "allowedScopes" : [ "allowedScopes", "allowedScopes" ],
+            "accessTokenLifetime" : 0
           } ],
           "defaultConfigurations" : [ {
             "teams" : [ {
@@ -4932,7 +5498,7 @@
                 "userField" : "userField",
                 "ldapField" : "ldapField"
               } ],
-              "port" : 0,
+              "port" : 1,
               "name" : "name",
               "isLdaps" : true,
               "baseDn" : "baseDn",
@@ -4946,7 +5512,7 @@
                 "userField" : "userField",
                 "ldapField" : "ldapField"
               } ],
-              "port" : 0,
+              "port" : 1,
               "name" : "name",
               "isLdaps" : true,
               "baseDn" : "baseDn",
@@ -5041,7 +5607,7 @@
                 "userField" : "userField",
                 "ldapField" : "ldapField"
               } ],
-              "port" : 0,
+              "port" : 1,
               "name" : "name",
               "isLdaps" : true,
               "baseDn" : "baseDn",
@@ -5055,7 +5621,7 @@
                 "userField" : "userField",
                 "ldapField" : "ldapField"
               } ],
-              "port" : 0,
+              "port" : 1,
               "name" : "name",
               "isLdaps" : true,
               "baseDn" : "baseDn",
@@ -5198,6 +5764,67 @@
         },
         "type" : "object"
       },
+      "SecurityContractValidationResult" : {
+        "description" : "Models the result of a security contract dry run validation.",
+        "example" : {
+          "validationWarnings" : [ {
+            "message" : "message"
+          }, {
+            "message" : "message"
+          } ],
+          "validationErrors" : [ {
+            "message" : "message"
+          }, {
+            "message" : "message"
+          } ],
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "validationErrors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationError"
+            },
+            "type" : "array"
+          },
+          "validationWarnings" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SecurityContractValidationWarning"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationError" : {
+        "description" : "Models an individual validation error that may be returned when performing a security contract validation request.",
+        "example" : {
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
+      "SecurityContractValidationWarning" : {
+        "description" : "Models an individual validation warning that may be returned when performing a security contract validation request.",
+        "example" : {
+          "message" : "message"
+        },
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ],
+        "type" : "object"
+      },
       "LdapAuthenticationModeId" : {
         "format" : "uuid",
         "type" : "string"
@@ -5329,21 +5956,19 @@
         "required" : [ "account", "baseDn", "hostName", "isLdaps", "name", "password", "port", "uuid" ],
         "type" : "object"
       },
-      "LdapAuthenticationModeTestResult" : {
-        "description" : "An LdapAuthenticationMode test result\n",
+      "TwoFactorAuthOTP" : {
+        "description" : "A OTP for a specific user.\n",
         "example" : {
-          "success" : true,
-          "messages" : [ "messages", "messages" ]
+          "OTP" : "OTP",
+          "userId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
         },
         "properties" : {
-          "success" : {
-            "type" : "boolean"
+          "userId" : {
+            "format" : "uuid",
+            "type" : "string"
           },
-          "messages" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+          "OTP" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -5434,6 +6059,25 @@
             "description" : "The link to the next page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters. If this is the last page in the result set then this will be [null].",
             "format" : "url",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ValidationResultResponse" : {
+        "description" : "A validation result.\n",
+        "example" : {
+          "success" : true,
+          "messages" : [ "messages", "messages" ]
+        },
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "messages" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
           }
         },
         "type" : "object"

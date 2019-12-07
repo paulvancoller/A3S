@@ -15,18 +15,19 @@ using za.co.grindrodbank.a3s.tests.Fakes;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using IdentityServer4.EntityFramework.Entities;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class SecurityContractApplicationService_Tests
     {
-        ApplicationModel mockedApplication;
-        Guid applicationGuid;
-        Guid permissionGuid1;
-        Guid permissionGuid2;
-        Guid permissionGuid3;
-        Guid functionGuid1;
-        Guid functionGuid2;
+        private readonly ApplicationModel mockedApplication;
+        private readonly Guid applicationGuid;
+        private readonly Guid permissionGuid1;
+        private readonly Guid permissionGuid2;
+        private readonly Guid permissionGuid3;
+        private readonly Guid functionGuid1;
+        private readonly Guid functionGuid2;
 
         public SecurityContractApplicationService_Tests()
         {
@@ -106,7 +107,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public async Task ApplyApplicationDefninitionWithNulledFunctions_ExistingApplicationIsPresent_ReturnsUpdatedApplicationWithoutFunctions()
+        public async Task ApplyResourceServerDefinitionAsync_ExistingApplicationIsPresentWithNulledFunction_ReturnsUpdatedApplicationWithoutFunctions()
         {
             // Create an application repository that returns the supplied models so that they can be interrogated, rather than going to the DB.
             // The main thng we want to test here is how the service maps from the security contract onto the model, which is lost if we simply
@@ -114,12 +115,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             // The fake repository has an overloaded constructor that allows us to inject the mocked model it will return when getById or getByName functions
             // are called on the fake repository.
-            var applicationRespository = new ApplicationRepositoryFake(mockedApplication);
+            var applicationRepository = new ApplicationRepositoryFake(mockedApplication);
             var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
             var permissionsRepository = Substitute.For<IPermissionRepository>();
             var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
-            var securityContractApplicationService = new SecurityContractApplicationService(applicationRespository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
 
             // Define an application security contract definition.
             var applicationSecurityContract = new SecurityContractApplication();
@@ -127,16 +128,53 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // Also, set the functions section of the application to null (just dont define it). This should set returned application model functions association to null.
             applicationSecurityContract.Fullname = mockedApplication.Name;
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new SecurityContractDryRunResult());
 
             Assert.True(returnedApplicationModel.Name == "Mocked Application Name", $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected valueL '{mockedApplication.Name}'");
             // Even though the mock application has application functions associated with it, they should have been removed owing to empty functions section defined in the app security contract.
             //Assert.True(returnedApplicationModel.ApplicationFunctions.Count == 0, $"Returned applications functions count expected to be '0'. Actual count is '{returnedApplicationModel.ApplicationFunctions.Count}'");
-
         }
 
         [Fact]
-        public async Task ApplyApplicationDefninitionWithNulledFunctions_NoApplicationIsPresent_ReturnsNewApplicationWithoutFunctions()
+        public async Task ApplyResourceServerDefinitionAsync_NoIdentityServerAPIResourcePresent_ReturnsUpdatedApplicationWithoutFunctions()
+        {
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+
+            identityServiceApiResourceRepository.GetByNameAsync(Arg.Any<string>()).Returns(new ApiResource());
+
+            var newApplication = mockedApplication;
+            newApplication.ApplicationDataPolicies = new List<ApplicationDataPolicyModel>()
+            {
+                new ApplicationDataPolicyModel()
+                {
+                    Name = "Test Name"
+                }
+            };
+
+            applicationRepository.CreateAsync(Arg.Any<ApplicationModel>()).Returns(newApplication);
+            applicationRepository.UpdateAsync(Arg.Any<ApplicationModel>()).Returns(newApplication);
+
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+
+            // Define an application security contract definition.
+            var applicationSecurityContract = new SecurityContractApplication();
+            // The fake application respository is going to return the mocked application.
+            // Also, set the functions section of the application to null (just dont define it). This should set returned application model functions association to null.
+            applicationSecurityContract.Fullname = mockedApplication.Name;
+
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new SecurityContractDryRunResult());
+
+            Assert.True(returnedApplicationModel.Name == "Mocked Application Name", $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected valueL '{mockedApplication.Name}'");
+            // Even though the mock application has application functions associated with it, they should have been removed owing to empty functions section defined in the app security contract.
+            //Assert.True(returnedApplicationModel.ApplicationFunctions.Count == 0, $"Returned applications functions count expected to be '0'. Actual count is '{returnedApplicationModel.ApplicationFunctions.Count}'");
+        }
+
+        [Fact]
+        public async Task ApplyResourceServerDefinitionAsync_NoApplicationIsPresent_ReturnsNewApplicationWithoutFunctions()
         {
             // Create an application repository that returns the supplied models so that they can be interrogated, rather than going to the DB.
             // The main thng we want to test here is how the service maps from the security contract onto the model, which is lost if we simply
@@ -144,13 +182,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             // The fake repository has an overloaded constructor that allows us to inject the mocked model it will return when getById or getByName functions
             // are called on the fake repository.
-            var applicationRespository = new ApplicationRepositoryFake(null);
+            var applicationRepository = new ApplicationRepositoryFake(null);
             var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
             var permissionsRepository = Substitute.For<IPermissionRepository>();
             var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
 
-            var securityContractApplicationService = new SecurityContractApplicationService(applicationRespository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
 
             // Define an application security contract definition.
             var applicationSecurityContract = new SecurityContractApplication();
@@ -158,7 +196,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // Also, set the functions section of the application to null (just dont define it). This should set returned application model functions association to null.
             applicationSecurityContract.Fullname = "Test Application Fullname";
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new SecurityContractDryRunResult());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected valueL '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they should have been removed owing to empty functions section defined in the app security contract.
@@ -167,7 +205,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public async Task ApplyApplicationDefninitionWithFunctions_NoApplicationIsPresent_ReturnsNewApplicationWithFunctions()
+        public async Task ApplyResourceServerDefinitionAsync_NoApplicationIsPresent_ReturnsNewApplicationWithFunctions()
         {
             // Create an application repository that returns the supplied models so that they can be interrogated, rather than going to the DB.
             // The main thng we want to test here is how the service maps from the security contract onto the model, which is lost if we simply
@@ -175,13 +213,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             // The fake repository has an overloaded constructor that allows us to inject the mocked model it will return when getById or getByName functions
             // are called on the fake repository.
-            var applicationRespository = new ApplicationRepositoryFake(null);
+            var applicationRepository = new ApplicationRepositoryFake(null);
             var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
             var permissionsRepository = Substitute.For<IPermissionRepository>();
             var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
 
-            var securityContractApplicationService = new SecurityContractApplicationService(applicationRespository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
 
             // Define an application security contract definition.
             var applicationSecurityContract = new SecurityContractApplication();
@@ -203,7 +241,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new SecurityContractDryRunResult());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected value '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they would NOT have actually been removed as this requires the actual deletion to happen in order for the collection to be udpated.
@@ -212,7 +250,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public async Task ApplyApplicationDefninitionWithFunctions_ExistingApplicationIsPresent_ReturnsUpdatedApplicationWithUpdatedFunctions()
+        public async Task ApplyResourceServerDefinitionAsync_ExistingApplicationIsPresent_ReturnsUpdatedApplicationWithUpdatedFunctions()
         {
             // Create an application repository that returns the supplied models so that they can be interrogated, rather than going to the DB.
             // The main thng we want to test here is how the service maps from the security contract onto the model, which is lost if we simply
@@ -220,12 +258,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             // The fake repository has an overloaded constructor that allows us to inject the mocked model it will return when getById or getByName functions
             // are called on the fake repository.
-            var applicationRespository = new ApplicationRepositoryFake(mockedApplication);
+            var applicationRepository = new ApplicationRepositoryFake(mockedApplication);
             var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
             var permissionsRepository = Substitute.For<IPermissionRepository>();
             var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
-            var securityContractApplicationService = new SecurityContractApplicationService(applicationRespository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
 
             // Define an application security contract definition.
             var applicationSecurityContract = new SecurityContractApplication();
@@ -248,13 +286,85 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 }
             };
 
-            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid());
+            var returnedApplicationModel = await securityContractApplicationService.ApplyResourceServerDefinitionAsync(applicationSecurityContract, Guid.NewGuid(), false, new SecurityContractDryRunResult());
 
             Assert.True(returnedApplicationModel.Name == applicationSecurityContract.Fullname, $"Returned application name: '{returnedApplicationModel.Name}' does not match the expected value '{applicationSecurityContract.Fullname}'");
             // Even though the mock application has application functions associated with it, they would NOT have actually been removed as this requires the actual deletion to happen in order for the collection to be udpated.
             // This also applies to the function elements.
             Assert.True(returnedApplicationModel.ApplicationFunctions.Count == 3, $"Returned applications functions count expected to be '3'. Actual count is '{returnedApplicationModel.ApplicationFunctions.Count}'");
             Assert.True(returnedApplicationModel.ApplicationFunctions.First().Name == "Function 1", $"Returned function name expected to be 'Function 1'. Actual value is: '{returnedApplicationModel.ApplicationFunctions.First().Name}'");
+        }
+
+        [Fact]
+        public void InitSharedTransaction_Executed_ExecutesWithNoException()
+        {
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractApplicationService.InitSharedTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "InitSharedTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void CommitTransaction_Executed_ExecutesWithNoException()
+        {
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractApplicationService.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "CommitTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void RollbackTransaction_Executed_ExecutesWithNoException()
+        {
+            var applicationRepository = Substitute.For<IApplicationRepository>();
+            var identityServiceApiResourceRepository = Substitute.For<IIdentityApiResourceRepository>();
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var securityContractApplicationService = new SecurityContractApplicationService(applicationRepository, identityServiceApiResourceRepository, permissionsRepository, applicationFunctionRepository, applicationDataPolicyRepository);
+
+            Exception caughtException = null;
+
+            try
+            {
+                securityContractApplicationService.RollbackTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "RollbackTransaction must not throw an exception.");
         }
     }
 }

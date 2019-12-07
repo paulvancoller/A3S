@@ -1,3 +1,9 @@
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Services;

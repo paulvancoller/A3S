@@ -1,6 +1,6 @@
-﻿{
+{
 	"info": {
-		"_postman_id": "449a939f-307c-444b-93a9-b4275513589c",
+		"_postman_id": "a768e73c-9fc4-4279-a2da-6449b9cf515b",
 		"name": "A3S",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -231,7 +231,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "# A3S Security Contract\n#\n# This file contains information allowing for configuration and declaration of almost all aspects of A3S.\n# More information at: https://github.com/GrindrodBank/A3S/blob/master/doc/security-contracts.md\n#\nname: A3S Security Contract\ngenerated: 2019-11-11 14:26:00 +02:00\napplications:\n    # This value will be used to create the client scope within the Identity Server. Therefore, it cannot contain any spaces, and should follow a fully smaller case convention.\n  - fullname: a3s   \n    applicationFunctions:\n      - name: a3s.users\n        description: Functionality to maintain users within the A3S User store.\n        permissions:\n          - name: a3s.users.read\n            description: View a list of users or a single user.\n          - name: a3s.users.create\n            description: Create a new user. Enables assigning roles to newly created users.\n          - name: a3s.users.delete\n            description: Removes a user, but only from the A3S User store.\n          - name: a3s.users.update\n            description: Updates a user. Also enables modifying roles assigned to the user.\n\n      - name: a3s.teams\n        description: Functionality to maintain teams.\n        permissions:\n          - name: a3s.teams.read\n            description: View list of teams. View a single team.\n          - name: a3s.teams.create\n            description: Create a new team. Grants ability to assign users to this team.\n          - name: a3s.teams.delete\n            description: Remove a team.\n          - name: a3s.teams.update\n            description: Update a team. Change which users are assigned to the team.\n\n      - name: a3s.roles\n        description: Functionality to manage roles and the functions assigned to roles.\n        permissions:\n          - name: a3s.roles.read\n            description: Enables reading lists of roles and individual roles.\n          - name: a3s.roles.create\n            description: Enables creation of roles. Enables assignment of functions to the created role.\n          - name: a3s.roles.delete\n            description: Enables deletion of a role.\n          - name: a3s.roles.update\n            description: Enables updating of a role. Enables updating of functions assinged to a role.\n\n      - name: a3s.applications\n        description: Functionality to manage applications within A3S.\n        permissions:\n          - name: a3s.applications.read\n            description: Enables reading lists of applications and individual applications. Enables viewing which functions and permissions are assigned to applications.\n            \n      - name: a3s.functions\n        description: Functionality to manage functions created by micro-services.\n        permissions:\n          - name: a3s.functions.read\n            description: Enables reading lists of functions, individual functions and the lists of permissions assigned to functions.\n          - name: a3s.functions.create\n            description: Enables the creation of new functions and the assignment of permissions to these functions.\n          - name: a3s.functions.update\n            description: Enables the updating of existing functions. Enables editing the permissions that are assigned to a function.\n          - name: a3s.functions.delete\n            description: Enables the deletion of functions.\n\n      - name: a3s.authenticationModes\n        description: Functionality to maintain authentication modes.\n        permissions:\n          - name: a3s.ldapAuthenticationModes.read\n            description: View list of authentication modes. View a single authentication mode.\n          - name: a3s.ldapAuthenticationModes.create\n            description: Create a new authentication mode.\n          - name: a3s.ldapAuthenticationModes.delete\n            description: Remove an authentication mode.\n          - name: a3s.ldapAuthenticationModes.update\n            description: Update an authentication mode.\n\n      - name: a3s.applicationFunctions\n        description: Functionality to manage application functions created by micro-services.\n        permissions:\n          - name: a3s.applicationFunctions.read\n            description: Enables reading lists of application functions, individual application functions and the lists of permissions assigned to application functions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove applications functions directly via the API is prohibited. These operations are only permitted in the context of security contract application (this document).\n            \n      - name: a3s.permissions\n        description: Functionality to manage permissions created by micro-services.\n        permissions:\n          - name: a3s.permissions.read\n            description: Enables reading lists of permissions and individual permissions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove permissions directly via the API is prohibited. These operations are only permitted in the context of security contract application.\n      - name: a3s.securityContracts\n        description: Functionality to apply security contracts for micro-services.\n        permissions:\n          - name: a3s.securityContracts.read\n            description: Enables fetching of a security contract definition.\n          - name: a3s.securityContracts.update\n            description: Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.\n\n      - name: a3s.clientRegistration\n        description: Functionality to create and update Oauth2.0 and Openid Connect clients.\n        permissions:\n          - name: a3s.clientRegistration.update\n            description: Enables idempotently applying (creating or updating) a client definition.\n\n      - name: a3s.twoFactorAuth\n        description: Functionality to update two-factor authentication configuration.\n        permissions:\n          - name: a3s.twoFactorAuth.remove\n            description: Removes two-factor authentication from a user profile.\n\n    dataPolicies:\n      - name: a3s.viewYourTeamsOnly\n        description: Will only return teams that the accessing user is part of when retrieving lists of teams from the API.\n\nclients:\n  - clientId: test-client-api\n    name: \"Test client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n\n\ndefaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S Default configuration\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.teams.read\n              - a3s.teams.create\n              - a3s.teams.update\n              - a3s.teams.delete\n              - a3s.roles.read\n              - a3s.roles.create\n              - a3s.roles.update\n              - a3s.roles.delete\n              - a3s.applications.read\n              - a3s.functions.read\n              - a3s.functions.create\n              - a3s.functions.update\n              - a3s.functions.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.applicationFunctions.read\n              - a3s.permissions.read\n              - a3s.securityContracts.read\n              - a3s.securityContracts.update\n              - a3s.clientRegistration.update\n              - a3s.twoFactorAuth.remove\n          - name: \"a3s.userMaintenance\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.twoFactorAuth.remove\n          - name: \"a3s.ldapMaintenance\"\n            description: \"A function that contains all ldap related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Super Admin\"\n        description: An A3S Role that has all the A3S functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Role for managing users.\n        functions:\n          - \"a3s.userMaintenance\"\n      - name: \"A3S LDAP Manager\"\n        description: An A3S Role for managing ldap authentication methods.\n        functions:\n          - \"a3s.ldapMaintenance\"\n      - name: \"A3S Authentication Manager Compound Role\"\n        description: An A3S Role for managing ldap authentication methods and users.\n        roles:\n          - \"A3S User Manager\"\n          - \"A3S LDAP Manager\"\n    # Defines a section for declaring new LDAP Authentication Modes.\n    ldapAuthenticationModes:\n      - name: open-ldap-dev\n        hostName: localhost\n        port: 389\n        isLdaps: false\n        # Note: The admin account username for the LDAP profile.\n        account: \"admin\"\n        baseDn: \"dc=bigbaobab,dc=org\"\n        # The LDAP Attribute definitions\n        ldapAttributes:\n          - userField: \"firstName\"\n            ldapField: \"givenName\"\n          - userField: \"surname\"\n            ldapField: \"sn\"\n          - userField: \"userName\"\n            ldapField: \"userPrincipalName\"\n          - userField: \"email\"\n            ldapField: \"mail\"\n          - userField: \"avatar\"\n            ldapField: \"jpegPhoto\"\n    users:\n      - username: a3s-admin\n        name: a3s-admin\n        surname: system user\n        email: a3s-admin@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Super Admin\"\n      - username: a3s-user1\n        name: a3s user 1\n        surname: some surname\n        email: a3s-user1@localhost\n        password: \"Password1#\"\n        roles:\n          - \"A3S User Manager\"\n      - username: a3s-ops-admin\n        name: a3s ops admin\n        surname: some surname\n        email: a3s-ops@localhost\n        password: \"Password1#\"\n        roles:\n          - \"A3S Authentication Manager Compound Role\"\n      - username: a3s-ldap-user\n        name: a3s ldap user\n        surname: some surname\n        email: a3s-ldap@localhost\n        password: \"Password1#\"\n        ldapAuthenticationMode: open-ldap-dev\n        roles:\n          - \"A3S Authentication Manager Compound Role\"\n\n    teams:\n      - name: default-team\n        description: A simple test default team.\n        users:\n          - a3s-user1\n          - a3s-ops-admin\n        # Data policies can be assigned to teams, applying all the associated policies to members of teams.\n        # Data policies are declared by micro-services within the 'applications' section of the security contract. Micro-services enforce data policies.\n        dataPolicies:\n          - a3s.viewYourTeamsOnly\n\n      - name: admin-team\n        description: A simple test admin team.\n        users:\n          - a3s-admin\n      - name: ops-team\n        description: A simple test ops team.\n        users:\n          - a3s-ops-admin\n      - name: special-team\n        description: A compound team\n        teams:\n          - admin-team\n          - ops-team"
+							"raw": "# A3S Security Contract\n#\n# This file contains information allowing for configuration and declaration of almost all aspects of A3S.\n# More information at: https://github.com/GrindrodBank/A3S/blob/master/doc/security-contracts.md\n#\nname: A3S Security Contract\ngenerated: 2019-10-30 10:00:00 +02:00\napplications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s   \n    applicationFunctions:\n      - name: a3s.users\n        description: Functionality to maintain users within the A3S User store.\n        permissions:\n          - name: a3s.users.read\n            description: View a list of users or a single user.\n          - name: a3s.users.create\n            description: Create a new user. Enables assigning roles to newly created users.\n          - name: a3s.users.delete\n            description: Removes a user, but only from the A3S User store.\n          - name: a3s.users.update\n            description: Updates a user. Also enables modifying roles assigned to the user.\n\n      - name: a3s.teams\n        description: Functionality to maintain teams.\n        permissions:\n          - name: a3s.teams.read\n            description: View list of teams. View a single team.\n          - name: a3s.teams.create\n            description: Create a new team. Grants ability to assign users to this team.\n          - name: a3s.teams.delete\n            description: Remove a team.\n          - name: a3s.teams.update\n            description: Update a team. Change which users are assigned to the team.\n\n      - name: a3s.roles\n        description: Functionality to manage roles and the functions assigned to roles.\n        permissions:\n          - name: a3s.roles.read\n            description: Enables reading lists of roles and individual roles.\n          - name: a3s.roles.create\n            description: Enables creation of roles. Enables assignment of functions to the created role.\n          - name: a3s.roles.delete\n            description: Enables deletion of a role.\n          - name: a3s.roles.update\n            description: Enables updating of a role. Enables updating of functions assinged to a role.\n\n      - name: a3s.applications\n        description: Functionality to manage applications within A3S.\n        permissions:\n          - name: a3s.applications.read\n            description: Enables reading lists of applications and individual applications. Enables viewing which functions and permissions are assigned to applications.\n\n      - name: a3s.functions\n        description: Functionality to manage functions created by micro-services.\n        permissions:\n          - name: a3s.functions.read\n            description: Enables reading lists of functions, individual functions and the lists of permissions assigned to functions.\n          - name: a3s.functions.create\n            description: Enables the creation of new functions and the assignment of permissions to these functions.\n          - name: a3s.functions.update\n            description: Enables the updating of existing functions. Enables editing the permissions that are assigned to a function.\n          - name: a3s.functions.delete\n            description: Enables the deletion of functions.\n\n      - name: a3s.authenticationModes\n        description: Functionality to maintain authentication modes.\n        permissions:\n          - name: a3s.ldapAuthenticationModes.read\n            description: View list of authentication modes. View a single authentication mode.\n          - name: a3s.ldapAuthenticationModes.create\n            description: Create a new authentication mode.\n          - name: a3s.ldapAuthenticationModes.delete\n            description: Remove an authentication mode.\n          - name: a3s.ldapAuthenticationModes.update\n            description: Update an authentication mode.\n\n      - name: a3s.applicationFunctions\n        description: Functionality to manage application functions created by micro-services.\n        permissions:\n          - name: a3s.applicationFunctions.read\n            description: Enables reading lists of application functions, individual application functions and the lists of permissions assigned to application functions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove applications functions directly via the API is prohibited. These operations are only permitted in the context of security contract application (this document).\n            \n      - name: a3s.permissions\n        description: Functionality to manage permissions created by micro-services.\n        permissions:\n          - name: a3s.permissions.read\n            description: Enables reading lists of permissions and individual permissions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove permissions directly via the API is prohibited. These operations are only permitted in the context of security contract application.\n      - name: a3s.securityContracts\n        description: Functionality to apply security contracts for micro-services.\n        permissions:\n          - name: a3s.securityContracts.read\n            description: Enables fetching of a security contract definition.\n          - name: a3s.securityContracts.update\n            description: Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.\n\n      - name: a3s.clientRegistration\n        description: Functionality to create and update Oauth2.0 and Openid Connect clients.\n        permissions:\n          - name: a3s.clientRegistration.update\n            description: Enables idempotently applying (creating or updating) a client definition.\n\n      - name: a3s.twoFactorAuth\n        description: Functionality to update two-factor authentication configuration.\n        permissions:\n          - name: a3s.twoFactorAuth.remove\n            description: Removes two-factor authentication from a user profile.\n          - name: a3s.twoFactorAuth.validateOtp\n            description: Validates a user authenticator generated OTP.\n\n      - name: a3s.termsOfService\n        description: Functionality to manage terms of service entries.\n        permissions:\n          - name: a3s.termsOfService.read\n            description: Enables reading lists or individual entries of terms of service.\n          - name: a3s.termsOfService.create\n            description: Enables the creation of new terms of service entries.\n          - name: a3s.termsOfService.delete\n            description: Enables the delete of existing terms of service entries.\n\n    dataPolicies:\n      - name: a3s.viewYourTeamsOnly\n        description: Will only return teams that the accessing user is part of when retrieving lists of teams from the API\n\nclients:\n  - clientId: test-client-api\n    name: \"Test client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n\n\ndefaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S Default configuration\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.teams.read\n              - a3s.teams.create\n              - a3s.teams.update\n              - a3s.teams.delete\n              - a3s.roles.read\n              - a3s.roles.create\n              - a3s.roles.update\n              - a3s.roles.delete\n              - a3s.applications.read\n              - a3s.functions.read\n              - a3s.functions.create\n              - a3s.functions.update\n              - a3s.functions.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.applicationFunctions.read\n              - a3s.permissions.read\n              - a3s.securityContracts.update\n              - a3s.securityContracts.read\n              - a3s.clientRegistration.update\n              - a3s.twoFactorAuth.remove\n              - a3s.twoFactorAuth.validateOtp\n              - a3s.termsOfService.create\n              - a3s.termsOfService.delete\n              - a3s.termsOfService.read\n          - name: \"a3s.userMaintenance\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.twoFactorAuth.remove\n              - a3s.twoFactorAuth.validateOtp\n          - name: \"a3s.securityContractMaintenance\"\n            description: \"Functionality to apply security contracts for micro-services.\"\n            permissions:\n              - a3s.securityContracts.read\n              - a3s.securityContracts.update\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Super Admin\"\n        description: An A3S Role that has all the A3S functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Role for managing users.\n        functions:\n          - \"a3s.userMaintenance\"\n    # Defines a section for declaring new users and mapping roles to them.\n    users:\n      - username: a3s-admin\n        name: a3s-admin\n        surname: system user\n        email: a3s-admin@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        phoneNumber: \"+27110110110\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Super Admin\"\n      - username: a3s-user1\n        name: a3s user 1\n        phoneNumber: \"+27110110112\"\n        surname: some surname\n        email: a3s-user1@localhost\n        password: \"Password1#\"\n        roles:\n          - \"A3S User Manager\"\n\n    teams:\n      - name: default-team\n        description: A simple test defaul team.\n        users:\n          - a3s-admin\n          - a3s-user1\n"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/securityContracts",
@@ -287,6 +287,56 @@
 							]
 						},
 						"description": "Retrieves the entire security contract which models that current internal state of the A3S instance."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition  - DryRun",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "# A3S Security Contract\n#\n# This file contains information allowing for configuration and declaration of almost all aspects of A3S.\n# More information at: https://github.com/GrindrodBank/A3S/blob/master/doc/security-contracts.md\n#\nname: A3S Security Contract\ngenerated: 2019-10-30 10:00:00 +02:00\napplications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s   \n    applicationFunctions:\n      - name: a3s.users\n        description: Functionality to maintain users within the A3S User store.\n        permissions:\n          - name: a3s.users.read\n            description: View a list of users or a single user.\n          - name: a3s.users.create\n            description: Create a new user. Enables assigning roles to newly created users.\n          - name: a3s.users.delete\n            description: Removes a user, but only from the A3S User store.\n          - name: a3s.users.update\n            description: Updates a user. Also enables modifying roles assigned to the user.\n\n      - name: a3s.teams\n        description: Functionality to maintain teams.\n        permissions:\n          - name: a3s.teams.read\n            description: View list of teams. View a single team.\n          - name: a3s.teams.create\n            description: Create a new team. Grants ability to assign users to this team.\n          - name: a3s.teams.delete\n            description: Remove a team.\n          - name: a3s.teams.update\n            description: Update a team. Change which users are assigned to the team.\n\n      - name: a3s.roles\n        description: Functionality to manage roles and the functions assigned to roles.\n        permissions:\n          - name: a3s.roles.read\n            description: Enables reading lists of roles and individual roles.\n          - name: a3s.roles.create\n            description: Enables creation of roles. Enables assignment of functions to the created role.\n          - name: a3s.roles.delete\n            description: Enables deletion of a role.\n          - name: a3s.roles.update\n            description: Enables updating of a role. Enables updating of functions assinged to a role.\n\n      - name: a3s.applications\n        description: Functionality to manage applications within A3S.\n        permissions:\n          - name: a3s.applications.read\n            description: Enables reading lists of applications and individual applications. Enables viewing which functions and permissions are assigned to applications.\n\n      - name: a3s.functions\n        description: Functionality to manage functions created by micro-services.\n        permissions:\n          - name: a3s.functions.read\n            description: Enables reading lists of functions, individual functions and the lists of permissions assigned to functions.\n          - name: a3s.functions.create\n            description: Enables the creation of new functions and the assignment of permissions to these functions.\n          - name: a3s.functions.update\n            description: Enables the updating of existing functions. Enables editing the permissions that are assigned to a function.\n          - name: a3s.functions.delete\n            description: Enables the deletion of functions.\n\n      - name: a3s.authenticationModes\n        description: Functionality to maintain authentication modes.\n        permissions:\n          - name: a3s.ldapAuthenticationModes.read\n            description: View list of authentication modes. View a single authentication mode.\n          - name: a3s.ldapAuthenticationModes.create\n            description: Create a new authentication mode.\n          - name: a3s.ldapAuthenticationModes.delete\n            description: Remove an authentication mode.\n          - name: a3s.ldapAuthenticationModes.update\n            description: Update an authentication mode.\n\n      - name: a3s.applicationFunctions\n        description: Functionality to manage application functions created by micro-services.\n        permissions:\n          - name: a3s.applicationFunctions.read\n            description: Enables reading lists of application functions, individual application functions and the lists of permissions assigned to application functions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove applications functions directly via the API is prohibited. These operations are only permitted in the context of security contract application (this document).\n            \n      - name: a3s.permissions\n        description: Functionality to manage permissions created by micro-services.\n        permissions:\n          - name: a3s.permissions.read\n            description: Enables reading lists of permissions and individual permissions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove permissions directly via the API is prohibited. These operations are only permitted in the context of security contract application.\n      - name: a3s.securityContracts\n        description: Functionality to apply security contracts for micro-services.\n        permissions:\n          - name: a3s.securityContracts.read\n            description: Enables fetching of a security contract definition.\n          - name: a3s.securityContracts.update\n            description: Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.\n\n      - name: a3s.clientRegistration\n        description: Functionality to create and update Oauth2.0 and Openid Connect clients.\n        permissions:\n          - name: a3s.clientRegistration.update\n            description: Enables idempotently applying (creating or updating) a client definition.\n\n      - name: a3s.twoFactorAuth\n        description: Functionality to update two-factor authentication configuration.\n        permissions:\n          - name: a3s.twoFactorAuth.remove\n            description: Removes two-factor authentication from a user profile.\n          - name: a3s.twoFactorAuth.validateOtp\n            description: Validates a user authenticator generated OTP.\n\n      - name: a3s.termsOfService\n        description: Functionality to manage terms of service entries.\n        permissions:\n          - name: a3s.termsOfService.read\n            description: Enables reading lists or individual entries of terms of service.\n          - name: a3s.termsOfService.create\n            description: Enables the creation of new terms of service entries.\n          - name: a3s.termsOfService.delete\n            description: Enables the delete of existing terms of service entries.\n\n    dataPolicies:\n      - name: a3s.viewYourTeamsOnly\n        description: Will only return teams that the accessing user is part of when retrieving lists of teams from the API\n\nclients:\n  - clientId: test-client-api\n    name: \"Test client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n\n\ndefaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S Default configuration\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.teams.read\n              - a3s.teams.create\n              - a3s.teams.update\n              - a3s.teams.delete\n              - a3s.roles.read\n              - a3s.roles.create\n              - a3s.roles.update\n              - a3s.roles.delete\n              - a3s.applications.read\n              - a3s.functions.read\n              - a3s.functions.create\n              - a3s.functions.update\n              - a3s.functions.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.applicationFunctions.read\n              - a3s.permissions.read\n              - a3s.securityContracts.update\n              - a3s.securityContracts.read\n              - a3s.clientRegistration.update\n              - a3s.twoFactorAuth.remove\n              - a3s.twoFactorAuth.validateOtp\n              - a3s.termsOfService.create\n              - a3s.termsOfService.delete\n              - a3s.termsOfService.read\n          - name: \"a3s.userMaintenance\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.twoFactorAuth.remove\n              - a3s.twoFactorAuth.validateOtp\n          - name: \"a3s.securityContractMaintenance\"\n            description: \"Functionality to apply security contracts for micro-services.\"\n            permissions:\n              - a3s.securityContracts.read\n              - a3s.securityContracts.update\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Super Admin\"\n        description: An A3S Role that has all the A3S functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Role for managing users.\n        functions:\n          - \"a3s.userMaintenance\"\n    # Defines a section for declaring new users and mapping roles to them.\n    users:\n      - username: a3s-admin\n        name: a3s-admin\n        surname: system user\n        email: a3s-admin@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        phoneNumber: \"+27110110110\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Super Admin\"\n      - username: a3s-user1\n        name: a3s user 1\n        phoneNumber: \"+27110110112\"\n        surname: some surname\n        email: a3s-user1@localhost\n        password: \"Password1#\"\n        roles:\n          - \"A3S User Manager\"\n\n    teams:\n      - name: default-team\n        description: A simple test defaul team.\n        users:\n          - a3s-admin\n          - a3s-user1\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts/validate",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts",
+								"validate"
+							]
+						},
+						"description": "This API is designed for applying security contracts to A3S. Security contracts can model the entire configuration of A3S, or a small sub component of it, such as only creating a client. Each top level component of the security contract, such as 'applications', 'clients' and 'defaultConfigurations' can be applied independently. The body that is configured for this security contract declaration is the default configuration of the totality of A3S for the purpose of this quickstart, including a definition for A3S (and it's application functions and permissions), a client that can be used to access A3S, as well as defaultConfiguration section definition all the functions, roles, users and teams that are used during this quickstart."
 					},
 					"response": []
 				}
@@ -785,6 +835,297 @@
 			"protocolProfileBehavior": {}
 		},
 		{
+			"name": "TermsOfService",
+			"item": [
+				{
+					"name": "CreateTermsOfService - Simple agreement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAB4F5V0AA+1V32/jNgy+5/wVRJ42wEuTrG2wrivgJEojzLED27muTwfFlmttjmVISoNg2P8+Sk4vbdf9eCjuMCBEAJkS+ZEfJTK9M8PVRn+SxSfN1aPIeC/T+sO7Sr/fvzw/B7uOLi/c2h+2upPBxSUMvr8YDYZWOYf+YDQc9T9A/33TeFu22jCFqTRsWz2yOpNVxdUbdmhWFP+A01KBz+v/RNYy38PvHUApZG2+23HxUJorqKXasOrHzh+dTq/kLBf1w1tma1nlrRHfNCXTQj+30mZf8SsQhlUis2Zfm+1JXkvvr/1fmk31rjH+pf+H58Nh2/+D0Wg0GNn+Px8NTv3/JeTa3vaNa9lr2+c312duaXfsdGg/ndpAVjGtf+oeJkL3eGZlIpu9snMBhv3BD3CrRJ0rmcOY1b9BIDbC8PwIdtbcdJ5Bv4Ra4qMUWgtZA46Ukiu+3sODYjVCeFAozkEWkJVMPXAPjARW76HhSqODXBsmajuwGGSYkrU0JcJoWZgdUxyNc0AeMhMM8SCX2XbDa8OMjVeIimv4xpQcusnBo/utC5JzVoGowZ49HcFOmFJuDSiujRKZxfDQKKu2bmg+HVeWfxvBurs6aQu61cjA5unBRuaisCt3tJrtuhK69CAXFnq9Nbip7WbGa+uFPM6kAs2ryiIIzNtxPWbnbGyUxhbUHErk4u5KuXnJBEtUbFWNIbnzySWWzEX8lWfG7ljzAjtE7iy1TNa5sIz01X+81hT92Vo+cke4fSu1NMinzdPeUnO8+sORLhkSXPNDVTE5vAP2jLOyOWKD1kbgBTVSuaRe16L3t0k+Peun/7BX7zqdE0iiWXrnxwRoAss4+kinZApdP0G968EdTefRKgW0iP0wvYdoBn54Dz/TcOoB+WUZkySBKAa6WAaU4B4NJ8FqSsNbGKNfGKUQ0AVNETSNXMADFCWJBVuQeDJH1R/TgKb3HsxoGlrMGYL6sPTjlE5WgR/DchUvo4Rg+CnChjScxRiFLEiY9jAq7gH5iAokcz8IXCh/hdnHLr9JtLyP6e08hXkUTAlujglm5o8D0oZCUpPApwsPpv7CvyXOK0KU2JkdsrubE7eF8Xz8TVIahZbGJArTGFUPWcbpZ9c7mhAP/JgmtiCzOEJ4W070iBwI+oWkRbGlfnkjaGL1VUKOuUyJHyBWYp2fG796A+1HO+Vw8LlR+LUn8klOcpKTfBn5E+xQqtkAEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService - Simple agreement with css styling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAIf+5F0AA+1VUY/iNhC+5/0Vo3tqJQphl13UdnWSAbNYDQlKzG336RQSp1gNNrLNrlDV/95xwt5yunC9h22vlRghOWPG3zfzTTzp9pwwG/tBlx+sMI8yF93c2jevakEQ3AwG4NfhzXW9BpeN39jgEvpX18N+H/8ObiDoD6+CwRsIXjeNdttZlxlMZZvtqsdM5bqqhGmJw7Cy/AJOUwl8XP8nttLFHv64ALRSK/fDk5C/rd1PoLTZZNXPF39efOsMz/ZPWvfz+792m+pVOf7m/l8Or/rP93/YD4b+/g9urs/3/9+wW9/td/X9v12LrHh326uXZsdPh+axdrcvz97ujFSF0QWMMvU7hHIjnSheontH4Scxxnq7N37kwHf593AZ9H/8GtiTcKSqQKrSDy8ntYIcZ1omlShgLYyQCqTtQKYKMGKD+xbcWsDW6K0wbg+6xJIN9L6izC5wPCmVE/i+5G6XVTWsE/layRw9ZM7F1tmjFFqwD1llpsnCSIFv4x6cbmetOQ7BSOV3VhhtskKAFbkRDtpYtMEsnnWusqcuLK3oQCGtFRupGqkwyAjELXZ545cojrTHcvZwEUZidS0kGGqdkbmr9vgpMStZFELBTlXCWsxXIv6Tkc7hJqq9QW7Pgqf06qBPafTmhNqn2+/bkK30ozgqUWmHg6xpiC/hiO/wl11n+KasfAfzalcgue9C1VoY4kphvT52t8IxoJxXYKuNl8Q2OglIdemesDVfSPUTVD6jkMZTfk8SCiyFRRK/ZxM6gbckRf9tB+4Zn8VLDhiRkIg/QDwFEj3ALyyadID+ukhomkKctOXM5ouQUQxj0ThcTlh0ByOEimIOIZszjjw8rnM4oDOaevw5TcYzdMmIhYw/dNqwp4xHnnmK1AQWJOFsvAxJAotlsohTiklOkCli0TRBYjqnEe9iIrgH9D06kM5IGNbsLfBkiWUndWHjePGQsLsZh1kcTihujijmT0YhbdhRjXFI2LwDEzInd7Q+FSNwqyj+5KGs+xmtozArgr8xZ3Hk6x/HEU/Q7aA8Cf+Ids9S2gGSsNQrOU3ieasyvlsIEte4CBXRBth38tOGY4j3lyl9yXhCSYjwqT98Qpvn893Pp+xtrxnWOL/rif6tPyxnO9vZ/vP2Fw5s7A8AEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService - Larger agreement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"test-agreement\",\n    \"agreementFileData\": \"H4sIAMYE5V0AA+1YbYvcNhDu5/wKcV96B5t7y+UCbQikaSiBfAhN0lJCCFp7vFYiS64kr2NK/3ufGdnr3csLXS5taDnB4d21NK/PPDO645NEoYlvfPUmUlibgo6LGL/5ouv09PTy4kLx897lXXmenufveV2cq7M7d++dnZ+en1+eq9Oze+f3zr5Rp1/WjI+vLiYdYEqrO7vWrvDWUvjIPmyrqs/IyZ6ozfM/spa+HNQftxRW5V263ZNZ1ek75XxotP3+1p+3vraFN+ufXMcf1n+dGvtFdXy+/s/w8nKu/zt3uf4vLk9v6v/fWPc52w+k/u/XpMsH90/kkX9hdsgf84az+Quvn8hRMIV6wRBSvlLPM4TwQ9NanWg+erJ9dv653RX4zJKOpAIsUKkmfEyT6BGd6vBAfjpYqIOr7w6OVKEDVZ21g1pS5QOpLhq3Uq96WkaT6LUaP6hDiFcH80HfUoDBpVoO6pXTDbYeHnSs5tueWJnvwsHR8ZZDMP3TkXnkXWmS8U7sexn3jsSvpHpjrWqDX5uSOBomTI5GlbwafLdQfW2KWsFpFbvlWyoSv2HXitkAIFccI+t7ZRxem6hKX3QNuXSsHq8pDCqZhlikWhvEJ+8ZY7VAEEmZFGf1PqhGvyOlVduFokbOFnJYFwW1SQyoUEi+5+DPphyrFyyXRdcDxKsurLJWWD0lvZmTuBvu7fB8JIBXU/AsmLUuBvXMW1MM+8b/hwwftg32J+O6CUsAwgZFcEGXiNiuE7yjHbW3ol29ssa94w27v7/GgZUO5SQXgQ6q1Ekr4aGCo3asnqSMhZpsK4qWlIB91bmSArLrJpUaB5Cea4XtkW+HwDPAvhED5BMABUQsrYk1EOfdDo7UYWlWJmkL8PXOel3GhTKNXhGeid4nPFZBt4A0Plm/8vGIscJoQhmgQNPA1TSWJ9w+AQ4Zl8WoukD4kw+R3/GRhAjmkjbYEJzmeEJ/MfmorO4FlaRw3gSum6Y1VjayrrGURHrlO/ehU6OB9L6wwMf6Y6aiTE2qt7TqLtUwszYthIYsb1vxhoOumcmm6ZwpRGbcN527MZkFZV86qWJiiAaPVx/QSCTEquNMKGq0sUwZmVq26mckDahYeS4B1MdyRx1+G9Udq9+wtaZACA4yEjkjUnAFcdR3bIyqCr6RU0+qbE63jEUwkD7yo6M+ci4/b80kHVXaWR2yK1vSJ5beUATOzJZQNl4qlis+ikOimQHqfMpkumOFvMJ2DiBv59NZbQ6BttErvQrEPUEDS1A/Slqo0sTC+tgF/iKbmOOzOg+3w9U49TR3GJ91bXKquY02RJnPLYjKIhC/d4BElir6Y1fUV6UizOgzfTDs8LUw/LBtwZN6aUk91f3eJD5kzEk2dzqaZHoOojio+ziV/KuBM2J9dmgsYN+lka5HIneFaS3JIQCggqGZUBYZFCuPknCfmGMWXBDaDZyytkPa8Yq/Rh9StqkRqkBkifm+J3JbzJe7/0h/S25MFKNqdUiYyHK+dYy+MEDh9frBj9m+vfnj4ZZvgayMIAAF+9jrYUTbxAlSlFukyqTIIfZlV8BBztY0aEzFp2LN0AfUdFiatBneZNphARWhOwrZdwjplYxOMdymkpnC33bBxNJI+5Wda+Li5uxltEPidbtsIzW0UD/T2hBjhvU8lkLfN9S/cAy57TU608ymZekIlwF+PBFlBBhMoTyoEIM7eq+VogZtUKUb7pwDGnHNTZQcagY7XAWYr2Q8qaSJylTSaTu3OWlp3MndWkv0sHOachigjqPpuWHk7GceGjGArKOcGLcGON3MEEj02AwqrlEOvK9Sz9y8NgFTEvTxBJWYpTAvNq02K5djyFxEAci3OISaxMQhY9Q+6fpwGAejonBJ6DZ7rA6XIAQOKDOGx9CzEkVHuXE0fk3TjEKYfyfoiIPoHDXqWXDN+RJwju8yOWEQQhzGgnfe3d6gc6GCH7RNw22JDbtsQqC1zzSZJwyY0PFQHigXET6Oc9lCNb401bBjD2fddyuhOPam98FuyrWB+fpaaH8KwkOZia3Pub4f4p4Q98Y50pDDIuytrGkMF70dpcNnLXJFj9xPgNAoEx/fYITbZ5IZ2ykgxTnUfFshYfZpOpVbTo6VSePVhSsMqCy9gzyH/igdnjsdwrghk2k+uE7MXvJVAHHC0Ln3KD4OPewb5i+4A1HSXzhALPDqFDuPPigZgluAewtnDCOqktseih9/uZPKTFxhaMDUo1GFMusOm2tPovEiQ0nGpUP+xkjOczkaE/BVHs0JuKqNi4zvMmvDtJDboS+KbrzyZFUbV8JG5JevcaYodG7j2KlRI7hHChqKxzLf0C3Tj3YF8bjLd7N83ZabO+Iq41mgv8FG90/yf16Qb/n3zNf+L9HNulk36/+4/gKWKSUQABwAAA==\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "GetTermsOfServices",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Gets a list of all the currently registered terms of service entries. This is useful for seeing all terms of service entries and obtaining their UUIDs, which can be used for the 'GetTermsOfService' and 'DeleteTermsOfService' API requests."
+					},
+					"response": []
+				},
+				{
+					"name": "GetTermsOfService",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService/{{terms-of-service-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService",
+								"{{terms-of-service-guid}}"
+							]
+						},
+						"description": "Gets a terms of service entry by it's UUID. In order to obtain this UUID, run the 'GetTermsOfServices' API method, which returns all currently registered terms of service entries. Select the UUID field from the desired function and set it as the 'terms-of-service-guid' within the Postman environment. This API call uses the value of the environment variable as the terms of service UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteTermsOfService",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService/{{terms-of-service-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService",
+								"{{terms-of-service-guid}}"
+							]
+						},
+						"description": "Gets a terms of service entry by it's UUID. In order to obtain this UUID, run the 'GetTermsOfServices' API method, which returns all currently registered terms of service entries. Select the UUID field from the desired function and set it as the 'terms-of-service-guid' within the Postman environment. This API call uses the value of the environment variable as the terms of service UUID."
+					},
+					"response": []
+				}
+			],
+			"description": "This API allows for the creation and lookup of Terms of Service entries",
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Teams",
 			"item": [
 				{
@@ -845,6 +1186,67 @@
 							]
 						},
 						"description": "Creates a new team."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - with terms of service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
 					},
 					"response": []
 				},
@@ -1404,6 +1806,23 @@
 				},
 				{
 					"name": "CreateUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "oauth2",
@@ -1443,6 +1862,67 @@
 							]
 						},
 						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser - with Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "32e9efb9-5109-4914-86f1-58e18b1a126c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"New User First Name\",\n\t\"surname\": \"New User Surname\",\n\t\"email\": \"new@emailadress.local\",\n\t\"phoneNumber\": \"+27110110110\",\n\t\"username\": \"new-user-name-8\",\n\t\"password\": \"Password1#\",\n\t\"teamIds\": [\"{{team-guid}}\"],\n    \"roleIds\": [\"{{role-guid}}\"],\n  \t\"avatar\": null\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Creates a use with basic attributes set and teams."
 					},
 					"response": []
 				},
@@ -1519,7 +1999,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{user-guid}}\",\n\t\"name\": \"Updated User First Name\",\n\t\"surname\": \"Updated User Surname\",\n\t\"email\": \"update@emailadress.local\",\n\t\"phoneNumber\": \"+27110110110\",\n\t\"username\": \"updated-user-name\",\n    \"roleIds\": [\"{{role-guid}}\"],\n    \"teamIds\": []\n}"
+							"raw": "{\n\t\"uuid\": \"{{user-guid}}\",\n    \"name\": \"New User First Name\",\n    \"surname\": \"New User Surname\",\n    \"username\": \"new-user-name-8\",\n    \"email\": \"new@emailadress.local\",\n    \"phoneNumber\": \"+27110110110\",\n    \"avatar\": null,\n    \"roleIds\": [\"93d5b958-ef55-4936-b402-371395dde15f\"],\n    \"teamIds\": [\"89847c2b-93fb-4972-8ab7-38db38e3021a\",\n    \t\t\t\"e0e66d74-03ec-40c7-a743-0820172457f7\"]\n}\n"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/users/{{user-guid}}",
@@ -1653,13 +2133,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{a3s-host}}/users/{{guid}}",
+							"raw": "{{a3s-host}}/users/{{user-guid}}",
 							"host": [
 								"{{a3s-host}}"
 							],
 							"path": [
 								"users",
-								"{{guid}}"
+								"{{user-guid}}"
 							]
 						},
 						"description": "Deletes a user by it's UUID. In order to obtain the UUID of a desired user it is recommended to run the 'GetUsers' API method, select the UUID field of the desired user, and set it's value as the 'user-guid' Postman environment variable."
@@ -1800,9 +2280,951 @@
 						"description": "Removes a user's two-factor registration details and associated tokens, given the user's UUID. In order to obtain the UUID of a desired user it is recommended to run the 'GetUsers' API method, select the UUID field of the desired user, and set it's value as the 'user-guid' Postman environment variable."
 					},
 					"response": []
+				},
+				{
+					"name": "Validate OTP",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\tuserId: \"{{user-guid}}\",\n\tOTP: 233320\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/twoFactorAuth/validate",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"twoFactorAuth",
+								"validate"
+							]
+						},
+						"description": "Validates a user's authenticator app OTP value. The user needs to be registered for two-factor authentication with a validated authenticator registered."
+					},
+					"response": []
 				}
 			],
 			"description": "API methods relating to management of two-factor authentication related configuration.",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Setup Initital State for TermsOfService test data",
+			"item": [
+				{
+					"name": "Get Access Token - Bootstrap Admin - Password Grant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									"pm.test(\"Set session_access_token environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "a3s-bootstrap-admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password1#",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "a3s",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/token",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						},
+						"description": "Obtains an access token from the API using the 'password' grant type. The default user credentials that populate the body of this request are those of the 'bootstrap-admin' user, which is designed to be used purely as a user for applying the initial security contract within the 'SecurityContracts' folder. The user's created when the security contract is applied have been created to have the same credentials, except their usernames, so this request body can easily be updated to fetch tokens for any of the users that are created when the security contract is applied."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-yaml",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "# A3S Security Contract\n#\n# This file contains information allowing for configuration and declaration of almost all aspects of A3S.\n# More information at: https://github.com/GrindrodBank/A3S/blob/master/doc/security-contracts.md\n#\nname: A3S Security Contract\ngenerated: 2019-11-11 14:26:00 +02:00\napplications:\n    # This value will be used to create the client scope within the Identity Server. Therefore, it cannot contain any spaces, and should follow a fully smaller case convention.\n  - fullname: a3s   \n    applicationFunctions:\n      - name: a3s.users\n        description: Functionality to maintain users within the A3S User store.\n        permissions:\n          - name: a3s.users.read\n            description: View a list of users or a single user.\n          - name: a3s.users.create\n            description: Create a new user. Enables assigning roles to newly created users.\n          - name: a3s.users.delete\n            description: Removes a user, but only from the A3S User store.\n          - name: a3s.users.update\n            description: Updates a user. Also enables modifying roles assigned to the user.\n\n      - name: a3s.teams\n        description: Functionality to maintain teams.\n        permissions:\n          - name: a3s.teams.read\n            description: View list of teams. View a single team.\n          - name: a3s.teams.create\n            description: Create a new team. Grants ability to assign users to this team.\n          - name: a3s.teams.delete\n            description: Remove a team.\n          - name: a3s.teams.update\n            description: Update a team. Change which users are assigned to the team.\n\n      - name: a3s.roles\n        description: Functionality to manage roles and the functions assigned to roles.\n        permissions:\n          - name: a3s.roles.read\n            description: Enables reading lists of roles and individual roles.\n          - name: a3s.roles.create\n            description: Enables creation of roles. Enables assignment of functions to the created role.\n          - name: a3s.roles.delete\n            description: Enables deletion of a role.\n          - name: a3s.roles.update\n            description: Enables updating of a role. Enables updating of functions assinged to a role.\n\n      - name: a3s.applications\n        description: Functionality to manage applications within A3S.\n        permissions:\n          - name: a3s.applications.read\n            description: Enables reading lists of applications and individual applications. Enables viewing which functions and permissions are assigned to applications.\n\n      - name: a3s.functions\n        description: Functionality to manage functions created by micro-services.\n        permissions:\n          - name: a3s.functions.read\n            description: Enables reading lists of functions, individual functions and the lists of permissions assigned to functions.\n          - name: a3s.functions.create\n            description: Enables the creation of new functions and the assignment of permissions to these functions.\n          - name: a3s.functions.update\n            description: Enables the updating of existing functions. Enables editing the permissions that are assigned to a function.\n          - name: a3s.functions.delete\n            description: Enables the deletion of functions.\n\n      - name: a3s.authenticationModes\n        description: Functionality to maintain authentication modes.\n        permissions:\n          - name: a3s.ldapAuthenticationModes.read\n            description: View list of authentication modes. View a single authentication mode.\n          - name: a3s.ldapAuthenticationModes.create\n            description: Create a new authentication mode.\n          - name: a3s.ldapAuthenticationModes.delete\n            description: Remove an authentication mode.\n          - name: a3s.ldapAuthenticationModes.update\n            description: Update an authentication mode.\n\n      - name: a3s.applicationFunctions\n        description: Functionality to manage application functions created by micro-services.\n        permissions:\n          - name: a3s.applicationFunctions.read\n            description: Enables reading lists of application functions, individual application functions and the lists of permissions assigned to application functions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove applications functions directly via the API is prohibited. These operations are only permitted in the context of security contract application (this document).\n            \n      - name: a3s.permissions\n        description: Functionality to manage permissions created by micro-services.\n        permissions:\n          - name: a3s.permissions.read\n            description: Enables reading lists of permissions and individual permissions.\n        # Note: Only read permissions are specified here. The ability to create, update or remove permissions directly via the API is prohibited. These operations are only permitted in the context of security contract application.\n      - name: a3s.securityContracts\n        description: Functionality to apply security contracts for micro-services.\n        permissions:\n          - name: a3s.securityContracts.read\n            description: Enables fetching of a security contract definition.\n          - name: a3s.securityContracts.update\n            description: Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.\n\n      - name: a3s.clientRegistration\n        description: Functionality to create and update Oauth2.0 and Openid Connect clients.\n        permissions:\n          - name: a3s.clientRegistration.update\n            description: Enables idempotently applying (creating or updating) a client definition.\n\n      - name: a3s.twoFactorAuth\n        description: Functionality to update two-factor authentication configuration.\n        permissions:\n          - name: a3s.twoFactorAuth.remove\n            description: Removes two-factor authentication from a user profile.\n          - name: a3s.twoFactorAuth.validateOtp\n            description: Validates a user authenticator generated OTP.\n\n      - name: a3s.termsOfService\n        description: Functionality to manage terms of service entries.\n        permissions:\n          - name: a3s.termsOfService.read\n            description: Enables reading lists or individual entries of terms of service.\n          - name: a3s.termsOfService.create\n            description: Enables the creation of new terms of service entries.\n          - name: a3s.termsOfService.delete\n            description: Enables the delete of existing terms of service entries.\n\n    dataPolicies:\n      - name: a3s.viewYourTeamsOnly\n        description: Will only return teams that the accessing user is part of when retrieving lists of teams from the API.\n\nclients:\n  - clientId: test-client-api\n    name: \"Test client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"dokuti\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\n\n\ndefaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S Default configuration\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s.users.read\n              - a3s.users.create\n              - a3s.users.update\n              - a3s.users.delete\n              - a3s.teams.read\n              - a3s.teams.create\n              - a3s.teams.update\n              - a3s.teams.delete\n              - a3s.roles.read\n              - a3s.roles.create\n              - a3s.roles.update\n              - a3s.roles.delete\n              - a3s.applications.read\n              - a3s.functions.read\n              - a3s.functions.create\n              - a3s.functions.update\n              - a3s.functions.delete\n              - a3s.ldapAuthenticationModes.read\n              - a3s.ldapAuthenticationModes.create\n              - a3s.ldapAuthenticationModes.update\n              - a3s.ldapAuthenticationModes.delete\n              - a3s.applicationFunctions.read\n              - a3s.permissions.read\n              - a3s.securityContracts.read\n              - a3s.securityContracts.update\n              - a3s.clientRegistration.update\n              - a3s.twoFactorAuth.remove\n              - a3s.twoFactorAuth.validateOtp\n              - a3s.termsOfService.create\n              - a3s.termsOfService.delete\n              - a3s.termsOfService.read\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Super Admin\"\n        description: An A3S Role that has all the A3S functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.SuperAdmin\"\n    users:\n      - username: a3s-admin\n        name: a3s-admin\n        surname: system user\n        email: a3s-admin@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Super Admin\"\n\n    teams:\n      - name: admin-team\n        description: A simple test admin team.\n        users:\n          - a3s-admin\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "This API is designed for applying security contracts to A3S. Security contracts can model the entire configuration of A3S, or a small sub component of it, such as only creating a client. Each top level component of the security contract, such as 'applications', 'clients' and 'defaultConfigurations' can be applied independently. The body that is configured for this security contract declaration is the default configuration of the totality of A3S for the purpose of this quickstart, including a definition for A3S (and it's application functions and permissions), a client that can be used to access A3S, as well as defaultConfiguration section definition all the functions, roles, users and teams that are used during this quickstart."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Token - A3S Admin - Password Grant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									"pm.test(\"Set session_access_token environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "a3s-admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password1#",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "a3s",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/token",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						},
+						"description": "Obtains an access token from the API using the 'password' grant type. The default user credentials that populate the body of this request are those of the 'bootstrap-admin' user, which is designed to be used purely as a user for applying the initial security contract within the 'SecurityContracts' folder. The user's created when the security contract is applied have been created to have the same credentials, except their usernames, so this request body can easily be updated to fetch tokens for any of the users that are created when the security contract is applied."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"Simple terms of service\",\n    \"agreementFileData\": \"H4sIAIf+5F0AA+1VUY/iNhC+5/0Vo3tqJQphl13UdnWSAbNYDQlKzG336RQSp1gNNrLNrlDV/95xwt5yunC9h22vlRghOWPG3zfzTTzp9pwwG/tBlx+sMI8yF93c2jevakEQ3AwG4NfhzXW9BpeN39jgEvpX18N+H/8ObiDoD6+CwRsIXjeNdttZlxlMZZvtqsdM5bqqhGmJw7Cy/AJOUwl8XP8nttLFHv64ALRSK/fDk5C/rd1PoLTZZNXPF39efOsMz/ZPWvfz+792m+pVOf7m/l8Or/rP93/YD4b+/g9urs/3/9+wW9/td/X9v12LrHh326uXZsdPh+axdrcvz97ujFSF0QWMMvU7hHIjnSheontH4Scxxnq7N37kwHf593AZ9H/8GtiTcKSqQKrSDy8ntYIcZ1omlShgLYyQCqTtQKYKMGKD+xbcWsDW6K0wbg+6xJIN9L6izC5wPCmVE/i+5G6XVTWsE/layRw9ZM7F1tmjFFqwD1llpsnCSIFv4x6cbmetOQ7BSOV3VhhtskKAFbkRDtpYtMEsnnWusqcuLK3oQCGtFRupGqkwyAjELXZ545cojrTHcvZwEUZidS0kGGqdkbmr9vgpMStZFELBTlXCWsxXIv6Tkc7hJqq9QW7Pgqf06qBPafTmhNqn2+/bkK30ozgqUWmHg6xpiC/hiO/wl11n+KasfAfzalcgue9C1VoY4kphvT52t8IxoJxXYKuNl8Q2OglIdemesDVfSPUTVD6jkMZTfk8SCiyFRRK/ZxM6gbckRf9tB+4Zn8VLDhiRkIg/QDwFEj3ALyyadID+ukhomkKctOXM5ouQUQxj0ThcTlh0ByOEimIOIZszjjw8rnM4oDOaevw5TcYzdMmIhYw/dNqwp4xHnnmK1AQWJOFsvAxJAotlsohTiklOkCli0TRBYjqnEe9iIrgH9D06kM5IGNbsLfBkiWUndWHjePGQsLsZh1kcTihujijmT0YhbdhRjXFI2LwDEzInd7Q+FSNwqyj+5KGs+xmtozArgr8xZ3Hk6x/HEU/Q7aA8Cf+Ids9S2gGSsNQrOU3ieasyvlsIEte4CBXRBth38tOGY4j3lyl9yXhCSYjwqT98Qpvn893Pp+xtrxnWOL/rif6tPyxnO9vZ/vP2Fw5s7A8AEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - with terms of service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid-1\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"pvc-team-1\",\n    \"description\": \"pvc-team-1\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"Simple terms of service with styling\",\n    \"agreementFileData\": \"H4sIAB4F5V0AA+1V32/jNgy+5/wVRJ42wEuTrG2wrivgJEojzLED27muTwfFlmttjmVISoNg2P8+Sk4vbdf9eCjuMCBEAJkS+ZEfJTK9M8PVRn+SxSfN1aPIeC/T+sO7Sr/fvzw/B7uOLi/c2h+2upPBxSUMvr8YDYZWOYf+YDQc9T9A/33TeFu22jCFqTRsWz2yOpNVxdUbdmhWFP+A01KBz+v/RNYy38PvHUApZG2+23HxUJorqKXasOrHzh+dTq/kLBf1w1tma1nlrRHfNCXTQj+30mZf8SsQhlUis2Zfm+1JXkvvr/1fmk31rjH+pf+H58Nh2/+D0Wg0GNn+Px8NTv3/JeTa3vaNa9lr2+c312duaXfsdGg/ndpAVjGtf+oeJkL3eGZlIpu9snMBhv3BD3CrRJ0rmcOY1b9BIDbC8PwIdtbcdJ5Bv4Ra4qMUWgtZA46Ukiu+3sODYjVCeFAozkEWkJVMPXAPjARW76HhSqODXBsmajuwGGSYkrU0JcJoWZgdUxyNc0AeMhMM8SCX2XbDa8OMjVeIimv4xpQcusnBo/utC5JzVoGowZ49HcFOmFJuDSiujRKZxfDQKKu2bmg+HVeWfxvBurs6aQu61cjA5unBRuaisCt3tJrtuhK69CAXFnq9Nbip7WbGa+uFPM6kAs2ryiIIzNtxPWbnbGyUxhbUHErk4u5KuXnJBEtUbFWNIbnzySWWzEX8lWfG7ljzAjtE7iy1TNa5sIz01X+81hT92Vo+cke4fSu1NMinzdPeUnO8+sORLhkSXPNDVTE5vAP2jLOyOWKD1kbgBTVSuaRe16L3t0k+Peun/7BX7zqdE0iiWXrnxwRoAss4+kinZApdP0G968EdTefRKgW0iP0wvYdoBn54Dz/TcOoB+WUZkySBKAa6WAaU4B4NJ8FqSsNbGKNfGKUQ0AVNETSNXMADFCWJBVuQeDJH1R/TgKb3HsxoGlrMGYL6sPTjlE5WgR/DchUvo4Rg+CnChjScxRiFLEiY9jAq7gH5iAokcz8IXCh/hdnHLr9JtLyP6e08hXkUTAlujglm5o8D0oZCUpPApwsPpv7CvyXOK0KU2JkdsrubE7eF8Xz8TVIahZbGJArTGFUPWcbpZ9c7mhAP/JgmtiCzOEJ4W070iBwI+oWkRbGlfnkjaGL1VUKOuUyJHyBWYp2fG796A+1HO+Vw8LlR+LUn8klOcpKTfBn5E+xQqtkAEAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - with terms of service - 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid-2\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"pvc-team-2\",\n    \"description\": \"pvc-team-2\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - No terms - 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid-3\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"pvc-team-3\",\n    \"description\": \"pvc-team-3\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": null\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - No terms - 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid-4\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"pvc-team-4\",\n    \"description\": \"pvc-team-4\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": null\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"Larger agreeement\",\n    \"agreementFileData\": \"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\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateCompoundTeam - with terms of service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid-compound\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"pvc-team-compound\",\n    \"description\": \"pvc-team-compound\",\n    \"teamIds\": [\"{{team-guid-1}}\",\n    \t\t\t\"{{team-guid-2}}\",\n    \t\t\t\"{{team-guid-3}}\"],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with a related terms of service."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTermsOfService 1 - Second version",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"terms-of-service-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreementName\": \"Simple terms of service\",\n    \"agreementFileData\": \"H4sIAF3V110AA+3T0QqCMBQG4K73FHuB9KibQkmvIstmCtPFNo2I3j1t4E1SN6YE+27OBoftjPF7vuGq1pksMs1VV+Xcy7XezAoAYkLwUJOYviqEdm+REAcRjWlCQwKAIUgigA2GeceY1mrDVD/KhbWiY00uheBqoq9vK4oP59iX4LH+iaM83fAd4V4hG7O98upcmh1upKqZ2KMHWntC55e89/yXphaz3vE1/yGM+acBGfJPaOzyv4R0+O0DQqlvF2vP4ziO4yzjCdehEDwADAAA\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/termsOfService",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"termsOfService"
+							]
+						},
+						"description": "Creates a new terms of service entry, which is a an agreement that need to be agreed upon by a user."
+					},
+					"response": []
+				},
+				{
+					"name": "GetRoles - Get first role and assign to user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b94d83b5-4b78-4398-83e7-2414aee7e0d5",
+								"exec": [
+									"pm.test(\"Fetch the first role Guid.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"role-guid\", jsonData[0].uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Gets a list of all the roles within A3S. This function is useful for obtaining a role GUID, which is used in several other API calls within this Postman collection."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser - with Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "32e9efb9-5109-4914-86f1-58e18b1a126c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"New User First Name\",\n\t\"surname\": \"New User Surname\",\n\t\"email\": \"new@emailadress.local\",\n\t\"phoneNumber\": \"+27110110110\",\n\t\"username\": \"pvc-user\",\n\t\"password\": \"Password1#\",\n\t\"teamIds\": [\"{{team-guid-1}}\",\n\t\t\t\t\"{{team-guid-2}}\",\n\t\t\t\t\"{{team-guid-4}}\"],\n    \"roleIds\": [\"{{role-guid}}\"],\n  \t\"avatar\": null\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Creates a use with basic attributes set and teams."
+					},
+					"response": []
+				}
+			],
+			"description": "Contains requests for obtaining access tokens from the Authorisation server using various authorization grants. Although there is a request for obtaining a token using the authorization_code flow wihtin this folder, it is recommended that the Postman access token helper be used for this purpose.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "48fd1ff8-2663-43c8-be27-526a8fb922ef",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "c106cc8f-eddb-4762-9813-9148c577319f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
 			"protocolProfileBehavior": {}
 		}
 	],

@@ -17,7 +17,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
     public class TwoFactorAuthController_Tests
     {
         [Fact]
-        public async Task DeleteUserAsync_WithEmptyGuid_ReturnsBadRequest()
+        public async Task RemoveTwoFactorAuthenticationAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
             var twoFactorAuthService = Substitute.For<ITwoFactorAuthService>();
@@ -32,7 +32,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteUserAsync_WithValidGuid_ReturnsNoData()
+        public async Task RemoveTwoFactorAuthenticationAsync_WithValidGuid_ReturnsNoData()
         {
             // Arrange
             var twoFactorAuthService = Substitute.For<ITwoFactorAuthService>();

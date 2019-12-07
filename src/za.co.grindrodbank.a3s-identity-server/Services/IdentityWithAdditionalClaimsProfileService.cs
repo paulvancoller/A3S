@@ -51,10 +51,16 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
 
                 await GeneratePermissionsClaimMapFromSubject(claims, context, user);
                 await GenerateDataPolicyClaimMapFromSubject(claims, context, user);
+                await GenerateTeamsClaimMapFromSubject(claims, context, user);
 
                 if (user.Email != null)
                 {
                     claims.Add(new Claim(IdentityServerConstants.StandardScopes.Email, user.Email));
+                }
+
+                if (user.UserName != null)
+                {
+                    claims.Add(new Claim("username", user.UserName));
                 }
 
                 context.IssuedClaims = claims;
@@ -62,7 +68,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, ex.Message.ToString());
+                Logger.LogError(ex, ex.Message);
                 throw;
             }
         }
@@ -99,7 +105,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             {
                 foreach (var permission in permissions)
                 {
-                    Logger.LogDebug("Permission from A3S for User: " + user.UserName + ". Permission: " + permission.Name);
+                    Logger.LogDebug($"Permission from A3S for User: '{user.UserName}'. Permission: '{permission.Name}'");
                     // Ensure only a distinct set of permissions gets mapped into tokens.
                     if (!claims.Exists(uc => uc.Type == "permission" && uc.Value == permission.Name))
                     {
@@ -144,11 +150,44 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             {
                 foreach (var dataPolicy in dataPolicies)
                 {
-                    Logger.LogDebug("DataPolicy from A3S for User: " + user.UserName + ". DataPolicy: " + dataPolicy.Name);
+                    Logger.LogDebug($"DataPolicy from A3S for User: {user.UserName}. DataPolicy: '{dataPolicy.Name}'");
                     // Ensure only a distinct set of permissions gets mapped into tokens.
                     if (!claims.Exists(uc => uc.Type == "dataPolicy" && uc.Value == dataPolicy.Name))
                     {
                         claims.Add(new Claim("dataPolicy", dataPolicy.Name));
+                    }
+                }
+            }
+        }
+
+        private async Task GenerateTeamsClaimMapFromSubject(List<Claim> claims, ProfileDataRequestContext context, UserModel user)
+        {
+            var userTeams = await a3SContext.Team.FromSql("select team.* " +
+                          // Select the teams that users are directly in.
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team ON team.id = user_team.team_id " +
+                          "WHERE application_user.id = {0} " +
+                          // Select the parent teams where the user is in a child team of the parent.
+                          "UNION " +
+                          "select \"ParentTeam\".* " +
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
+                          "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
+                          "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
+                          "WHERE application_user.id = {0} "
+                          , context.Subject.GetSubjectId()).ToListAsync();
+
+            if (userTeams != null)
+            {
+                foreach (var userTeam in userTeams)
+                {
+                    Logger.LogDebug($"User Teams from A3S for User: '{user.UserName}'. Team: {userTeam.Name}");
+                    // Ensure only a distinct set of permissions gets mapped into tokens.
+                    if (!claims.Exists(uc => uc.Type == "team" && uc.Value == userTeam.Name))
+                    {
+                        claims.Add(new Claim("team", userTeam.Id.ToString()));
                     }
                 }
             }

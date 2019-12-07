@@ -17,6 +17,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<Function> UpdateAsync(FunctionSubmit functionSubmit, Guid updatedByGuid);
         Task<Function> CreateAsync(FunctionSubmit functionSubmit, Guid createdByGuid);
         Task<List<Function>> GetListAsync();
-        Task DeleteUserAsync(Guid functionId);
+        Task DeleteAsync(Guid functionId);
     }
 }

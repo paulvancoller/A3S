@@ -12,7 +12,7 @@ namespace za.co.grindrodbank.a3s.Services
 {
     public interface ISecurityContractService
     {
-        Task ApplySecurityContractDefinitionAsync(SecurityContract securityContract, Guid updatedById);
+        Task ApplySecurityContractDefinitionAsync(SecurityContract securityContract, Guid updatedById, bool dryRun = false);
         Task<SecurityContract> GetSecurityContractDefinitionAsync();
     }
 }

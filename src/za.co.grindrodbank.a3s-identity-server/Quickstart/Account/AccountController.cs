@@ -1,4 +1,10 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -22,9 +28,9 @@ using System.Text.Encodings.Web;
 using Microsoft.Extensions.Configuration;
 using za.co.grindrodbank.a3sidentityserver.Exceptions;
 using System.Collections.Generic;
-using za.co.grindrodbank.a3s.Repositories;
-using za.co.grindrodbank.a3sidentityserver.Managers;
+using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Extensions;
+using System.Security.Authentication;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
@@ -40,7 +46,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IEventService _events;
         private readonly UrlEncoder _urlEncoder;
         private readonly IConfiguration _configuration;
-        private readonly IUserRepository _userRepository;
         private readonly TokenOptions _tokenOptions = new TokenOptions();
 
         private const string AUTHENTICATOR_URI_FORMAT = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
@@ -54,8 +59,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
             UrlEncoder urlEncoder,
-            IConfiguration configuration,
-            IUserRepository userRepository
+            IConfiguration configuration
             )
         {
             _userManager = userManager;
@@ -66,7 +70,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             _events = events;
             _urlEncoder = urlEncoder;
             _configuration = configuration;
-            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -126,39 +129,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                         return RedirectToAction("Register2FA", new { redirectUrl = model.ReturnUrl });
                     }
 
-                    // Redirect to 2fa offer screen if any options are available
-                    if (Any2FAEnabled())
-                        return RedirectToAction("LoginSuccessful", new { redirectUrl = model.ReturnUrl, show2FARegMessage = true });
-
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-
-                    if (context != null)
-                    {
-                        if (await _clientStore.IsPkceClientAsync(context.ClientId))
-                        {
-                            // if the client is PKCE then we assume it's native, so this change in how to
-                            // return the response is for better UX for the end user.
-                            return View("Redirect", new RedirectViewModel { RedirectUrl = model.ReturnUrl });
-                        }
-
-                        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                        return Redirect(model.ReturnUrl);
-                    }
-
-                    // request for a local page
-                    if (Url.IsLocalUrl(model.ReturnUrl))
-                    {
-                        return Redirect(model.ReturnUrl);
-                    }
-                    else if (string.IsNullOrEmpty(model.ReturnUrl))
-                    {
-                        return Redirect("~/");
-                    }
-                    else
-                    {
-                        // user might have clicked on a malicious link - should be logged
-                        throw new Exception("invalid return URL");
-                    }
+                    return RedirectToAction("Index", "TermsOfService", new { returnUrl = model.ReturnUrl });
                 }
                 else
                 {
@@ -188,7 +159,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             var vm = new LoginSuccessfulViewModel()
             {
@@ -240,8 +211,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (ModelState.IsValid)
             {
                 model.OTP = model.OTP.Replace(" ", string.Empty).Replace("-", string.Empty);
-                bool is2FaTokenValid = await _userManager.VerifyTwoFactorTokenAsync(
-                    user, _userManager.Options.Tokens.AuthenticatorTokenProvider, model.OTP);
+                var is2FaTokenValid = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, model.OTP);
 
                 if (is2FaTokenValid)
                 {
@@ -267,7 +237,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             await _userManager.RemoveAuthenticationTokenAsync(user, _tokenOptions.GetAspNetUserStoreProviderName(), _tokenOptions.GetRecoverCodesName());
             await _userManager.RemoveAuthenticationTokenAsync(user, _tokenOptions.GetAspNetUserStoreProviderName(), _tokenOptions.GetAuthenticatorKeyName());
@@ -285,7 +255,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             if (!_userManager.IsAuthenticatorTokenVerified(user))
                 throw new TwoFactorAuthException("Invalid authenticator data");
@@ -304,7 +274,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (user == null)
-                throw new Exception("Invalid login info.");
+                throw new AuthenticationException("Invalid login info.");
 
             if (!_userManager.IsAuthenticatorTokenVerified(user))
                 throw new TwoFactorAuthException("Invalid authenticator data");
@@ -368,17 +338,16 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                     result = await _signInManager.TwoFactorAuthenticatorSignInAsync(model.OTP, false, false);
 
                 if (result.Succeeded)
-                    return RedirectToAction("LoginSuccessful", new { redirectUrl = model.RedirectUrl, show2FARegMessage = true });
+                    return RedirectToAction("Index", "TermsOfService", new { returnUrl = model.RedirectUrl });
 
                 if (result.IsLockedOut)
-                {
                     ModelState.AddModelError(string.Empty, "Your account is locked out");
-                    return View(await GetTwoFactorViewModelAsync(model.RedirectUrl, model.Username));
-                }
+                else
+                    ModelState.AddModelError(string.Empty, $"{(model.IsRecoveryCode ? "Recovery code" : "OTP")} is invalid");
 
-                // If we got this far, something failed, redisplay form
-                ModelState.AddModelError(string.Empty, $"{(model.IsRecoveryCode ? "Recovery code" : "OTP")} is invalid");
+                ModelState.Remove("OTP");
             }
+
             // something went wrong, show form with error
             return View(await GetTwoFactorViewModelAsync(model.RedirectUrl, model.Username));
         }
@@ -446,7 +415,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                throw new Exception("Invalid user");
+                throw new AuthenticationException("Invalid user");
 
             if (!(_userManager.IsAuthenticatorTokenVerified(user)))
                 await _userManager.SetTwoFactorEnabledAsync(user, false);
@@ -457,9 +426,9 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
-            if (!string.IsNullOrEmpty(await _userManager.GetAuthenticatorKeyAsync(user)))
+            if (!string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)))
                 return RedirectToAction("Verify2FAAuthenticator", new { redirectUrl = returnUrl, username });
 
             throw new TwoFactorAuthException("Invalid two-factor configration");
@@ -597,7 +566,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             return new RegisterTwoFactorViewModel()
             {
@@ -622,14 +591,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return _configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("OrganizationEnforced");
         }
 
-        private bool Any2FAEnabled()
+        private bool ShowAfterSuccessManagementScreen()
         {
-            bool twoFAEnabled = false;
+            bool showAfterSuccessManagementScreen = false;
 
             if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
-                twoFAEnabled = true;
+                showAfterSuccessManagementScreen = true;
 
-            return twoFAEnabled;
+            return showAfterSuccessManagementScreen;
         }
 
         private async Task<RegisterTwoFactorAuthenticatorViewModel> GetRegister2FAAuthenticatorViewModel(string redirectUrl, string userId, bool resetUnverifiedAuthenticatorKey)
@@ -637,7 +606,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             // Load the authenticator key & QR code URI to display on the form]
             string unformattedKey = string.Empty;
@@ -668,7 +637,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             IEnumerable<string> recoveryCodes = null;
             if (await _userManager.CountRecoveryCodesAsync(user) == 0)
@@ -690,13 +659,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
-                throw new Exception("Invalid login data");
+                throw new AuthenticationException("Invalid login data");
 
             return new TwoFactorViewModel
             {
                 RedirectUrl = redirectUrl,
                 Username = username,
-                AuthenticatorConfigured = _userManager.IsAuthenticatorTokenVerified(user)
+                AuthenticatorConfigured = _userManager.IsAuthenticatorTokenVerified(user),
+                OTP = string.Empty
             };
         }
 

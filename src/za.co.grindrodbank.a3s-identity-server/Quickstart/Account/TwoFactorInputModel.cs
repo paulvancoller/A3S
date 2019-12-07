@@ -1,3 +1,9 @@
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 

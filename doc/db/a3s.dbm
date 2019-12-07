@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="1654,0" last-zoom="1" max-obj-count="32"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="0,0" last-zoom="1" max-obj-count="38"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -21,17 +21,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Application resources that are protected by IDS4]]></comment>
-	<position x="580" y="1160"/>
+	<position x="580" y="1180"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_application" type="pk-constr" table="_a3s.application">
@@ -46,23 +46,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A grouping of permissions belonging to a specific application, as configured by the service developers.]]></comment>
-	<position x="720" y="860"/>
+	<position x="720" y="880"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="description">
 		<type name="text" length="0"/>
 	</column>
-	<column name="application_id">
+	<column name="application_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_application_function" type="pk-constr" table="_a3s.application_function">
@@ -77,7 +77,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Application Function and Permission link]]></comment>
-	<position x="760" y="600"/>
+	<position x="760" y="620"/>
 	<column name="application_function_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -87,7 +87,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_application_function_permission" type="pk-constr" table="_a3s.application_function_permission">
@@ -99,7 +99,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp,net Identity User profile table.]]></comment>
-	<position x="2220" y="400"/>
+	<position x="2220" y="420"/>
 	<column name="id" not-null="true">
 		<type name="text" length="0"/>
 		<comment><![CDATA[Asp.Net Identity User ID. Must be string, although Guid is saved here.]]></comment>
@@ -193,7 +193,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity user claims table.]]></comment>
-	<position x="2780" y="200"/>
+	<position x="2780" y="220"/>
 	<column name="id" not-null="true" sequence="_a3s.application_user_claim_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -218,7 +218,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3060" y="760"/>
+	<position x="3060" y="780"/>
 	<column name="id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -245,7 +245,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3060" y="960"/>
+	<position x="3060" y="980"/>
 	<column name="id" not-null="true" sequence="_a3s.aspnet_role_claim_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -267,7 +267,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3000" y="400"/>
+	<position x="3000" y="420"/>
 	<column name="login_provider" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -289,7 +289,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3000" y="580"/>
+	<position x="3000" y="600"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -305,7 +305,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Token provider link to Users]]></comment>
-	<position x="2220" y="200"/>
+	<position x="2220" y="220"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -331,23 +331,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A grouping of permissions belonging to a specific application, as created by business users within A3S. These are functions that are assigned to roles which result in users receiving the contained permissions.]]></comment>
-	<position x="1340" y="1080"/>
+	<position x="1340" y="1100"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="description">
 		<type name="text" length="0"/>
 	</column>
-	<column name="application_id">
+	<column name="application_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_function" type="pk-constr" table="_a3s.function">
@@ -362,7 +362,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Function and Permission link]]></comment>
-	<position x="1300" y="800"/>
+	<position x="1300" y="820"/>
 	<column name="function_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -372,7 +372,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_function_permission" type="pk-constr" table="_a3s.function_permission">
@@ -384,11 +384,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[ Specific permission inside an application, like read, write or delete]]></comment>
-	<position x="1380" y="620"/>
+	<position x="1380" y="640"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="description">
@@ -397,7 +397,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_permission" type="pk-constr" table="_a3s.permission">
@@ -412,11 +412,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A role a user belongs to]]></comment>
-	<position x="1820" y="720"/>
+	<position x="1820" y="740"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="description">
@@ -425,7 +425,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_role" type="pk-constr" table="_a3s.role">
@@ -440,7 +440,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Role and Function link]]></comment>
-	<position x="1800" y="1080"/>
+	<position x="1800" y="1100"/>
 	<column name="role_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -450,7 +450,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_role_function" type="pk-constr" table="_a3s.role_function">
@@ -458,24 +458,27 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="team" layer="0" collapse-mode="2" max-obj-count="6">
+<table name="team" layer="0" collapse-mode="2" max-obj-count="7">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Team that users belong to]]></comment>
-	<position x="1020" y="420"/>
+	<position x="1000" y="360"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="description">
 		<type name="text" length="0"/>
 	</column>
+	<column name="terms_of_service_id">
+		<type name="uuid" length="0"/>
+	</column>
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_team" type="pk-constr" table="_a3s.team">
@@ -490,7 +493,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[User and Role link]]></comment>
-	<position x="2240" y="980"/>
+	<position x="2240" y="1000"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -500,7 +503,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_user_role" type="pk-constr" table="_a3s.user_role">
@@ -512,7 +515,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Users and Teams link]]></comment>
-	<position x="1560" y="240"/>
+	<position x="1560" y="260"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -522,7 +525,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_user_team" type="pk-constr" table="_a3s.user_team">
@@ -638,7 +641,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Team of Teams (compound teams) definition]]></comment>
-	<position x="980" y="220"/>
+	<position x="720" y="60"/>
 	<column name="parent_team_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -648,7 +651,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_team_team" type="pk-constr" table="_a3s.team_team">
@@ -668,7 +671,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Role of Roles (compound role) definition]]></comment>
-	<position x="1740" y="460"/>
+	<position x="1740" y="480"/>
 	<column name="parent_role_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -678,7 +681,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_role_role" type="pk-constr" table="_a3s.role_role">
@@ -698,7 +701,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[LDAP Profile definitions]]></comment>
-	<position x="2660" y="940"/>
+	<position x="2660" y="960"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -751,7 +754,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Attribute to User field mappings for Ldap detail synchronisation]]></comment>
-	<position x="2580" y="1220"/>
+	<position x="2580" y="1240"/>
 	<column name="id" not-null="true" sequence="_a3s.ldap_authentication_mode_ldap_attribute_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -789,7 +792,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Data policies defined for an application]]></comment>
-	<position x="240" y="580"/>
+	<position x="240" y="600"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -805,7 +808,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_application_data_policy" type="pk-constr" table="_a3s.application_data_policy">
@@ -828,7 +831,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Data policies and Teams link]]></comment>
-	<position x="280" y="260"/>
+	<position x="280" y="280"/>
 	<column name="team_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -838,11 +841,88 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
-	<column name="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 	</column>
 	<constraint name="pk_team_application_data_policy" type="pk-constr" table="_a3s.team_application_data_policy">
 		<columns names="team_id,application_data_policy_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="terms_of_service" layer="0" collapse-mode="2" max-obj-count="7">
+	<schema name="_a3s"/>
+	<role name="postgres"/>
+	<comment><![CDATA[Terms of service agreement entries that users agree to.]]></comment>
+	<position x="1120" y="40"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="agreement_name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="version" not-null="true">
+		<type name="text" length="0"/>
+		<comment><![CDATA[The version of the agreement. Format is {year}.{number}, i.e. 2019.6.]]></comment>
+	</column>
+	<column name="agreement_file" not-null="true">
+		<type name="bytea" length="0"/>
+		<comment><![CDATA[A .tar.gz file, containing two files with the terms agreement: 
+
+- terms_of_service.html
+- terms_of_service.css]]></comment>
+	</column>
+	<column name="changed_by" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+		<type name="tstzrange" length="0"/>
+	</column>
+	<constraint name="terms_of_service_pk" type="pk-constr" table="_a3s.terms_of_service">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="uk_terms_of_service_agreement_name_version" type="uq-constr" table="_a3s.terms_of_service">
+		<columns names="agreement_name,version" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="terms_of_service_user_acceptance" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="_a3s"/>
+	<role name="postgres"/>
+	<comment><![CDATA[This records the acceptance of terms of service entries by users.]]></comment>
+	<position x="1620" y="20"/>
+	<column name="terms_of_service_id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="user_id" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="acceptance_time" not-null="true">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[The date and time the user accepted the specific agreement.]]></comment>
+	</column>
+	<constraint name="terms_of_service_user_acceptance_pk" type="pk-constr" table="_a3s.terms_of_service_user_acceptance">
+		<columns names="terms_of_service_id,user_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="terms_of_service_user_acceptance_history" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="_a3s"/>
+	<role name="postgres"/>
+	<comment><![CDATA[This stores the history of the acceptance of terms of service entries by users.
+On every update of a terms of service agreement version for a team, all user acceptance records get copied from 'terms_of_service_user_acceptance' to 'terms_of_service_user_acceptance_history'.]]></comment>
+	<position x="2180" y="20"/>
+	<column name="terms_of_service_id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="user_id" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="acceptance_time" not-null="true">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[The date and time the user accepted the specific agreement.]]></comment>
+	</column>
+	<constraint name="terms_of_service_user_acceptance_history_pk" type="pk-constr" table="_a3s.terms_of_service_user_acceptance_history">
+		<columns names="terms_of_service_id,user_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
@@ -936,6 +1016,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="fk_team_terms_of_service_terms_of_service_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="RESTRICT" ref-table="_a3s.terms_of_service" table="_a3s.team">
+	<columns names="terms_of_service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
 <constraint name="fk_user_role_application_user_user_id" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="CASCADE" ref-table="_a3s.application_user" table="_a3s.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -1005,6 +1091,30 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <constraint name="fk_team_application_data_policy_application_data_policy_applica" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="CASCADE" ref-table="_a3s.application_data_policy" table="_a3s.team_application_data_policy">
 	<columns names="application_data_policy_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="fk_terms_of_service_user_acceptance_terms_of_service_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="_a3s.terms_of_service" table="_a3s.terms_of_service_user_acceptance">
+	<columns names="terms_of_service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="fk_terms_of_service_user_acceptance_user_user_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="_a3s.application_user" table="_a3s.terms_of_service_user_acceptance">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="fk_terms_of_service_user_acceptance_history_terms_of_service_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="_a3s.terms_of_service" table="_a3s.terms_of_service_user_acceptance_history">
+	<columns names="terms_of_service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="fk_terms_of_service_user_acceptance_history_user_user_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="_a3s.application_user" table="_a3s.terms_of_service_user_acceptance_history">
+	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
@@ -1184,6 +1294,31 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 custom-color="#68fe2b"
 	 src-table="_a3s.team_application_data_policy"
 	 dst-table="_a3s.application_data_policy" reference-fk="fk_team_application_data_policy_application_data_policy_applica"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_team_terms_of_service" type="relfk" layer="0"
+	 src-table="_a3s.team"
+	 dst-table="_a3s.terms_of_service" reference-fk="fk_team_terms_of_service_terms_of_service_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_terms_of_service_user_acceptance_terms_of_service" type="relfk" layer="0"
+	 src-table="_a3s.terms_of_service_user_acceptance"
+	 dst-table="_a3s.terms_of_service" reference-fk="fk_terms_of_service_user_acceptance_terms_of_service_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_terms_of_service_user_acceptance_application_user" type="relfk" layer="0"
+	 src-table="_a3s.terms_of_service_user_acceptance"
+	 dst-table="_a3s.application_user" reference-fk="fk_terms_of_service_user_acceptance_user_user_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_terms_of_service_user_acceptance_cp_terms_of_service" type="relfk" layer="0"
+	 src-table="_a3s.terms_of_service_user_acceptance_history"
+	 dst-table="_a3s.terms_of_service" reference-fk="fk_terms_of_service_user_acceptance_history_terms_of_service_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_terms_of_service_user_acceptance_cp_application_user" type="relfk" layer="0"
+	 src-table="_a3s.terms_of_service_user_acceptance_history"
+	 dst-table="_a3s.application_user" reference-fk="fk_terms_of_service_user_acceptance_history_user_user_id"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>

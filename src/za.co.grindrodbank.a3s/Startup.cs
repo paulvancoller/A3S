@@ -31,6 +31,9 @@ using Steeltoe.Management.Endpoint.Info;
 using System;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using za.co.grindrodbank.a3s.Managers;
+using za.co.grindrodbank.a3s.Stores;
+using za.co.grindrodbank.a3s.Helpers;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -55,11 +58,13 @@ namespace za.co.grindrodbank.a3s
             services.AddInfoActuator(Configuration); // Add Info Actuator
 
             // Add a database context for operating on the A3S data.
-            services.AddDbContext<A3SContext>(options =>
+            services.AddDbContextPool<A3SContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("IdentityServerConnection")
                     ));
 
+            // NOTE! Attempting to pool the configuration DB context results in the following exception.
+            // The DbContext of type 'ConfigurationDbContext' cannot be pooled because it does not have a single public constructor accepting a single parameter of type DbContextOptions.
             services.AddDbContext<ConfigurationDbContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("IdentityServerConnection")
@@ -68,8 +73,10 @@ namespace za.co.grindrodbank.a3s
             // We need to add this so we can correctly utilise the underlying user manager.
             services.AddIdentity<UserModel, IdentityRole>()
                 .AddEntityFrameworkStores<A3SContext>()
-                .AddDefaultTokenProviders();
-                
+                .AddDefaultTokenProviders()
+                .AddUserManager<CustomUserManager>()
+                .AddUserStore<CustomUserStore>();
+
 
             // Add an indentity service to use the configuration context, as the configuration store options are a dependent service of the ID Server configuration DB context.
             // We don't need to actually run the ID server and inject it into the pipeline, just configure it.
@@ -148,6 +155,10 @@ namespace za.co.grindrodbank.a3s
                 options.AddPolicy("permission:a3s.ldapAuthenticationModes.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.ldapAuthenticationModes.update")));
                 options.AddPolicy("permission:a3s.ldapAuthenticationModes.delete", policy => policy.Requirements.Add(new PermissionRequirement("a3s.ldapAuthenticationModes.delete")));
                 options.AddPolicy("permission:a3s.twoFactorAuth.remove", policy => policy.Requirements.Add(new PermissionRequirement("a3s.twoFactorAuth.remove")));
+                options.AddPolicy("permission:a3s.twoFactorAuth.validateOtp", policy => policy.Requirements.Add(new PermissionRequirement("a3s.twoFactorAuth.validateOtp")));
+                options.AddPolicy("permission:a3s.termsOfService.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.read")));
+                options.AddPolicy("permission:a3s.termsOfService.create", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.create")));
+                options.AddPolicy("permission:a3s.termsOfService.delete", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.delete")));
             });
 
             // Add policy handler services
@@ -165,6 +176,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ITeamRepository, TeamRepository>();
             services.AddScoped<IIdentityClientRepository, IdentityClientRepository>();
             services.AddScoped<IApplicationDataPolicyRepository, ApplicationDataPolicyRepository>();
+            services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
 
             // Resgister all the services.
             services.AddScoped<IPermissionService, PermissionService>();
@@ -182,12 +194,16 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ISafeRandomizerService, SafeRandomizerService>();
             services.AddScoped<ILdapConnectionService, LdapConnectionService>();
             services.AddScoped<ITwoFactorAuthService, TwoFactorAuthService>();
+            services.AddScoped<ITermsOfServiceService, TermsOfServiceService>();
+
+            // Register Helpers
+            services.AddScoped<IArchiveHelper, ArchiveHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.ConfigureExceptionHandler(Configuration);
+            app.ConfigureExceptionHandler();
 
             if (!env.IsDevelopment())
             {
@@ -227,33 +243,60 @@ namespace za.co.grindrodbank.a3s
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<A3SContext>();
 
-                // Create the 'applySecurityContract' Permissions for A3S.
                 var writePermission = context.Permission.Where(p => p.Name == "a3s.securityContracts.update").FirstOrDefault();
 
-                if (writePermission == null)
+                if(writePermission == null)
                 {
-                    writePermission = new PermissionModel();
-
-                    writePermission.Name = "a3s.securityContracts.update";
-                    writePermission.Description = "Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.";
-                    writePermission.ChangedBy = Guid.Empty;
-
-                    context.Permission.Add(writePermission);
-                    context.SaveChanges();
+                    writePermission = new PermissionModel
+                    {
+                        Name = "a3s.securityContracts.update",
+                        Description = "Enables idempotently applying (creating or updating) a security contract definition. This includes creation or updating of permissions, functions, applications and the relationships between them.",
+                        ChangedBy = Guid.Empty
+                    };
                 }
 
-                // Create the 'readSecurityContract' Permissions for A3S.
                 var readPermission = context.Permission.Where(p => p.Name == "a3s.securityContracts.read").FirstOrDefault();
 
-                if (readPermission == null)
+                if(readPermission == null)
                 {
-                    readPermission = new PermissionModel();
+                    readPermission = new PermissionModel
+                    {
+                        Name = "a3s.securityContracts.read",
+                        Description = "Enables fetching of a security contract definition.",
+                        ChangedBy = Guid.Empty
+                    };
+                }
+                
+                // Ensure that the A3S application is createdd.
+                var application = context.Application.Where(a => a.Name == "a3s").FirstOrDefault();
 
-                    readPermission.Name = "a3s.securityContracts.read";
-                    readPermission.Description = "Enables fetching of a security contract definition.";
-                    readPermission.ChangedBy = Guid.Empty;
+                if (application == null)
+                {
+                    application = new ApplicationModel
+                    {
+                        Name = "a3s",
+                        ApplicationFunctions = new List<ApplicationFunctionModel>()
+                        {
+                            new ApplicationFunctionModel
+                            {
+                                Application = application,
+                                Name = "a3s.securityContracts",
+                                ApplicationFunctionPermissions = new List<ApplicationFunctionPermissionModel>
+                                {
+                                    new ApplicationFunctionPermissionModel
+                                    {
+                                        Permission = writePermission
+                                    },
+                                    new ApplicationFunctionPermissionModel
+                                    {
+                                        Permission = readPermission
+                                    }
+                                }
+                            }
+                        }
+                    };
 
-                    context.Permission.Add(readPermission);
+                    context.Application.Add(application);
                     context.SaveChanges();
                 }
 
@@ -262,12 +305,14 @@ namespace za.co.grindrodbank.a3s
 
                 if(function == null)
                 {
-                    function = new FunctionModel();
-
-                    function.FunctionPermissions = new List<FunctionPermissionModel>();
-                    function.Name = "a3s.securityContractMaintenance";
-                    function.Description = "Functionality to apply security contracts for micro-services.";
-                    function.ChangedBy = Guid.Empty;
+                    function = new FunctionModel
+                    {
+                        FunctionPermissions = new List<FunctionPermissionModel>(),
+                        Name = "a3s.securityContractMaintenance",
+                        Description = "Functionality to apply security contracts for micro-services.",
+                        Application = application,
+                        ChangedBy = Guid.Empty
+                    };
                     function.FunctionPermissions.Add(new FunctionPermissionModel
                     {
                         Function = function,

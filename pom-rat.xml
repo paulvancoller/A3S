@@ -56,7 +56,6 @@
     					<exclude>.mvn/**</exclude>
     					<exclude>.scannerwork/**</exclude>
     					<exclude>**/wwwroot/**</exclude>
-    					<exclude>**/Quickstart/**</exclude>
     					<exclude>**/.openapi-generator/**</exclude>
             						
 						<!-- specific files/file extensions to ignore -->

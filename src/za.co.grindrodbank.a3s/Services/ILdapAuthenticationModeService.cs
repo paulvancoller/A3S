@@ -17,7 +17,7 @@ namespace za.co.grindrodbank.a3s.Services
         Task<LdapAuthenticationMode> UpdateAsync(LdapAuthenticationModeSubmit ldapAuthenticationModeSubmit, Guid updatedById);
         Task<LdapAuthenticationMode> CreateAsync(LdapAuthenticationModeSubmit ldapAuthenticationModeSubmit, Guid createdById);
         Task<List<LdapAuthenticationMode>> GetListAsync();
-        Task<LdapAuthenticationModeTestResult> TestAsync(LdapAuthenticationModeSubmit ldapAuthenticationModeSubmit);
+        Task<ValidationResultResponse> TestAsync(LdapAuthenticationModeSubmit ldapAuthenticationModeSubmit);
         Task DeleteAsync(Guid ldapAuthenticationModeId);
     }
 }

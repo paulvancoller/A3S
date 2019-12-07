@@ -15,16 +15,16 @@ using za.co.grindrodbank.a3s.Services;
 using AutoMapper;
 using NSubstitute;
 using Xunit;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class TeamService_Tests
     {
-        IMapper mapper;
-        Guid userGuid;
-        Guid teamGuid;
-
-        TeamModel mockedTeam;
+        private readonly IMapper mapper;
+        private readonly Guid userGuid;
+        private readonly Guid teamGuid;
+        private readonly TeamModel mockedTeam;
 
         public TeamService_Tests()
         {
@@ -63,10 +63,29 @@ namespace za.co.grindrodbank.a3s.tests.Services
         {
             var teamRepository = Substitute.For<ITeamRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
 
             teamRepository.GetByIdAsync(teamGuid, false).Returns(mockedTeam);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamResource = await teamService.GetByIdAsync(teamGuid);
+
+            Assert.True(teamResource.Name == "Test team", $"Expected team name: '{teamResource.Name}' does not equal expected value: 'Test team'");
+            Assert.True(teamResource.Uuid == teamGuid, $"Expected team UUID: '{teamResource.Uuid}' does not equal expected value: '{teamGuid}'");
+            Assert.True(teamResource.UserIds.First() == userGuid, $"Expected User Team User UUID: '{teamResource.UserIds.First()}' does not equal expected value: '{userGuid}'");
+        }
+
+        [Fact]
+        public async Task GetById_GivenInvalidTermsOfServiceEntry_ThrowsItemNotFoundException()
+        {
+            var teamRepository = Substitute.For<ITeamRepository>();
+            var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+
+            teamRepository.GetByIdAsync(teamGuid, false).Returns(mockedTeam);
+            termsOfServiceRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<bool>())).Do(x => { throw new ItemNotFoundException(); });
+
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);
 
             Assert.True(teamResource.Name == "Test team", $"Expected team name: '{teamResource.Name}' does not equal expected value: 'Test team'");

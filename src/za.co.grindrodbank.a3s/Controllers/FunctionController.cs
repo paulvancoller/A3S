@@ -67,7 +67,7 @@ namespace za.co.grindrodbank.a3s.Controllers
         [Authorize(Policy = "permission:a3s.functions.delete")]
         public async override Task<IActionResult> DeleteFunctionAsync([FromRoute, Required] Guid functionId)
         {
-            await functionService.DeleteUserAsync(functionId);
+            await functionService.DeleteAsync(functionId);
             return NoContent();
         }
     }

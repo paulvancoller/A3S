@@ -63,15 +63,6 @@ namespace za.co.grindrodbank.a3s.Repositories
                                             .FirstOrDefaultAsync();
         }
 
-        public FunctionModel GetByName(string name)
-        {
-            return a3SContext.Function.Where(f => f.Name == name)
-                                            .Include(f => f.FunctionPermissions)
-                                              .ThenInclude(fp => fp.Permission)
-                                            .Include(f => f.Application)
-                                            .FirstOrDefault();
-        }
-
         public async Task<FunctionModel> GetByNameAsync(string name)
         {
             return await a3SContext.Function.Where(f => f.Name == name)

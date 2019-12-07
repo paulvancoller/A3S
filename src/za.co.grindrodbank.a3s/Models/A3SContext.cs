@@ -37,6 +37,8 @@ namespace za.co.grindrodbank.a3s.Models
         public DbSet<LdapAuthenticationModeModel> LdapAuthenticationMode { get; set; }
         public DbSet<LdapAuthenticationModeLdapAttributeModel> LdapAuthenticationModeLdapAttribute { get; set; }
         public DbSet<ApplicationDataPolicyModel> ApplicationDataPolicy { get; set; }
+        public DbSet<TermsOfServiceModel> TermsOfService { get; set; }
+        public DbSet<TermsOfServiceUserAcceptanceModel> TermsOfServiceUserAcceptance { get; set; }
 
         // Identity specific database tables. We want to operate on these, but let them be managed by Identity.
         public DbSet<UserClaimModel> ApplicationUserClaims { get; set; }
@@ -200,6 +202,26 @@ namespace za.co.grindrodbank.a3s.Models
                 .HasOne(tdp => tdp.ApplicationDataPolicy)
                 .WithMany(adp => adp.ApplicationDataPolicies)
                 .HasForeignKey(tdp => tdp.ApplicationDataPolicyId);
+
+            // Customisations for one to many relationship between TermsOfService and Teams
+            modelBuilder.Entity<TeamModel>()
+                .HasOne(t => t.TermsOfService)
+                .WithMany(ts => ts.Teams)
+                .HasForeignKey(t => t.TermsOfServiceId);
+
+            // Customisations for many to many relationship between TermsOfService and Users via TermsOfServiceUserAcceptance
+            modelBuilder.Entity<TermsOfServiceUserAcceptanceModel>()
+                .HasKey(tsa => new { tsa.TermsOfServiceId, tsa.UserId });
+
+            modelBuilder.Entity<TermsOfServiceUserAcceptanceModel>()
+                .HasOne(tsa => tsa.TermsOfService)
+                .WithMany(ts => ts.TermsOfServiceAcceptances)
+                .HasForeignKey(tsa => tsa.TermsOfServiceId);
+
+            modelBuilder.Entity<TermsOfServiceUserAcceptanceModel>()
+                .HasOne(tsa => tsa.User)
+                .WithMany(u => u.TermsOfServiceAcceptances)
+                .HasForeignKey(tsa => tsa.UserId);
 
             SetDbNamingConvention(modelBuilder);
             SetSysPeriodTransformedColumns(modelBuilder);

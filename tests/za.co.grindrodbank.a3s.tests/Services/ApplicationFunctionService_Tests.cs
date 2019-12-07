@@ -21,7 +21,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
     public class ApplicationFunctionService_Tests
     {
         IMapper mapper;
-        Guid userGuid;
         Guid applicationFunctionGuid;
 
         ApplicationFunctionModel mockedApplicationFunction;
@@ -36,7 +35,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             mapper = config.CreateMapper();
             applicationFunctionGuid = Guid.NewGuid();
-            userGuid = Guid.NewGuid();
 
             mockedApplicationFunction = new ApplicationFunctionModel();
             mockedApplicationFunction.Name = "Test applicationFunction";
@@ -46,7 +44,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
         [Fact]
         public async Task GetById_GivenGuid_ReturnsApplicationFunctionResource()
         {
-            var userRepository = Substitute.For<IUserRepository>();
             var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
 
             applicationFunctionRepository.GetByIdAsync(applicationFunctionGuid).Returns(mockedApplicationFunction);
@@ -56,6 +53,28 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             Assert.True(applicationFunctionResource.Name == "Test applicationFunction", $"Expected applicationFunction name: '{applicationFunctionResource.Name}' does not equal expected value: 'Test applicationFunction'");
             Assert.True(applicationFunctionResource.Uuid == applicationFunctionGuid, $"Expected applicationFunction UUID: '{applicationFunctionResource.Uuid}' does not equal expected value: '{applicationFunctionGuid}'");
+        }
+
+        [Fact]
+        public async Task GetListAsync_Executed_ReturnsList()
+        {
+            var applicationFunctionRepository = Substitute.For<IApplicationFunctionRepository>();
+
+            applicationFunctionRepository.GetListAsync().Returns(
+                new List<ApplicationFunctionModel>()
+                {
+                    mockedApplicationFunction,
+                    mockedApplicationFunction
+                });
+
+            var applicationFunctionService = new ApplicationFunctionService(applicationFunctionRepository, mapper);
+            var applicationFunctionList = await applicationFunctionService.GetListAsync();
+
+            Assert.True(applicationFunctionList.Count == 2, "Expected list count is 2");
+            Assert.True(applicationFunctionList[0].Name == "Test applicationFunction", $"Expected applicationFunction name: '{applicationFunctionList[0].Name}' does not equal expected value: 'Test applicationFunction'");
+            Assert.True(applicationFunctionList[0].Uuid == applicationFunctionGuid, $"Expected applicationFunction UUID: '{applicationFunctionList[0].Uuid}' does not equal expected value: '{applicationFunctionGuid}'");
+            Assert.True(applicationFunctionList[1].Name == "Test applicationFunction", $"Expected applicationFunction name: '{applicationFunctionList[1].Name}' does not equal expected value: 'Test applicationFunction'");
+            Assert.True(applicationFunctionList[1].Uuid == applicationFunctionGuid, $"Expected applicationFunction UUID: '{applicationFunctionList[1].Uuid}' does not equal expected value: '{applicationFunctionGuid}'");
         }
     }
 }

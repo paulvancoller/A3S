@@ -13,10 +13,10 @@ namespace za.co.grindrodbank.a3s.Repositories
 {
     public interface IPermissionRepository : ITransactableRepository
     {
-        Task<PermissionModel> GetByNameAsync(string name);
+        Task<PermissionModel> GetByNameAsync(string name, bool includeRelations = false);
         Task<PermissionModel> GetByIdAsync(Guid permissionId);
         Task<PermissionModel> GetByIdWithApplicationAsync(Guid permissionId);
-        PermissionModel GetByName(string name);
+        PermissionModel GetByName(string name, bool includeRelations = false);
         Task<PermissionModel> CreateAsync(PermissionModel permission);
         Task<PermissionModel> UpdateAsync(PermissionModel permission);
         Task Delete(PermissionModel permission);
