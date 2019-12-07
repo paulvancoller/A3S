@@ -2,8 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <ReleaseVersion>1.0.1</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
@@ -24,11 +31,16 @@
     <Folder Include="Extensions\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Repositories\" />
+    <Folder Include="Quickstart\TermsOfService\" />
+    <Folder Include="Views\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\TermsOfServiceUserAcceptance.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\PermissionModel.cs">
@@ -153,6 +165,30 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceModel.cs">
       <Link>Models\TermsOfServiceModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ITermsOfServiceRepository.cs">
+      <Link>Repositories\ITermsOfServiceRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\TermsOfServiceRepository.cs">
+      <Link>Repositories\TermsOfServiceRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceUserAcceptanceModel.cs">
+      <Link>Models\TermsOfServiceUserAcceptanceModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Helpers\ArchiveHelper.cs">
+      <Link>Helpers\ArchiveHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Helpers\IArchiveHelper.cs">
+      <Link>Helpers\IArchiveHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Exceptions\ArchiveException.cs">
+      <Link>Exceptions\ArchiveException.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\InMemoryFile.cs">
+      <Link>Models\InMemoryFile.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\A3SConstants.cs">
+      <Link>A3SConstants.cs</Link>
     </Compile>
 </ItemGroup>
 </Project>

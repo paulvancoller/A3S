@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
 
     <IsPackable>false</IsPackable>
+    <ReleaseVersion>1.0.1</ReleaseVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -30,12 +31,14 @@
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="IdentityServer4" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Quickstart\" />
     <Folder Include="Quickstart\Account\" />
     <Folder Include="Quickstart\Home\" />
+    <Folder Include="Quickstart\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\za.co.grindrodbank.a3s-identity-server\za.co.grindrodbank.a3s-identity-server.csproj" />
@@ -47,6 +50,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Fakes\FakeStyleSheetParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\za.co.grindrodbank.a3s.tests\Fakes\CustomUserManagerFake.cs">

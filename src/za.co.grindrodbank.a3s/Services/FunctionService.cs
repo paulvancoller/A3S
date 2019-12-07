@@ -23,7 +23,6 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IPermissionRepository permissionRepository;
         private readonly IApplicationRepository applicationRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public FunctionService(IFunctionRepository functionRepository, IPermissionRepository permissionRepository, IApplicationRepository applicationRepository, IMapper mapper)
         {

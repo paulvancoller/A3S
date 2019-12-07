@@ -35,22 +35,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         }
 
         [Fact]
-        public void Privacy_Executed_ViewReturned()
-        {
-            // Arrange
-            var homeController = new HomeController();
-
-            // Act
-            IActionResult actionResult = homeController.Privacy();
-
-            // Assert
-            var viewResult = actionResult as ViewResult;
-            Assert.NotNull(viewResult);
-
-            homeController.Dispose();
-        }
-
-        [Fact]
         public void Error_Executed_ViewReturned()
         {
             // Arrange

@@ -21,6 +21,7 @@ using System.Linq;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.Stores;
+using za.co.grindrodbank.a3s.Helpers;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
@@ -82,10 +83,14 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ILdapAuthenticationModeRepository, LdapAuthenticationModeRepository>();
+            services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
 
             // Register services
             services.AddScoped<ILdapConnectionService, LdapConnectionService>();
             services.AddScoped<ISafeRandomizerService, SafeRandomizerService>();
+
+            // Register Helpers
+            services.AddScoped<IArchiveHelper, ArchiveHelper>();
         }
 
         public void Configure(IApplicationBuilder app)

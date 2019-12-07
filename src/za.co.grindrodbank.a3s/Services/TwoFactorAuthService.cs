@@ -22,8 +22,6 @@ namespace za.co.grindrodbank.a3s.Services
     {
         private readonly IUserRepository userRepository;
         private readonly CustomUserManager userManager;
-
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private readonly TokenOptions tokenOptions = new TokenOptions();
 
         public TwoFactorAuthService(IUserRepository userRepository, CustomUserManager userManager)

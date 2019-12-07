@@ -42,5 +42,18 @@ namespace za.co.grindrodbank.a3s.Managers
             ThrowIfDisposed();
             return store.IsAuthenticatorTokenVerified(user);
         }
+
+        public async Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        {
+            ThrowIfDisposed();
+
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (termsOfServiceId == Guid.Empty)
+                throw new ArgumentNullException(nameof(termsOfServiceId));
+
+            await store.AgreeToTermsOfService(user.Id, termsOfServiceId);
+        }
     }
 }

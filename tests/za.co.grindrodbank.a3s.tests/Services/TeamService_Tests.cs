@@ -83,7 +83,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
 
             teamRepository.GetByIdAsync(teamGuid, false).Returns(mockedTeam);
-            termsOfServiceRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>())).Do(x => { throw new ItemNotFoundException(); });
+            termsOfServiceRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<bool>())).Do(x => { throw new ItemNotFoundException(); });
 
             var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);

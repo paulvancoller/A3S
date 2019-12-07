@@ -149,7 +149,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             // Update the application with its new application function state.
-            await applicationRepository.Update(application);
+            await applicationRepository.UpdateAsync(application);
         }
 
         /// <summary>

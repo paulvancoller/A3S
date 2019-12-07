@@ -28,6 +28,7 @@ namespace za.co.grindrodbank.a3s.Models
         public List<UserTokenModel> UserTokens { get; set; }
         public List<UserRoleModel> UserRoles { get; set; }
         public List<UserTeamModel> UserTeams { get; set; }
+        public List<TermsOfServiceUserAcceptanceModel> TermsOfServiceAcceptances { get; set; }
 
         public Guid ChangedBy { get; set; }
 
