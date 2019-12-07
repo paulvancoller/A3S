@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IdentityServer4.Events;
@@ -125,20 +126,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
         private string LocaliseStyleSheetItems(string stylesheetContents)
         {
+            StringBuilder alteredStylesheetBuilder = new StringBuilder();
+
             MatchCollection matches = Regex.Matches(stylesheetContents, A3SConstants.CSS_STYLE_RULES_REGEX, RegexOptions.IgnoreCase);
 
-            //var currentStyleSheet = stylesheetParser.Parse(stylesheetContents);
-            //var newStyleSheet = stylesheetParser.Parse(string.Empty);
+            foreach (Match match in matches)
+                alteredStylesheetBuilder.Append($"#terms-body {match.Value}\n");
 
-            //int ruleCount = 0;
-            //foreach (StyleRule rule in currentStyleSheet.StyleRules)
-            //{
-            //    rule.SelectorText = $"#terms-body {rule.SelectorText}";
-            //    newStyleSheet.Insert(rule.ToCss(), ruleCount++);
-            //}
-
-            //return newStyleSheet.ToCss();
-            return stylesheetContents;
+            return alteredStylesheetBuilder.ToString();
         }
 
         private bool ShowAfterSuccessManagementScreen()
