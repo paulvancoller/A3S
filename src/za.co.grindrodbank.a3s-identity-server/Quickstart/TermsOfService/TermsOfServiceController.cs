@@ -126,6 +126,9 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
         private string LocaliseStyleSheetItems(string stylesheetContents)
         {
+            if (string.IsNullOrWhiteSpace(stylesheetContents))
+                return string.Empty;
+
             StringBuilder alteredStylesheetBuilder = new StringBuilder();
 
             MatchCollection matches = Regex.Matches(stylesheetContents, A3SConstants.CSS_STYLE_RULES_REGEX, RegexOptions.IgnoreCase);
