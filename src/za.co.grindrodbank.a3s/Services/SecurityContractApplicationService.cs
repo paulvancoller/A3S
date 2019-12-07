@@ -180,7 +180,7 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies]: No application data policies defined for application '{application.Name}'.");
             }
 
-            return application;
+            return await applicationRepository.Update(application);
         }
 
         private async Task<ApplicationModel> UpdateExistingApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)

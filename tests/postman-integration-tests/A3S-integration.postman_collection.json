@@ -1,6 +1,6 @@
 ﻿{
 	"info": {
-		"_postman_id": "87a2fed5-6e5e-4d16-b5fc-ee2d0cb284f9",
+		"_postman_id": "fa8be605-03d7-464f-abc4-1fcdc70d458d",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -7728,26 +7728,448 @@
 									"        }",
 									"    }",
 									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that the new application has a data policy assigned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].dataPolicies.length).to.equal(1);",
+									"});",
+									"",
+									"pm.test(\"Check that the new application has the correct data policy assigned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].dataPolicies[0].name).to.equal(\"a3s-pipeline-test.dataPolicy\");",
+									"    pm.expect(jsonData.applications[1].dataPolicies[0].description).to.equal(\"Test data policy description.\");",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Application Only - Data Policy Removed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Application - Data Policy Removed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications has increased to 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly created application was correctly created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
 									"    ",
-									"    // The order of returned items in the lists is not longer deterministic, as results are ordered by updated time now, not alphabetically as they used to be.",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].name).to.eql(\"a3s.pipelineTestFunction1\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].description).to.eql(\"Test function one for pipeline test.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].permissions.length).to.eql(2);",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].permissions[0].name).to.eql(\"a3s-pipeline-test.test.create\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].permissions[0].description).to.eql(\"Create test permission.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].permissions[1].name).to.eql(\"a3s-pipeline-test.test.read\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[0].permissions[1].description).to.eql(\"Read test permission.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].description).to.eql(\"Test function two for pipeline test.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].name).to.eql(\"a3s.pipelineTestFunction2\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].description).to.eql(\"Test function two for pipeline test.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].permissions.length).to.eql(2);",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].permissions[1].name).to.eql(\"a3s-pipeline-test.test.update\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].permissions[1].description).to.eql(\"Update test permission.\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].permissions[0].name).to.eql(\"a3s-pipeline-test.test.archive\");",
-									"    // pm.expect(jsonData.applications[1].applicationFunctions[1].permissions[0].description).to.eql(\"Archive test permission.\");",
-									"    // pm.expect(jsonData.applications[1].dataPolicies.length).to.eql(1);",
-									"    // pm.expect(jsonData.applications[1].dataPolicies[0].name).to.eql(\"a3s-pipeline-test.dataPolicy\");",
-									"    // pm.expect(jsonData.applications[1].dataPolicies[0].description).to.eql(\"Test data policy description.\");",
+									"    // Check that expected application functions are in the returned array.",
+									"    var result;",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction1\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction2\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function one for pipeline test.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"     result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function two for pipeline test.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that the application has no data policy assigned to it any longer.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].dataPolicies.length).to.equal(0);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Update Application Function Descriptions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Update Application Function Descriptions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications has increased to 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly created application was correctly created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
+									"    ",
+									"    // Check that expected application functions are in the returned array.",
+									"    var result;",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction1\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction2\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function one for pipeline test - updated by contract.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"     result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function two for pipeline test.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
 									"});",
 									"",
 									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
@@ -7809,6 +8231,866 @@
 							]
 						},
 						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Update Application Function Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1-changed\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Update Application Function Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications is 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly created application was correctly created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
+									"    ",
+									"    // Check that expected application functions are in the returned array.",
+									"    var result;",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction1-changed\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction2\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function one for pipeline test - updated by contract.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"     result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function two for pipeline test.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Update Application Function",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Update Application Function",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications has increased to 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly created application was correctly created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
+									"    ",
+									"    // Check that expected application functions are in the returned array.",
+									"    var result;",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction1\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].name === \"a3s.pipelineTestFunction2\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function one for pipeline test - updated by contract.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"    ",
+									"     result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        if (jsonData.applications[1].applicationFunctions[loop].description === \"Test function two for pipeline test.\")",
+									"        {",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Update Permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.read-updated\n            description: Read test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Update Permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications has increased to 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly updated permissions are assigned to the functions.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
+									"    ",
+									"    var result;",
+									"    var loop;",
+									"    var perm_loop;",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        for (perm_loop = 0; perm_loop < jsonData.applications[1].applicationFunctions[loop].permissions.length; perm_loop++)",
+									"        {",
+									"            if (jsonData.applications[1].applicationFunctions[loop].permissions[perm_loop].name === \"a3s-pipeline-test.test.read-updated\")",
+									"            {",
+									"                result=true;",
+									"                break;",
+									"            }",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Update Permission Description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission-updated.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Update Permission Description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract is correctly structured at the top level.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clients');",
+									"    pm.expect(jsonData).to.have.property('applications');",
+									"    pm.expect(jsonData).to.have.property('defaultConfigurations');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured client level. Checking first client.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clients[0]).to.have.property('clientId');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('name');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('redirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('hashedClientSecrets');",
+									"    pm.expect(jsonData.clients[0]).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the amount of applications has increased to 2.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications.length).to.equal(2);",
+									"});",
+									"",
+									"pm.test(\"Check that the newly updated permissions description is correrctly updated.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[1].fullname).to.eql('a3s-pipeline-test');",
+									"    pm.expect(jsonData.applications[1].applicationFunctions.length).to.eql(2);",
+									"    ",
+									"    var result;",
+									"    var loop;",
+									"    var perm_loop;",
+									"    ",
+									"    result = false;",
+									"    for (loop = 0; loop < jsonData.applications[1].applicationFunctions.length; loop++)",
+									"    {",
+									"        for (perm_loop = 0; perm_loop < jsonData.applications[1].applicationFunctions[loop].permissions.length; perm_loop++)",
+									"        {",
+									"            if (jsonData.applications[1].applicationFunctions[loop].permissions[perm_loop].description === \"Read test permission-updated.\")",
+									"            {",
+									"                result=true;",
+									"                break;",
+									"            }",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.applications[0]).to.have.property('fullname');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('applicationFunctions');",
+									"    pm.expect(jsonData.applications[0]).to.have.property('dataPolicies');",
+									"});",
+									"",
+									"pm.test(\"Check that returned Security Contract has correctly structured default configurations level. Checking first default configuration.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('name');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('applications');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('roles');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('users');",
+									"    pm.expect(jsonData.defaultConfigurations[0]).to.have.property('teams');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the application that was created in the previous partial security contract upload is correct."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Duplicate Permission Assignment - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is 422 - Non-Processable Entity\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "applications:\n    # This value will be used to create the client scope within the Identoity Server. Therfore, it cannot contain any spaces, and should follow a fully smaller case convention.\n    # Perhaps we should add an explicit attribute to an application to model it's 'client-scope', making it independent from the name.\n  - fullname: a3s-pipeline-test   \n    applicationFunctions:\n      - name: a3s.pipelineTestFunction1\n        description: Test function one for pipeline test - updated by contract.\n        permissions:\n          - name: a3s-pipeline-test.test.read\n            description: Read test permission-updated.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n      - name: a3s.pipelineTestFunction2\n        description: Test function two for pipeline test.\n        permissions:\n          - name: a3s-pipeline-test.test.update\n            description: Update test permission.\n          - name: a3s-pipeline-test.test.archive\n            description: Archive test permission.\n          - name: a3s-pipeline-test.test.create\n            description: Create test permission.\n    dataPolicies:\n      - name: a3s-pipeline-test.dataPolicy\n        description: Test data policy description.\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
 					},
 					"response": []
 				},
@@ -7940,17 +9222,6 @@
 									"        }",
 									"    }",
 									"    pm.expect(true).to.eql(result);",
-									"    ",
-									"    // The order of returned items in the lists is not longer deterministic, as results are ordered by updated time now, not alphabetically as they used to be.",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].name).to.equal(\"a3s.TestPipeline.Reader\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].permissions.length).to.equal(1);",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[0].permissions[0]).to.equal(\"a3s-pipeline-test.test.read\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].name).to.equal(\"a3s.TestPipeline.SuperAdmin\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions.length).to.equal(4);",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[0]).to.equal(\"a3s-pipeline-test.test.archive\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[1]).to.equal(\"a3s-pipeline-test.test.create\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[2]).to.equal(\"a3s-pipeline-test.test.read\");",
-									"    // pm.expect(jsonData.defaultConfigurations[0].applications[1].functions[1].permissions[3]).to.equal(\"a3s-pipeline-test.test.update\");",
 									"});",
 									"",
 									"pm.test(\"Check that returned Security Contract has correctly structured application level. Checking first application.\", function () {",
@@ -8012,6 +9283,425 @@
 							]
 						},
 						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the default configuration that was created in the previous partial security contract upload."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Create Compound Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "defaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S-Pipeline-Test-Config\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s-pipeline-test\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.TestPipeline.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n              - a3s-pipeline-test.test.create\n              - a3s-pipeline-test.test.update\n              - a3s-pipeline-test.test.archive\n          - name: \"a3s.TestPipeline.Reader\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Test Pipeline Super Admin\"\n        description: An A3S Test Pipeline Super Admin Role that has all the A3S test Pipeline functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.TestPipeline.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Test Pipeline Role for reading things..\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n    # Defines a section for declaring new users and mapping roles to them.\n    users:\n      - username: a3s-test-pipeline-user\n        name: a3s-test-pipeline-user\n        surname: pipeline-test-surname\n        email: a3s-pipeline-test@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        phoneNumber: \"+27110110117\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"A3S Test Pipeline Super Admin\"\n\n    teams:\n      - name: default-test-pipeline-team\n        description: A simple test default team.\n        users:\n          - a3s-test-pipeline-user\n      - name: default-test-pipeline-compound-team\n        description: A simple test default team.\n        teams:\n          - default-test-pipeline-team\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Create Compound Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that the new compound team has the correct child team.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.defaultConfigurations[0].teams.length; loop++)",
+									"    {",
+									"        if (jsonData.defaultConfigurations[0].teams[loop].name === \"default-test-pipeline-compound-team\")",
+									"        {",
+									"            if(jsonData.defaultConfigurations[0].teams[loop].teams[0] === \"default-test-pipeline-team\")",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the default configuration that was created in the previous partial security contract upload."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Create Compound Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "defaultConfigurations:\n    # The name here is purely for human readability and separating the default configurations into logical components.\n  - name: A3S-Pipeline-Test-Config\n\n    # Section to configure the default state of applications with respect to any business functions that need to be configured.\n    applications:\n        # The name of the application. This must already exist or be defined in the 'applications' section of this document. If not found, it will be ignored.\n      - name: a3s-pipeline-test\n        # Default 'Business' functions that are to be created. Note: These are different from 'applicationFunctions' created in the 'applications' section of this document.\n        functions:\n            # Create a 'super admin' business function that contains all the possible application permissions.\n          - name: \"a3s.TestPipeline.SuperAdmin\"\n            description: \"A function that contains all possible permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n              - a3s-pipeline-test.test.create\n              - a3s-pipeline-test.test.update\n              - a3s-pipeline-test.test.archive\n          - name: \"a3s.TestPipeline.Reader\"\n            description: \"A function that contains all user related permissions within the A3S micro-service.\"\n            permissions:\n              - a3s-pipeline-test.test.read\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"A3S Test Pipeline Super Admin\"\n        description: An A3S Test Pipeline Super Admin Role that has all the A3S test Pipeline functions associated with it.\n        # The server will attempt to assign these 'business' functions to the role. If the function does not exists, it will NOT be created, and will be simply NOT assigned to the Role. \n        functions:\n          - \"a3s.TestPipeline.SuperAdmin\"\n      - name: \"A3S User Manager\"\n        description: An A3S Test Pipeline Role for reading things..\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n      - name: \"Test-Compound-Role\"\n        description: An A3S Test Compound Role.\n        functions:\n          - \"a3s.TestPipeline.Reader\"\n        roles:\n          - \"A3S User Manager\"\n            "
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSecurityContractDefinition - Test For Create Compound Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "77f72596-003e-4637-8428-c3bcd38a88b6",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that the new compound role has the correct child role.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.defaultConfigurations[0].roles.length; loop++)",
+									"    {",
+									"        if (jsonData.defaultConfigurations[0].roles[loop].name === \"Test-Compound-Role\")",
+									"        {",
+									"            if(jsonData.defaultConfigurations[0].roles[loop].roles[0] === \"A3S User Manager\")",
+									"            result=true;",
+									"            break;",
+									"        }",
+									"    }",
+									"    pm.expect(true).to.eql(result);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						},
+						"description": "Retrieves the entire security contract. Note: YAML is the preferred returned format, but these requests are asking for JSON to be returned so that Postman content analysis is easier. Checks the default configuration that was created in the previous partial security contract upload."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition - Client with Custom ID and Access Token Lifetimes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-yaml"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "clients:\n  - clientId: test-custom-lifetimes-client\n    name: \"Test security contract client\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"openid\"\n      - \"profile\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    identityTokenLifetime: 5000\n    accessTokenLifetime: 6000\n    allowedOfflineAccess: true\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Token - A3S Admin - Custom Access Token Lifetime Client - Expect Custom Access Token Expiry",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									"pm.test(\"Response is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that custome lifetime access token was returned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    ",
+									"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "a3s-admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password1#",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "test-custom-lifetimes-client",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "secret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "a3s",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/token",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						},
+						"description": "Obtains an access token for the A3S Bootstrap admin user, which only has permissions to apply Security Contract definitions."
 					},
 					"response": []
 				}
