@@ -90,7 +90,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (user == null)
                 throw new AuthenticationException("Invalid login data");
 
-            if (button != "accept")
+            if (button != "accept" || !model.Accepted)
                 return await CancelTokenRequest(model.ReturnUrl);
 
             await userManager.AgreeToTermsOfService(user, model.TermsOfServiceId);
