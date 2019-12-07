@@ -95,7 +95,9 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             termsOfServiceModel = new TermsOfServiceModel()
             {
                 AgreementName = "Test agreement",
-                Version = "2019.1"
+                Version = "2019.1",
+                HtmlContents = "<html />",
+                CssContents = ".my-class { font-size: 2; }"
             };
 
             // Prepare controller contexts
