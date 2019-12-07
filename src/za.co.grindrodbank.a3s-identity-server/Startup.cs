@@ -22,7 +22,6 @@ using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
-using ExCSS;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
@@ -92,8 +91,6 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
-
-            services.AddSingleton<StylesheetParser>();
         }
 
         public void Configure(IApplicationBuilder app)

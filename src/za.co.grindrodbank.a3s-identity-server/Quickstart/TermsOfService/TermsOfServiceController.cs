@@ -4,11 +4,11 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ExCSS;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using za.co.grindrodbank.a3s;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Managers;
@@ -38,8 +39,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IClientStore clientStore;
         private readonly IArchiveHelper archiveHelper;
         private readonly SignInManager<UserModel> signInManager;
-        private readonly StylesheetParser stylesheetParser;
-        
+
         public TermsOfServiceController(
             CustomUserManager userManager,
             ITermsOfServiceRepository termsOfServiceRepository,
@@ -48,8 +48,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IEventService events,
             IClientStore clientStore,
             IArchiveHelper archiveHelper,
-            SignInManager<UserModel> signInManager,
-            StylesheetParser stylesheetParser)
+            SignInManager<UserModel> signInManager)
         {
             this.userManager = userManager;
             this.termsOfServiceRepository = termsOfServiceRepository;
@@ -59,7 +58,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             this.clientStore = clientStore;
             this.archiveHelper = archiveHelper;
             this.signInManager = signInManager;
-            this.stylesheetParser = stylesheetParser;
         }
 
         /// <summary>
@@ -127,17 +125,20 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
         private string LocaliseStyleSheetItems(string stylesheetContents)
         {
-            var currentStyleSheet = stylesheetParser.Parse(stylesheetContents);
-            var newStyleSheet = stylesheetParser.Parse(string.Empty);
+            MatchCollection matches = Regex.Matches(stylesheetContents, A3SConstants.CSS_STYLE_RULES_REGEX, RegexOptions.IgnoreCase);
 
-            int ruleCount = 0;
-            foreach (StyleRule rule in currentStyleSheet.StyleRules)
-            {
-                rule.SelectorText = $"#terms-body {rule.SelectorText}";
-                newStyleSheet.Insert(rule.ToCss(), ruleCount++);
-            }
+            //var currentStyleSheet = stylesheetParser.Parse(stylesheetContents);
+            //var newStyleSheet = stylesheetParser.Parse(string.Empty);
 
-            return newStyleSheet.ToCss();
+            //int ruleCount = 0;
+            //foreach (StyleRule rule in currentStyleSheet.StyleRules)
+            //{
+            //    rule.SelectorText = $"#terms-body {rule.SelectorText}";
+            //    newStyleSheet.Insert(rule.ToCss(), ruleCount++);
+            //}
+
+            //return newStyleSheet.ToCss();
+            return stylesheetContents;
         }
 
         private bool ShowAfterSuccessManagementScreen()
