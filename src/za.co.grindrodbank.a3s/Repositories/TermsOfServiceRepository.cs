@@ -190,7 +190,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             // Copy records and set upper bound acceptance_time
             await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.team SET terms_of_service_id = {0} " +
                 "WHERE terms_of_service_id in " +
-                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = (SELECT agreement_name FROM _a3s.terms_of_service WHERE id = {0}) ", termsOfServiceId);
+                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = (SELECT agreement_name FROM _a3s.terms_of_service WHERE id = {0}))", termsOfServiceId);
 
         }
 
@@ -200,11 +200,11 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.Database.ExecuteSqlCommandAsync("INSERT INTO _a3S.terms_of_service_user_acceptance_history " +
                 "SELECT terms_of_service_id, user_id, tstzrange(lower(acceptance_time), CURRENT_TIMESTAMP) FROM _a3s.terms_of_service_user_acceptance " +
                 "WHERE terms_of_service_id in " +
-                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = {0}) ", agreementName);
+                "   (SELECT id from _a3s.terms_of_service WHERE agreement_name = {0})", agreementName);
 
             // Remove copied records from source
             await a3SContext.Database.ExecuteSqlCommandAsync("DELETE FROM _a3s.terms_of_service_user_acceptance WHERE terms_of_service_id in " +
-                "(SELECT id from _a3s.terms_of_service WHERE agreement_name = {0}) ", agreementName);
+                "(SELECT id from _a3s.terms_of_service WHERE agreement_name = {0})", agreementName);
         }
     }
 }
