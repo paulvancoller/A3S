@@ -341,14 +341,13 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                     return RedirectToAction("Index", "TermsOfService", new { returnUrl = model.RedirectUrl });
 
                 if (result.IsLockedOut)
-                {
                     ModelState.AddModelError(string.Empty, "Your account is locked out");
-                    return View(await GetTwoFactorViewModelAsync(model.RedirectUrl, model.Username));
-                }
+                else
+                    ModelState.AddModelError(string.Empty, $"{(model.IsRecoveryCode ? "Recovery code" : "OTP")} is invalid");
 
-                // If we got this far, something failed, redisplay form
-                ModelState.AddModelError(string.Empty, $"{(model.IsRecoveryCode ? "Recovery code" : "OTP")} is invalid");
+                ModelState.Remove("OTP");
             }
+
             // something went wrong, show form with error
             return View(await GetTwoFactorViewModelAsync(model.RedirectUrl, model.Username));
         }
@@ -666,7 +665,8 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             {
                 RedirectUrl = redirectUrl,
                 Username = username,
-                AuthenticatorConfigured = _userManager.IsAuthenticatorTokenVerified(user)
+                AuthenticatorConfigured = _userManager.IsAuthenticatorTokenVerified(user),
+                OTP = string.Empty
             };
         }
 
