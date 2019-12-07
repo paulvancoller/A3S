@@ -55,10 +55,14 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
 
             if (userModel.UserName == userName)
                 return Task.FromResult(userModel);
-            else
-                return Task.FromResult<UserModel>(null);
+
+            return Task.FromResult<UserModel>(null);
         }
 
+        public override Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        {
+            return Task.Run(() => { Console.WriteLine("AgreeToTermsOfService executed"); });
+        }
 
 
 
@@ -86,5 +90,6 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
         {
             authenticatorKey = value;
         }
+
     }
 }

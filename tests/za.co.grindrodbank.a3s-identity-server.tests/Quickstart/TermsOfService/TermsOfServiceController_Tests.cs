@@ -338,7 +338,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         }
 
         [Fact]
-        public async Task Index_ExecutedWithNoOutstandingAgreementsAndIsPkce_ViewResultReturned()
+        public async Task Index_ExecutedWithNoOutstandingAgreementsAndIsPkceClient_ViewResultReturned()
         {
             //Arrange
             var id = Guid.NewGuid().ToString();
@@ -541,6 +541,239 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
                 // Assert
                 Assert.True(true, "Non-local redirect with no context must throw Exception.");
             }
+        }
+
+        [Fact]
+        public async Task Index_PostExecutedWithAcceptedTermsOfService_ViewResultReturned()
+        {
+            //Arrange
+            var id = Guid.NewGuid().ToString();
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            fakeUserManager.SetUserModel(userModel);
+
+            var termOfServiceId = Guid.NewGuid();
+            var termsOfServiceInputModel = new TermsOfServiceInputModel()
+            {
+                Accepted = true,
+                InitialAgreementCount = 3,
+                ReturnUrl = RETURN_URL,
+                TermsOfServiceId = termOfServiceId
+            };
+
+            // Act
+            var actionResult = await termsOfServiceController.Index(termsOfServiceInputModel, "accept", RETURN_URL);
+
+            // Assert
+            var viewResult = actionResult as RedirectToActionResult;
+            Assert.NotNull(viewResult);
+            Assert.True(viewResult.ActionName == "Index", "Redirect action must be 'Index'.");
+            Assert.True(viewResult.RouteValues.Count == 2, "Route value count must be 2.");
+            Assert.True(viewResult.RouteValues["returnUrl"].ToString() == RETURN_URL, $"Route value 'returnUrl' must be '{RETURN_URL}'.");
+            Assert.True(viewResult.RouteValues["initialAgreementCount"].ToString() == "3", $"Route value 'returnUrl' must be '3'.");
+        }
+
+        [Fact]
+        public async Task Index_PostExecutedWithInvalidUserContext_ThrowsAuthenticationException()
+        {
+            //Arrange
+            var id = Guid.NewGuid().ToString();
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            fakeUserManager.SetUserModel(null);
+
+            var termOfServiceId = Guid.NewGuid();
+            var termsOfServiceInputModel = new TermsOfServiceInputModel()
+            {
+                Accepted = true,
+                InitialAgreementCount = 3,
+                ReturnUrl = RETURN_URL,
+                TermsOfServiceId = termOfServiceId
+            };
+
+            Exception caughtException = null;
+            try
+            {
+                var actionResult = await termsOfServiceController.Index(termsOfServiceInputModel, "accept", RETURN_URL);
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            // Assert
+            Assert.True(caughtException is AuthenticationException, "Invalid login data must throw an AuthenticationException.");
+        }
+
+        [Fact]
+        public async Task Index_PostExecutedWithUnAcceptedTermsOfService_ViewResultReturned()
+        {
+            //Arrange
+            var id = Guid.NewGuid().ToString();
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            fakeUserManager.SetUserModel(userModel);
+
+            var termOfServiceId = Guid.NewGuid();
+            var termsOfServiceInputModel = new TermsOfServiceInputModel()
+            {
+                Accepted = false,
+                InitialAgreementCount = 3,
+                ReturnUrl = RETURN_URL,
+                TermsOfServiceId = termOfServiceId
+            };
+
+            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+
+            // Act
+            var actionResult = await termsOfServiceController.Index(termsOfServiceInputModel, "accept", RETURN_URL);
+
+            // Assert
+            var viewResult = actionResult as RedirectResult;
+            Assert.NotNull(viewResult);
+            Assert.True(viewResult.Url == RETURN_URL, $"Redirect URL must be '{RETURN_URL}'.");
+        }
+
+        [Fact]
+        public async Task Index_PostExecutedWithUnAcceptedTermsOfServiceAndIsPkceClient_ViewResultReturned()
+        {
+            //Arrange
+            var id = Guid.NewGuid().ToString();
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            fakeUserManager.SetUserModel(userModel);
+
+            var termOfServiceId = Guid.NewGuid();
+            var termsOfServiceInputModel = new TermsOfServiceInputModel()
+            {
+                Accepted = false,
+                InitialAgreementCount = 3,
+                ReturnUrl = RETURN_URL,
+                TermsOfServiceId = termOfServiceId
+            };
+
+            mockIdentityServerInteractionService.GetAuthorizationContextAsync(Arg.Any<string>()).Returns(authorizationRequest);
+
+            client.RequirePkce = true;
+            mockClientStore.FindEnabledClientByIdAsync(Arg.Any<string>()).Returns(client);
+
+            // Act
+            var actionResult = await termsOfServiceController.Index(termsOfServiceInputModel, "accept", RETURN_URL);
+
+            // Assert
+            var viewResult = actionResult as ViewResult;
+            Assert.NotNull(viewResult);
+
+            var model = viewResult.Model as RedirectViewModel;
+            Assert.NotNull(model);
+            Assert.True(model.RedirectUrl == RETURN_URL, $"Redirect URL must be '{RETURN_URL}'.");
+        }
+
+        [Fact]
+        public async Task Index_PostExecutedWithUnAcceptedTermsOfServiceAndNoContext_ViewResultReturned()
+        {
+            //Arrange
+            var id = Guid.NewGuid().ToString();
+            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
+                mockEventService, mockClientStore, mockArchiveHelper, fakeSignInManager)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, "example name"),
+                            new Claim(ClaimTypes.NameIdentifier, id),
+                            new Claim("sub", id),
+                            new Claim("custom-claim", "example claim value"),
+                        }, "mock")),
+                    }
+                }
+            };
+
+            fakeUserManager.SetUserModel(userModel);
+
+            var termOfServiceId = Guid.NewGuid();
+            var termsOfServiceInputModel = new TermsOfServiceInputModel()
+            {
+                Accepted = false,
+                InitialAgreementCount = 3,
+                ReturnUrl = RETURN_URL,
+                TermsOfServiceId = termOfServiceId
+            };
+
+            // Act
+            var actionResult = await termsOfServiceController.Index(termsOfServiceInputModel, "accept", RETURN_URL);
+
+            // Assert
+            var viewResult = actionResult as RedirectResult;
+            Assert.NotNull(viewResult);
+            Assert.True(viewResult.Url == "~/", $"Redirect URL must be '~/'.");
         }
     }
 }
