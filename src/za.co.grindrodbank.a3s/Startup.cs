@@ -110,21 +110,24 @@ namespace za.co.grindrodbank.a3s
                 }
             });
 
-        
-            services.AddMvc(options =>
-            {
-                options.InputFormatters.Add(new YamlInputFormatter((Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
-                options.OutputFormatters.Add(new YamlOutputFormatter((Serializer)new SerializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
-                    .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
-                    .Build()));
 
-                options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
+            services
+                .AddMvc(options =>
+                {
+                    options.InputFormatters.Add(new YamlInputFormatter((Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    options.OutputFormatters.Add(new YamlOutputFormatter((Serializer)new SerializerBuilder()
+                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                        .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
+                        .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
+                        .Build()));
+
+                    options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
 
             services.AddAuthorization(options =>
             {
