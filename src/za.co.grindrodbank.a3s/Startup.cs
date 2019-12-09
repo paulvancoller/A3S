@@ -34,6 +34,8 @@ using YamlDotNet.Serialization.NamingConventions;
 using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -41,14 +43,14 @@ namespace za.co.grindrodbank.a3s
     {
         private const string CONFIG_SCHEMA = "_ids4";
 
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             CurrentEnvironment = env;
         }
 
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment CurrentEnvironment { get; }
+        public IWebHostEnvironment CurrentEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -127,6 +129,7 @@ namespace za.co.grindrodbank.a3s
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
 
             services.AddAuthorization(options =>
@@ -204,7 +207,7 @@ namespace za.co.grindrodbank.a3s
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.ConfigureExceptionHandler();
 
@@ -222,11 +225,10 @@ namespace za.co.grindrodbank.a3s
             app.UseHealthActuator();
             app.UseInfoActuator();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
 
             // Bootstrap an admin user.
