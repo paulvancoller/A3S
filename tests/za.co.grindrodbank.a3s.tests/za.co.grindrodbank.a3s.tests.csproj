@@ -40,10 +40,6 @@
     <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AspNetCore.Mvc.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
-    <Reference Include="Microsoft.AspNetCore.Mvc.ViewFeatures, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\src\za.co.grindrodbank.a3s\za.co.grindrodbank.a3s.csproj" />
   </ItemGroup>
   <ItemGroup>
