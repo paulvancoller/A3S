@@ -12,7 +12,6 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using NLog;
 using System.Threading.Tasks;
 
@@ -23,10 +22,10 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IHostingEnvironment _environment;
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public HomeController(IIdentityServerInteractionService interaction, IWebHostEnvironment environment)
+        public HomeController(IIdentityServerInteractionService interaction, IHostingEnvironment environment)
         {
             _interaction = interaction;
             _environment = environment;

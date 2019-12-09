@@ -20,7 +20,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Home
         {
             // Arrange
             var identityServerInteractionService = Substitute.For<IIdentityServerInteractionService>();
-            var hostingEnvironment = Substitute.For<IWebHostEnvironment>();
+            var hostingEnvironment = Substitute.For<IHostingEnvironment>();
 
             hostingEnvironment.EnvironmentName = "Development";
 
@@ -39,7 +39,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Home
         {
             // Arrange
             var identityServerInteractionService = Substitute.For<IIdentityServerInteractionService>();
-            var hostingEnvironment = Substitute.For<IWebHostEnvironment>();
+            var hostingEnvironment = Substitute.For<IHostingEnvironment>();
 
             hostingEnvironment.EnvironmentName = "Production";
 
