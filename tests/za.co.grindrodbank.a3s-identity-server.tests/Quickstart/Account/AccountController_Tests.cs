@@ -74,10 +74,9 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var mockLdapAuthenticationModeRepository = Substitute.For<LdapAuthenticationModeRepository>(fakeA3SContext, mockConfiguration);
             var mockLdapConnectionService = Substitute.For<LdapConnectionService>(mockLdapAuthenticationModeRepository, mockUserRepository);
             mockAuthenticationSchemeProvider = Substitute.For<IAuthenticationSchemeProvider>();
-            var mockUserConfirmation = Substitute.For<IUserConfirmation<UserModel>>();
 
             fakeSignInManager = new CustomSignInManagerFake<UserModel>(fakeUserManager, mockContextAccessor, mocClaimsFactory, mockOptionsAccessor, mockSignInLogger, fakeA3SContext,
-                mockAuthenticationSchemeProvider, mockLdapAuthenticationModeRepository, mockLdapConnectionService, mockUserConfirmation);
+                mockAuthenticationSchemeProvider, mockLdapAuthenticationModeRepository, mockLdapConnectionService);
 
             mockIdentityServerInteractionService = Substitute.For<IIdentityServerInteractionService>();
             mockClientStore = Substitute.For<IClientStore>();

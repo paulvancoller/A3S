@@ -26,9 +26,8 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
 
         public CustomSignInManagerFake(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<TUser>> logger, A3SContext a3SContext, IAuthenticationSchemeProvider authenticationSchemeProvider,
-            ILdapAuthenticationModeRepository ldapAuthenticationModeRepository, ILdapConnectionService ldapConnectionService, IUserConfirmation<TUser> userConfirmation)
-            : base (userManager, contextAccessor, claimsFactory, optionsAccessor, logger, a3SContext, authenticationSchemeProvider, ldapAuthenticationModeRepository, ldapConnectionService,
-                  userConfirmation)
+            ILdapAuthenticationModeRepository ldapAuthenticationModeRepository, ILdapConnectionService ldapConnectionService)
+            : base (userManager, contextAccessor, claimsFactory, optionsAccessor, logger, a3SContext, authenticationSchemeProvider, ldapAuthenticationModeRepository, ldapConnectionService)
         {
         }
 
