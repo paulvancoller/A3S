@@ -31,8 +31,8 @@ namespace za.co.grindrodbank.a3s.Managers
 
         public CustomSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<TUser>> logger, A3SContext a3SContext, IAuthenticationSchemeProvider authenticationSchemeProvider,
-            ILdapAuthenticationModeRepository ldapAuthenticationModeRepository, ILdapConnectionService ldapConnectionService)
-                : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, authenticationSchemeProvider)
+            ILdapAuthenticationModeRepository ldapAuthenticationModeRepository, ILdapConnectionService ldapConnectionService, IUserConfirmation<TUser> userConfirmation)
+                : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, authenticationSchemeProvider, userConfirmation)
         {
             this.a3SContext = a3SContext;
             this.logger = logger;
