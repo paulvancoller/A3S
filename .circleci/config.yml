@@ -18,7 +18,7 @@ version: 2.1
 jobs:
   unit-test:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
     working_directory: ~/build
     
     steps:
@@ -151,7 +151,7 @@ jobs:
 
   build-dotnet-libs:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
     working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/cs
     steps:
       - checkout:
@@ -178,7 +178,7 @@ jobs:
   publish-dotnet-libs:
     working_directory: ~/repo/workspace/shared-libraries/resource-server-policy-enforcement/cs
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
     steps:
       - attach_workspace:
           at: ~/repo/workspace
@@ -222,7 +222,7 @@ jobs:
 
   fossa-scan:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
     working_directory: ~/build
     steps:
       # Update, upgrade, then install su, curl, bash, git and openssh
@@ -241,7 +241,7 @@ jobs:
       - run: FOSSA_API_KEY=$FOSSA_API_KEY fossa test
   vulnerability-test:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
     working_directory: ~/build
     steps:
       # Update, upgrade, then install sudo, nodejs, npm, git and openssh
