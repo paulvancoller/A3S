@@ -270,8 +270,8 @@ namespace za.co.grindrodbank.a3s.Models
 
                         if (property != null)
                         {
-                            property.Relational().ColumnType = "tstzrange";
-                            property.Relational().DefaultValueSql = "tstzrange(current_timestamp, null)";
+                            property.SetColumnType("tstzrange");
+                            property.SetDefaultValueSql("tstzrange(current_timestamp, null)");
                         }
                     }
                 }
