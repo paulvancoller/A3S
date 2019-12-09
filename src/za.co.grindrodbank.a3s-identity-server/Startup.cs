@@ -22,18 +22,17 @@ using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
-using Microsoft.Extensions.Hosting;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Environment { get; }
+        public IHostingEnvironment Environment { get; }
 
         private const string CONFIG_SCHEMA = "_ids4";
 
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
             Environment = environment;
@@ -53,7 +52,7 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register own SignInManager to handle Just-In-Time LDAP Auth
             services.AddScoped<SignInManager<UserModel>, CustomSignInManager<UserModel>>();
 
-            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
+            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
 
             services.Configure<IISOptions>(iis =>
             {
@@ -112,11 +111,7 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             app.UseStaticFiles();
             app.UseIdentityServer();
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseMvcWithDefaultRoute();
         }
 
         private void InitializeConfigurationDatabase(IApplicationBuilder app)
