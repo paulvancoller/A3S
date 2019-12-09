@@ -162,7 +162,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
 
         private async Task GenerateTeamsClaimMapFromSubject(List<Claim> claims, ProfileDataRequestContext context, UserModel user)
         {
-            var userTeams = await a3SContext.Team.FromSqlRaw("select team.* " +
+            var userTeams = await a3SContext.Team.FromSql("select team.* " +
                           // Select the teams that users are directly in.
                           "FROM _a3s.application_user " +
                           "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +

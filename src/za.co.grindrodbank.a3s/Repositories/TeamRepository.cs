@@ -109,7 +109,7 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<List<TeamModel>> GetListAsync(Guid teamMemberUserGuid)
         {
-            return await a3SContext.Team.FromSqlRaw("select team.* " +
+            return await a3SContext.Team.FromSql("select team.* " +
                           // Select the teams that users are directly in.
                           "FROM _a3s.application_user " +
                           "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +

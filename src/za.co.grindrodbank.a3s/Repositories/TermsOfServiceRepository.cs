@@ -132,7 +132,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<List<Guid>> GetAllOutstandingAgreementsByUserAsync(Guid userId)
         {
             return await a3SContext.TermsOfService
-                .FromSqlRaw("SELECT ts.* " +
+                .FromSql("SELECT ts.* " +
                             "FROM _a3s.terms_of_service ts " +
                             "INNER JOIN (SELECT t.terms_of_service_id " +
                             "	FROM _a3s.application_user u " +
