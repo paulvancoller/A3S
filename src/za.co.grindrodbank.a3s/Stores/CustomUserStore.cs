@@ -117,7 +117,7 @@ namespace za.co.grindrodbank.a3s.Stores
             if (encrypted)
             {
                 tokenEntity = await a3SContext.UserToken
-                    .FromSql("SELECT user_id, login_provider, name, _a3s.pgp_sym_decrypt(\"value\"::bytea, {0}) as \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {1} and login_provider = {2} and name = {3}",
+                    .FromSqlRaw("SELECT user_id, login_provider, name, _a3s.pgp_sym_decrypt(\"value\"::bytea, {0}) as \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {1} and login_provider = {2} and name = {3}",
                     encryptionKey,
                     user.Id,
                     loginProvider,
@@ -128,7 +128,7 @@ namespace za.co.grindrodbank.a3s.Stores
             else
             {
                 tokenEntity = await a3SContext.UserToken
-                    .FromSql("SELECT user_id, login_provider, name, \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {0} and login_provider = {1} and name = {2}",
+                    .FromSqlRaw("SELECT user_id, login_provider, name, \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {0} and login_provider = {1} and name = {2}",
                     user.Id,
                     loginProvider,
                     name)
@@ -143,7 +143,7 @@ namespace za.co.grindrodbank.a3s.Stores
 
         public async Task SetAuthenticatorTokenVerifiedAsync(UserModel user)
         {
-            await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.application_user_token SET is_verified = true where user_id = {0} and login_provider = {1} and name = {2};",
+            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.application_user_token SET is_verified = true where user_id = {0} and login_provider = {1} and name = {2};",
                 user.Id,
                 tokenOptions.GetAspNetUserStoreProviderName(),
                 tokenOptions.GetAuthenticatorKeyName());
@@ -215,7 +215,7 @@ namespace za.co.grindrodbank.a3s.Stores
 
         private async Task StoreEncryptedValue(UserModel user, string loginProvider, string name, string value)
         {
-            await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.application_user_token SET value = _a3s.pgp_sym_encrypt({0}, {1}) where user_id = {2} and login_provider = {3} and name = {4};",
+            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.application_user_token SET value = _a3s.pgp_sym_encrypt({0}, {1}) where user_id = {2} and login_provider = {3} and name = {4};",
                 value,
                 encryptionKey,
                 user.Id,
