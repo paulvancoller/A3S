@@ -237,19 +237,19 @@ namespace za.co.grindrodbank.a3s.Models
             // Convert each entity to snake case for database name
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.SetTableName(entity.GetTableName().ToSnakeCase());
+                entity.Relational().TableName = entity.Relational().TableName.ToSnakeCase();
 
                 foreach (var property in entity.GetProperties())
-                    property.SetColumnName(property.Name.ToSnakeCase());
+                    property.Relational().ColumnName = property.Name.ToSnakeCase();
 
                 foreach (var key in entity.GetKeys())
-                    key.SetName(key.GetName().ToSnakeCase());
+                    key.Relational().Name = key.Relational().Name.ToSnakeCase();
 
                 foreach (var key in entity.GetForeignKeys())
-                    key.SetConstraintName(key.GetConstraintName().ToSnakeCase());
+                    key.Relational().Name = key.Relational().Name.ToSnakeCase();
 
                 foreach (var index in entity.GetIndexes())
-                    index.SetName(index.GetName().ToSnakeCase());
+                    index.Relational().Name = index.Relational().Name.ToSnakeCase();
             }
         }
 
