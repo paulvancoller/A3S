@@ -55,6 +55,8 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
 
+            services.AddControllers();
+
             services.Configure<IISOptions>(iis =>
             {
                 iis.AuthenticationDisplayName = "Windows";

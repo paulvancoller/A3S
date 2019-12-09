@@ -234,10 +234,19 @@ namespace za.co.grindrodbank.a3s.Models
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)
         {
+            var exclustionList = new List<string>()
+            {
+                "za.co.grindrodbank.a3s.Models.UserClaimModel",
+                "za.co.grindrodbank.a3s.Models.UserModel"
+            };
+
             // Convert each entity to snake case for database name
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.SetTableName(entity.GetTableName().ToSnakeCase());
+
+                // Don't set the table name on these models as they inherit from Identity base models
+                if (!exclustionList.Any(x => x == entity.Name))
+                    entity.SetTableName(entity.GetTableName().ToSnakeCase());
 
                 foreach (var property in entity.GetProperties())
                     property.SetColumnName(property.Name.ToSnakeCase());
