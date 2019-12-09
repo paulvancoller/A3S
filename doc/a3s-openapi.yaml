@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.0.2
+  version: 1.0.3
   title: A3S
 paths:
   #region - User
@@ -2792,6 +2792,16 @@ components:
           type: string
         agreementFileData:
           type: string
+        teamIds:
+          description: Teams linked to this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamId'
+        acceptedUserIds:
+          description: A list of User Id's that have accepted this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
 
     TermsOfServiceSubmit:
       description: |
