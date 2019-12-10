@@ -43,7 +43,7 @@ namespace za.co.grindrodbank.a3s.Managers
             return store.IsAuthenticatorTokenVerified(user);
         }
 
-        public async Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        public virtual async Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
         {
             ThrowIfDisposed();
 
