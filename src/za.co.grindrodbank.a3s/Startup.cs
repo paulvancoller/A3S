@@ -125,6 +125,8 @@ namespace za.co.grindrodbank.a3s
                 }
             });
 
+            services.AddRazorPages();
+
             services
                 .AddControllers()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
@@ -245,6 +247,9 @@ namespace za.co.grindrodbank.a3s
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
             // Bootstrap an admin user.

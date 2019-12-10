@@ -55,7 +55,7 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register own SignInManager to handle Just-In-Time LDAP Auth
             services.AddScoped<SignInManager<UserModel>, CustomSignInManager<UserModel>>();
 
-            services.AddMvc()
+            services.AddRazorPages()
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(options =>
                  {
@@ -122,6 +122,18 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             app.UseStaticFiles();
             app.UseIdentityServer();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+
         }
 
         private void InitializeConfigurationDatabase(IApplicationBuilder app)
