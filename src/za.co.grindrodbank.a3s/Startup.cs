@@ -254,13 +254,6 @@ namespace za.co.grindrodbank.a3s
 
             // Bootstrap an admin user.
             BootstrapAdminUserWithRolesAndPermissions(app);
-
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-            // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/openapi-original.json", "A3S API");
-            });
         }
 
         private void BootstrapAdminUserWithRolesAndPermissions(IApplicationBuilder app)
