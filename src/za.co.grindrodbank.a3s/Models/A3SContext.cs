@@ -49,7 +49,10 @@ namespace za.co.grindrodbank.a3s.Models
             modelBuilder.HasDefaultSchema("_a3s");
 
             // Rename AspNet Identity tables
-            modelBuilder.Entity<UserModel>().ToTable("application_user");
+            modelBuilder.Entity<UserModel>().ToTable("application_user")
+                .Property(e => e.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("application_user_claim");
             modelBuilder.Entity<IdentityRole>().ToTable("aspnet_role");
 
