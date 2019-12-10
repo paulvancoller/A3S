@@ -6,7 +6,7 @@
 #
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine3.9 AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build-env
 WORKDIR /app
 COPY src/za.co.grindrodbank.a3s/*.csproj ./
 RUN dotnet restore
@@ -30,7 +30,7 @@ RUN chmod +x /*.sh
 USER flyway
 
 # runtime stage
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-alpine3.9
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 WORKDIR /app
 COPY --from=build-env /app/out .
 COPY --from=flywayinstall / /
