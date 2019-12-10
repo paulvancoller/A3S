@@ -114,11 +114,6 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             app.UseStaticFiles();
             app.UseIdentityServer();
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
 
         private void InitializeConfigurationDatabase(IApplicationBuilder app)

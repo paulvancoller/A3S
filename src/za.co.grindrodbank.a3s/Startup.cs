@@ -36,6 +36,7 @@ using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -55,6 +56,18 @@ namespace za.co.grindrodbank.a3s
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // kestrel
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
+            // IIS
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
             // Register Steeltoes actuator endpoint services
             services.AddHealthActuator(Configuration); // Add general health checks actuator
             services.AddInfoActuator(Configuration); // Add Info Actuator
@@ -125,7 +138,7 @@ namespace za.co.grindrodbank.a3s
 
                     options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                //.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -219,13 +232,16 @@ namespace za.co.grindrodbank.a3s
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseAuthentication();
 
             // Expose the actual endpoints added by the Steeltoe services.
             app.UseHealthActuator();
             app.UseInfoActuator();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
