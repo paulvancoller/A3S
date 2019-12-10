@@ -23,6 +23,8 @@ using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
@@ -53,7 +55,13 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register own SignInManager to handle Just-In-Time LDAP Auth
             services.AddScoped<SignInManager<UserModel>, CustomSignInManager<UserModel>>();
 
-            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
+            services.AddMvc()
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                 {
+                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                 });
 
             services.AddControllers();
 

@@ -142,7 +142,8 @@ namespace za.co.grindrodbank.a3s
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                });
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                 });
 
             services.AddAuthorization(options =>
             {
