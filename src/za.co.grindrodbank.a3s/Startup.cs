@@ -125,9 +125,15 @@ namespace za.co.grindrodbank.a3s
                 }
             });
 
-
             services
-                .AddMvc(options =>
+                .AddControllers()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                })
+                .AddMvcOptions(options =>
                 {
                     options.InputFormatters.Add(new YamlInputFormatter((Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
                     options.OutputFormatters.Add(new YamlOutputFormatter((Serializer)new SerializerBuilder()
@@ -137,14 +143,8 @@ namespace za.co.grindrodbank.a3s
                         .Build()));
 
                     options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                 });
-
+                });
+                
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
