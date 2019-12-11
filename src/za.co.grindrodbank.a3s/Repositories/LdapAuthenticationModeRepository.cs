@@ -75,13 +75,13 @@ namespace za.co.grindrodbank.a3s.Repositories
 
             if (!includeUsers)
             {
-                return await a3SContext.LdapAuthenticationMode.FromSql(sql, encryptionKey)
+                return await a3SContext.LdapAuthenticationMode.FromSqlRaw(sql, encryptionKey)
                     .Where(x => x.Id == ldapAuthenticationModeId)
                     .Include(a => a.LdapAttributes)
                     .FirstOrDefaultAsync();
             }
 
-            return await a3SContext.LdapAuthenticationMode.FromSql(sql, encryptionKey)
+            return await a3SContext.LdapAuthenticationMode.FromSqlRaw(sql, encryptionKey)
                    .Where(x => x.Id == ldapAuthenticationModeId)
                    .Include(a => a.LdapAttributes)
                    .Include(a => a.Users)
@@ -91,11 +91,11 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<List<LdapAuthenticationModeModel>> GetListAsync(bool includePassword = false)
         {
             if (includePassword)
-                return await a3SContext.LdapAuthenticationMode.FromSql(SELECT_STATEMENT_INCLUDING_PASSWORD, encryptionKey)
+                return await a3SContext.LdapAuthenticationMode.FromSqlRaw(SELECT_STATEMENT_INCLUDING_PASSWORD, encryptionKey)
                     .Include(a => a.LdapAttributes)
                     .ToListAsync();
 
-            return await a3SContext.LdapAuthenticationMode.FromSql(SELECT_STATEMENT_EXCLUDING_PASSWORD)
+            return await a3SContext.LdapAuthenticationMode.FromSqlRaw(SELECT_STATEMENT_EXCLUDING_PASSWORD)
                 .Include(a => a.LdapAttributes)
                 .ToListAsync();
         }
@@ -121,7 +121,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<LdapAuthenticationModeModel> GetByNameAsync(string name, bool includePassword = false)
         {
             string sql = (includePassword ? SELECT_STATEMENT_INCLUDING_PASSWORD : SELECT_STATEMENT_EXCLUDING_PASSWORD);
-            return await a3SContext.LdapAuthenticationMode.FromSql(sql, encryptionKey)
+            return await a3SContext.LdapAuthenticationMode.FromSqlRaw(sql, encryptionKey)
                 .Where(t => t.Name == name)
                 .Include(a => a.LdapAttributes)
                 .FirstOrDefaultAsync();
@@ -129,7 +129,7 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         private async Task StoreEncryptedPassword(Guid ldapAuthenticationModeId, string password)
         {
-            await a3SContext.Database.ExecuteSqlCommandAsync("UPDATE _a3s.ldap_authentication_mode SET password = _a3s.pgp_sym_encrypt({0}, {1}) WHERE id = {2};", password, encryptionKey, ldapAuthenticationModeId);
+            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.ldap_authentication_mode SET password = _a3s.pgp_sym_encrypt({0}, {1}) WHERE id = {2};", password, encryptionKey, ldapAuthenticationModeId);
             await a3SContext.SaveChangesAsync(); 
         }
    }

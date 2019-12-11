@@ -46,11 +46,12 @@ namespace za.co.grindrodbank.a3s.tests.Managers
             var mockSinginLogger = Substitute.For<ILogger<SignInManager<UserModel>>>();
             var mockLdapRepo = Substitute.For<ILdapAuthenticationModeRepository>();
             var mockldapConnectionService = Substitute.For<ILdapConnectionService>();
+            var mockUserConfirmation = Substitute.For<IUserConfirmation<UserModel>>();
 
             var applicationUser = new UserModel();
 
             var signInManager = new CustomSignInManager<UserModel>(mockUserManager, mockContextAccessor, mockClaimsFactory, mockOptionsAccessor,
-                mockSinginLogger, null, mockAuthenticationSchemeProvider, mockLdapRepo, mockldapConnectionService);
+                mockSinginLogger, null, mockAuthenticationSchemeProvider, mockLdapRepo, mockldapConnectionService, mockUserConfirmation);
 
             // Act
             SignInResult result = await signInManager.CheckPasswordSignInAsync(applicationUser, string.Empty, false);
