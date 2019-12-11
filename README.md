@@ -2,7 +2,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S?ref=badge_shield)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=A3S&metric=alert_status)](https://sonarcloud.io/dashboard?id=A3S)
 
-![](doc/img/a3s_logo_2.png)
+![A3S](doc/img/a3s_logo_2.png)
 
 *An enterprise framework that makes effortless management of centralized authorization, authentication, and accounting. A3S supports OpenID and OAuth 2.0 identity protocols.*
 
