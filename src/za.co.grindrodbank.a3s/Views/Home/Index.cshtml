@@ -1,5 +1,9 @@
 ﻿@{
-    var version = typeof(za.co.grindrodbank.a3s.Program).Assembly.GetName().Version.ToString();
+    var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
+
+    var versionString = string.Empty;
+    if (version != null)
+        versionString = version.ToString(3);
 }
 
 <div class="welcome-page">
@@ -8,7 +12,7 @@
             <h1>
                 <img class="icon" src="~/a3s_logo_icon_only_64.png">
                 Welcome to A3S
-                <small>(version @version) </small>
+                <small>(version @versionString) </small>
             </h1>
         </div>
     </div>
