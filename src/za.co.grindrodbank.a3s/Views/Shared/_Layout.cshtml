@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>@ViewData["Title"] - A3S</title>
+        <title>A3S Management API</title>
 
         <environment include="Development">
             <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -18,19 +18,20 @@
         <link rel="stylesheet" href="~/css/site.css" />
     </head>
     <body>
-        <header>
-            <nav class="navbar navbar-inverse navbar-fixed-top">
-                <div class="container">
+        <div class="navbar navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <div class="navbar-header">
                     <span class="navbar-brand">
                         <img src="~/a3s_logo_icon_only_32.png" class="icon-banner">
-                        A3S management API
+                        A3S Management API
                     </span>
                 </div>
-            </nav>
-        </header>
-        <div class="container">
+            </div>
+        </div>
+        <div class="container  body-content">
             <partial name="_CookieConsentPartial" />
             <main role="main" class="pb-3">
+                <br />
                 @RenderBody()
             </main>
         </div>
