@@ -10,6 +10,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Helpers
 {
@@ -18,10 +19,33 @@ namespace za.co.grindrodbank.a3s.Helpers
         public List<string> ReturnFilesListInTarGz(byte[] bytes, bool flattenFileStructure)
         {
             using var stream = new MemoryStream(bytes);
-            return ReturnFilesListInTarGz(stream, flattenFileStructure);
+            List<InMemoryFile> files = ExtractFilesInTarGz(stream, flattenFileStructure);
+
+            var returnValues = new List<string>();
+
+            files.ForEach(x =>
+            {
+                if (flattenFileStructure)
+                    returnValues.Add(x.FileName);
+                else
+                    returnValues.Add(x.FilePath);
+            });
+
+            return returnValues;
         }
 
-        private List<string> ReturnFilesListInTarGz(Stream stream, bool flattenFileStructure)
+        public List<InMemoryFile> ExtractFilesFromTarGz(Byte[] bytes)
+        {
+            using var stream = new MemoryStream(bytes);
+            return ExtractFilesInTarGz(stream, fileNamesOnly: false);
+        }
+
+        private void ExtractFilesInTarGz(Stream stream)
+        {
+            ExtractFilesInTarGz(stream, fileNamesOnly: true);
+        }
+
+        private List<InMemoryFile> ExtractFilesInTarGz(Stream stream, bool fileNamesOnly)
         {
             // A GZipStream is not seekable, so copy it first to a MemoryStream
             using var gzip = new GZipStream(stream, CompressionMode.Decompress);
@@ -38,31 +62,40 @@ namespace za.co.grindrodbank.a3s.Helpers
 
             memStr.Seek(0, SeekOrigin.Begin);
 
-            return ReturnFilesListInTar(memStr, flattenFileStructure);
+            return ExtractFilesInTarFile(memStr, fileNamesOnly);
         }
 
-        private List<string> ReturnFilesListInTar(Stream stream, bool flattenFileStructure)
+        private List<InMemoryFile> ExtractFilesInTarFile(Stream stream, bool fileNamesOnly)
         {
             var buffer = new byte[100];
-            var outFileList = new List<string>();
+            var outFileList = new List<InMemoryFile>();
 
             while (true)
             {
+                var file = new InMemoryFile();
+
+                // Get file name (100 bytes)
                 stream.Read(buffer, 0, 100);
-                var name = Encoding.ASCII.GetString(buffer).Trim('\0');
-                if (string.IsNullOrWhiteSpace(name))
-                    break;
+                file.FilePath = Encoding.ASCII.GetString(buffer).Trim('\0');
+                if (string.IsNullOrWhiteSpace(file.FilePath))
+                    break;      // End of file reached
 
-                outFileList.Add(name);
-
+                // Ignore the file mode, owners and group ID (8 bytes each)
                 stream.Seek(24, SeekOrigin.Current);
+
+                // Get file size (12 bytes)
                 stream.Read(buffer, 0, 12);
                 var size = Convert.ToInt64(Encoding.ASCII.GetString(buffer, 0, 12).Trim(), 8);
 
+                // Ignore remaining header fields
                 stream.Seek(376L, SeekOrigin.Current);
 
-                var buf = new byte[size];
-                stream.Read(buf, 0, buf.Length);
+                // Read file contents
+                var fileContentsBuffer = new byte[size];
+                stream.Read(fileContentsBuffer, 0, fileContentsBuffer.Length);
+
+                if (!fileNamesOnly)
+                    file.FileContents = fileContentsBuffer;
 
                 if (stream.Position > stream.Length)
                     throw new ArchiveException("There was an error processing the tar ball.");
@@ -72,16 +105,8 @@ namespace za.co.grindrodbank.a3s.Helpers
                     offset = 0;
 
                 stream.Seek(offset, SeekOrigin.Current);
-            }
 
-            if (flattenFileStructure)
-            {
-                var flattenedStructureList = new List<string>();
-
-                foreach (var filePath in outFileList)
-                    flattenedStructureList.Add(Path.GetFileName(filePath));
-
-                return flattenedStructureList;
+                outFileList.Add(file);
             }
 
             return outFileList;

@@ -6,6 +6,7 @@
  */
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
         private bool isAuthenticatorTokenVerified;
         private bool isAuthenticatorOtpValid;
         private UserModel userModel;
+        private string authenticatorKey = string.Empty;
 
         public CustomUserManagerFake(IUserStore<UserModel> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<UserModel> passwordHasher,
             IEnumerable<IUserValidator<UserModel>> userValidators, IEnumerable<IPasswordValidator<UserModel>> passwordValidators, ILookupNormalizer keyNormalizer,
@@ -41,6 +43,29 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
                 return Task.FromResult(false);
         }
 
+        public override Task<UserModel> GetUserAsync(ClaimsPrincipal principal)
+        {
+            return Task.FromResult(userModel);
+        }
+
+        public override Task<UserModel> FindByNameAsync(string userName)
+        {
+            if (userModel == null)
+                return Task.FromResult<UserModel>(null);
+
+            if (userModel.UserName == userName)
+                return Task.FromResult(userModel);
+
+            return Task.FromResult<UserModel>(null);
+        }
+
+        public override Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        {
+            return Task.Run(() => { Console.WriteLine("AgreeToTermsOfService executed"); });
+        }
+
+
+
         public void SetAuthenticatorTokenVerified(bool value)
         {
             isAuthenticatorTokenVerified = value;
@@ -51,17 +76,20 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             isAuthenticatorOtpValid = value;
         }
 
-        public override Task<UserModel> FindByNameAsync(string userName)
-        {
-            if (userModel.UserName == userName)
-                return Task.FromResult(userModel);
-            else
-                return Task.FromResult<UserModel>(null);
-        }
-
         public void SetUserModel(UserModel value)
         {
             userModel = value;
         }
+
+        public override Task<string> GetAuthenticatorKeyAsync(UserModel user)
+        {
+            return Task.FromResult(authenticatorKey);
+        }
+
+        public void SetAuthenticatorKey(string value)
+        {
+            authenticatorKey = value;
+        }
+
     }
 }

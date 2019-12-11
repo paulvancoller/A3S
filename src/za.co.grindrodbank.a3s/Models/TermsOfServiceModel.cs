@@ -6,6 +6,7 @@
  */
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace za.co.grindrodbank.a3s.Models
 {
@@ -17,6 +18,12 @@ namespace za.co.grindrodbank.a3s.Models
         public byte[] AgreementFile { get; set; }
 
         public List<TeamModel> Teams { get; set; }
+        public List<TermsOfServiceUserAcceptanceModel> TermsOfServiceAcceptances { get; set; }
 
+        [NotMapped]
+        public string HtmlContents { get; set; }
+
+        [NotMapped]
+        public string CssContents { get; set; }
     }
 }

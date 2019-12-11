@@ -77,7 +77,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
         {
             // Get the permissions for the Subject from the A3S database.
             var permissions = await a3SContext.Permission
-                 .FromSql("select \"ParentRolePermission\".* " +
+                 .FromSqlRaw("select \"ParentRolePermission\".* " +
                           "FROM _a3s.application_user " +
                           "JOIN _a3s.user_role ON application_user.id = user_role.user_id " +
                           "JOIN _a3s.role ON role.id = user_role.role_id " +
@@ -125,7 +125,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             // The third portion of the query fetches the data policies of child teams of a given parent team, where the user is a member of the parent team, but
             // not a direct member of any of the child teams.
             var dataPolicies = await a3SContext.ApplicationDataPolicy
-                 .FromSql("select \"application_data_policy\".* " +
+                 .FromSqlRaw("select \"application_data_policy\".* " +
                           // Get data policies associated with teams that the user is directly a member of.
                           "FROM _a3s.application_user " +
                           "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
@@ -162,7 +162,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
 
         private async Task GenerateTeamsClaimMapFromSubject(List<Claim> claims, ProfileDataRequestContext context, UserModel user)
         {
-            var userTeams = await a3SContext.Team.FromSql("select team.* " +
+            var userTeams = await a3SContext.Team.FromSqlRaw("select team.* " +
                           // Select the teams that users are directly in.
                           "FROM _a3s.application_user " +
                           "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +

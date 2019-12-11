@@ -17,6 +17,7 @@ using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Services
 {
@@ -135,7 +136,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             clientRespository.CreateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var createClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            var createClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new SecurityContractDryRunResult());
 
             Assert.True(createClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {createClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
             Assert.True(createClientResource.ClientId == oauth2ClientSubmit.ClientId, $"Retrieved clientId: {createClientResource.ClientId} not the same as the expected name: {oauth2ClientSubmit.ClientId}");
@@ -156,7 +157,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             clientRespository.UpdateAsync(Arg.Any<Client>()).Returns(mockedClientEntity);
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new SecurityContractDryRunResult());
 
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
             Assert.True(updateClientResource.ClientId == oauth2ClientSubmit.ClientId, $"Retrieved clientId: {updateClientResource.ClientId} not the same as the expected name: {oauth2ClientSubmit.ClientId}");
@@ -166,6 +167,66 @@ namespace za.co.grindrodbank.a3s.tests.Services
             Assert.True(updateClientResource.PostLogoutRedirectUris.First() == oauth2ClientSubmit.PostLogoutRedirectUris.First(), $"Retrieved PostLogoutRedirectUris first element: {updateClientResource.PostLogoutRedirectUris.First()} not the expected value: {oauth2ClientSubmit.PostLogoutRedirectUris.First()}");
             Assert.True(updateClientResource.AllowedScopes.First() == oauth2ClientSubmit.AllowedScopes.First(), $"Retrieved AllowedScopes first element: {updateClientResource.AllowedScopes.First()} not the expected value: {oauth2ClientSubmit.AllowedScopes.First()}");
             Assert.True(updateClientResource.RedirectUris.First() == oauth2ClientSubmit.RedirectUris.First(), $"Retrieved RedirectUris first element: {updateClientResource.RedirectUris.First()} not the expected value: {oauth2ClientSubmit.RedirectUris.First()}");
+        }
+
+        [Fact]
+        public void InitSharedTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.InitSharedTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "InitSharedTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void CommitTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "CommitTransaction must not throw an exception.");
+        }
+
+        [Fact]
+        public void RollbackTransaction_Executed_ExecutesWithNoException()
+        {
+            var clientRespository = Substitute.For<IIdentityClientRepository>();
+            var clientService = new SecurityContractClientService(clientRespository, mapper);
+
+            Exception caughtException = null;
+
+            try
+            {
+                clientService.RollbackTransaction();
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            Assert.True(caughtException == null, "RollbackTransaction must not throw an exception.");
         }
 
         [Fact]
@@ -182,7 +243,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "" };
             try
             {
-                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new SecurityContractDryRunResult());
             }
             catch(Exception e)
             {
@@ -204,7 +265,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = new List<string> { "    " };
             try
             {
-                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit);
+                var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauth2ClientSubmit, false, new SecurityContractDryRunResult());
             }
             catch (Exception e)
             {
@@ -225,7 +286,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.AllowedCorsOrigins = null;
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock, false, new SecurityContractDryRunResult());
 
            
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
@@ -251,7 +312,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             oauthClientSubmitMock.PostLogoutRedirectUris = null;
 
             var clientService = new SecurityContractClientService(clientRespository, mapper);
-            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock);
+            var updateClientResource = await clientService.ApplyClientDefinitionAsync(oauthClientSubmitMock, false, new SecurityContractDryRunResult());
 
 
             Assert.True(updateClientResource.Name == oauth2ClientSubmit.Name, $"Retrieved name: {updateClientResource.Name} not the same as the expected name: {oauth2ClientSubmit.Name}");
@@ -261,7 +322,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             Assert.True(updateClientResource.AllowedCorsOrigins.First() == oauth2ClientSubmit.AllowedCorsOrigins.First(), $"Retrieved allowedCorsOrigins first element: {updateClientResource.AllowedCorsOrigins.First()} not the expected value: {oauth2ClientSubmit.AllowedCorsOrigins.First()}");
             Assert.True(!updateClientResource.PostLogoutRedirectUris.Any(), $"Retrieved PostLogoutRedirectUris is expected to be empty, but it is not.");
             Assert.True(updateClientResource.AllowedScopes.First() == oauth2ClientSubmit.AllowedScopes.First(), $"Retrieved AllowedScopes first element: {updateClientResource.AllowedScopes.First()} not the expected value: {oauth2ClientSubmit.AllowedScopes.First()}");
-            Assert.True(updateClientResource.RedirectUris.First() == oauth2ClientSubmit.RedirectUris.First(), $"Retrieved RedirectUris first element: {updateClientResource.RedirectUris.First()} not the expected value: {oauth2ClientSubmit.RedirectUris.First()}");
+            Assert.True(updateClientResource.RedirectUris.First() == oauth2ClientSubmit.RedirectUris.First(), $"Retrieved RedirectUris first element: {updateClientResource.RedirectUris.First()} not the expected value: {oauth2ClientSubmit.RedirectUris.First()}");        
         }
     }
 }

@@ -26,7 +26,6 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ITeamRepository teamRepository;
         private readonly ILdapAuthenticationModeRepository ldapAuthenticationModeRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private readonly ILdapConnectionService ldapConnectionService;
 
         public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ITeamRepository teamRepository, ILdapAuthenticationModeRepository ldapAuthenticationModeRepository,

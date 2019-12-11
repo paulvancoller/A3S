@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Exceptions;
@@ -85,7 +85,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
                 RoleModel role = await roleRepository.GetByIdAsync(roleSubmit.Uuid);
 
-                if(role == null)
+                if (role == null)
                     throw new ItemNotFoundException($"Role with ID '{roleSubmit.Uuid}' not found when attempting to update a role using this ID!");
 
                 if (role.Name != roleSubmit.Name)
@@ -150,7 +150,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task AssignRolesToRoleFromRolesIdList(RoleModel roleModel, List<Guid> roleIds)
         {
             // Child Roles are not mandatory. If the role IDs are null, return without resetting their state
-            if(roleIds == null)
+            if (roleIds == null)
             {
                 logger.Warn($"Role IDs are null. Returning.");
                 return;
@@ -159,30 +159,31 @@ namespace za.co.grindrodbank.a3s.Services
             // If the child roles element is set, reset the association list, even if there are no elements in it.
             roleModel.ChildRoles = new List<RoleRoleModel>();
 
-            if(roleIds.Count == 0)
+            if (roleIds.Count == 0)
             {
                 logger.Warn($"Role IDs list is empty. Returning.");
                 return;
             }
 
-            foreach(var roleIdToAddAsChildRole in roleIds)
+            foreach (var roleIdToAddAsChildRole in roleIds)
             {
                 var roleToAddAsChildRole = await roleRepository.GetByIdAsync(roleIdToAddAsChildRole);
 
-                if(roleToAddAsChildRole == null)
+                if (roleToAddAsChildRole == null)
                 {
                     throw new ItemNotFoundException($"Unable to find role with ID: '{roleIdToAddAsChildRole}' when attempting to assign this role as a child of role: '{roleModel.Name}'.");
                 }
 
                 // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
                 // asserted that the child row has no child roles attached to it.
-                if(roleToAddAsChildRole.ChildRoles.Count > 0)
+                if (roleToAddAsChildRole.ChildRoles.Count > 0)
                 {
                     // Note. This function is called by create role and update role functions within this class. Therefore, the 'roleModel' object will not have an ID set if called from the create context. Use it's name.
                     throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                 }
 
-                roleModel.ChildRoles.Add(new RoleRoleModel {
+                roleModel.ChildRoles.Add(new RoleRoleModel
+                {
                     ParentRole = roleModel,
                     ChildRole = roleToAddAsChildRole
                 });

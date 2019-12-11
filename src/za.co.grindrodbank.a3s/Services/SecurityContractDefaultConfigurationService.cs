@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,55 +39,75 @@ namespace za.co.grindrodbank.a3s.Services
             this.ldapAuthenticationModeRepository = ldapAuthenticationModeRepository;
         }
 
-        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        public async Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
-            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById);
-            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById);
-            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById);
-            await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById);
-            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById);
+            logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}']: Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
+            await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
         }
-        
+
         /// <summary>
         /// Applies all the default configurations for defined applications. This is essentially creating 'business' functions comprised of permissions for
         /// all applications that are defined within the applications section of the default configuration component of the security contract.
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultApplications(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default application and function configuration for default config: '{securityContractDefaultConfiguration.Name}'");
-
-            if(securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
+            if (securityContractDefaultConfiguration.Applications == null || securityContractDefaultConfiguration.Applications.Count == 0)
             {
-                logger.Debug("No default application configuration section found...skipping.");
+                var warningMessage = $"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[applications]: Null or empty applications section. Skipping!";
+
+                if (dryRun)
+                    securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+
+                logger.Debug(warningMessage);
+
                 return;
             }
 
             foreach (var defaultApplication in securityContractDefaultConfiguration.Applications)
-                await ApplyIndividualDefaultApplication(defaultApplication, updatedById);
+                await ApplyIndividualDefaultApplication(defaultApplication, updatedById, securityContractDefaultConfiguration.Name, dryRun, securityContractDryRunResult);
         }
 
-        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById)
+        private async Task ApplyIndividualDefaultApplication(SecurityContractDefaultConfigurationApplication defaultApplication, Guid updatedById, string defaultConfigurationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             // Ensure that the application actually exists. Obtain all the application function relations too, as they will be used for validation.
             var application = await applicationRepository.GetByNameAsync(defaultApplication.Name);
 
             if (application == null)
             {
-                logger.Warn($"Application '{defaultApplication.Name}' does not exist! Skipping and ignoring default application configuration for this application.");
-                return;
+                var errorMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Application '{defaultApplication.Name}' does not exist within A3S. Cannot assign functions to it!";
+                if (dryRun)
+                {
+                    // add to the validation errors and attempt to continue
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                }
+                else
+                {
+                    throw new ItemNotFoundException(errorMessage);
+                }
             }
 
             if (defaultApplication.Functions == null || defaultApplication.Functions.Count == 0)
             {
-                logger.Warn($"Default application '{defaultApplication.Name}' has no 'functions' configuration. Ignoring default configuration for this application.");
+                var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions]: Default application '{defaultApplication.Name}' has no 'functions' defined within it. Ignoring default configuration for this application.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                }
+
+                logger.Warn(warningMessage);
+
                 return;
             }
 
             // Use the currrent state of the assigned application functions to determine which ones are potentially no longer in the YAML.
-            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions);
+            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, dryRun, securityContractDryRunResult, defaultApplication.Name, defaultConfigurationName);
 
             // Reset the state of the application functions, as the security contract declares the desired state and we have already used to the historic state
             // to clear any functions that don't appear within the security contract.
@@ -96,8 +116,19 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var defaultFunction in defaultApplication.Functions)
             {
+                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: Preparing to add function '{defaultFunction.Name}' to application '{defaultApplication.Name}'.");
                 if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
-                    break;
+                {
+                    var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}'.";
+                    logger.Warn(warningMessage);
+
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                    }
+
+                    continue;
+                }
 
                 var functionModelToAdd = new FunctionModel();
                 // check to see if there is an existing function.
@@ -114,11 +145,11 @@ namespace za.co.grindrodbank.a3s.Services
                 // Clear the current permissions assigned to the function as they are to be re-created.
                 functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
 
-                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById);
+                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
             }
 
             // Update the application with its new application function state.
-            await applicationRepository.Update(application);
+            await applicationRepository.UpdateAsync(application);
         }
 
         /// <summary>
@@ -130,7 +161,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="defaultApplication"></param>
         /// <param name="functionModelToAdd"></param>
         private void AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(ApplicationModel application, SecurityContractDefaultConfigurationFunction defaultFunction,
-            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById)
+            SecurityContractDefaultConfigurationApplication defaultApplication, FunctionModel functionModelToAdd, Guid updatedById, string defaultConfigurationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
             foreach (var permissionToAddToFunction in defaultFunction.Permissions)
             {
@@ -138,7 +169,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // Ensure the permission actually exists in at least one of the application functions. Only add the permission to the function if it does.
                 if (application.ApplicationFunctions == null || application.ApplicationFunctions.Count == 0)
                 {
-                    logger.Warn($"Application '{defaultApplication.Name}' does not have any associated application functions!");
+                    logger.Warn($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: ");
                     break;
                 }
 
@@ -147,7 +178,7 @@ namespace za.co.grindrodbank.a3s.Services
                     var permission = applicationFunction.ApplicationFunctionPermissions.Find(afp => afp.Permission.Name == permissionToAddToFunction);
                     if (permission != null)
                     {
-                        logger.Debug($"Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
+                        logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}'].[permission.name: '{permissionToAddToFunction}']: Assigning permission '{permissionToAddToFunction}' to function: '{functionModelToAdd.Name}'.");
                         permission.ChangedBy = updatedById;
                         permissionIsApplicationPermission = true;
                         functionModelToAdd.FunctionPermissions.Add(new FunctionPermissionModel
@@ -161,14 +192,22 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (!permissionIsApplicationPermission)
                 {
-                    throw new ItemNotFoundException($"Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.");
-                }           
+                    var errorMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}'].[permission.name: '{permissionToAddToFunction}']: Permission '{permissionToAddToFunction}' is not an existing permission within application '{application.Name}'.";
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotFoundException(errorMessage);
+                    }
+                }
             }
 
             // Persist the application function, but only if there is at least a single permission associated with it.
             if (functionModelToAdd.FunctionPermissions.Count > 0)
             {
-                logger.Debug($"Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
+                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
                 application.Functions.Add(functionModelToAdd);
             }
         }
@@ -179,17 +218,17 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="application"></param>
         /// <param name="securityContractDefaultConfigurationFunctions"></param>
         /// <returns></returns>
-        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions)
+        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string applicationName, string defaultConfigurationName)
         {
             if (application.Functions.Count > 0)
             {
-                logger.Debug($"Application Functions Count: {application.Functions.Count}");
+                //logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}']: {application.Functions.Count}");
                 for (int i = application.Functions.Count - 1; i >= 0; i--)
                 {
-                    logger.Debug($"Checking whether function: '{application.Functions[i].Name}' should be removed from application '{application.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}'].[functions.name: '{application.Functions[i].Name}']: Checking whether function: '{application.Functions[i].Name}' should be removed from application '{application.Name}'.");
                     if (!securityContractDefaultConfigurationFunctions.Exists(f => f.Name == application.Functions[i].Name))
                     {
-                        logger.Debug($"Function: '{application.Functions[i].Name}' is being removed from '{application.Name}' as it is no longer defined withn the defaults YAML!");
+                        logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}'].[functions.name: '{application.Functions[i].Name}']: Function: '{application.Functions[i].Name}' is being removed from application '{application.Name}' as it is currently assigned to the application within A3S, but is no longer defined within the security contract being processed!");
                         // Note: This only removes the function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
                         await functionRepository.DeleteAsync(application.Functions[i]);
                     }
@@ -205,45 +244,36 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultRoles(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default roles configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'][roles]: Processing roles for default config: '{securityContractDefaultConfiguration.Name}'");
             // Ensure all default roles are created first.
             // Recall, this is an optional component of the default configuration so ensure that it is persent.
             if (securityContractDefaultConfiguration.Roles == null || securityContractDefaultConfiguration.Roles.Count == 0)
                 return;
 
-            // Execute only the simple role creation tasks in parallel
-            logger.Debug("Applying simple roles...");
-            foreach (var simpleRole in securityContractDefaultConfiguration.Roles.Where(x => x.Roles == null || x.Roles.Count == 0))
-                await ApplyDefaultRole(simpleRole, updatedById);
-
-            logger.Debug("Simple roles applied.");
-
-            // Now that all simple roles are created, execute the compound role creation tasks in parallel
-            logger.Debug("Applying compound roles...");
-            foreach (var compoundRole in securityContractDefaultConfiguration.Roles.Where(x => x.Roles != null && x.Roles.Count > 0))
-                await ApplyDefaultRole(compoundRole, updatedById);
-
-            logger.Debug("Compound roles applied.");
+            foreach (var simpleRole in securityContractDefaultConfiguration.Roles)
+            {
+                await ApplyDefaultRole(simpleRole, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
+            }
         }
 
-        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById)
+        private async Task ApplyDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             var defaultRoleToApply = new RoleModel();
             bool roleIsNew = false;
 
-            logger.Debug($"Applying default role: '{defaultRole.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Processing role: '{defaultRole.Name}'");
             var existingRole = await roleRepository.GetByNameAsync(defaultRole.Name);
 
             if (existingRole != null)
             {
-                logger.Debug($"Default role: '{defaultRole.Name}' already exist. Updating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}' already exist. Updating it.");
                 defaultRoleToApply = existingRole;
             }
             else
             {
-                logger.Debug($"Default role: '{defaultRole.Name}' does not exist. Creating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}' does not exist. Creating it.");
                 roleIsNew = true;
             }
 
@@ -252,22 +282,20 @@ namespace za.co.grindrodbank.a3s.Services
             defaultRoleToApply.Description = defaultRole.Description;
             defaultRoleToApply.ChangedBy = updatedById;
 
-            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById);
-            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById);
+            await ApplyFunctionsToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await ApplyChildRolesToDefaultRole(defaultRole, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             if (roleIsNew)
             {
-                logger.Debug($"Persisting new Role into the database: '{defaultRole.Name}'.");
                 await roleRepository.CreateAsync(defaultRoleToApply);
             }
             else
             {
-                logger.Debug($"Persisting updated exsiting Role into the database: '{defaultRole.Name}'.");
                 await roleRepository.UpdateAsync(defaultRoleToApply);
             }
         }
 
-        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById)
+        private async Task ApplyFunctionsToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             defaultRoleToApply.RoleFunctions = new List<RoleFunctionModel>();
 
@@ -275,16 +303,25 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var functionToAdd in defaultRole.Functions)
                 {
-                    logger.Debug($"Attempting to add function: '{functionToAdd}' to role '{defaultRole.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Attempting to add function: '{functionToAdd}' to role '{defaultRole.Name}'.");
                     // Ensure that the function exists.
                     var existingFunction = await functionRepository.GetByNameAsync(functionToAdd);
 
                     if (existingFunction == null)
                     {
-                        throw new ItemNotFoundException($"Function '{functionToAdd}' does not exists. Cannot assign it to role '{defaultRole.Name}'.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Function '{functionToAdd}' does not exist. Cannot assign it to role '{defaultRole.Name}'.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
-                    logger.Debug($"Function '{functionToAdd}' exists and is being assigned to role '{defaultRole.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Function '{functionToAdd}' exists and is being assigned to role '{defaultRole.Name}'.");
+
                     defaultRoleToApply.RoleFunctions.Add(new RoleFunctionModel
                     {
                         Role = defaultRoleToApply,
@@ -295,7 +332,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById)
+        private async Task ApplyChildRolesToDefaultRole(SecurityContractDefaultConfigurationRole defaultRole, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             defaultRoleToApply.ChildRoles = new List<RoleRoleModel>();
 
@@ -303,24 +340,41 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var roleToAdd in defaultRole.Roles)
                 {
-                    logger.Debug($"Attempting to add child role: '{roleToAdd}' to role '{defaultRole.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Attempting to add child role: '{roleToAdd}' to role '{defaultRole.Name}'.");
 
                     // Ensure that the role exists.
                     var existingChildRole = await roleRepository.GetByNameAsync(roleToAdd);
 
                     if (existingChildRole == null)
                     {
-                        throw new ItemNotFoundException($"Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRole.Name}'.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRole.Name}'.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
                     // asserted that the child row has no child roles attached to it.
                     if (existingChildRole.ChildRoles.Count > 0)
                     {
-                        throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
                     }
 
-                    logger.Debug($"Child role '{existingChildRole}' exists and is being assigned to role '{defaultRole.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{existingChildRole.Name}' exists and is being assigned to role '{defaultRole.Name}'.");
+
                     defaultRoleToApply.ChildRoles.Add(new RoleRoleModel
                     {
                         ParentRole = defaultRoleToApply,
@@ -337,33 +391,33 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default LDAP Authentication modes configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[ldapAuthenticationModes]: Applying default LDAP Authentication modes configuration.");
 
             if (securityContractDefaultConfiguration.LdapAuthenticationModes == null || securityContractDefaultConfiguration.LdapAuthenticationModes.Count == 0)
                 return;
 
             foreach (var defaultLdapAuthMode in securityContractDefaultConfiguration.LdapAuthenticationModes)
-                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById);
+                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
         }
 
-        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById)
+        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
-            logger.Debug($"Operating on default ldap auth mode '{defaultLdapAuthMode.Name}'.");
-            var defaultLdapAuthToApply = new LdapAuthenticationModeModel ();
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Operating on default ldap auth mode '{defaultLdapAuthMode.Name}'.");
+            var defaultLdapAuthToApply = new LdapAuthenticationModeModel();
 
             bool newLdapAuthMode = false;
             var existingLdapAuthMode = await ldapAuthenticationModeRepository.GetByNameAsync(defaultLdapAuthMode.Name, false);
 
             if (existingLdapAuthMode != null)
             {
-                logger.Debug($"Default LDAP Auth Mode: '{defaultLdapAuthMode.Name}' already exist. Updating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Default LDAP Auth Mode: '{defaultLdapAuthMode.Name}' already exist. Updating it.");
                 defaultLdapAuthToApply = existingLdapAuthMode;
             }
             else
             {
-                logger.Debug($"Default LDAP Auth Mode: '{defaultLdapAuthMode.Name}' does not exist. Creating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Default LDAP Auth Mode: '{defaultLdapAuthMode.Name}' does not exist. Creating it.");
                 newLdapAuthMode = true;
             }
 
@@ -380,6 +434,8 @@ namespace za.co.grindrodbank.a3s.Services
             defaultLdapAuthToApply.LdapAttributes = new List<LdapAuthenticationModeLdapAttributeModel>();
             foreach (var attributeToApply in defaultLdapAuthMode.LdapAttributes)
             {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}'].[ldapAttributes]: Adding LDAP attribute: {attributeToApply.UserField} -> {attributeToApply.LdapField} to LDAP auth mode '{defaultLdapAuthMode.Name}'.");
+
                 defaultLdapAuthToApply.LdapAttributes.Add(new LdapAuthenticationModeLdapAttributeModel()
                 {
                     UserField = attributeToApply.UserField,
@@ -389,12 +445,12 @@ namespace za.co.grindrodbank.a3s.Services
 
             if (newLdapAuthMode)
             {
-                logger.Debug($"Persisting new Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Persisting new Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
                 await ldapAuthenticationModeRepository.CreateAsync(defaultLdapAuthToApply);
             }
             else
             {
-                logger.Debug($"Updating existing Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Updating existing Ldap Auth Mode '{defaultLdapAuthMode.Name}' into the database.");
                 await ldapAuthenticationModeRepository.UpdateAsync(defaultLdapAuthToApply);
             }
         }
@@ -405,20 +461,20 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultUsers(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultUsers(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default users configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[users]: Processing users configuration.");
 
             if (securityContractDefaultConfiguration.Users == null || securityContractDefaultConfiguration.Users.Count == 0)
                 return;
 
             foreach (var defaultUser in securityContractDefaultConfiguration.Users)
-                await ApplyIndividualDefaultUser(defaultUser, updatedById);
+                await ApplyIndividualDefaultUser(defaultUser, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
         }
 
-        private async Task ApplyIndividualDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, Guid updatedById)
+        private async Task ApplyIndividualDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
-            logger.Debug($"Operating on default user '{defaultUser.Username}'.");
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Processing user '{defaultUser.Username}'.");
             var defaultUserToApply = new UserModel();
 
             bool newUser = false;
@@ -427,16 +483,16 @@ namespace za.co.grindrodbank.a3s.Services
 
             if (existingUser != null)
             {
-                logger.Debug($"Default user: '{defaultUser.Username}' already exist. Updating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: User '{defaultUser.Username}' already exist. Updating it.");
                 defaultUserToApply = existingUser;
             }
             else
             {
-                logger.Debug($"Default user: '{defaultUser.Username}' does not exist. Creating it.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: User: '{defaultUser.Username}' does not exist. Creating it.");
                 newUser = true;
                 // We can also bind the user's UUID here, but only if one is supplied. We should not bind it on any user updates, as UUIDs associated with users cannot be changed!
                 // Recall: The user ID within the dotnet Identity table is purposely a string. Convert the GUID representation accordingly.
-                if(defaultUser.Uuid != Guid.Empty)
+                if (defaultUser.Uuid != Guid.Empty)
                 {
                     defaultUserToApply.Id = defaultUser.Uuid.ToString();
                 }
@@ -462,12 +518,12 @@ namespace za.co.grindrodbank.a3s.Services
             // Overwrite any potentially assigned roles, as the declarative representation in the defaultUser is the authoratative version and must overwite any existing state.
             defaultUserToApply.UserRoles = new List<UserRoleModel>();
 
-            await ApplyRolesToDefaultUser(defaultUser, defaultUserToApply, updatedById);
-            await ApplyLdapAuthModeToDefaultUser(defaultUser, defaultUserToApply);
+            await ApplyRolesToDefaultUser(defaultUser, defaultUserToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await ApplyLdapAuthModeToDefaultUser(defaultUser, defaultUserToApply, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             if (newUser)
             {
-                logger.Debug($"Persisting new user '{defaultUser.Username}' into the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting new user '{defaultUser.Username}'.");
 
                 if (string.IsNullOrWhiteSpace(defaultUser.HashedPassword))
                     await userRepository.CreateAsync(defaultUserToApply, defaultUser.Password, isPlainTextPassword: true);
@@ -476,27 +532,36 @@ namespace za.co.grindrodbank.a3s.Services
             }
             else
             {
-                logger.Debug($"Updating existing user '{defaultUser.Username}' into the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}']: Persisting existing user '{defaultUser.Username}'.");
                 await userRepository.UpdateAsync(defaultUserToApply);
             }
         }
 
-        private async Task ApplyRolesToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, Guid updatedById)
+        private async Task ApplyRolesToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (defaultUser.Roles != null && defaultUser.Roles.Count > 0)
             {
                 foreach (var roleToApply in defaultUser.Roles)
                 {
-                    logger.Debug($"Attempting to add role '{roleToApply}' to user '{defaultUser.Username}'");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'].[roles.name: '{roleToApply}']: Attempting to add role '{roleToApply}' to user '{defaultUser.Username}'");
                     // Ensure the role actually exists first. If it does not, ignore the role assignment.
                     var existingRole = await roleRepository.GetByNameAsync(roleToApply);
 
                     if (existingRole == null)
                     {
-                        throw new ItemNotFoundException($"Role '{roleToApply}' not found when attempting to apply it to user '{defaultUser.Username}'.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'].[roles.name: '{roleToApply}']: Role '{roleToApply}' not found when attempting to apply it to user '{defaultUser.Username}'.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+  
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
-                    logger.Debug($"Role '{roleToApply}' does exist within the database. Assigning it to user '{defaultUser.Username}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'].[roles.name: '{roleToApply}']: Assigning role '{roleToApply}' to user '{defaultUser.Username}'.");
+
                     defaultUserToApply.UserRoles.Add(new UserRoleModel
                     {
                         User = defaultUserToApply,
@@ -507,20 +572,28 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task ApplyLdapAuthModeToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply)
+        private async Task ApplyLdapAuthModeToDefaultUser(SecurityContractDefaultConfigurationUser defaultUser, UserModel defaultUserToApply, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (!string.IsNullOrWhiteSpace(defaultUser.LdapAuthenticationMode))
             {
-                logger.Debug($"Attempting to add Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' to user '{defaultUser.Username}'");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Attempting to add Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' to user '{defaultUser.Username}'");
                 // Ensure the Ldap Auth mode actually exists first. If it does not, ignore the Ldap Auth mode assignment.
                 var existingLdapAuthMode = await ldapAuthenticationModeRepository.GetByNameAsync(defaultUser.LdapAuthenticationMode);
 
                 if (existingLdapAuthMode == null)
                 {
-                    throw new ItemNotFoundException($"Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' not found when attempting to apply it to user '{defaultUser.Username}'.");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' not found when attempting to apply it to user '{defaultUser.Username}'";
+
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                        return;
+                    }
+
+                    throw new ItemNotFoundException(errorMessage);
                 }
 
-                logger.Debug($"Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' does exist within the database. Assigning it to user '{defaultUser.Username}'.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[users.username: '{defaultUser.Username}'][ldapAuthenticationModes]: Ldap Auth mode '{defaultUser.LdapAuthenticationMode}' does exist. Assigning it to user '{defaultUser.Username}'.");
                 defaultUserToApply.LdapAuthenticationMode = existingLdapAuthMode;
                 defaultUserToApply.LdapAuthenticationModeId = existingLdapAuthMode.Id;
             }
@@ -532,38 +605,28 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
+        private async Task ApplyAllDefaultTeams(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            logger.Debug($"Applying default teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[teams]: Applying teams configuration for default config: '{securityContractDefaultConfiguration.Name}'");
 
-            if(securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
+            if (securityContractDefaultConfiguration.Teams == null || securityContractDefaultConfiguration.Teams.Count == 0)
                 return;
 
-            // Execute only the simple team creation tasks in parallel
-            logger.Debug("Applying simple team...");
-            foreach (var simpleTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams == null || x.Teams.Count == 0))
-                await ApplyDefaultTeam(simpleTeam, updatedById);
-
-            logger.Debug("Simple team applied.");
-
-            // Now that all simple teams are created, execute the compound team creation tasks in parallel
-            logger.Debug("Applying compound team...");
-            foreach (var compoundTeam in securityContractDefaultConfiguration.Teams.Where(x => x.Teams != null && x.Teams.Count > 0))
-                await ApplyDefaultTeam(compoundTeam, updatedById);
-
-            logger.Debug("Compound team applied.");
+            foreach (var simpleTeam in securityContractDefaultConfiguration.Teams)
+                await ApplyDefaultTeam(simpleTeam, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
         }
 
-        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById)
+        public async Task ApplyDefaultTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             var teamModel = new TeamModel();
             bool newTeam = false;
 
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Processing team '{defaultTeamToApply.Name}'");
             var existingTeam = await teamRepository.GetByNameAsync(defaultTeamToApply.Name, true);
 
             if (existingTeam == null)
             {
-                logger.Debug($"No existing team with name '{defaultTeamToApply.Name}'. Creating a new team.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: No existing team with name '{defaultTeamToApply.Name}'. Creating a new team.");
                 newTeam = true;
 
                 // We can also bind the team's UUID here, but only if one is supplied. We should not bind it on any team updates, as UUIDs associated with teams cannot be changed!
@@ -572,7 +635,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             else
             {
-                logger.Debug($"Existing team with name: '{defaultTeamToApply.Name}' found. Updating the existing team.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Existing team with name: '{defaultTeamToApply.Name}' found. Updating the existing team.");
                 teamModel = existingTeam;
             }
 
@@ -582,39 +645,47 @@ namespace za.co.grindrodbank.a3s.Services
             teamModel.ChildTeams = new List<TeamTeamModel>();
 
             // It is very important to do the team assignments first, as the udpated teams configuration may affect whether users are able to be assigned to the team (Users cannot be directly assgined to compound teams)!
-            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById);
-            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById);
-            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById);
+            await AssignChildTeamsToTeam(defaultTeamToApply, teamModel, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await AssignUsersToTeamFromUserNameList(teamModel, defaultTeamToApply.Users, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
+            await AssignDataPoliciesToTeamFromDataPolicyNameList(teamModel, defaultTeamToApply.DataPolicies, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
 
             if (newTeam)
             {
-                logger.Debug($"Persisting new team with name: '{defaultTeamToApply.Name}' to the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting new team '{defaultTeamToApply.Name}'.");
                 await teamRepository.CreateAsync(teamModel);
             }
             else
             {
-                logger.Debug($"Persisting updated existing team with name: '{defaultTeamToApply.Name}' to the database.");
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Persisting updated team '{defaultTeamToApply.Name}'.");
                 await teamRepository.UpdateAsync(teamModel);
             }
         }
 
-        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById)
+        private async Task AssignDataPoliciesToTeamFromDataPolicyNameList(TeamModel team, List<string> applicationDataPolicies, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             // The application data policy associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.ApplicationDataPolicies = new List<TeamApplicationDataPolicyModel>();
 
             if (applicationDataPolicies != null && applicationDataPolicies.Count > 0)
             {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Processing data policies for team '{team.Name}'");
                 foreach (var applicationDataPolicy in applicationDataPolicies)
                 {
                     var existingApplicationDataPolicy = await applicationDataPolicyRepository.GetByNameAsync(applicationDataPolicy);
 
                     if (existingApplicationDataPolicy == null)
                     {
-                        throw new ItemNotFoundException($"Unable to find an application data policy with name: '{applicationDataPolicy}' when attempting to assing the application data policy to team '{team.Name}'");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Unable to find an application data policy with name: '{applicationDataPolicy}' when attempting to assing the application data policy to team '{team.Name}'";
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
-                    logger.Debug($"Adding application data policy '{applicationDataPolicy}' to team: {team.Name}");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][dataPolicies]: Adding application data policy '{applicationDataPolicy}' to team: {team.Name}");
 
                     team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                     {
@@ -632,29 +703,47 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="userNames"></param>
         /// <returns></returns>
-        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById)
+        private async Task AssignUsersToTeamFromUserNameList(TeamModel team, List<string> userNames, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             // The user associations for this team are going to be created or overwritten, its easier to rebuild it that apply a diff.
             team.UserTeams = new List<UserTeamModel>();
 
             if (userNames != null && userNames.Count > 0)
             {
-                // Users are not allowd to be directly assigned to a parent team. Check for this!
+                // Users are not allowed to be directly assigned to a parent team. Check for this!
                 if (team.ChildTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot add users directly to team '{team.Name}', as this team is a parent team.");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'].[users]: Cannot add users directly to team '{team.Name}', as this team is a parent team.";
+
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
                 }
 
                 foreach (var userName in userNames)
                 {
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attmepting to add user '{userName}' to tea, '{team.Name}'");
                     var user = await userRepository.GetByUsernameAsync(userName, false);
 
                     if (user == null)
                     {
-                        throw new ItemNotFoundException($"Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
-                    logger.Debug($"Adding user '{userName}' to team: {team.Name}");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Adding user '{userName}' to team: {team.Name}");
 
                     team.UserTeams.Add(new UserTeamModel
                     {
@@ -666,35 +755,63 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById)
+        private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
             if (defaultTeamToApply.Teams != null && defaultTeamToApply.Teams.Count > 0)
             {
+                logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Processing child teams for team {defaultTeamToApply.Name}.");
                 // Check that the current team has no users! Users cannot be in a parent team, so the existence of users in a team prevents child teams being added to it.
                 if (teamModel.UserTeams != null && teamModel.UserTeams.Any())
                 {
-                    throw new ItemNotProcessableException($"Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!");
+                    var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Cannot have compound teams with users in them! Team '{teamModel.Name}' already has users assigned to it, so cannot assign child teams to it!";
+
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    }
+                    else
+                    {
+                        throw new ItemNotProcessableException(errorMessage);
+                    }
+                    
                 }
 
                 foreach (var teamToAdd in defaultTeamToApply.Teams)
                 {
-                    logger.Debug($"Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
 
                     // Ensure that the role exists.
                     var existingchildTeam = await teamRepository.GetByNameAsync(teamToAdd, true);
 
                     if (existingchildTeam == null)
                     {
-                        throw new ItemNotFoundException($"Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotFoundException(errorMessage);
                     }
 
                     // check that we are not attempting to add a compound team as a child, as this is prohibited.
                     if (existingchildTeam.ChildTeams.Any())
                     {
-                        throw new ItemNotProcessableException($"Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'");
+                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'";
+
+                        if (dryRun)
+                        {
+                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                            continue;
+                        }
+
+                        throw new ItemNotProcessableException(errorMessage);
                     }
 
-                    logger.Debug($"Child team '{existingchildTeam}' exists and is being assigned to role '{defaultTeamToApply.Name}'.");
+                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{existingchildTeam.Name}'is being assigned to team '{defaultTeamToApply.Name}'.");
+
                     teamModel.ChildTeams.Add(new TeamTeamModel
                     {
                         ParentTeam = teamModel,
