@@ -49,7 +49,10 @@ namespace za.co.grindrodbank.a3s.Models
             modelBuilder.HasDefaultSchema("_a3s");
 
             // Rename AspNet Identity tables
-            modelBuilder.Entity<UserModel>().ToTable("application_user");
+            modelBuilder.Entity<UserModel>().ToTable("application_user")
+                .Property(e => e.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("application_user_claim");
             modelBuilder.Entity<IdentityRole>().ToTable("aspnet_role");
 
@@ -234,22 +237,31 @@ namespace za.co.grindrodbank.a3s.Models
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)
         {
+            var exclustionList = new List<string>()
+            {
+                "za.co.grindrodbank.a3s.Models.UserClaimModel",
+                "za.co.grindrodbank.a3s.Models.UserModel"
+            };
+
             // Convert each entity to snake case for database name
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.Relational().TableName = entity.Relational().TableName.ToSnakeCase();
+
+                // Don't set the table name on these models as they inherit from Identity base models
+                if (!exclustionList.Any(x => x == entity.Name))
+                    entity.SetTableName(entity.GetTableName().ToSnakeCase());
 
                 foreach (var property in entity.GetProperties())
-                    property.Relational().ColumnName = property.Name.ToSnakeCase();
+                    property.SetColumnName(property.Name.ToSnakeCase());
 
                 foreach (var key in entity.GetKeys())
-                    key.Relational().Name = key.Relational().Name.ToSnakeCase();
+                    key.SetName(key.GetName().ToSnakeCase());
 
                 foreach (var key in entity.GetForeignKeys())
-                    key.Relational().Name = key.Relational().Name.ToSnakeCase();
+                    key.SetConstraintName(key.GetConstraintName().ToSnakeCase());
 
                 foreach (var index in entity.GetIndexes())
-                    index.Relational().Name = index.Relational().Name.ToSnakeCase();
+                    index.SetName(index.GetName().ToSnakeCase());
             }
         }
 
@@ -270,8 +282,8 @@ namespace za.co.grindrodbank.a3s.Models
 
                         if (property != null)
                         {
-                            property.Relational().ColumnType = "tstzrange";
-                            property.Relational().DefaultValueSql = "tstzrange(current_timestamp, null)";
+                            property.SetColumnType("tstzrange");
+                            property.SetDefaultValueSql("tstzrange(current_timestamp, null)");
                         }
                     }
                 }

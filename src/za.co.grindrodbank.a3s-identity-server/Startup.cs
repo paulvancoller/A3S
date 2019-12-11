@@ -22,17 +22,20 @@ using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
 
         private const string CONFIG_SCHEMA = "_ids4";
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
             Environment = environment;
@@ -52,7 +55,15 @@ namespace za.co.grindrodbank.a3sidentityserver
             // Register own SignInManager to handle Just-In-Time LDAP Auth
             services.AddScoped<SignInManager<UserModel>, CustomSignInManager<UserModel>>();
 
-            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+            services.AddRazorPages()
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                 {
+                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                 });
+
+            services.AddControllers();
 
             services.Configure<IISOptions>(iis =>
             {
@@ -111,7 +122,18 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             app.UseStaticFiles();
             app.UseIdentityServer();
-            app.UseMvcWithDefaultRoute();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+
         }
 
         private void InitializeConfigurationDatabase(IApplicationBuilder app)

@@ -6,7 +6,7 @@
 #
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine3.9 AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build-env
 WORKDIR /app
 COPY src/ ./
 WORKDIR /app/za.co.grindrodbank.a3s-identity-server
@@ -14,7 +14,7 @@ RUN dotnet restore
 RUN dotnet publish -c Release -o /out
 
 # runtime stage
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine3.9
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 WORKDIR /app
 COPY --from=build-env /out .
 COPY src/za.co.grindrodbank.a3s-identity-server/identityServer4Dev.pfx .
