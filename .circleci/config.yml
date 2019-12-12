@@ -184,7 +184,14 @@ jobs:
           at: ~/repo/workspace
       - run:
           command: 'dotnet nuget push **/*.nupkg -n true -k ${NUGET_API_KEY} -s https://api.nuget.org/v3/index.json'     
-
+  build-java-libs:
+    docker:
+      - image: maven:3.5.3-jdk-8-alpine
+    working_directory: ~/build/shared-libraries/java/za.co.grindrodbank.security.java
+    steps:
+      - checkout:
+          path: ~/build
+      - run: mvn clean install
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
