@@ -275,6 +275,7 @@ workflows:
       - license-headers
       - postman-integration-tests
       - build-dotnet-libs
+      - build-java-libs
       - fossa-scan:
           filters:    
             branches:    
