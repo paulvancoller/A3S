@@ -191,6 +191,7 @@ jobs:
     steps:
       - checkout:
           path: ~/build
+      - run: apk add git
       - run: mvn clean install
   a3s-docker-build-push:
     docker:
