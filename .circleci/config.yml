@@ -189,9 +189,14 @@ jobs:
       - image: maven:3.5.3-jdk-8-alpine
     working_directory: ~/build/shared-libraries/java/za.co.grindrodbank.security.java
     steps:
+      # Update, upgrade, then install git and openssh 
+      # as the container doesn't have these installed
+      # and we are using parameters to the checkout command 
+      - run: apk update
+      - run: apk upgrade
+      - run: apk --no-cache add --update git openssh
       - checkout:
           path: ~/build
-      - run: apk update && apk add --no-cache git
       - run: mvn clean install
   a3s-docker-build-push:
     docker:
