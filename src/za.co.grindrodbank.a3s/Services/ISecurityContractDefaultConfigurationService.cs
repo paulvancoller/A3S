@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -16,7 +17,7 @@ namespace za.co.grindrodbank.a3s.Services
     /// </summary>
     public interface ISecurityContractDefaultConfigurationService : ITransactableService
     {
-        Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById);
+        Task ApplyDefaultConfigurationDefinitionAsync(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult);
         Task<SecurityContractDefaultConfiguration> GetDefaultConfigurationDefinitionAsync();
     }
 }

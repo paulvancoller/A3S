@@ -53,9 +53,10 @@ After bringing up the quickstart environment, the following components will be d
 Once the containers are deployed, the following components will be accessible from your local machine:
 
 * The [Identity Server](http://docs.identityserver.io/en/latest/) will be available at `http://a3s-identity-server`. **NB!** It is very important that a host file or local DNS entry is added for the domain `a3s-identity-server`. Please refer to the 'Add Host Entry For `a3s-identity-server`' section of this documentation for more details.
-* The A3S management API will be available at `http://localhost:8081`. 
+* If you run the server and navigate the browser to `http://a3s-identity-server/.well-known/openid-configuration`, you should see the so-called discovery document. The discovery document is a standard endpoint in identity servers. The discovery document will be used by your clients and APIs to download the necessary configuration data.
+* The A3S management API will be available at `http://localhost:8081`.
 * **NB!** These applications should never be deployed into a production environment without `https`. It is done so in the quickstart context to simplify deployment and interaction with the quickstart instances.
-* If direct access to the Postgres database is desired, it can be accessed using a [Postgresql](https://www.postgresql.org) client at `localhost:5478`. 
+* If direct access to the Postgres database is desired, it can be accessed using a [Postgresql](https://www.postgresql.org) client at `localhost:5478`.
 
 ## Postman Collection
 

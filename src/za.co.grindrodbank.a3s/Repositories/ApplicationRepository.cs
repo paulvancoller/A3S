@@ -86,7 +86,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                                .ToListAsync();
         }
 
-        public async Task<ApplicationModel> Update(ApplicationModel application)
+        public async Task<ApplicationModel> UpdateAsync(ApplicationModel application)
         {
             a3SContext.Entry(application).State = EntityState.Modified;
             await a3SContext.SaveChangesAsync();

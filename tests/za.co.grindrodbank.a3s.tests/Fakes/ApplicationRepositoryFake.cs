@@ -66,7 +66,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             throw new NotImplementedException();
         }
 
-        public Task<ApplicationModel> Update(ApplicationModel application)
+        public Task<ApplicationModel> UpdateAsync(ApplicationModel application)
         {
             // return the application as we want to interrogate it.
             return Task.FromResult(application);

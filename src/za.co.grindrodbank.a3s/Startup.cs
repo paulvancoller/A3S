@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +33,10 @@ using YamlDotNet.Serialization.NamingConventions;
 using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Stores;
 using za.co.grindrodbank.a3s.Helpers;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -41,18 +44,30 @@ namespace za.co.grindrodbank.a3s
     {
         private const string CONFIG_SCHEMA = "_ids4";
 
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             CurrentEnvironment = env;
         }
 
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment CurrentEnvironment { get; }
+        public IWebHostEnvironment CurrentEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // kestrel
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
+            // IIS
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
             // Register Steeltoes actuator endpoint services
             services.AddHealthActuator(Configuration); // Add general health checks actuator
             services.AddInfoActuator(Configuration); // Add Info Actuator
@@ -110,22 +125,28 @@ namespace za.co.grindrodbank.a3s
                 }
             });
 
-        
-            services.AddMvc(options =>
-            {
-                options.InputFormatters.Add(new YamlInputFormatter((Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
-                options.OutputFormatters.Add(new YamlOutputFormatter((Serializer)new SerializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
-                    .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
-                    .Build()));
+            services.AddRazorPages();
 
-                options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
+            services
+                .AddControllers()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                })
+                .AddMvcOptions(options =>
+                {
+                    options.InputFormatters.Add(new YamlInputFormatter((Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    options.OutputFormatters.Add(new YamlOutputFormatter((Serializer)new SerializerBuilder()
+                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                        .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
+                        .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
+                        .Build()));
 
+                    options.FormatterMappings.SetMediaTypeMappingForFormat("yaml", MediaTypeHeaderValues.ApplicationYaml);
+                });
+                
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
@@ -201,7 +222,7 @@ namespace za.co.grindrodbank.a3s
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.ConfigureExceptionHandler();
 
@@ -213,28 +234,26 @@ namespace za.co.grindrodbank.a3s
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseAuthentication();
 
             // Expose the actual endpoints added by the Steeltoe services.
             app.UseHealthActuator();
             app.UseInfoActuator();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
             // Bootstrap an admin user.
             BootstrapAdminUserWithRolesAndPermissions(app);
-
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-            // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/openapi-original.json", "A3S API");
-            });
         }
 
         private void BootstrapAdminUserWithRolesAndPermissions(IApplicationBuilder app)

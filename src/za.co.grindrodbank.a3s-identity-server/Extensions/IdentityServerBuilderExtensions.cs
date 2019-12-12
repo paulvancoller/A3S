@@ -9,13 +9,14 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using za.co.grindrodbank.a3sidentityserver.Exceptions;
 
 namespace za.co.grindrodbank.a3sidentityserver.Extensions
 {
     public static class IdentityServerBuilderExtensions
     {
-        public static IIdentityServerBuilder LoadSigningCredentialFrom(this IIdentityServerBuilder builder, string path, string password, IHostingEnvironment Environment)
+        public static IIdentityServerBuilder LoadSigningCredentialFrom(this IIdentityServerBuilder builder, string path, string password, IWebHostEnvironment Environment)
         {
             if (!string.IsNullOrEmpty(path))
             {

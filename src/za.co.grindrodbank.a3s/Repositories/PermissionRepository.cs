@@ -69,13 +69,30 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.SaveChangesAsync();
         }
 
-        public PermissionModel GetByName(string name)
+        public PermissionModel GetByName(string name, bool includeRelations = false)
         {
+            if (includeRelations)
+            {
+                return a3SContext.Permission.Where(p => p.Name == name)
+                                            .Include(p => p.ApplicationFunctionPermissions)
+                                             .ThenInclude(afp => afp.ApplicationFunction)
+                                             .ThenInclude(af => af.Application)
+                                            .FirstOrDefault();
+            }
+
             return a3SContext.Permission.Where(p => p.Name == name).FirstOrDefault();
         }
 
-        public async Task<PermissionModel> GetByNameAsync(string name)
+        public async Task<PermissionModel> GetByNameAsync(string name, bool includeRelations = false)
         {
+            if (includeRelations)
+            {
+                return await a3SContext.Permission.Where(p => p.Name == name)
+                                            .Include(p => p.ApplicationFunctionPermissions)
+                                             .ThenInclude(afp => afp.ApplicationFunction)
+                                             .ThenInclude(af => af.Application)
+                                            .FirstOrDefaultAsync();
+            }
             return await a3SContext.Permission.Where(p => p.Name == name).FirstOrDefaultAsync();
         }
 

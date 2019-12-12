@@ -43,5 +43,18 @@ namespace za.co.grindrodbank.a3s.Controllers
         {
             return Ok(await securityContractService.GetSecurityContractDefinitionAsync());
         }
+
+        [Authorize(Policy = "permission:a3s.securityContracts.update")]
+        public async override Task<IActionResult> ValidateSecurityContractAsync([FromBody] SecurityContract securityContract)
+        {
+            if (securityContract == null)
+                return BadRequest();
+
+            var loggedOnUser = ClaimsHelper.GetScalarClaimValue<Guid>(User, ClaimTypes.NameIdentifier, Guid.Empty);
+            // This service will throw a custom exception (which is not really an exception) for returning the response.
+            await securityContractService.ApplySecurityContractDefinitionAsync(securityContract, loggedOnUser, true);
+
+            return NoContent();
+        }
     }
 }

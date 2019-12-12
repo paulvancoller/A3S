@@ -14,7 +14,7 @@ namespace za.co.grindrodbank.a3s.Services
 {
     public interface ISecurityContractApplicationService : ITransactableService
     {
-        Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById);
+        Task<ApplicationModel> ApplyResourceServerDefinitionAsync(SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult);
         Task<List<SecurityContractApplication>> GetResourceServerDefinitionsAsync();
     }
 }
