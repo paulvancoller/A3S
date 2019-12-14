@@ -152,6 +152,7 @@ namespace za.co.grindrodbank.a3s
                 options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
                 options.AddPolicy("permission:a3s.securityContracts.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.update")));
                 options.AddPolicy("permission:a3s.applications.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.applications.read")));
+                options.AddPolicy("permission:a3s.clients.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clients.read")));
                 options.AddPolicy("permission:a3s.clientRegistration.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clientRegistration.update")));
                 options.AddPolicy("permission:a3s.functions.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.read")));
                 options.AddPolicy("permission:a3s.functions.create", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.create")));
