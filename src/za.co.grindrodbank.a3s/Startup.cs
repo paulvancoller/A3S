@@ -216,6 +216,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ILdapConnectionService, LdapConnectionService>();
             services.AddScoped<ITwoFactorAuthService, TwoFactorAuthService>();
             services.AddScoped<ITermsOfServiceService, TermsOfServiceService>();
+            services.AddScoped<IClientService, ClientService>();
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
