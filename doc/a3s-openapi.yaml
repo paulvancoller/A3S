@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.0.3
+  version: 1.0.4
   title: A3S
 paths:
   #region - User
@@ -1246,6 +1246,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   #endregion - Policy
+  #region - Clients
+  '/clients':
+    get:
+      tags:
+        - Client
+      description: Search for clients.
+      summary: Search for clients.
+      operationId: listClients
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 0
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the name
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+          example: FilterByEntityType
+        - name: orderBy
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: >-
+            a comma separated list of fields in their sort order. Ascending
+            order is assumed. Append desc after a field to indicate descending
+            order.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Pagination:
+              description: Pagination header.
+              schema:
+                $ref: '#/components/schemas/PaginationHeaderResponse'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Oauth2Client'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the list of clients.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Client list not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  #endregion - Clients
   #region - Applications
   '/applications':
     get:
