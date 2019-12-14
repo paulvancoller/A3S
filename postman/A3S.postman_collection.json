@@ -3226,6 +3226,46 @@
 				}
 			],
 			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "GetClients",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/clients",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"clients"
+							]
+						},
+						"description": "Gets all the clients currently registered with A3S. This function is useful when looking to obtain an individual client id to use within the 'GetClient' API."
+					},
+					"response": []
+				}
+			],
+			"description": "Contains all the requests for obtaining lists and individual clients via the API. There are no APIs to either create or update clients, as this is intended to only be done by the application itself within the security contract definitions that clients supply.",
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
