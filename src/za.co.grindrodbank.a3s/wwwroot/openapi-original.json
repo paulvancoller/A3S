@@ -3,7 +3,7 @@
   "info" : {
     "description" : "API Definition for the A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
-    "version" : "1.0.3"
+    "version" : "1.0.4"
   },
   "servers" : [ {
     "url" : "/"
@@ -1915,6 +1915,143 @@
         },
         "summary" : "Update a policy.",
         "tags" : [ "Policy" ]
+      }
+    },
+    "/clients" : {
+      "get" : {
+        "description" : "Search for clients.",
+        "operationId" : "listClients",
+        "parameters" : [ {
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the name",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "explode" : false,
+          "in" : "query",
+          "name" : "orderBy",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/Oauth2Client"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK",
+            "headers" : {
+              "X-Pagination" : {
+                "description" : "Pagination header.",
+                "explode" : false,
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginationHeaderResponse"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the list of clients."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Client list not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Search for clients.",
+        "tags" : [ "Client" ]
       }
     },
     "/applications" : {
@@ -4836,6 +4973,16 @@
       },
       "Oauth2Client" : {
         "description" : "Models an Oauth2 or OpenID Connect client.\n",
+        "example" : {
+          "allowedOfflineAccess" : true,
+          "allowedGrantTypes" : [ "allowedGrantTypes", "allowedGrantTypes" ],
+          "clientId" : "clientId",
+          "allowedCorsOrigins" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+          "postLogoutRedirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+          "name" : "name",
+          "redirectUris" : [ "http://example.com/aeiou", "http://example.com/aeiou" ],
+          "allowedScopes" : [ "allowedScopes", "allowedScopes" ]
+        },
         "properties" : {
           "clientId" : {
             "description" : "The unique ID of the client.",
