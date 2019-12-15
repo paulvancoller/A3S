@@ -24,9 +24,17 @@ namespace za.co.grindrodbank.a3s.Controllers
             this.clientService = clientService;
         }
 
-        public override Task<IActionResult> GetClientAsync([FromRoute, Required] string clientId)
+        public async override Task<IActionResult> GetClientAsync([FromRoute, Required] string clientId)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(clientId))
+                return BadRequest();
+
+            var client = await clientService.GetByClientIdAsync(clientId);
+
+            if (client == null)
+                return NotFound();
+
+            return Ok(client);
         }
 
         [Authorize(Policy = "permission:a3s.clients.read")]

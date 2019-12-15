@@ -24,6 +24,11 @@ namespace za.co.grindrodbank.a3s.Services
             this.mapper = mapper;
         }
 
+        public async Task<Oauth2Client> GetByClientIdAsync(string clientId)
+        {
+            return mapper.Map<Oauth2Client>(await identityClientRepository.GetByClientIdAsync(clientId));
+        }
+
         public async Task<List<Oauth2Client>> GetListAsync()
         {
             return mapper.Map<List<Oauth2Client>>(await identityClientRepository.GetListAsync());
