@@ -3,7 +3,7 @@
   "info" : {
     "description" : "API Definition for the A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
-    "version" : "1.0.4"
+    "version" : "1.0.5"
   },
   "servers" : [ {
     "url" : "/"
@@ -2051,6 +2051,87 @@
           }
         },
         "summary" : "Search for clients.",
+        "tags" : [ "Client" ]
+      }
+    },
+    "/clients/{clientId}" : {
+      "get" : {
+        "description" : "Get a client by its client Id.",
+        "operationId" : "getClient",
+        "parameters" : [ {
+          "description" : "client",
+          "explode" : false,
+          "in" : "path",
+          "name" : "clientId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Oauth2Client"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the client."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Client not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred"
+          }
+        },
+        "summary" : "Get a client.",
         "tags" : [ "Client" ]
       }
     },
