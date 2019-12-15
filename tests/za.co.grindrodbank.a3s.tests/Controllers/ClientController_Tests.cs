@@ -7,6 +7,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IdentityServer4.EntityFramework.Entities;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
@@ -48,6 +49,65 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 Assert.Equal(outList[i].ClientId, inList[i].ClientId);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("     ")]
+        public async Task GetClientAsync_WithVariousEmptyStrings_ReturnsBadRequest(string id)
+        {
+            // Arrange
+            var clientService = Substitute.For<IClientService>();
+            var controller = new ClientController(clientService);
+
+            // Act
+            var result = await controller.GetClientAsync(id);
+
+            // Assert
+            var badRequestResult = result as BadRequestResult;
+            Assert.NotNull(badRequestResult);
+        }
+
+        [Fact]
+        public async Task GetClientAsync_WithUnfindableId_ReturnsNotFoundRequest()
+        {
+            // Arrange
+            var clientService = Substitute.For<IClientService>();
+            var controller = new ClientController(clientService);
+
+            // Act
+            var result = await controller.GetClientAsync("unfindable-id");
+
+            // Assert
+            var requestResult = result as NotFoundResult;
+            Assert.NotNull(requestResult);
+        }
+
+        [Fact]
+        public async Task GetClientAsync_WithTestString_ReturnsCorrectResult()
+        {
+            // Arrange
+            var clientService = Substitute.For<IClientService>();
+            var testId = "test-id";
+            var testName = "TestUserName";
+
+            clientService.GetByClientIdAsync(testId).Returns(new Oauth2Client { ClientId = testId, Name = testName });
+
+            var controller = new ClientController(clientService);
+
+            // Act
+            IActionResult actionResult = await controller.GetClientAsync(testId);
+
+            // Assert
+            var okResult = actionResult as OkObjectResult;
+            Assert.NotNull(okResult);
+
+            var resource = okResult.Value as Oauth2Client;
+            Assert.NotNull(resource);
+            Assert.True(resource.ClientId == testId, $"Retrieved Id {resource.ClientId} not the same as sample id {testId}.");
+            Assert.True(resource.Name == testName, $"Retrieved Name {resource.Name} not the same as sample id {testName}.");
         }
     }
 }
