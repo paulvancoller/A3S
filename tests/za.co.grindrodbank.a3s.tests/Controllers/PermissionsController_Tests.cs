@@ -23,7 +23,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var permissionService = Substitute.For<IPermissionService>();
-            var controller = new PermissionsController(permissionService);
+            var controller = new PermissionController(permissionService);
 
             // Act
             var result = await controller.GetPermissionAsync(Guid.Empty);
@@ -38,7 +38,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var permissionService = Substitute.For<IPermissionService>();
-            var controller = new PermissionsController(permissionService);
+            var controller = new PermissionController(permissionService);
 
             // Act
             var result = await controller.GetPermissionAsync(Guid.NewGuid());
@@ -57,7 +57,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             permissionService.GetByIdAsync(testGuid).Returns(new Permission { Uuid = testGuid, Name = testName });
 
-            var controller = new PermissionsController(permissionService);
+            var controller = new PermissionController(permissionService);
 
             // Act
             IActionResult actionResult = await controller.GetPermissionAsync(testGuid);
@@ -85,7 +85,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             permissionService.GetListAsync().Returns(inList);
 
-            var controller = new PermissionsController(permissionService);
+            var controller = new PermissionController(permissionService);
 
             // Act
             IActionResult actionResult = await controller.ListPermissionsAsync(0, 50, string.Empty, null);
