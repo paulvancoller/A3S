@@ -102,6 +102,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
             var roleResource = await roleService.GetByIdAsync(roleGuid);
 
+            Assert.NotNull(roleResource);
             Assert.True(roleResource.Name == "Test Role", $"Role resource Name: '{roleResource.Name}' does not match expected value: 'Test Role'");
             Assert.True(roleResource.Uuid == roleGuid, $"Role resource UUID: '{roleResource.Uuid}' does not match expected value: '{roleGuid}'");
         }
@@ -130,6 +131,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleResource = await roleService.CreateAsync(mockedRoleSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(roleResource);
             Assert.True(roleResource.Name == mockedRoleSubmitModel.Name, $"Role Resource name: '{roleResource.Name}' not the expected value: '{mockedRoleSubmitModel.Name}'");
             Assert.True(roleResource.FunctionIds.Count == mockedRoleSubmitModel.FunctionIds.Count, $"Role Resource Functions Count: '{roleResource.FunctionIds.Count}' not the expected value: '{mockedRoleSubmitModel.FunctionIds.Count}'");
         }
@@ -345,6 +347,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(roleResource);
             Assert.True(roleResource.Name == mockedRoleSubmitModel.Name, $"Role Resource name: '{roleResource.Name}' not the expected value: '{mockedRoleSubmitModel.Name}'");
             Assert.True(roleResource.FunctionIds.Count == mockedRoleSubmitModel.FunctionIds.Count, $"Role Resource Permission Count: '{roleResource.FunctionIds.Count}' not the expected value: '{mockedRoleSubmitModel.FunctionIds.Count}'");
         }
@@ -542,6 +545,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(roleResource);
             Assert.True(roleResource.Name == mockedRoleSubmitModel.Name, $"Role Resource name: '{roleResource.Name}' not the expected value: '{mockedRoleSubmitModel.Name}'");
             Assert.True(roleResource.FunctionIds.Count == mockedRoleSubmitModel.FunctionIds.Count, $"Role Resource Permission Count: '{roleResource.FunctionIds.Count}' not the expected value: '{mockedRoleSubmitModel.FunctionIds.Count}'");
         }

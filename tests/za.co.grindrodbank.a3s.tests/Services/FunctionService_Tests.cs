@@ -6,7 +6,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.MappingProfiles;
 using za.co.grindrodbank.a3s.Models;
@@ -101,6 +100,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
             var functionResource = await functionService.GetByIdAsync(guid);
 
+            Assert.NotNull(functionResource);
             Assert.True(functionResource.Name == "Test function name", $"Function Resource name: '{functionResource.Name}' not the expected value: 'Test Function name'");
             Assert.True(functionResource.Uuid == guid, $"Function Resource UUId: '{functionResource.Uuid}' not the expected value: '{guid}'");
         }
@@ -217,6 +217,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionResource = await functionService.CreateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(functionResource);
             Assert.True(functionResource.Name == mockedFunctionSubmitModel.Name, $"Function Resource name: '{functionResource.Name}' not the expected value: '{mockedFunctionSubmitModel.Name}'");
             Assert.True(functionResource.ApplicationId == mockedFunctionSubmitModel.ApplicationId, $"Function Resource name: '{functionResource.ApplicationId}' not the expected value: '{mockedFunctionSubmitModel.ApplicationId}'");
             Assert.True(functionResource.Permissions.Count == mockedFunctionSubmitModel.Permissions.Count, $"Function Resource Permission Count: '{functionResource.Permissions.Count}' not the expected value: '{mockedFunctionSubmitModel.Permissions.Count}'");
@@ -301,6 +302,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionResource = await functionService.UpdateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(functionResource);
             Assert.True(functionResource.Name == mockedFunctionSubmitModel.Name, $"Function Resource name: '{functionResource.Name}' not the expected value: '{mockedFunctionSubmitModel.Name}'");
             Assert.True(functionResource.ApplicationId == mockedFunctionSubmitModel.ApplicationId, $"Function Resource name: '{functionResource.ApplicationId}' not the expected value: '{mockedFunctionSubmitModel.ApplicationId}'");
             Assert.True(functionResource.Permissions.Count == mockedFunctionSubmitModel.Permissions.Count, $"Function Resource Permission Count: '{functionResource.Permissions.Count}' not the expected value: '{mockedFunctionSubmitModel.Permissions.Count}'");
@@ -395,6 +397,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionResource = await functionService.UpdateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(functionResource);
             Assert.True(functionResource.Name == mockedFunctionSubmitModel.Name, $"Function Resource name: '{functionResource.Name}' not the expected value: '{mockedFunctionSubmitModel.Name}'");
             Assert.True(functionResource.ApplicationId == mockedFunctionSubmitModel.ApplicationId, $"Function Resource name: '{functionResource.ApplicationId}' not the expected value: '{mockedFunctionSubmitModel.ApplicationId}'");
             Assert.True(functionResource.Permissions.Count == mockedFunctionSubmitModel.Permissions.Count, $"Function Resource Permission Count: '{functionResource.Permissions.Count}' not the expected value: '{mockedFunctionSubmitModel.Permissions.Count}'");

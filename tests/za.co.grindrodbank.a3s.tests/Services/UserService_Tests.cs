@@ -22,12 +22,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class UserService_Tests
     {
-        IMapper mapper;
-        Guid userGuid;
-        Guid roleGuid;
-        Guid teamGuid;
-
-        UserModel mockedUserModel;
+        private readonly IMapper mapper;
+        private readonly Guid userGuid;
+        private readonly Guid roleGuid;
+        private readonly Guid teamGuid;
+        private readonly UserModel mockedUserModel;
 
         public UserService_Tests()
         {
@@ -92,6 +91,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
             var userResource = await userService.GetByIdAsync(userGuid, true);
 
+            Assert.NotNull(userResource);
             Assert.True(userResource.Email == "testuser@test.com", $"Expected User Resource Email: '{userResource.Email}' does not match the expected value: 'testuser@test.com'");
             Assert.True(userResource.Roles.First().Name == "Test Role", $"Expected User Resource Role Name: '{userResource.Roles.First().Name}' does not match the expected value: 'Test Role'");
             Assert.True(userResource.Teams.First().Name == "Test Team", $"Expected User Resource Team Name: '{userResource.Teams.First().Name}' does not match the expected value: 'Test Team'");
@@ -131,6 +131,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
             var userResource = await userService.UpdateAsync(userSubmit, Guid.NewGuid());
 
+            Assert.NotNull(userResource);
             Assert.True(userResource.Uuid.ToString() == userModelMock.Id, $"User resource Id: '{userResource.Uuid}' does not match expected value: '{userModelMock.Id}'");
             Assert.True(userResource.Name == userModelMock.FirstName, $"User resource name: '{userResource.Name}' does not match expected value: '{userModelMock.FirstName}'");
             Assert.True(userResource.Surname == userModelMock.Surname, $"User resource surname: '{userResource.Surname}' does not match expected value: '{userModelMock.Surname}'");
@@ -176,6 +177,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
             var userResource = await userService.CreateAsync(userCreate, Guid.NewGuid());
 
+            Assert.NotNull(userResource);
             Assert.True(userResource.Name == userModelMock.FirstName, $"User resource name: '{userResource.Name}' does not match expected value: '{userModelMock.FirstName}'");
             Assert.True(userResource.Surname == userModelMock.Surname, $"User resource surname: '{userResource.Surname}' does not match expected value: '{userModelMock.Surname}'");
             Assert.True(userResource.Username == userModelMock.UserName, $"User resource username: '{userResource.Username}' does not match expected value: '{userModelMock.UserName}'");
