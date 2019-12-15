@@ -1,6 +1,6 @@
 ﻿{
 	"info": {
-		"_postman_id": "f730e36d-603e-4144-bd86-61d3f7407d50",
+		"_postman_id": "fe07c254-a857-4bfc-8f59-2207c75419c4",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -817,6 +817,54 @@
 						"description": "Gets a permissions using a correctly structured, but non-existent UUID. Expects a 404 - not found response."
 					},
 					"response": []
+				},
+				{
+					"name": "GetPermission By UUID - Zero UUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/permissions/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"permissions",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						},
+						"description": "Gets a permissions using a correctly structured, but non-existent UUID. Expects a 404 - not found response."
+					},
+					"response": []
 				}
 			],
 			"description": "Tests pertaining to operating on permissions.",
@@ -1166,6 +1214,54 @@
 							]
 						},
 						"description": "Gets a function using a correctly structured, but non-existent UUID. Expects a 404 - not found response."
+					},
+					"response": []
+				},
+				{
+					"name": "GetFunction By UUID - Zero UUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/functions/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						},
+						"description": "Gets a function by a UUID that is invalid in structure. Expects a 400 bad request return."
 					},
 					"response": []
 				},

@@ -59,7 +59,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public async Task GetByClientId_GivenUnfindableId_ReturnsClientResource()
+        public async Task GetByClientId_GivenUnfindableId_ReturnsNullResource()
         {
             // Arrange
             var clientRepository = Substitute.For<IIdentityClientRepository>();
