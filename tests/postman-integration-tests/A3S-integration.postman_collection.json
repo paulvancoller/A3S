@@ -351,6 +351,11 @@
 									"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
 									"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
 									"});",
+									"",
+									"pm.test(\"Set environment permissions id to id of first element of retrieved list.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"api-selected-client-id\", jsonData[0].clientId);",
+									"});    ",
 									""
 								],
 								"type": "text/javascript"
@@ -385,6 +390,119 @@
 							]
 						},
 						"description": "Gets a list of applications from the API."
+					},
+					"response": []
+				},
+				{
+					"name": "GetClient by client-id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7e34f932-3bb9-4891-b0ad-915e20c7a694",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that client is correctly structured.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('clientId');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('allowedGrantTypes');",
+									"    pm.expect(jsonData).to.have.property('redirectUris');",
+									"    pm.expect(jsonData).to.have.property('allowedCorsOrigins');",
+									"    pm.expect(jsonData).to.have.property('postLogoutRedirectUris');",
+									"    pm.expect(jsonData).to.have.property('allowedScopes');",
+									"    pm.expect(jsonData).to.have.property('allowedOfflineAccess');",
+									"});",
+									"",
+									"pm.test(\"Check that the correct client was returned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.clientId).to.eql(pm.environment.get('api-selected-client-id'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/clients/{{api-selected-client-id}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"clients",
+								"{{api-selected-client-id}}"
+							]
+						},
+						"description": "Gets a client by it's client Id."
+					},
+					"response": []
+				},
+				{
+					"name": "GetClient by client-id - Non Existent clientId - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7e34f932-3bb9-4891-b0ad-915e20c7a694",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/clients/123",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"clients",
+								"123"
+							]
+						},
+						"description": "Gets a client by it's client Id."
 					},
 					"response": []
 				}
