@@ -2,15 +2,15 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S?ref=badge_shield)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=A3S&metric=alert_status)](https://sonarcloud.io/dashboard?id=A3S)
 
-# A3S
+![A3S](doc/img/a3s_logo_2.png)
 
 *An enterprise framework that makes effortless management of centralized authorization, authentication, and accounting. A3S supports OpenID and OAuth 2.0 identity protocols.*
 
 ## Introduction
 
-Being able to log in once and securely gain access to a variaty of shared or stand-alone resources is one of the most important parts of developing an enterprise system. Additionally, effectively determining permissions to said resources is equally important. Finally, ensuring that both these concepts are implemented with the best security and engineering practices is vital to ensure your central users and protect resources are safe against theft and break-in attempts.
+Being able to log in once and securely gain access to a variety of shared or stand-alone resources is one of the most important parts of developing an enterprise system. Additionally, effectively determining permissions to said resources is equally important. Finally, ensuring that both these concepts are implemented with the best security and engineering practices is vital to ensure your centralised users and protected resources are safe against theft and break-in attempts.
 
-A3S makes this process simple for any project by offering all this right out of the box. It can be deployed on virtually any system, and integrate with virtually any technology.
+A3S makes this process simple for any project by offering all this right out-of-the-box. It can be deployed on virtually any system, and integrate with virtually any technology.
 
 ---
 
@@ -36,7 +36,7 @@ Classic AAA systems limits access-control to roles and the applications need to 
 * A3S allows delegated access control using OAuth2.
 * Because A3S is in a [Docker container](https://hub.docker.com/r/grindrodbank/a3s), it can be deployed on-premise, in-cloud, or hybrid. *[Learn more](./doc/deployment-options.md)*
 * The containerization of the components enables faster delivery on development and deployment.
-* Enabling of finely grain permissions access.
+* Enables fine-grained permissions access.
 * A3S uses the [OpenID Connect](https://openid.net/connect/) specification on top of the [OAuth 2.0](https://oauth.net/2/) protocol.
 * Single-Sign-On allows your user to log in once and be authenticated across multiple applications.
 * LDAP and Active Directory connectivity is supported to allow for easy integration into existing user stores. *[Learn more](./doc/ldap-setup.md)*
@@ -50,7 +50,7 @@ Classic AAA systems limits access-control to roles and the applications need to 
 A3S consists of two main components:
 
 * [Identity Server 4](https://identityserver.io), which is the main security protocol and access token engine for A3S. 
-* A custom-built business layer for managing how access is given to members of the enterprise. This is currently exposed as a Rest API, but there are plans to include a default React UI soon.
+* A custom-built business layer for managing how access is given to members of the enterprise. This is currently exposed as a REST API, but there are plans to include a default React UI soon.
 
 Each component has been designed to be independently packaged and deployed, allowing separate configuration of high availability and scaling for each component. Both components running together are collectively referred to as A3S.
 
