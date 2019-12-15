@@ -70,6 +70,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);
 
+            Assert.NotNull(teamResource);
             Assert.True(teamResource.Name == "Test team", $"Expected team name: '{teamResource.Name}' does not equal expected value: 'Test team'");
             Assert.True(teamResource.Uuid == teamGuid, $"Expected team UUID: '{teamResource.Uuid}' does not equal expected value: '{teamGuid}'");
             Assert.True(teamResource.UserIds.First() == userGuid, $"Expected User Team User UUID: '{teamResource.UserIds.First()}' does not equal expected value: '{userGuid}'");
@@ -88,6 +89,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);
 
+            Assert.NotNull(teamResource);
             Assert.True(teamResource.Name == "Test team", $"Expected team name: '{teamResource.Name}' does not equal expected value: 'Test team'");
             Assert.True(teamResource.Uuid == teamGuid, $"Expected team UUID: '{teamResource.Uuid}' does not equal expected value: '{teamGuid}'");
             Assert.True(teamResource.UserIds.First() == userGuid, $"Expected User Team User UUID: '{teamResource.UserIds.First()}' does not equal expected value: '{userGuid}'");

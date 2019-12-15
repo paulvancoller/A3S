@@ -72,6 +72,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceService = new TermsOfServiceService(termsOfServiceRepository, archiveHelper, mapper);
             var termsOfServiceResource = await termsOfServiceService.GetByIdAsync(termsOfServiceGuid);
 
+            Assert.NotNull(termsOfServiceResource);
             Assert.True(termsOfServiceResource.AgreementName == "Test TermsOfService", $"TermsOfService resource Name: '{termsOfServiceResource.AgreementName}' does not match expected value: 'Test TermsOfService'");
             Assert.True(termsOfServiceResource.Uuid == termsOfServiceGuid, $"TermsOfService resource UUID: '{termsOfServiceResource.Uuid}' does not match expected value: '{termsOfServiceGuid}'");
         }
@@ -101,6 +102,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceResource = await termsOfServiceService.CreateAsync(mockedTermsOfServiceSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(termsOfServiceResource);
             Assert.True(termsOfServiceResource.AgreementName == mockedTermsOfServiceSubmitModel.AgreementName, $"TermsOfService Resource name: '{termsOfServiceResource.AgreementName}' not the expected value: '{mockedTermsOfServiceSubmitModel.AgreementName}'");
             Assert.True(termsOfServiceResource.Version == newVersion, $"TermsOfService Resource version: '{termsOfServiceResource.Version}' not the expected value: '{newVersion}'");
         }
@@ -131,6 +133,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceResource = await termsOfServiceService.CreateAsync(mockedTermsOfServiceSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(termsOfServiceResource);
             Assert.True(termsOfServiceResource.AgreementName == mockedTermsOfServiceSubmitModel.AgreementName, $"TermsOfService Resource name: '{termsOfServiceResource.AgreementName}' not the expected value: '{mockedTermsOfServiceSubmitModel.AgreementName}'");
             Assert.True(termsOfServiceResource.Version == newVersion, $"TermsOfService Resource version: '{termsOfServiceResource.Version}' not the expected value: '{newVersion}'");
         }
@@ -160,6 +163,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var termsOfServiceResource = await termsOfServiceService.CreateAsync(mockedTermsOfServiceSubmitModel, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(termsOfServiceResource);
             Assert.True(termsOfServiceResource.AgreementName == mockedTermsOfServiceSubmitModel.AgreementName, $"TermsOfService Resource name: '{termsOfServiceResource.AgreementName}' not the expected value: '{mockedTermsOfServiceSubmitModel.AgreementName}'");
             Assert.True(termsOfServiceResource.Version == newVersion, $"TermsOfService Resource version: '{termsOfServiceResource.Version}' not the expected value: '{newVersion}'");
         }
