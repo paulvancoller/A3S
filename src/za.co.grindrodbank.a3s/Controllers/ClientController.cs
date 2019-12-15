@@ -24,6 +24,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             this.clientService = clientService;
         }
 
+        [Authorize(Policy = "permission:a3s.clients.read")]
         public async override Task<IActionResult> GetClientAsync([FromRoute, Required] string clientId)
         {
             if (string.IsNullOrWhiteSpace(clientId))
