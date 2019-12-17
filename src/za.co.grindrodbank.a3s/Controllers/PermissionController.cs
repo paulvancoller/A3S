@@ -4,25 +4,22 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.AbstractApiControllers;
-using za.co.grindrodbank.a3s.Helpers;
-using System.Security.Claims;
 
 namespace za.co.grindrodbank.a3s.Controllers
 {
-    public class PermissionsController : PermissionApiController
+    public class PermissionController : PermissionApiController
     {
         private readonly IPermissionService permissionsService;
 
-        public PermissionsController(IPermissionService permissionsService)
+        public PermissionController(IPermissionService permissionsService)
         {
             this.permissionsService = permissionsService;
         }

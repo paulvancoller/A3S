@@ -25,6 +25,20 @@ namespace za.co.grindrodbank.a3s.Controllers
         }
 
         [Authorize(Policy = "permission:a3s.clients.read")]
+        public async override Task<IActionResult> GetClientAsync([FromRoute, Required] string clientId)
+        {
+            if (string.IsNullOrWhiteSpace(clientId))
+                return BadRequest();
+
+            var client = await clientService.GetByClientIdAsync(clientId);
+
+            if (client == null)
+                return NotFound();
+
+            return Ok(client);
+        }
+
+        [Authorize(Policy = "permission:a3s.clients.read")]
         public async override Task<IActionResult> ListClientsAsync([FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
         {
             return Ok(await clientService.GetListAsync());

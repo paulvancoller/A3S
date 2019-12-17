@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.0.4
+  version: 1.0.5
   title: A3S
 paths:
   #region - User
@@ -1336,6 +1336,57 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/clients/{clientId}':
+    get:
+      tags:
+        - Client
+      summary: Get a client.
+      description: Get a client by its client Id.
+      operationId: getClient
+      parameters:
+        - name: clientId
+          in: path
+          description: client
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oauth2Client'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Client not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
           content:
             application/json:
               schema:

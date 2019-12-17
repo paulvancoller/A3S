@@ -13,5 +13,6 @@ namespace za.co.grindrodbank.a3s.Services
     public interface IClientService
     {
         Task<List<Oauth2Client>> GetListAsync();
+        Task<Oauth2Client> GetByClientIdAsync(string clientId);
     }
 }

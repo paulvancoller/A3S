@@ -82,6 +82,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var ldapAuthenticationModeResource = await ldapAuthenticationModeService.GetByIdAsync(authenticationModeGuid);
 
             // Assert
+            Assert.NotNull(ldapAuthenticationModeResource);
             Assert.True(ldapAuthenticationModeResource.Name == mockedAuthenticationMode.Name, $"Expected authenticationMode name: '{ldapAuthenticationModeResource.Name}' does not equal expected value: '{mockedAuthenticationMode.Name}'");
             Assert.True(ldapAuthenticationModeResource.Uuid == authenticationModeGuid, $"Expected authenticationMode UUID: '{ldapAuthenticationModeResource.Uuid}' does not equal expected value: '{authenticationModeGuid}'");
             Assert.True(ldapAuthenticationModeResource.Account == mockedAuthenticationMode.Account, $"Expected authenticationMode name: '{ldapAuthenticationModeResource.Account}' does not equal expected value: '{mockedAuthenticationMode.Account}'");
@@ -106,6 +107,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var ldapAuthenticationModeResource = await ldapAuthenticationModeService.CreateAsync(mockedAuthenticationModeSubmit, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(ldapAuthenticationModeResource);
             Assert.True(ldapAuthenticationModeResource.Name == mockedAuthenticationModeSubmit.Name, $"Resource Name: '{ldapAuthenticationModeResource.Name}' not the expected value: '{mockedAuthenticationModeSubmit.Name}'");
             Assert.True(ldapAuthenticationModeResource.Account == mockedAuthenticationModeSubmit.Account, $"Resource Account: '{ldapAuthenticationModeResource.Account}' not the expected value: '{mockedAuthenticationModeSubmit.Account}'");
             Assert.True(ldapAuthenticationModeResource.BaseDn == mockedAuthenticationModeSubmit.BaseDn, $"Resource BaseDn: '{ldapAuthenticationModeResource.BaseDn}' not the expected value: '{mockedAuthenticationModeSubmit.BaseDn}'");
@@ -157,6 +159,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var ldapAuthenticationModeResource = await ldapAuthenticationModeService.UpdateAsync(mockedAuthenticationModeSubmit, Guid.NewGuid());
 
             // Assert
+            Assert.NotNull(ldapAuthenticationModeResource);
             Assert.True(ldapAuthenticationModeResource.Uuid == mockedAuthenticationModeSubmit.Uuid, $"Resource Uuid: '{ldapAuthenticationModeResource.Uuid}' not the expected value: '{mockedAuthenticationModeSubmit.Uuid}'");
             Assert.True(ldapAuthenticationModeResource.Name == mockedAuthenticationModeSubmit.Name, $"Resource Name: '{ldapAuthenticationModeResource.Name}' not the expected value: '{mockedAuthenticationModeSubmit.Name}'");
             Assert.True(ldapAuthenticationModeResource.Account == mockedAuthenticationModeSubmit.Account, $"Resource Account: '{ldapAuthenticationModeResource.Account}' not the expected value: '{mockedAuthenticationModeSubmit.Account}'");

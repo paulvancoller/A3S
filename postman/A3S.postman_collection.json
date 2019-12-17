@@ -3259,7 +3259,41 @@
 								"clients"
 							]
 						},
-						"description": "Gets all the clients currently registered with A3S. This function is useful when looking to obtain an individual client id to use within the 'GetClient' API."
+						"description": "Gets all the clients currently registered with A3S. This function is useful when looking to obtain an individual client GUID to use within the 'GetClient' API."
+					},
+					"response": []
+				},
+				{
+					"name": "GetClient",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/clients/{{api-selected-client-id}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"clients",
+								"{{api-selected-client-id}}"
+							]
+						},
+						"description": "Gets a client by it's client Id. In order to find a client Id of a desired client, run the 'GetClients' postman request, select the desired team Id value, and set it as the value of the 'api-selected-client-id' Postman environment variable."
 					},
 					"response": []
 				}
