@@ -20,7 +20,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class ApplicationService_Tests
     {
-        IMapper mapper;
+        private readonly IMapper mapper;
 
         public ApplicationService_Tests()
         {
