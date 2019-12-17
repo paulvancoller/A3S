@@ -30,49 +30,53 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
     /// 
     /// </summary>
     [ApiController]
-    public abstract class TwoFactorAuthApiController : ControllerBase
+    public abstract class ClientApiController : ControllerBase
     { 
         /// <summary>
-        /// Removes two-factor authentication for a user, as well as any registered devices and methods.
+        /// Get a client.
         /// </summary>
-        /// <remarks>Removes two-factor authentication for a user.</remarks>
-        /// <param name="userId">The UUID of the user.</param>
-        /// <response code="204">No Content.</response>
+        /// <remarks>Get a client by its client Id.</remarks>
+        /// <param name="clientId">client</param>
+        /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
-        /// <response code="403">Forbidden - You are not authorized to remove two-factor authentication.</response>
-        /// <response code="404">User not found.</response>
-        /// <response code="500">An unexpected error occurred.</response>
-        [HttpDelete]
-        [Route("/twoFactorAuth/users/{userId}")]
+        /// <response code="403">Forbidden - You are not authorized to access the client.</response>
+        /// <response code="404">Client not found.</response>
+        /// <response code="500">An unexpected error occurred</response>
+        [HttpGet]
+        [Route("/clients/{clientId}")]
         [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(Oauth2Client))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> RemoveTwoFactorAuthenticationAsync([FromRoute][Required]Guid userId);
+        public abstract Task<IActionResult> GetClientAsync([FromRoute][Required]string clientId);
 
         /// <summary>
-        /// Validates a two-factor authenticator OTP.
+        /// Search for clients.
         /// </summary>
-        /// <remarks>Validates a two-factor authenticator OTP.</remarks>
-        /// <param name="twoFactorAuthOTP"></param>
-        /// <response code="200">Successful. OTP validation ran successfully. Check Success parameter and results for more information.</response>
+        /// <remarks>Search for clients.</remarks>
+        /// <param name="page">The page to view.</param>
+        /// <param name="size">The size of a page.</param>
+        /// <param name="filterName">A search query filter on the name</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
-        /// <response code="403">Forbidden - You are not authorized to validate two-factor authentication OTP&#39;s.</response>
-        /// <response code="404">User not found.</response>
+        /// <response code="403">Forbidden - You are not authorized to access the list of clients.</response>
+        /// <response code="404">Client list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
-        [HttpPost]
-        [Route("/twoFactorAuth/validate")]
+        [HttpGet]
+        [Route("/clients")]
         [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(ValidationResultResponse))]
+        [ProducesResponseType(statusCode: 200, type: typeof(List<Oauth2Client>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ValidateTwoFactorAuthenticationOTPAsync([FromBody]TwoFactorAuthOTP twoFactorAuthOTP);
+        public abstract Task<IActionResult> ListClientsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]List<string> orderBy);
     }
 }

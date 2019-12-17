@@ -51,6 +51,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var applicationFunctionService = new ApplicationFunctionService(applicationFunctionRepository, mapper);
             var applicationFunctionResource = await applicationFunctionService.GetByIdAsync(applicationFunctionGuid);
 
+            Assert.NotNull(applicationFunctionResource);
             Assert.True(applicationFunctionResource.Name == "Test applicationFunction", $"Expected applicationFunction name: '{applicationFunctionResource.Name}' does not equal expected value: 'Test applicationFunction'");
             Assert.True(applicationFunctionResource.Uuid == applicationFunctionGuid, $"Expected applicationFunction UUID: '{applicationFunctionResource.Uuid}' does not equal expected value: '{applicationFunctionGuid}'");
         }
