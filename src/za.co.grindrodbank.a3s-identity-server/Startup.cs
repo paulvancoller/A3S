@@ -77,6 +77,7 @@ namespace za.co.grindrodbank.a3sidentityserver
                 options.Events.RaiseInformationEvents = true;
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
+                options.AccessTokenJwtType = "JWT";
             })
             .AddConfigurationStore(options =>
             {
@@ -106,6 +107,8 @@ namespace za.co.grindrodbank.a3sidentityserver
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseIdentityServer();
+
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -121,7 +124,6 @@ namespace za.co.grindrodbank.a3sidentityserver
             }
 
             app.UseStaticFiles();
-            app.UseIdentityServer();
 
             app.UseRouting();
             app.UseAuthorization();
