@@ -35,6 +35,10 @@
     <Folder Include="Views\TermsOfService\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Views\Device\UserCodeCapture.cshtml" />
+    <Content Remove="Views\Device\Success.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Update="nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

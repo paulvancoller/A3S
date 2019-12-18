@@ -38,7 +38,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private readonly IIdentityServerInteractionService interaction;
         private readonly IEventService events;
         private readonly IClientStore clientStore;
-        private readonly IArchiveHelper archiveHelper;
         private readonly SignInManager<UserModel> signInManager;
 
         public TermsOfServiceController(
@@ -48,7 +47,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             IIdentityServerInteractionService interaction,
             IEventService events,
             IClientStore clientStore,
-            IArchiveHelper archiveHelper,
             SignInManager<UserModel> signInManager)
         {
             this.userManager = userManager;
@@ -57,7 +55,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             this.interaction = interaction;
             this.events = events;
             this.clientStore = clientStore;
-            this.archiveHelper = archiveHelper;
             this.signInManager = signInManager;
         }
 

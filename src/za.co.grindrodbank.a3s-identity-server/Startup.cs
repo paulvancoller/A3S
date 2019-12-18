@@ -124,6 +124,7 @@ namespace za.co.grindrodbank.a3sidentityserver
             app.UseIdentityServer();
 
             app.UseRouting();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
