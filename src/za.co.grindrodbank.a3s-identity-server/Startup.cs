@@ -25,6 +25,7 @@ using za.co.grindrodbank.a3s.Helpers;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
@@ -51,6 +52,17 @@ namespace za.co.grindrodbank.a3sidentityserver
                 .AddUserManager<CustomUserManager>()
                 .AddUserStore<CustomUserStore>()
                 .AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Account/Login";
+                options.SlidingExpiration = true;
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+            });
 
             // Register own SignInManager to handle Just-In-Time LDAP Auth
             services.AddScoped<SignInManager<UserModel>, CustomSignInManager<UserModel>>();
@@ -107,7 +119,6 @@ namespace za.co.grindrodbank.a3sidentityserver
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseIdentityServer();
 
             if (Environment.IsDevelopment())
             {
@@ -126,14 +137,12 @@ namespace za.co.grindrodbank.a3sidentityserver
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseIdentityServer();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute().RequireAuthorization();
             });
 
 

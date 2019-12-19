@@ -34,7 +34,6 @@ using System.Security.Authentication;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
-    [SecurityHeaders]
     [Authorize]
     public class AccountController : Controller
     {
