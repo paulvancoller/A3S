@@ -77,6 +77,27 @@ namespace za.co.grindrodbank.a3s.Managers
             return success;
         }
 
+        public override async Task<bool> GetTwoFactorEnabledAsync(UserModel user)
+        {
+            ThrowIfDisposed();
+            var store = GetUserTwoFactorStore();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return await store.GetTwoFactorEnabledAsync(user, CancellationToken);
+        }
+
+        private IUserTwoFactorStore<UserModel> GetUserTwoFactorStore()
+        {
+            var cast = Store as IUserTwoFactorStore<UserModel>;
+            if (cast == null)
+            {
+                throw new NotSupportedException();
+            }
+            return cast;
+        }
+
         private IUserPasswordStore<UserModel> GetPasswordStore()
         {
             var cast = Store as IUserPasswordStore<UserModel>;
