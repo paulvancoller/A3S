@@ -194,5 +194,8 @@
     <Compile Include="..\za.co.grindrodbank.a3s\A3SConstants.cs">
       <Link>A3SConstants.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Managers\Base32.cs">
+      <Link>Managers\Base32.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

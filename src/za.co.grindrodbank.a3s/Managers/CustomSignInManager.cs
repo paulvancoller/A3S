@@ -69,7 +69,8 @@ namespace za.co.grindrodbank.a3s.Managers
                     signInResult = ldapConnectionService.Login(appUser, password).Result;
                 }
                 else
-                    signInResult = base.CheckPasswordSignInAsync(user, password, lockoutOnFailure).Result;
+                    signInResult = CheckPasswordSignInOverrideAsync(user, password, lockoutOnFailure).Result;
+                    //signInResult = base.CheckPasswordSignInAsync(user, password, lockoutOnFailure).Result;
 
                 return signInResult;
             }
@@ -79,5 +80,75 @@ namespace za.co.grindrodbank.a3s.Managers
                 return SignInResult.Failed;
             }
         }
+
+        public async Task<SignInResult> CheckPasswordSignInOverrideAsync(TUser user, string password, bool lockoutOnFailure)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var error = await PreSignInCheck(user);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (await UserManager.CheckPasswordAsync(user, password))
+            {
+                var alwaysLockout = AppContext.TryGetSwitch("Microsoft.AspNetCore.Identity.CheckPasswordSignInAlwaysResetLockoutOnSuccess", out var enabled) && enabled;
+                // Only reset the lockout when TFA is not enabled when not in quirks mode
+                if (alwaysLockout || !await IsTfaEnabled(user))
+                {
+                    await ResetLockout(user);
+                }
+
+                return SignInResult.Success;
+            }
+            Logger.LogWarning(2, "User {userId} failed to provide the correct password.", await UserManager.GetUserIdAsync(user));
+
+            if (UserManager.SupportsUserLockout && lockoutOnFailure)
+            {
+                // If lockout is requested, increment access failed count which might lock out the user
+                await UserManager.AccessFailedAsync(user);
+                if (await UserManager.IsLockedOutAsync(user))
+                {
+                    return await LockedOut(user);
+                }
+            }
+            return SignInResult.Failed;
+        }
+
+        public override async Task<SignInResult> PasswordSignInAsync(string userName, string password,
+            bool isPersistent, bool lockoutOnFailure)
+        {
+            var user = await UserManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+
+            return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+        }
+
+        private async Task<bool> IsTfaEnabled(TUser user)
+    => UserManager.SupportsUserTwoFactor &&
+    await UserManager.GetTwoFactorEnabledAsync(user) &&
+    (await UserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
+
+
+        protected override async Task<SignInResult> PreSignInCheck(TUser user)
+        {
+            if (!await CanSignInAsync(user))
+            {
+                return SignInResult.NotAllowed;
+            }
+            if (await IsLockedOut(user))
+            {
+                return await LockedOut(user);
+            }
+            return null;
+        }
+
     }
 }
