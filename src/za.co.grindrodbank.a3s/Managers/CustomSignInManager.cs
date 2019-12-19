@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
+using System.Security.Claims;
 
 namespace za.co.grindrodbank.a3s.Managers
 {
@@ -129,6 +130,60 @@ namespace za.co.grindrodbank.a3s.Managers
             }
 
             return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+        }
+
+        public override async Task<SignInResult> PasswordSignInAsync(TUser user, string password,
+            bool isPersistent, bool lockoutOnFailure)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var attempt = await CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+            return attempt.Succeeded
+                ? await SignInOrTwoFactorAsync(user, isPersistent)
+                : attempt;
+        }
+
+
+        protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false)
+        {
+            if (!bypassTwoFactor && await IsTfaEnabled(user))
+            {
+                if (!await IsTwoFactorClientRememberedAsync(user))
+                {
+                    // Store the userId for use after two factor check
+                    var userId = await UserManager.GetUserIdAsync(user);
+                    await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
+                    return SignInResult.TwoFactorRequired;
+                }
+            }
+            // Cleanup external cookie
+            if (loginProvider != null)
+            {
+                await Context.SignOutAsync(IdentityConstants.ExternalScheme);
+            }
+            if (loginProvider == null)
+            {
+                await SignInWithClaimsAsync(user, isPersistent, new Claim[] { new Claim("amr", "pwd") });
+            }
+            else
+            {
+                await SignInAsync(user, isPersistent, loginProvider);
+            }
+            return SignInResult.Success;
+        }
+
+        internal ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider)
+        {
+            var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
+            identity.AddClaim(new Claim(ClaimTypes.Name, userId));
+            if (loginProvider != null)
+            {
+                identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
+            }
+            return new ClaimsPrincipal(identity);
         }
 
         private async Task<bool> IsTfaEnabled(TUser user)
