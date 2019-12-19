@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace za.co.grindrodbank.a3s.Managers
 {
@@ -174,6 +175,24 @@ namespace za.co.grindrodbank.a3s.Managers
             }
             return SignInResult.Success;
         }
+
+        public override Task SignInWithClaimsAsync(TUser user, bool isPersistent, IEnumerable<Claim> additionalClaims)
+    => SignInWithClaimsAsync(user, new AuthenticationProperties { IsPersistent = isPersistent }, additionalClaims);
+
+        public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties authenticationProperties, IEnumerable<Claim> additionalClaims)
+        {
+            var userPrincipal = await CreateUserPrincipalAsync(user);
+            foreach (var claim in additionalClaims)
+            {
+                userPrincipal.Identities.First().AddClaim(claim);
+            }
+            await Context.SignInAsync(IdentityConstants.ApplicationScheme,
+                userPrincipal,
+                authenticationProperties ?? new AuthenticationProperties());
+        }
+
+        public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(TUser user) => await ClaimsFactory.CreateAsync(user);
+
 
         internal ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider)
         {
