@@ -54,6 +54,7 @@ namespace za.co.grindrodbank.a3sidentityserver
                 .AddUserStore<CustomUserStore>()
                 .AddDefaultTokenProviders();
 
+            // Configure cookie policy to cater for older user agents that do not support the new SameSite cookie property functionality
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
@@ -116,6 +117,7 @@ namespace za.co.grindrodbank.a3sidentityserver
 
         public void Configure(IApplicationBuilder app)
         {
+            // Configure cookie policy to cater for older user agents that do not support the new SameSite cookie property functionality
             app.UseCookiePolicy();
 
             if (Environment.IsDevelopment())

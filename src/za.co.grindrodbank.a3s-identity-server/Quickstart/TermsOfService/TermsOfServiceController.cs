@@ -27,6 +27,7 @@ using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
+    [SecurityHeaders]
     [Authorize]
     public class TermsOfServiceController : Controller
     {
