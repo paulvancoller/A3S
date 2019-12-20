@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using za.co.grindrodbank.a3s;
 using za.co.grindrodbank.a3s.Exceptions;
-using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Managers;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
