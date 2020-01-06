@@ -1,4 +1,4 @@
-﻿{
+{
 	"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
@@ -2340,6 +2340,54 @@
 							]
 						},
 						"description": "Gets a function by it's UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteFunction By UUID - Unfindable UUID - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/functions/1f42d750-8ea3-4007-8a7c-41a8822e2099",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions",
+								"1f42d750-8ea3-4007-8a7c-41a8822e2099"
+							]
+						},
+						"description": "Deletes a function by it's UUID, but with an unfindabkle UUID, expecting 404."
 					},
 					"response": []
 				},
