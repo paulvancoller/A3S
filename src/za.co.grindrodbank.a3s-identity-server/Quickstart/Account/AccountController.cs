@@ -119,6 +119,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(model.Username);
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
 
                     // Redirect to 2fa offer screen if any options are available
                     if (TwoFACompulsary())
