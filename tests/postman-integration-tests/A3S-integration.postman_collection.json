@@ -1,4 +1,4 @@
-{
+﻿{
 	"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
@@ -2667,6 +2667,54 @@
 					"response": []
 				},
 				{
+					"name": "GetRole By UUID - Zero UUID  ID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						},
+						"description": "Gets a role by a UUID that is invalid in structure. Expects a 400 bad request return."
+					},
+					"response": []
+				},
+				{
 					"name": "CreateRole - No Child Roles",
 					"event": [
 						{
@@ -2839,7 +2887,66 @@
 					"response": []
 				},
 				{
-					"name": "UpdateRole - Test Name Unique Check Step 2 - Expect 422",
+					"name": "CreateRole - Test Name Unique Check Step 2 - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is ItemNotProcessable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-new-2\",\n    \"description\" : \"test-new-role-description\",\n    \"functionIds\": [],\n    \"roleIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role, but with already used name, expecting 422."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Test Name Unique Check Step 3 - Expect 422",
 					"event": [
 						{
 							"listen": "test",
@@ -2894,7 +3001,7 @@
 								"{{role-guid}}"
 							]
 						},
-						"description": "Updates an existing role's base attributes and clears any related entities from the role."
+						"description": "Updates an existing role's with a new name that is already used, resulting in an error 422."
 					},
 					"response": []
 				},
@@ -2979,6 +3086,242 @@
 							]
 						},
 						"description": "Creates a new role with attached child role."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole - Supply Invalid Structured Child Role ID GUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - BadRequest\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-new-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [],\n    \"roleIds\": [\"{{child-role-guid}}fail\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Child Role Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole - Supply Invalid Structured Function ID GUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - BadRequest\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-new-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [\"{{function-guid}}fail\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Function Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole - Supply Correctly Structured Child Role ID GUID, Guid does not exist - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - NotFound\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [],\n    \"roleIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Child Role Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole - Supply Correctly Structured Function ID GUID, Guid does not exist - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - NotFound\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role with and invalid structured function Id GUID, resulting in an error 404 (not found)."
 					},
 					"response": []
 				},
@@ -3136,6 +3479,246 @@
 							]
 						},
 						"description": "Updates an existing role's base attributes and clears any related entities from the role."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Supply Invalid Structured Child Role ID GUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - BadRequest\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{role-guid}}\",\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [],\n    \"roleIds\": [\"{{child-role-guid}}fail\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Child Role Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Supply Invalid Structured Function ID GUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - BadRequest\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{role-guid}}\",\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [\"{{function-guid}}fail\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Function Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Supply Correctly Structured Child Role ID GUID, Guid does not exist - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - NotFound\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{role-guid}}\",\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [],\n    \"roleIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Creates a new role with and invalid structured Child Role Id GUID, resulting in an error 400 (malformed)."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Supply Correctly Structured Function ID GUID, Guid does not exist - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - NotFound\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{role-guid}}\",\n    \"name\": \"test-role-fail\",\n    \"description\" : \"test-new-role-description2\",\n    \"functionIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Creates a new role with and invalid structured function Id GUID, resulting in an error 404 (not found)."
 					},
 					"response": []
 				}
