@@ -1,4 +1,4 @@
-{
+﻿{
 	"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
@@ -12281,6 +12281,344 @@
 					"listen": "test",
 					"script": {
 						"id": "ecc3fe50-d395-4aa4-b606-4704ce46c560",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Multi-application consistency",
+			"item": [
+				{
+					"name": "Get Access Token - A3S Bootsrap Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									"pm.test(\"Set session_access_token environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "a3s-bootstrap-admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password1#",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "a3s",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/token",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						},
+						"description": "Obtains an access token for the A3S Bootstrap admin user, which only has permissions to apply Security Contract definitions."
+					},
+					"response": []
+				},
+				{
+					"name": "PutSecurityContractDefinition",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53f866e8-5434-4e46-8610-dbe1c3781067",
+								"exec": [
+									"pm.test(\"Response is OK - 204 no content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-yaml",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "# Breadmaker Security Contract\n#\n# This file contains information allowing for configuration and declaration of almost all aspects of Breadmaker.\n#\nname: Breadmaker Security Contract\ngenerated: 2020-01-06 10:00:00 +02:00\napplications:\n  - fullname: breadmaker   \n    applicationFunctions:\n      - name: breadmaker.crumbs\n        description: Functionality to maintain breadcrumbs within breadmaker.\n        permissions:\n          - name: breadmaker.crumbs.read\n            description: View a list of crumbs.\n          - name: breadmaker.crumbs.create\n            description: Create a new crumb.\n          - name: breadmaker.crumbs.delete\n            description: Removes a crumb.\n          - name: breadmaker.crumbs.update\n            description: Updates a crumb\\.\nclients:\n  - clientId: bread-knife\n    name: \"Bread Knife\"\n    allowedGrantTypes:\n      - authorization_code\n      - password\n    redirectUris:\n      - \"https://www.getpostman.com/oauth2/callback\"\n    postLogoutRedirectUris:\n      - \"https://www.getpostman.com\"\n    allowedCorsOrigins:\n      - \"https://www.getpostman.com\"\n    allowedScopes:\n      - \"bread-baker\"\n      - \"a3s\"\n    clientSecrets:\n      - \"secret\"\n    allowedOfflineAccess: true\ndefaultConfigurations:\n  - name: Breadmaker Default configuration\n    applications:\n      - name: breadmaker\n        functions:\n          - name: \"breadmaker.baker\"\n            description: \"A function that contains all possible permissions within breadmaker.\"\n            permissions:\n              - breadmaker.crumbs.read\n              - breadmaker.crumbs.create\n              - breadmaker.crumbs.update\n              - breadmaker.crumbs.delete\n    # Default Roles to be created. Contains the functions that will be assigned to the Roles.\n    roles:\n      - name: \"Breadmaker Baker Role\"\n        description: An Breadmaker Role that has all the Breadmaker functions associated with it.\n        functions:\n          - \"breadmaker.baker\"\n    users:\n      - username: breadmaker-admin\n        name: breadmaker-admin\n        surname: system user\n        email: breadmaker-admin@localhost\n        # Note: Passwords require at least one capital, one number and one non-alpha-numeric character.\n        password: \"Password1#\"\n        phoneNumber: \"+27110110110\"\n        # The roles in this list will be assigned to the user. If the roles don't exist, they will NOT be created and will simply be ignored.\n        roles:\n          - \"ABreadmaker Baker Role\"\"\n    teams:\n      - name: default-team\n        description: A simple test defaul team.\n        users:\n          - breadmaker-admin\n"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/securityContracts",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"securityContracts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Token - A3S Admin - Authed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									"pm.test(\"Response is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Set session_access_token environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "a3s-admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password1#",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "a3s",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/token",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						},
+						"description": "Obtains an access token for the A3S Bootstrap admin user, which only has permissions to apply Security Contract definitions."
+					},
+					"response": []
+				},
+				{
+					"name": "GetApplications - Get the new breadmaker application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that applications are correctly structured in the first element of the repsonse.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0]).to.have.property('uuid');",
+									"    pm.expect(jsonData[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0]).to.have.property('functions');",
+									"});",
+									"",
+									"pm.test(\"Check that application has correctly structures associated functions in the first element of the returned list.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0].functions[0]).to.have.property('uuid');",
+									"    pm.expect(jsonData[0].functions[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0].functions[0]).to.have.property('description');",
+									"    pm.expect(jsonData[0].functions[0]).to.have.property('permissions');",
+									"});",
+									"",
+									"pm.test(\"Check that application functions have correctly structured associated permissions within the first element of the returned list.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0].functions[0].permissions[0]).to.have.property('uuid');",
+									"    pm.expect(jsonData[0].functions[0].permissions[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0].functions[0].permissions[0]).to.have.property('description');",
+									"});",
+									"",
+									"pm.test(\"Get the newly created breadmaker application.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var loop;",
+									"    for (loop = 0; loop < jsonData.length; loop++)",
+									"    {",
+									"        if (jsonData[loop].name === \"breadmaker\")",
+									"        {",
+									"            pm.environment.set(\"application-guid\", jsonData[loop].uuid);",
+									"            break;",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/applications",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"applications"
+							]
+						},
+						"description": "Gets a list of applications from the API."
+					},
+					"response": []
+				}
+			],
+			"description": "This tests the ability to apply a second security contract that is a separate application from the initial security contract, and the successful co-existence of of unrelated sub items.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5ac68ca3-7248-4e41-b9be-76ac8ef7cd03",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "a79f97d3-9f4f-4204-8a36-5d141d18ec3f",
 						"type": "text/javascript",
 						"exec": [
 							""
