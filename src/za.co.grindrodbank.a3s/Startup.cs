@@ -37,6 +37,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Mvc;
+using za.co.grindrodbank.a3s.ConnectionClients;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -200,7 +201,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IApplicationDataPolicyRepository, ApplicationDataPolicyRepository>();
             services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
 
-            // Resgister all the services.
+            // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<IFunctionService, FunctionService>();
             services.AddScoped<IRoleService, RoleService>();
@@ -221,6 +222,9 @@ namespace za.co.grindrodbank.a3s
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
+
+            // Register Connection Clients
+            services.AddScoped<ILdapConnectionClient, LdapConnectionClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

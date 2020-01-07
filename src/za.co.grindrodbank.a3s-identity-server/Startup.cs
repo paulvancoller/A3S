@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using Microsoft.AspNetCore.Http;
+using za.co.grindrodbank.a3s.ConnectionClients;
 
 namespace za.co.grindrodbank.a3sidentityserver
 {
@@ -113,6 +114,9 @@ namespace za.co.grindrodbank.a3sidentityserver
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
+
+            // Register Connection Clients
+            services.AddScoped<ILdapConnectionClient, LdapConnectionClient>();
         }
 
         public void Configure(IApplicationBuilder app)
