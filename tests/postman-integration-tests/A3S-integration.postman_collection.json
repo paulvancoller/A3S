@@ -3041,6 +3041,12 @@
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.roleIds[0]).to.equal(pm.environment.get('child-role-guid'));",
 									"});",
+									"",
+									"pm.test(\"Set environment compound role UUID of the newly created role.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"compound-role-guid\", jsonData.uuid);",
+									"});    ",
+									"",
 									""
 								],
 								"type": "text/javascript"
@@ -3086,6 +3092,65 @@
 							]
 						},
 						"description": "Creates a new role with attached child role."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRole - Compound Child Role Attached - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 422 - ItemNotProcessable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-with-compound\",\n    \"description\" : \"test-new-role-with-compound\",\n    \"functionIds\": [],\n    \"roleIds\": [\"{{compound-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creates a new role with attached compound child role, which should result in 422 - ItemNotProcessable."
 					},
 					"response": []
 				},
@@ -3719,6 +3784,66 @@
 							]
 						},
 						"description": "Creates a new role with and invalid structured function Id GUID, resulting in an error 404 (not found)."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole - Compound Child Role Attached - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 422 - ItemNotProcessable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{role-guid}}\",\n    \"name\": \"test-role-with-compound\",\n    \"description\" : \"test-new-role-with-compound\",\n    \"functionIds\": [],\n    \"roleIds\": [\"{{compound-role-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Updates an existing role with attached compound child role, which should result in 422 - ItemNotProcessable."
 					},
 					"response": []
 				}
@@ -12939,6 +13064,132 @@
 					"response": []
 				},
 				{
+					"name": "CreateFunction - Supply unrelated application and permission - expecting 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 422 - Entity Not Processable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-function new unrelated application and permission\",\n    \"description\": \"test-function description new\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/functions",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions"
+							]
+						},
+						"description": "Creates a new function and attempting to link it's permissions to an unrelated permission, resulting in a 422 - unprocessable."
+					},
+					"response": []
+				},
+				{
+					"name": "GetFunctions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that the first element of the list is a correctly structured function\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0]).to.have.property('uuid');",
+									"    pm.expect(jsonData[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0]).to.have.property('description');",
+									"    pm.expect(jsonData[0]).to.have.property('permissions');",
+									"});",
+									"",
+									"pm.test(\"Check that the first element of the list is a function with correctly structured associated permissions\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0].permissions[0]).to.have.property('uuid');",
+									"    pm.expect(jsonData[0].permissions[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0].permissions[0]).to.have.property('description');",
+									"});",
+									"",
+									"pm.test(\"Set environment function UUID to UUID of first element of retrieved list.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"function-guid\", jsonData[0].uuid);",
+									"});    ",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/functions",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions"
+							]
+						},
+						"description": "Gets a list of functions from the API. Three were expected to be created with the earlier application of the security contract. Three element list is expected."
+					},
+					"response": []
+				},
+				{
 					"name": "UpdateFunction - Supply unrelated application and permission - expecting 422",
 					"event": [
 						{
@@ -12946,8 +13197,8 @@
 							"script": {
 								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
 								"exec": [
-									"pm.test(\"Response is 404 - Entity Not Found\", function () {",
-									"    pm.response.to.have.status(404);",
+									"pm.test(\"Response is 422 - Entity Not Processable\", function () {",
+									"    pm.response.to.have.status(422);",
 									"});"
 								],
 								"type": "text/javascript"
