@@ -3721,6 +3721,102 @@
 						"description": "Creates a new role with and invalid structured function Id GUID, resulting in an error 404 (not found)."
 					},
 					"response": []
+				},
+				{
+					"name": "DeleteRole By UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Gets a Role by it's UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteRole By UUID - Unfindable UUID - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/1f42d750-8ea3-4007-8a7c-41a8822e2099",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"1f42d750-8ea3-4007-8a7c-41a8822e2099"
+							]
+						},
+						"description": "Deletes a role by it's UUID, but with an unfindabkle UUID, expecting 404."
+					},
+					"response": []
 				}
 			],
 			"description": "Tests pertaining to operating on data pertaining to Roles.",
