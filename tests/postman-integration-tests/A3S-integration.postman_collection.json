@@ -1,5 +1,4 @@
-﻿{
-	"info": {
+﻿"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
@@ -5867,6 +5866,54 @@
 					"response": []
 				},
 				{
+					"name": "GetTeam By UUID - Zero UUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/teams/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						},
+						"description": "Gets a team using a correctly structured, but zero UUID. Expects a 400 - bad request response."
+					},
+					"response": []
+				},
+				{
 					"name": "CreateTeam - No Child Teams - No Data Policies",
 					"event": [
 						{
@@ -5954,6 +6001,65 @@
 							]
 						},
 						"description": "Creates a new team without any child teams."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - Supply incorrectly structured child team Guid - expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request.\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}fail\"],\n    \"dataPolcies\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with an incorrectly structured child team Guid, resulting in a 400 - Bad request."
 					},
 					"response": []
 				},
@@ -6049,7 +6155,66 @@
 					"response": []
 				},
 				{
-					"name": "UpdateTeam - Test Name Unique Step 2 - Expect 422",
+					"name": "CreateTeam - Test Name Unique Step 2 - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is ItemNotProcessable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-updated-team-description\",\n    \"userIds\": [],\n    \"teamIds\": [],\n    \"dataPolcies\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Updates an existing team"
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTeam - Test Name Unique Step 3 - Expect 422",
 					"event": [
 						{
 							"listen": "test",
@@ -6104,7 +6269,7 @@
 								"{{team-guid}}"
 							]
 						},
-						"description": "Updates an existing team"
+						"description": "Updates an existing team, but with a pre-existing name, resulting in a 422 - Item not processable."
 					},
 					"response": []
 				},
