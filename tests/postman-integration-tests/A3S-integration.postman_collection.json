@@ -1,5 +1,4 @@
-﻿{
-	"info": {
+﻿"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
@@ -3719,102 +3718,6 @@
 							]
 						},
 						"description": "Creates a new role with and invalid structured function Id GUID, resulting in an error 404 (not found)."
-					},
-					"response": []
-				},
-				{
-					"name": "DeleteRole By UUID",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
-								"exec": [
-									"pm.test(\"Response is OK\", function () {",
-									"    pm.response.to.have.status(204);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{session_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{a3s-host}}/roles/{{role-guid}}",
-							"host": [
-								"{{a3s-host}}"
-							],
-							"path": [
-								"roles",
-								"{{role-guid}}"
-							]
-						},
-						"description": "Gets a Role by it's UUID."
-					},
-					"response": []
-				},
-				{
-					"name": "DeleteRole By UUID - Unfindable UUID - Expect 404",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
-								"exec": [
-									"pm.test(\"Response is 404 - Not Found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{session_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{a3s-host}}/roles/1f42d750-8ea3-4007-8a7c-41a8822e2099",
-							"host": [
-								"{{a3s-host}}"
-							],
-							"path": [
-								"roles",
-								"1f42d750-8ea3-4007-8a7c-41a8822e2099"
-							]
-						},
-						"description": "Deletes a role by it's UUID, but with an unfindabkle UUID, expecting 404."
 					},
 					"response": []
 				}
@@ -13031,6 +12934,65 @@
 							]
 						},
 						"description": "Gets a list of applications from the API."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateFunction - Supply unrelated application and permission - expecting 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - Entity Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-function updated unrelated application and permission\",\n    \"uuid\": \"{{function-guid}}\",\n    \"description\": \"test-function description updated\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/functions/{{function-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions",
+								"{{function-guid}}"
+							]
+						},
+						"description": "Updates an existing function by attempting to link it's permissions to an unrelated permission, resulting in a 422 - unprocessable."
 					},
 					"response": []
 				}
