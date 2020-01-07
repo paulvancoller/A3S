@@ -1,5 +1,4 @@
-{
-	"info": {
+﻿"info": {
 		"_postman_id": "5bd9069e-380a-4609-bb77-5d5540423a0e",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
@@ -5683,7 +5682,13 @@
 									"            break;",
 									"        }",
 									"    }",
-									"});"
+									"});",
+									"",
+									"pm.test(\"Confirm that data policy Guids have been set.\", function () {",
+									"    pm.expect(pm.environment.get(\"team-with-data-policy-guid\").length).to.not.eql(0);",
+									"    pm.expect(pm.environment.get(\"data-policy-guid\").length).to.not.eql(0);",
+									"});    ",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -6003,7 +6008,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-new-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": []\n}"
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-new-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6062,7 +6067,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}fail\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}fail\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6121,7 +6126,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}fail\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}fail\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6180,7 +6185,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}fail\"\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}fail\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6239,7 +6244,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6298,7 +6303,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6357,7 +6362,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"1f42d750-8ea3-4007-8a7c-41a8822e2099\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6448,7 +6453,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new-2\",\n    \"description\" : \"test-new-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": []\n}"
+							"raw": "{\n    \"name\": \"test-team-new-2\",\n    \"description\" : \"test-new-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6507,7 +6512,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-updated-team-description\",\n    \"userIds\": [],\n    \"teamIds\": [],\n    \"dataPolcies\": []\n}"
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-updated-team-description\",\n    \"userIds\": [],\n    \"teamIds\": [],\n    \"dataPolicyIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6566,7 +6571,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-updated-team-description\",\n    \"userIds\": [],\n    \"teamIds\": [],\n    \"dataPolcies\": []\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-new\",\n    \"description\" : \"test-updated-team-description\",\n    \"userIds\": [],\n    \"teamIds\": [],\n    \"dataPolicyIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -6656,7 +6661,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new2\",\n    \"description\" : \"test-new-team-description2\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicies\": []\n}"
+							"raw": "{\n    \"name\": \"test-team-new2\",\n    \"description\" : \"test-new-team-description2\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6750,7 +6755,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new-with-data-policies\",\n    \"description\" : \"test-new-team-description-with-data-policies\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicies\": [\"{{data-policy-guid}}\"]\n}"
+							"raw": "{\n    \"name\": \"test-team-new-with-data-policies\",\n    \"description\" : \"test-new-team-description-with-data-policies\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6845,7 +6850,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new-3\",\n    \"description\" : \"test-new-team-description-3\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n    \"name\": \"test-team-new-3\",\n    \"description\" : \"test-new-team-description-3\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6904,7 +6909,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new-4\",\n    \"description\" : \"test-new-team-description-4\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"1f42d750-8ea3-4007-8a7c-41a8822e2099\"\n}"
+							"raw": "{\n    \"name\": \"test-team-new-4\",\n    \"description\" : \"test-new-team-description-4\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"1f42d750-8ea3-4007-8a7c-41a8822e2099\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -6963,7 +6968,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": [],\n    \"termsOfServiceId\": null\n}"
+							"raw": "{\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": null\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7059,7 +7064,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": [],\n    \"termsOfServiceId\": null\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": null\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7161,7 +7166,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7174,126 +7179,6 @@
 							]
 						},
 						"description": "Updates an existing team's base attributes and clears any related entities from the team."
-					},
-					"response": []
-				},
-				{
-					"name": "UpdateTeam - Non Existent Terms Of Service entry - Expect 404",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
-								"exec": [
-									"pm.test(\"Response is 404 - Not Found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{session_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": [],\n    \"termsOfServiceId\": \"1f42d750-8ea3-4007-8a7c-41a8822e2099\"\n}"
-						},
-						"url": {
-							"raw": "{{a3s-host}}/teams/{{team-guid}}",
-							"host": [
-								"{{a3s-host}}"
-							],
-							"path": [
-								"teams",
-								"{{team-guid}}"
-							]
-						},
-						"description": "Updates an existing team's base attributes and clears any related entities from the team."
-					},
-					"response": []
-				},
-				{
-					"name": "UpdateTeam - Incorrectly structured Terms Of Service entry - Expect 400",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
-								"exec": [
-									"pm.test(\"Response is 404 - Not Found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{session_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolcies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}fail\"\n}"
-						},
-						"url": {
-							"raw": "{{a3s-host}}/teams/{{team-guid}}",
-							"host": [
-								"{{a3s-host}}"
-							],
-							"path": [
-								"teams",
-								"{{team-guid}}"
-							]
-						},
-						"description": "Updates an existing team but with incorrectly structured Terms of Service entry, resulting in a 400 - Bad request."
 					},
 					"response": []
 				},
@@ -7341,7 +7226,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}fail\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}fail\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7401,7 +7286,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}fail\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}fail\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7414,6 +7299,66 @@
 							]
 						},
 						"description": "Update an existing team with an incorrectly structured data policy Guid, resulting in a 400 - Bad request."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTeam - Incorrectly structured Terms Of Service entry - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}fail\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams/{{team-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams",
+								"{{team-guid}}"
+							]
+						},
+						"description": "Updates an existing team but with incorrectly structured Terms of Service entry, resulting in a 400 - Bad request."
 					},
 					"response": []
 				},
@@ -7461,7 +7406,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"dataPolcies\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"dataPolicyIds\": [\"{{data-policy-guid}}\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7521,7 +7466,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolcies\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-br\",\n    \"description\" : \"test-new-team-br\",\n    \"teamIds\": [\"{{child-team-guid}}\"],\n    \"dataPolicyIds\": [\"1f42d750-8ea3-4007-8a7c-41a8822e2099\"],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
@@ -7534,6 +7479,66 @@
 							]
 						},
 						"description": "Update an existing team with an correctly structured data policy Guid that does not exist, resulting in a 404 - Not found."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTeam - Non Existent Terms Of Service entry - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n    \"name\": \"test-team-updated\",\n    \"description\" : \"test-updated-team-description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"1f42d750-8ea3-4007-8a7c-41a8822e2099\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams/{{team-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams",
+								"{{team-guid}}"
+							]
+						},
+						"description": "Updates an existing team's base attributes and clears any related entities from the team."
 					},
 					"response": []
 				}
