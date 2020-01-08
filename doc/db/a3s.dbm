@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="257,1147" last-zoom="1" max-obj-count="38"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="608,1293" last-zoom="1" max-obj-count="38"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -896,7 +896,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
-	<column name="acceptance_time" not-null="true">
+	<column name="acceptance_time" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[The date and time the user accepted the specific agreement.]]></comment>
 	</column>
@@ -917,7 +917,7 @@ On every update of a terms of service agreement version for a team, all user acc
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
-	<column name="acceptance_time" not-null="true">
+	<column name="acceptance_time" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[The date and time the user accepted the specific agreement.]]></comment>
 	</column>
@@ -946,7 +946,7 @@ On every update of a terms of service agreement version for a team, all user acc
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[The UUID of the user that last changed this record.]]></comment>
 	</column>
-	<column name="sys_period" alias="sys_period" not-null="true">
+	<column name="sys_period" alias="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[The temporal data for when this record was changed.]]></comment>
 	</column>
@@ -980,7 +980,7 @@ On every update of a terms of service agreement version for a team, all user acc
 	</label>
 </relationship>
 
-<table name="sub_realm" layer="0" collapse-mode="2" max-obj-count="3">
+<table name="sub_realm" layer="0" collapse-mode="2" max-obj-count="6">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Table modelling a sub realm within A3S.]]></comment>
@@ -996,6 +996,14 @@ On every update of a terms of service agreement version for a team, all user acc
 	<column name="description" alias="description">
 		<type name="text" length="0"/>
 		<comment><![CDATA[A brief description of the sub-realm and it's intent. ]]></comment>
+	</column>
+	<column name="changed_by" alias="changed_by">
+		<type name="uuid" length="0"/>
+		<comment><![CDATA[UUID of user that last changed the record.]]></comment>
+	</column>
+	<column name="sys_preriod" alias="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[Temporal data for this record.]]></comment>
 	</column>
 	<constraint name="uk_sub_realm_name" type="uq-constr" alias="uk_sub_realm_name" table="_a3s.sub_realm">
 		<columns names="name" ref-type="src-columns"/>
@@ -1022,7 +1030,7 @@ On every update of a terms of service agreement version for a team, all user acc
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[The UUID of the user that last changed the record.]]></comment>
 	</column>
-	<column name="sys_period" alias="sys_period" not-null="true">
+	<column name="sys_period" alias="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[The temporal data for changes to this table.]]></comment>
 	</column>
@@ -1097,7 +1105,7 @@ On every update of a terms of service agreement version for a team, all user acc
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[Stores the UUID of the user that last changed this record.]]></comment>
 	</column>
-	<column name="sys_period" alias="sys_period" not-null="true">
+	<column name="sys_period" alias="sys_period" not-null="true" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[Temporal data for this record.]]></comment>
 	</column>
@@ -1142,9 +1150,17 @@ On every update of a terms of service agreement version for a team, all user acc
 	</label>
 </relationship>
 
-<table name="profile_team" layer="0" collapse-mode="2" max-obj-count="3">
+<table name="profile_team" layer="0" collapse-mode="2" max-obj-count="4">
 	<schema name="_a3s"/>
 	<position x="1280" y="1940"/>
+	<column name="changed_by" alias="changed_by">
+		<type name="uuid" length="0"/>
+		<comment><![CDATA[UUID of user that last modified the record.]]></comment>
+	</column>
+	<column name="sys_period" alias="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[Temporal data for this record.]]></comment>
+	</column>
 
 	<customidxs object-type="column">
 		<object name="profile_id" index="0"/>
