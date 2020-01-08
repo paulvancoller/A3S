@@ -2387,7 +2387,55 @@
 								"1f42d750-8ea3-4007-8a7c-41a8822e2099"
 							]
 						},
-						"description": "Deletes a function by it's UUID, but with an unfindabkle UUID, expecting 404."
+						"description": "Deletes a function by it's UUID, but with an unfindable UUID, expecting 404."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteFunction By UUID - Incorrectly Structured UUID - Expect 4040",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request.\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/functions/1f42d750-8ea3-4007-8a7c-41a8822e2099fail",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions",
+								"1f42d750-8ea3-4007-8a7c-41a8822e2099fail"
+							]
+						},
+						"description": "Deletes a function by it's UUID, but with an incorrectly structured UUID, expecting 400."
 					},
 					"response": []
 				},
@@ -8306,7 +8354,65 @@
 					"response": []
 				},
 				{
-					"name": "CreateUser - With Teams - Related Team UUID does not exist - Expect 404 Copy",
+					"name": "CreateUser - With Roles - Related Role UUID invalid structure - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New User First Name Six\",\n\t\"surname\": \"New User Surname Six\",\n\t\"email\": \"newsix@emailadress.local\",\n\t\"phoneNumber\": \"+27110110113\",\n\t\"username\": \"new-user-name-six\",\n\t\"password\": \"Password1#\",\n    \"roleIds\": [\"{{role-guid}}fail\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Attempt to create a user that references an invalid structured UUID for the role that is being assigned to the user. Expects a 400 bad request."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser - With Teams - Related Team UUID does not exist - Expect 404",
 					"event": [
 						{
 							"listen": "test",
@@ -8360,6 +8466,64 @@
 							]
 						},
 						"description": "Attempt to create a user that references a non-existent UUID for the team that is being assigned to the user. Expects a 404 not found."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser - With Teams - Related Team UUID invalid structure - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request.\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New User First Name Six\",\n\t\"surname\": \"New User Surname Six\",\n\t\"email\": \"newsix@emailadress.local\",\n\t\"phoneNumber\": \"+27110110113\",\n\t\"username\": \"new-user-name-six\",\n\t\"password\": \"Password1#\",\n    \"teamIds\": [\"{{team-guid}}fail\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Attempt to create a user that references an invalid UUID for the team that is being assigned to the user. Expects a 400 - Bad request."
 					},
 					"response": []
 				},
@@ -9032,6 +9196,102 @@
 							]
 						},
 						"description": "Deletes a user by it's UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser By UUID - Unfindable UUID - Expect 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/users/1f42d750-8ea3-4007-8a7c-41a8822e2099",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"1f42d750-8ea3-4007-8a7c-41a8822e2099"
+							]
+						},
+						"description": "Deletes a function by it's UUID, but with an unfindable UUID, expecting 404."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser By UUID - Invalid structured UUID - Expect 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 400 - Bad request.\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/users/1f42d750-8ea3-4007-8a7c-41a8822e2099fail",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"1f42d750-8ea3-4007-8a7c-41a8822e2099fail"
+							]
+						},
+						"description": "Deletes a function by it's UUID, but with an invalid structured UUID, expecting 400."
 					},
 					"response": []
 				},
