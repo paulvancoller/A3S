@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="1327,1282" last-zoom="1" max-obj-count="38"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="257,1147" last-zoom="1" max-obj-count="38"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -849,11 +849,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="terms_of_service" layer="0" collapse-mode="2" max-obj-count="7">
+<table name="terms_of_service" layer="0" collapse-mode="2" max-obj-count="8">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Terms of service agreement entries that users agree to.]]></comment>
-	<position x="1000" y="200"/>
+	<position x="920" y="140"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -1185,6 +1185,15 @@ On every update of a terms of service agreement version for a team, all user acc
 		<position x="-10.5037" y="-3.32368"/>
 	</label>
 </relationship>
+
+<relationship name="sub_realm_has_many_terms_of_service" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 custom-color="#282927"
+	 src-table="_a3s.sub_realm"
+	 dst-table="_a3s.terms_of_service"
+	 src-required="false" dst-required="false"/>
 
 <constraint name="fk_application_function_application_application_id" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="RESTRICT" ref-table="_a3s.application" table="_a3s.application_function">
