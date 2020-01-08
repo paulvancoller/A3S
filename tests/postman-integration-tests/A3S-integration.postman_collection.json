@@ -6629,6 +6629,16 @@
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.teamIds[0]).to.equal(pm.environment.get('child-team-guid'));",
 									"});",
+									"",
+									"pm.test(\"Set environment compound team UUID.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"compound-team-guid\", jsonData.uuid);",
+									"});",
+									"",
+									"pm.test(\"Confirm that compound GUID has been set.\", function () {",
+									"    pm.expect(pm.environment.get(\"compound-team-guid\").length).to.not.eql(0);",
+									"});    ",
+									"",
 									""
 								],
 								"type": "text/javascript"
@@ -6674,6 +6684,65 @@
 							]
 						},
 						"description": "Creates a new team with attached child team."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeam - Compound Child Role Attached - Expect 422",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Response is 422 - ItemNotProcessable\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-team-with-compound\",\n    \"description\" : \"test-new-team-description-with-compound\",\n    \"teamIds\": [\"{{compound-team-guid}}\"],\n    \"dataPolicyIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team with attached compound child team, which should result in 422 - ItemNotProcessable."
 					},
 					"response": []
 				},
