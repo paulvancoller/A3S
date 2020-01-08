@@ -194,5 +194,11 @@
     <Compile Include="..\za.co.grindrodbank.a3s\A3SConstants.cs">
       <Link>A3SConstants.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\ConnectionClients\ILdapConnectionClient.cs">
+      <Link>ConnectionClients\ILdapConnectionClient.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\ConnectionClients\LdapConnectionClient.cs">
+      <Link>ConnectionClients\LdapConnectionClient.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

@@ -49,6 +49,20 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
+        public async Task GetById_GivenUnfindableId_ReturnsNullResource()
+        {
+            // Arrange
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var permissionService = new PermissionService(permissionsRepository, mapper);
+
+            // Act
+            var permissionResource = await permissionService.GetByIdAsync(Guid.NewGuid());
+
+            // Assert
+            Assert.Null(permissionResource);
+        }
+
+        [Fact]
         public async Task GetList_GivenNoInput_ReturnsPermissionResourceList()
         {
             var permissionsRepository = Substitute.For<IPermissionRepository>();

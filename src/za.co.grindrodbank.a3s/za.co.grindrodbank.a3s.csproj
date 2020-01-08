@@ -43,6 +43,7 @@
     <Folder Include="Helpers\" />
     <Folder Include="Managers\" />
     <Folder Include="Stores\" />
+    <Folder Include="ConnectionClients\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Views\Home\Privacy.cshtml" />

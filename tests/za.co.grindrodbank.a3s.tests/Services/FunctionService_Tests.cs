@@ -375,7 +375,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public async Task UpdateAsync_GivenNewTUntakenName_ReturnsUpdatedFunction()
+        public async Task UpdateAsync_GivenNewUntakenName_ReturnsUpdatedFunction()
         {
             // Arrange
             var functionRepository = Substitute.For<IFunctionRepository>();
