@@ -3,7 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <ReleaseVersion>1.0.2</ReleaseVersion>
+    <Description>A3S Management API</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -40,12 +41,13 @@
     <Folder Include="Converters\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Inspectors\" />
     <Folder Include="Managers\" />
     <Folder Include="Stores\" />
+    <Folder Include="ConnectionClients\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Views\Home\Privacy.cshtml" />
+    <Content Remove="wwwroot\img\A3S_logo_icon_only.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="nlog.config">

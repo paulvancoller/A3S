@@ -4,12 +4,12 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Xunit;
+using za.co.grindrodbank.a3s.ConnectionClients;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
@@ -20,7 +20,8 @@ namespace za.co.grindrodbank.a3s.tests.Services
     public class LdapConnectionService_Tests
     {
         private readonly UserModel mockUserModel;
-        
+        private readonly ILdapConnectionClient mockedLdapConnectionClient;
+
         public LdapConnectionService_Tests()
         {
             mockUserModel = new UserModel()
@@ -39,6 +40,8 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     IsLdaps = false
                 }
             };
+
+            mockedLdapConnectionClient = Substitute.For<ILdapConnectionClient>();
         }
 
         [Fact]
@@ -48,7 +51,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
             var userRepository = Substitute.For<IUserRepository>();
 
-            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository);
+            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository, mockedLdapConnectionClient, mockedLdapConnectionClient);
 
             // Act
             var signInResult = await ldapConnectionService.Login(mockUserModel, "Password1#");
@@ -65,7 +68,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var userRepository = Substitute.For<IUserRepository>();
 
             ldapAuthenticationModeRepository.GetByIdAsync(mockUserModel.LdapAuthenticationMode.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockUserModel.LdapAuthenticationMode);
-            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository);
+            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository, mockedLdapConnectionClient, mockedLdapConnectionClient);
 
             // Act
             var checkResult = await ldapConnectionService.CheckIfUserExist(mockUserModel.UserName, mockUserModel.LdapAuthenticationMode.Id);
@@ -81,7 +84,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
             var userRepository = Substitute.For<IUserRepository>();
 
-            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository);
+            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository, mockedLdapConnectionClient, mockedLdapConnectionClient);
 
             // Act
             Exception caughtEx = null;
@@ -99,21 +102,21 @@ namespace za.co.grindrodbank.a3s.tests.Services
         }
 
         [Fact]
-        public void TestLdapSettings_GivenUserModelAndLdapAuthMode_ReturnsFalse()
+        public void TestLdapSettings_GivenUserModelAndLdapAuthMode_ReturnsTrue()
         {
             // Arrange
             var ldapAuthenticationModeRepository = Substitute.For<ILdapAuthenticationModeRepository>();
             var userRepository = Substitute.For<IUserRepository>();
 
             ldapAuthenticationModeRepository.GetByIdAsync(mockUserModel.LdapAuthenticationMode.Id, Arg.Any<bool>(), Arg.Any<bool>()).Returns(mockUserModel.LdapAuthenticationMode);
-            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository);
+            var ldapConnectionService = new LdapConnectionService(ldapAuthenticationModeRepository, userRepository, mockedLdapConnectionClient, mockedLdapConnectionClient);
 
             // Act
             List<string> returnMessages = new List<string>();
             var testResult = ldapConnectionService.TestLdapSettings(mockUserModel.LdapAuthenticationMode, ref returnMessages);
 
             // Assert
-            Assert.False(testResult, "Testing LDAP settings should return false.");
+            Assert.True(testResult, "Testing LDAP settings should return true.");
         }
     }
 }

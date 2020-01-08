@@ -4,11 +4,9 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using za.co.grindrodbank.a3s.Exceptions;
-using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
 using za.co.grindrodbank.a3s.A3SApiResources;

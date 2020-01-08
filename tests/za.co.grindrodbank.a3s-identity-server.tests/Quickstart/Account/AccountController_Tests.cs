@@ -23,6 +23,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders.Testing;
 using NSubstitute;
 using Xunit;
+using za.co.grindrodbank.a3s.ConnectionClients;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
@@ -72,7 +73,7 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.Account
             var mockSignInLogger = Substitute.For<ILogger<SignInManager<UserModel>>>();
             mockUserRepository = Substitute.For<IUserRepository>();
             var mockLdapAuthenticationModeRepository = Substitute.For<LdapAuthenticationModeRepository>(fakeA3SContext, mockConfiguration);
-            var mockLdapConnectionService = Substitute.For<LdapConnectionService>(mockLdapAuthenticationModeRepository, mockUserRepository);
+            var mockLdapConnectionService = Substitute.For<ILdapConnectionService>();
             mockAuthenticationSchemeProvider = Substitute.For<IAuthenticationSchemeProvider>();
             var mockUserConfirmation = Substitute.For<IUserConfirmation<UserModel>>();
 

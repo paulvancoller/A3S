@@ -2,7 +2,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGrindrodBank%2FA3S?ref=badge_shield)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=A3S&metric=alert_status)](https://sonarcloud.io/dashboard?id=A3S)
 
-# A3S
+![A3S](doc/img/a3s_logo_2.png)
 
 *An enterprise framework that makes effortless management of centralized authorization, authentication, and accounting. A3S supports OpenID and OAuth 2.0 identity protocols.*
 
@@ -42,6 +42,7 @@ Classic AAA systems limits access-control to roles and the applications need to 
 * LDAP and Active Directory connectivity is supported to allow for easy integration into existing user stores. *[Learn more](./doc/ldap-setup.md)*
 * A3S has centralized management for users via a friendly API.
 * Two-factor authentication with Time-based One-time Password (TOTP) allows even more secure user authentication.
+* Terms of Service functionality allows agreement-based authentication. *[Learn more](./doc/terms-of-service.md)*
 
 ---
 

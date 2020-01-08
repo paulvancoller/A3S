@@ -20,7 +20,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class ApplicationService_Tests
     {
-        IMapper mapper;
+        private readonly IMapper mapper;
 
         public ApplicationService_Tests()
         {
@@ -42,8 +42,9 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var applicationService = new ApplicationService(applicationRepository, mapper);
             var serviceApplication = await applicationService.GetByIdAsync(guid);
 
-            Assert.True(serviceApplication.Name == "Test Name");
-            Assert.True(serviceApplication.Uuid == guid);
+            Assert.NotNull(serviceApplication);
+            Assert.True(serviceApplication.Name == "Test Name", "Retrieved resource name must be 'Test Name'.");
+            Assert.True(serviceApplication.Uuid == guid, $"Retrived resource Uuid must be '{guid}'.");
         }
 
         [Fact]
@@ -62,13 +63,16 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var applicationsList = await applicationService.GetListAsync();
 
             var applicationResource1 = applicationsList.Find(am => am.Name == "Test Name 1");
-            Assert.True(applicationResource1.GetType() != null);
+            Assert.NotNull(applicationResource1);
             Assert.True(applicationResource1.GetType() == typeof(Application));
-            Assert.True(applicationResource1.Uuid == guid1);
+            Assert.True(applicationResource1.Uuid == guid1, $"Retrived resource 1 Uuid must be '{guid1}'.");
+            Assert.True(applicationResource1.Name == "Test Name 1", "Retrieved resource 1 name must be 'Test Name 1'.");
 
             var applicationResource2 = applicationsList.Find(am => am.Name == "Test Name 2");
-            Assert.True(applicationResource2.GetType() != null);
+            Assert.NotNull(applicationResource2);
             Assert.True(applicationResource2.GetType() == typeof(Application));
+            Assert.True(applicationResource2.Uuid == guid2, $"Retrived resource 2 Uuid must be '{guid2}'.");
+            Assert.True(applicationResource2.Name == "Test Name 2", "Retrieved resource 2 name must be 'Test Name 2'.");
         }
     }
 }

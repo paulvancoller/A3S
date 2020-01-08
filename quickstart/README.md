@@ -1,3 +1,5 @@
+![A3S](../doc/img/a3s_logo_2.png)
+
 # A3S Quickstart
 
 The purpose of the quickstart is to get the core A3S components and optional dependencies running together as an environment using Docker Compose and to test the A3S Management APIs and Identity Server token issuing components. A Postman collection has been developed for the purpose of exploring and experimenting with the deployed APIs. Later chapters of this quickstart guide a user through the process of bringing up the environment, obtaining an access token for the bootstrap user, configuring or bootstrapping A3S via the Security Contract API, and then obtaining a permission rich access token for a user that was configured with the Security Contract. This configured user can then be used to explore the current API using the provided Postman collection.

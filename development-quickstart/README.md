@@ -1,3 +1,5 @@
+![A3S](../doc/img/a3s_logo_2.png)
+
 # Development Docker Compose Usage Instructions
 
 This docker-compose setup is intended for use when developing the A3S platform. It includes:

@@ -37,6 +37,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Mvc;
+using za.co.grindrodbank.a3s.ConnectionClients;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -152,6 +153,7 @@ namespace za.co.grindrodbank.a3s
                 options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
                 options.AddPolicy("permission:a3s.securityContracts.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.update")));
                 options.AddPolicy("permission:a3s.applications.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.applications.read")));
+                options.AddPolicy("permission:a3s.clients.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clients.read")));
                 options.AddPolicy("permission:a3s.clientRegistration.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clientRegistration.update")));
                 options.AddPolicy("permission:a3s.functions.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.read")));
                 options.AddPolicy("permission:a3s.functions.create", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.create")));
@@ -199,7 +201,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IApplicationDataPolicyRepository, ApplicationDataPolicyRepository>();
             services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
 
-            // Resgister all the services.
+            // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<IFunctionService, FunctionService>();
             services.AddScoped<IRoleService, RoleService>();
@@ -216,9 +218,13 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ILdapConnectionService, LdapConnectionService>();
             services.AddScoped<ITwoFactorAuthService, TwoFactorAuthService>();
             services.AddScoped<ITermsOfServiceService, TermsOfServiceService>();
+            services.AddScoped<IClientService, ClientService>();
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
+
+            // Register Connection Clients
+            services.AddScoped<ILdapConnectionClient, LdapConnectionClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

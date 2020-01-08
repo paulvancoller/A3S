@@ -20,7 +20,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
 {
     public class PermissionService_Tests
     {
-        IMapper mapper;
+        private readonly IMapper mapper;
 
         public PermissionService_Tests()
         {
@@ -42,9 +42,24 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var permissionService = new PermissionService(permissionsRepository, mapper);
             var permissionResource = await permissionService.GetByIdAsync(guid);
 
-            Assert.True(permissionResource.Name == "Test Name");
-            Assert.True(permissionResource.Uuid == guid);
-            Assert.True(permissionResource.Description == "Test permission description");
+            Assert.NotNull(permissionResource);
+            Assert.True(permissionResource.Name == "Test Name", "Resource name must be 'Test Name'.");
+            Assert.True(permissionResource.Uuid == guid, $"Resource Uuid must be '{guid}'.");
+            Assert.True(permissionResource.Description == "Test permission description", "Resource description must be 'Test permission description'.");
+        }
+
+        [Fact]
+        public async Task GetById_GivenUnfindableId_ReturnsNullResource()
+        {
+            // Arrange
+            var permissionsRepository = Substitute.For<IPermissionRepository>();
+            var permissionService = new PermissionService(permissionsRepository, mapper);
+
+            // Act
+            var permissionResource = await permissionService.GetByIdAsync(Guid.NewGuid());
+
+            // Assert
+            Assert.Null(permissionResource);
         }
 
         [Fact]
@@ -63,14 +78,14 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var permissionList = await permissionService.GetListAsync();
 
             var permissionResource1 = permissionList.Find(am => am.Name == "Test Name 1");
-            Assert.True(permissionResource1.GetType() != null);
-            Assert.True(permissionResource1.GetType() == typeof(Permission));
+            Assert.NotNull(permissionResource1);
+            Assert.True(permissionResource1.GetType() == typeof(Permission), "Resource 1 must be type 'Permission'.");
             Assert.True(permissionResource1.Uuid == guid1, $"Permission resource UUID: '{permissionResource1.Uuid }' does not match expected value: '{guid1}'");
             Assert.True(permissionResource1.Description == "Test permissions description 1", $"Permission resource Description: '{permissionResource1.Description}' does not match expected value: 'Test permission description'");
 
             var permissionResource2 = permissionList.Find(am => am.Name == "Test Name 2");
-            Assert.True(permissionResource2.GetType() != null);
-            Assert.True(permissionResource2.GetType() == typeof(Permission));
+            Assert.NotNull(permissionResource2);
+            Assert.True(permissionResource2.GetType() == typeof(Permission), "Resource 2 must be type 'Permission'.");
             Assert.True(permissionResource2.Uuid == guid2, $"Permission resource UUID: '{permissionResource2.Uuid }' does not match expected value: '{guid2}'");
             Assert.True(permissionResource2.Description == "Test permissions description 2", $"Permission resource Description: '{permissionResource2.Description}' does not match expected value: 'Test permission description'");
         }
