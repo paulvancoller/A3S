@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="1688,59" last-zoom="1" max-obj-count="38"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="1327,1282" last-zoom="1" max-obj-count="38"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -21,7 +21,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Application resources that are protected by IDS4]]></comment>
-	<position x="260" y="1420"/>
+	<position x="260" y="1440"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -46,7 +46,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A grouping of permissions belonging to a specific application, as configured by the service developers.]]></comment>
-	<position x="500" y="1100"/>
+	<position x="500" y="1120"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -77,7 +77,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Application Function and Permission link]]></comment>
-	<position x="760" y="840"/>
+	<position x="740" y="780"/>
 	<column name="application_function_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -99,7 +99,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp,net Identity User profile table.]]></comment>
-	<position x="2220" y="660"/>
+	<position x="2220" y="680"/>
 	<column name="id" not-null="true">
 		<type name="text" length="0"/>
 		<comment><![CDATA[Asp.Net Identity User ID. Must be string, although Guid is saved here.]]></comment>
@@ -193,7 +193,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity user claims table.]]></comment>
-	<position x="2960" y="440"/>
+	<position x="2960" y="460"/>
 	<column name="id" not-null="true" sequence="_a3s.application_user_claim_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -218,7 +218,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3060" y="1020"/>
+	<position x="3060" y="1040"/>
 	<column name="id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -245,7 +245,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3140" y="1220"/>
+	<position x="3140" y="1240"/>
 	<column name="id" not-null="true" sequence="_a3s.aspnet_role_claim_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -267,7 +267,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3000" y="660"/>
+	<position x="3000" y="680"/>
 	<column name="login_provider" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -289,7 +289,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Asp.Net identity default table. Not Used, but has to exist.]]></comment>
-	<position x="3000" y="840"/>
+	<position x="3000" y="860"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -305,7 +305,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Token provider link to Users]]></comment>
-	<position x="2340" y="300"/>
+	<position x="2340" y="320"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -331,7 +331,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A grouping of permissions belonging to a specific application, as created by business users within A3S. These are functions that are assigned to roles which result in users receiving the contained permissions.]]></comment>
-	<position x="1520" y="1460"/>
+	<position x="1520" y="1480"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -362,7 +362,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Function and Permission link]]></comment>
-	<position x="1380" y="1120"/>
+	<position x="1380" y="1140"/>
 	<column name="function_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -384,7 +384,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[ Specific permission inside an application, like read, write or delete]]></comment>
-	<position x="1420" y="840"/>
+	<position x="1440" y="900"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -412,7 +412,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A role a user belongs to]]></comment>
-	<position x="1880" y="940"/>
+	<position x="1880" y="960"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -440,7 +440,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Role and Function link]]></comment>
-	<position x="1980" y="1220"/>
+	<position x="2220" y="1280"/>
 	<column name="role_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -462,7 +462,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Team that users belong to]]></comment>
-	<position x="1000" y="600"/>
+	<position x="1000" y="460"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -493,7 +493,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[User and Role link]]></comment>
-	<position x="2660" y="1540"/>
+	<position x="2660" y="1560"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -515,7 +515,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Users and Teams link]]></comment>
-	<position x="1560" y="500"/>
+	<position x="1560" y="520"/>
 	<column name="user_id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -641,7 +641,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Team of Teams (compound teams) definition]]></comment>
-	<position x="720" y="300"/>
+	<position x="300" y="200"/>
 	<column name="parent_team_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -671,7 +671,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Role of Roles (compound role) definition]]></comment>
-	<position x="1740" y="720"/>
+	<position x="1740" y="740"/>
 	<column name="parent_role_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -701,7 +701,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[LDAP Profile definitions]]></comment>
-	<position x="2740" y="1200"/>
+	<position x="2740" y="1220"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -754,7 +754,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Attribute to User field mappings for Ldap detail synchronisation]]></comment>
-	<position x="3100" y="1540"/>
+	<position x="3100" y="1560"/>
 	<column name="id" not-null="true" sequence="_a3s.ldap_authentication_mode_ldap_attribute_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -792,7 +792,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Data policies defined for an application]]></comment>
-	<position x="240" y="840"/>
+	<position x="240" y="860"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -831,7 +831,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Data policies and Teams link]]></comment>
-	<position x="280" y="520"/>
+	<position x="200" y="560"/>
 	<column name="team_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -853,7 +853,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Terms of service agreement entries that users agree to.]]></comment>
-	<position x="1120" y="280"/>
+	<position x="1000" y="200"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -889,7 +889,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[This records the acceptance of terms of service entries by users.]]></comment>
-	<position x="1920" y="100"/>
+	<position x="1940" y="100"/>
 	<column name="terms_of_service_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -910,7 +910,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<role name="postgres"/>
 	<comment><![CDATA[This stores the history of the acceptance of terms of service entries by users.
 On every update of a terms of service agreement version for a team, all user acceptance records get copied from 'terms_of_service_user_acceptance' to 'terms_of_service_user_acceptance_history'.]]></comment>
-	<position x="2740" y="120"/>
+	<position x="2740" y="140"/>
 	<column name="terms_of_service_id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -929,7 +929,7 @@ On every update of a terms of service agreement version for a team, all user acc
 <table name="profile" layer="0" collapse-mode="2" max-obj-count="8">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
-	<position x="2280" y="1540"/>
+	<position x="2000" y="1860"/>
 	<column name="id" alias="id" not-null="true">
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[The UUID identifier for a profile.]]></comment>
@@ -966,7 +966,7 @@ On every update of a terms of service agreement version for a team, all user acc
 	</customidxs>
 </table>
 
-<relationship name="application_user_has_many_profile" type="rel1n" layer="0"
+<relationship name="application_user_has_many_profiles" type="rel1n" layer="0"
 	 src-col-pattern="user_id"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="fk_{dt}_{st}_id"
@@ -974,13 +974,17 @@ On every update of a terms of service agreement version for a team, all user acc
 	 src-table="_a3s.application_user"
 	 dst-table="_a3s.profile"
 	 src-required="true" dst-required="false"
-	del-action="CASCADE"/>
+	del-action="CASCADE">
+	<label ref-type="name-label">
+		<position x="9.84229" y="3.71723"/>
+	</label>
+</relationship>
 
 <table name="sub_realm" layer="0" collapse-mode="2" max-obj-count="3">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Table modelling a sub realm within A3S.]]></comment>
-	<position x="960" y="1680"/>
+	<position x="960" y="1700"/>
 	<column name="id" alias="id" not-null="true">
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[The UUID identifier for a sub realm.]]></comment>
@@ -1013,7 +1017,7 @@ On every update of a terms of service agreement version for a team, all user acc
 
 <table name="sub_realm_permission" layer="0" collapse-mode="2" max-obj-count="4">
 	<schema name="_a3s"/>
-	<position x="280" y="1660"/>
+	<position x="280" y="1680"/>
 	<column name="changed_by" alias="changed_by" not-null="true">
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[The UUID of the user that last changed the record.]]></comment>
@@ -1085,6 +1089,102 @@ On every update of a terms of service agreement version for a team, all user acc
 	 src-table="_a3s.sub_realm"
 	 dst-table="_a3s.team"
 	 src-required="false" dst-required="false"/>
+
+<table name="profile_role" layer="0" collapse-mode="2" max-obj-count="4">
+	<schema name="_a3s"/>
+	<position x="1980" y="1580"/>
+	<column name="changed_by" alias="changed_by" not-null="true">
+		<type name="uuid" length="0"/>
+		<comment><![CDATA[Stores the UUID of the user that last changed this record.]]></comment>
+	</column>
+	<column name="sys_period" alias="sys_period" not-null="true">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[Temporal data for this record.]]></comment>
+	</column>
+
+	<customidxs object-type="column">
+		<object name="profile_id" index="0"/>
+		<object name="role_id" index="1"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="fk_profile_role_profile_id" index="1"/>
+		<object name="fk_profile_role_role_id" index="2"/>
+		<object name="profile_role_pk" index="0"/>
+	</customidxs>
+</table>
+
+<relationship name="profile_has_many_profile_role" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 src-table="_a3s.profile"
+	 dst-table="_a3s.profile_role"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+>
+	<label ref-type="name-label">
+		<position x="-15.736" y="6.47632"/>
+	</label>
+</relationship>
+
+<relationship name="role_has_many_profile_role" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 src-table="_a3s.role"
+	 dst-table="_a3s.profile_role"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+>
+	<label ref-type="name-label">
+		<position x="-12.4522" y="4.97632"/>
+	</label>
+</relationship>
+
+<table name="profile_team" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="_a3s"/>
+	<position x="1280" y="1940"/>
+
+	<customidxs object-type="column">
+		<object name="profile_id" index="0"/>
+		<object name="team_id" index="1"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="fk_profile_team_profile_id" index="1"/>
+		<object name="fk_profile_team_team_id" index="2"/>
+		<object name="profile_team_pk" index="0"/>
+	</customidxs>
+</table>
+
+<relationship name="profile_has_many_profile_team" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 src-table="_a3s.profile"
+	 dst-table="_a3s.profile_team"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+>
+	<label ref-type="name-label">
+		<position x="28.9262" y="-23.6554"/>
+	</label>
+</relationship>
+
+<relationship name="team_has_many_profile_team" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 src-table="_a3s.team"
+	 dst-table="_a3s.profile_team"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+>
+	<label ref-type="name-label">
+		<position x="-10.5037" y="-3.32368"/>
+	</label>
+</relationship>
 
 <constraint name="fk_application_function_application_application_id" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="RESTRICT" ref-table="_a3s.application" table="_a3s.application_function">
