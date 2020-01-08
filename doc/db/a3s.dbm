@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="726,959" last-zoom="1" max-obj-count="38"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="950,1013" last-zoom="1" max-obj-count="38"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -331,7 +331,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A grouping of permissions belonging to a specific application, as created by business users within A3S. These are functions that are assigned to roles which result in users receiving the contained permissions.]]></comment>
-	<position x="1400" y="1460"/>
+	<position x="1500" y="1440"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -408,11 +408,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="role" layer="0" collapse-mode="2" max-obj-count="6">
+<table name="role" layer="0" collapse-mode="2" max-obj-count="7">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<comment><![CDATA[A role a user belongs to]]></comment>
-	<position x="1860" y="980"/>
+	<position x="1880" y="940"/>
 	<column name="id" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -926,7 +926,7 @@ On every update of a terms of service agreement version for a team, all user acc
 	</constraint>
 </table>
 
-<table name="profile" layer="0" collapse-mode="2" max-obj-count="6">
+<table name="profile" layer="0" collapse-mode="2" max-obj-count="8">
 	<schema name="_a3s"/>
 	<role name="postgres"/>
 	<position x="2280" y="1540"/>
@@ -942,9 +942,28 @@ On every update of a terms of service agreement version for a team, all user acc
 		<type name="text" length="0"/>
 		<comment><![CDATA[A brief description of the profile and it's purpose.]]></comment>
 	</column>
+	<column name="changed_by" alias="changed_by" not-null="true">
+		<type name="uuid" length="0"/>
+		<comment><![CDATA[The UUID of the user that last changed this record.]]></comment>
+	</column>
+	<column name="sys_period" alias="sys_period" not-null="true">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[The temporal data for when this record was changed.]]></comment>
+	</column>
 	<constraint name="pk_profile" type="pk-constr" table="_a3s.profile">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
+
+	<customidxs object-type="column">
+		<object name="sub_realm_id" index="4"/>
+		<object name="user_id" index="3"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="fk_profile_application_user_id" index="1"/>
+		<object name="fk_profile_sub_realm_id" index="2"/>
+		<object name="uq_profile" index="3"/>
+	</customidxs>
 </table>
 
 <relationship name="application_user_has_many_profile" type="rel1n" layer="0"
@@ -992,9 +1011,28 @@ On every update of a terms of service agreement version for a team, all user acc
 	 dst-table="_a3s.profile"
 	 src-required="true" dst-required="false"/>
 
-<table name="sub_realm_permission" layer="0" collapse-mode="2" max-obj-count="3">
+<table name="sub_realm_permission" layer="0" collapse-mode="2" max-obj-count="4">
 	<schema name="_a3s"/>
 	<position x="980" y="1380"/>
+	<column name="changed_by" alias="changed_by" not-null="true">
+		<type name="uuid" length="0"/>
+		<comment><![CDATA[The UUID of the user that last changed the record.]]></comment>
+	</column>
+	<column name="sys_period" alias="sys_period" not-null="true">
+		<type name="tstzrange" length="0"/>
+		<comment><![CDATA[The temporal data for changes to this table.]]></comment>
+	</column>
+
+	<customidxs object-type="column">
+		<object name="permission_id" index="1"/>
+		<object name="sub_realm_id" index="0"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="fk_sub_realm_permission_permission_id" index="2"/>
+		<object name="fk_sub_realm_permission_sub_realm_id" index="1"/>
+		<object name="pk_sub_realm_permission" index="0"/>
+	</customidxs>
 </table>
 
 <relationship name="sub_realm_has_many_sub_realm_permission" type="rel1n" layer="0"
@@ -1020,6 +1058,15 @@ On every update of a terms of service agreement version for a team, all user acc
 		<position x="-35.0638" y="-20.1237"/>
 	</label>
 </relationship>
+
+<relationship name="sub_realm_has_many_roles" type="rel1n" layer="0"
+	 src-col-pattern="{st}_{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="fk_{dt}_{st}_id"
+	 custom-color="#d50d24"
+	 src-table="_a3s.sub_realm"
+	 dst-table="_a3s.role"
+	 src-required="false" dst-required="false"/>
 
 <constraint name="fk_application_function_application_application_id" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="RESTRICT" ref-table="_a3s.application" table="_a3s.application_function">
