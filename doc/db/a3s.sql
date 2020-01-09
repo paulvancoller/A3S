@@ -24,6 +24,21 @@ CREATE SCHEMA _a3s;
 
 ALTER SCHEMA _a3s OWNER TO postgres;
 
+ --		
+ -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -		
+ --		
+
+  CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA _a3s;		
+
+ 
+ --		
+ -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 		
+ --		
+
+  COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';		
+
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -343,27 +358,6 @@ ALTER TABLE _a3s.aspnet_user_role OWNER TO postgres;
 --
 
 COMMENT ON TABLE _a3s.aspnet_user_role IS 'Asp.Net identity default table. Not Used, but has to exist.';
-
-
---
--- Name: flyway_schema_history; Type: TABLE; Schema: _a3s; Owner: postgres
---
-
-CREATE TABLE _a3s.flyway_schema_history (
-    installed_rank integer NOT NULL,
-    version character varying(50),
-    description character varying(200) NOT NULL,
-    type character varying(20) NOT NULL,
-    script character varying(1000) NOT NULL,
-    checksum integer,
-    installed_by character varying(100) NOT NULL,
-    installed_on timestamp without time zone DEFAULT now() NOT NULL,
-    execution_time integer NOT NULL,
-    success boolean NOT NULL
-);
-
-
-ALTER TABLE _a3s.flyway_schema_history OWNER TO postgres;
 
 --
 -- Name: function; Type: TABLE; Schema: _a3s; Owner: postgres
@@ -999,15 +993,6 @@ ALTER TABLE _a3s.user_team OWNER TO postgres;
 
 COMMENT ON TABLE _a3s.user_team IS 'Users and Teams link';
 
-
---
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
---
-
-ALTER TABLE ONLY _a3s.flyway_schema_history
-    ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
-
-
 --
 -- Name: ldap_authentication_mode_ldap_attribute ldap_authentication_mode_ldap_attribute_pkey; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
 --
@@ -1381,14 +1366,6 @@ ALTER TABLE ONLY _a3s.terms_of_service
 
 ALTER TABLE ONLY _a3s.profile
     ADD CONSTRAINT uq_profile UNIQUE (sub_realm_id);
-
-
---
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: _a3s; Owner: postgres
---
-
-CREATE INDEX flyway_schema_history_s_idx ON _a3s.flyway_schema_history USING btree (success);
-
 
 --
 -- Name: ix_application_data_policy_name; Type: INDEX; Schema: _a3s; Owner: postgres
