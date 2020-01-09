@@ -3214,7 +3214,7 @@ components:
 
     TermsOfService:
       description: |
-        An agreement the needs to be agreed to by a user.
+        Models a terms of service agreement that needs to be agreed to by a user on login.
       type: object
       properties:
         uuid:
@@ -3235,10 +3235,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
 
     TermsOfServiceSubmit:
       description: |
-        An agreement the needs to be agreed to by a user.
+        Models a terms of service agreement that needs to be agreed to by a user on login. Used to create or update a terms of service agreement. UUID is required when updating a terms of service agreement. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
+      required:
+        - agreementName
+        - agreementFileData
+        - autoUpdate
       type: object
       properties:
         uuid:
@@ -3249,7 +3255,9 @@ components:
           type: string
         autoUpdate:
           type: boolean
-
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+      
     # End Region - TermsOfService      
 
     # Region - Functions
@@ -3444,7 +3452,7 @@ components:
           type: string
     #endregion
 
-    #region Team
+    # Region - Team
     TeamId:
       type: string
       format: uuid
@@ -3478,11 +3486,13 @@ components:
             $ref: '#/components/schemas/ApplicationDataPolicyId'
         termsOfServiceId:
             $ref: '#/components/schemas/TermsOfServiceId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         
 
     TeamSubmit:
       description: |
-        Model used for creating or updating a team.
+        Model used for creating or updating a team. Team can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
       required:
         - uuid
         - name
@@ -3509,7 +3519,10 @@ components:
             type: string
             format: uuid
             nullable: true
-    #endregion
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+        
+    # End Region -Team
     
     # Region -  Clients
     Oauth2ClientSubmit:
