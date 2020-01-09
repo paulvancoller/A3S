@@ -3256,7 +3256,13 @@ components:
 
     Function:
       description: |
-        A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application.
+        A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application. May optionally be associated with a sub-realm by specifying a 'subRealmId'.
+      required:
+        - uuid
+        - name
+        - description
+        - applicationId
+        - permissions
       type: object
       properties:
         uuid:
@@ -3267,6 +3273,8 @@ components:
           type: string
         applicationId:
           $ref: '#/components/schemas/ApplicationId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         permissions:
           type: array
           items:
@@ -3274,7 +3282,7 @@ components:
 
     FunctionSubmit:
       description: |
-        Model used to create an new function or update an existing Function.
+        Model used to create an new function or update an existing Function. May optionally be associated with a sub-realm by specifying a 'subRealmId'.
       required:
         - uuid
         - name
@@ -3293,6 +3301,8 @@ components:
           type: string
         applicationId:
           $ref: '#/components/schemas/ApplicationId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         permissions:
           description: A list of permission UUIDs that are to be added to the function.
           type: array
