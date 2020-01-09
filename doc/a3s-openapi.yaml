@@ -3093,7 +3093,7 @@ components:
           type: string
     #endregion
 
-    #region Role
+    # Region - Roles
     RoleId:
       type: string
       format: uuid
@@ -3109,6 +3109,8 @@ components:
           type: string
         description:
           type: string
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         functionIds:
           type: array
           items:
@@ -3116,7 +3118,7 @@ components:
             type: string
             format: uuid
         userIds:
-          description: The UUIDs of the users attached to the role
+          description: The UUIDs of the users attached to the role.
           type: array
           items:
             type: string
@@ -3129,20 +3131,22 @@ components:
           
     RoleSubmit:
       description: |
-        Model used to create or update a Role.
+        Model used to create or update a Role. The role can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
       required:
         - uuid
         - name
         - description
       type: object
       properties:
+        uuid:
+          type: string
+          format: uuid
         name:
           type: string
         description:
           type: string
-        uuid:
-          type: string
-          format: uuid
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         roleIds:
           description: The UUIDs of the child roles attached to the role.
           type: array
@@ -3155,9 +3159,9 @@ components:
             type: string
             format: uuid
         
-    #endregion
+    # End Region - Roles 
 
-    #region - Application
+    # Region - Application
     ApplicationId:
       type: string
       description: The UUID of an application.
