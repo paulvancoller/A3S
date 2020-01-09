@@ -3210,7 +3210,7 @@ components:
 
     TermsOfService:
       description: |
-        An agreement the needs to be agreed to by a user
+        An agreement the needs to be agreed to by a user.
       type: object
       properties:
         uuid:
@@ -3234,7 +3234,7 @@ components:
 
     TermsOfServiceSubmit:
       description: |
-        An agreement the needs to be agreed to by a user
+        An agreement the needs to be agreed to by a user.
       type: object
       properties:
         uuid:
@@ -3381,7 +3381,7 @@ components:
 
     UserSubmit:
       description: |
-        Used to update a user
+        Model used to create or update a user.
       type: object
       required:
         - uuid
@@ -3400,7 +3400,7 @@ components:
         username:
           type: string
         password:
-          description: A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected 
+          description: A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected.
           type: string
         email:
           type: string
@@ -3426,7 +3426,7 @@ components:
             format: uuid            
     UserPasswordChangeSubmit:
       description: |
-        Used to change a user's password
+        Used to change a user's password.
       type: object
       properties:
         uuid:
