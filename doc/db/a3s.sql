@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 10.7
--- Dumped by pg_dump version 12.1
+-- Dumped by pg_dump version 10.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,7 +12,6 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
-SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -25,21 +24,24 @@ CREATE SCHEMA _a3s;
 
 ALTER SCHEMA _a3s OWNER TO postgres;
 
---
--- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
---
+ --		
+ -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -		
+ --		
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA _a3s;
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA _a3s;		
 
+ 
+ --		
+ -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 		
+ --		
 
---
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
---
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';		
 
-COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 SET default_tablespace = '';
+
+SET default_with_oids = false;
 
 --
 -- Name: application; Type: TABLE; Schema: _a3s; Owner: postgres
@@ -357,7 +359,6 @@ ALTER TABLE _a3s.aspnet_user_role OWNER TO postgres;
 
 COMMENT ON TABLE _a3s.aspnet_user_role IS 'Asp.Net identity default table. Not Used, but has to exist.';
 
-
 --
 -- Name: function; Type: TABLE; Schema: _a3s; Owner: postgres
 --
@@ -368,7 +369,8 @@ CREATE TABLE _a3s.function (
     description text,
     application_id uuid NOT NULL,
     changed_by uuid NOT NULL,
-    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL,
+    sub_realm_id uuid
 );
 
 
@@ -532,6 +534,114 @@ COMMENT ON TABLE _a3s.permission IS ' Specific permission inside an application,
 
 
 --
+-- Name: profile; Type: TABLE; Schema: _a3s; Owner: postgres
+--
+
+CREATE TABLE _a3s.profile (
+    id uuid NOT NULL,
+    name text NOT NULL,
+    description text,
+    user_id text NOT NULL,
+    sub_realm_id uuid NOT NULL,
+    changed_by uuid NOT NULL,
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+);
+
+
+ALTER TABLE _a3s.profile OWNER TO postgres;
+
+--
+-- Name: COLUMN profile.id; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile.id IS 'The UUID identifier for a profile.';
+
+
+--
+-- Name: COLUMN profile.name; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile.name IS 'The name of the profile. This must be unique for each user.';
+
+
+--
+-- Name: COLUMN profile.description; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile.description IS 'A brief description of the profile and it''s purpose.';
+
+
+--
+-- Name: COLUMN profile.changed_by; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile.changed_by IS 'The UUID of the user that last changed this record.';
+
+
+--
+-- Name: COLUMN profile.sys_period; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile.sys_period IS 'The temporal data for when this record was changed.';
+
+
+--
+-- Name: profile_role; Type: TABLE; Schema: _a3s; Owner: postgres
+--
+
+CREATE TABLE _a3s.profile_role (
+    profile_id uuid NOT NULL,
+    role_id uuid NOT NULL,
+    changed_by uuid NOT NULL,
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+);
+
+
+ALTER TABLE _a3s.profile_role OWNER TO postgres;
+
+--
+-- Name: COLUMN profile_role.changed_by; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile_role.changed_by IS 'Stores the UUID of the user that last changed this record.';
+
+
+--
+-- Name: COLUMN profile_role.sys_period; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile_role.sys_period IS 'Temporal data for this record.';
+
+
+--
+-- Name: profile_team; Type: TABLE; Schema: _a3s; Owner: postgres
+--
+
+CREATE TABLE _a3s.profile_team (
+    profile_id uuid NOT NULL,
+    team_id uuid NOT NULL,
+    changed_by uuid,
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)
+);
+
+
+ALTER TABLE _a3s.profile_team OWNER TO postgres;
+
+--
+-- Name: COLUMN profile_team.changed_by; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile_team.changed_by IS 'UUID of user that last modified the record.';
+
+
+--
+-- Name: COLUMN profile_team.sys_period; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.profile_team.sys_period IS 'Temporal data for this record.';
+
+
+--
 -- Name: role; Type: TABLE; Schema: _a3s; Owner: postgres
 --
 
@@ -540,7 +650,8 @@ CREATE TABLE _a3s.role (
     name text NOT NULL,
     description text,
     changed_by uuid NOT NULL,
-    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL,
+    sub_realm_id uuid
 );
 
 
@@ -596,6 +707,91 @@ COMMENT ON TABLE _a3s.role_role IS 'Role of Roles (compound role) definition';
 
 
 --
+-- Name: sub_realm; Type: TABLE; Schema: _a3s; Owner: postgres
+--
+
+CREATE TABLE _a3s.sub_realm (
+    id uuid NOT NULL,
+    name text NOT NULL,
+    description text,
+    changed_by uuid,
+    sys_preriod tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)
+);
+
+
+ALTER TABLE _a3s.sub_realm OWNER TO postgres;
+
+--
+-- Name: TABLE sub_realm; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON TABLE _a3s.sub_realm IS 'Table modelling a sub realm within A3S.';
+
+
+--
+-- Name: COLUMN sub_realm.id; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm.id IS 'The UUID identifier for a sub realm.';
+
+
+--
+-- Name: COLUMN sub_realm.name; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm.name IS 'The name of the sub realm. This is a human readable name and must be unique within an A3S instance.';
+
+
+--
+-- Name: COLUMN sub_realm.description; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm.description IS 'A brief description of the sub-realm and it''s intent. ';
+
+
+--
+-- Name: COLUMN sub_realm.changed_by; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm.changed_by IS 'UUID of user that last changed the record.';
+
+
+--
+-- Name: COLUMN sub_realm.sys_preriod; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm.sys_preriod IS 'Temporal data for this record.';
+
+
+--
+-- Name: sub_realm_permission; Type: TABLE; Schema: _a3s; Owner: postgres
+--
+
+CREATE TABLE _a3s.sub_realm_permission (
+    sub_realm_id uuid NOT NULL,
+    permission_id uuid NOT NULL,
+    changed_by uuid NOT NULL,
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+);
+
+
+ALTER TABLE _a3s.sub_realm_permission OWNER TO postgres;
+
+--
+-- Name: COLUMN sub_realm_permission.changed_by; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm_permission.changed_by IS 'The UUID of the user that last changed the record.';
+
+
+--
+-- Name: COLUMN sub_realm_permission.sys_period; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON COLUMN _a3s.sub_realm_permission.sys_period IS 'The temporal data for changes to this table.';
+
+
+--
 -- Name: team; Type: TABLE; Schema: _a3s; Owner: postgres
 --
 
@@ -603,9 +799,10 @@ CREATE TABLE _a3s.team (
     id uuid NOT NULL,
     name text NOT NULL,
     description text,
-    terms_of_service_id uuid,
     changed_by uuid NOT NULL,
-    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL,
+    terms_of_service_id uuid,
+    sub_realm_id uuid
 );
 
 
@@ -670,7 +867,8 @@ CREATE TABLE _a3s.terms_of_service (
     version text NOT NULL,
     agreement_file bytea NOT NULL,
     changed_by uuid NOT NULL,
-    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
+    sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL,
+    sub_realm_id uuid
 );
 
 
@@ -706,7 +904,7 @@ COMMENT ON COLUMN _a3s.terms_of_service.agreement_file IS 'A .tar.gz file, conta
 CREATE TABLE _a3s.terms_of_service_user_acceptance (
     terms_of_service_id uuid NOT NULL,
     user_id text NOT NULL,
-    acceptance_time tstzrange NOT NULL
+    acceptance_time tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
 );
 
 
@@ -733,7 +931,7 @@ COMMENT ON COLUMN _a3s.terms_of_service_user_acceptance.acceptance_time IS 'The 
 CREATE TABLE _a3s.terms_of_service_user_acceptance_history (
     terms_of_service_id uuid NOT NULL,
     user_id text NOT NULL,
-    acceptance_time tstzrange NOT NULL
+    acceptance_time tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone) NOT NULL
 );
 
 
@@ -794,7 +992,6 @@ ALTER TABLE _a3s.user_team OWNER TO postgres;
 --
 
 COMMENT ON TABLE _a3s.user_team IS 'Users and Teams link';
-
 
 --
 -- Name: ldap_authentication_mode_ldap_attribute ldap_authentication_mode_ldap_attribute_pkey; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
@@ -925,6 +1122,14 @@ ALTER TABLE ONLY _a3s.permission
 
 
 --
+-- Name: profile pk_profile; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile
+    ADD CONSTRAINT pk_profile PRIMARY KEY (id);
+
+
+--
 -- Name: role pk_role; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
@@ -946,6 +1151,22 @@ ALTER TABLE ONLY _a3s.role_function
 
 ALTER TABLE ONLY _a3s.role_role
     ADD CONSTRAINT pk_role_role PRIMARY KEY (parent_role_id, child_role_id);
+
+
+--
+-- Name: sub_realm pk_sub_realm; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm
+    ADD CONSTRAINT pk_sub_realm PRIMARY KEY (id);
+
+
+--
+-- Name: sub_realm_permission pk_sub_realm_permission; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm_permission
+    ADD CONSTRAINT pk_sub_realm_permission PRIMARY KEY (sub_realm_id, permission_id);
 
 
 --
@@ -986,6 +1207,22 @@ ALTER TABLE ONLY _a3s.user_role
 
 ALTER TABLE ONLY _a3s.user_team
     ADD CONSTRAINT pk_user_team PRIMARY KEY (team_id, user_id);
+
+
+--
+-- Name: profile_role profile_role_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_role
+    ADD CONSTRAINT profile_role_pk PRIMARY KEY (profile_id, role_id);
+
+
+--
+-- Name: profile_team profile_team_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_team
+    ADD CONSTRAINT profile_team_pk PRIMARY KEY (profile_id, team_id);
 
 
 --
@@ -1093,6 +1330,21 @@ ALTER TABLE ONLY _a3s.role
 
 
 --
+-- Name: sub_realm uk_sub_realm_name; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm
+    ADD CONSTRAINT uk_sub_realm_name UNIQUE (name);
+
+
+--
+-- Name: CONSTRAINT uk_sub_realm_name ON sub_realm; Type: COMMENT; Schema: _a3s; Owner: postgres
+--
+
+COMMENT ON CONSTRAINT uk_sub_realm_name ON _a3s.sub_realm IS 'A uniqueness contraint ensuring that a sub realm''s name is always unique.';
+
+
+--
 -- Name: team uk_team_name; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
@@ -1107,6 +1359,13 @@ ALTER TABLE ONLY _a3s.team
 ALTER TABLE ONLY _a3s.terms_of_service
     ADD CONSTRAINT uk_terms_of_service_agreement_name_version UNIQUE (agreement_name, version);
 
+
+--
+-- Name: profile uq_profile; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile
+    ADD CONSTRAINT uq_profile UNIQUE (sub_realm_id);
 
 --
 -- Name: ix_application_data_policy_name; Type: INDEX; Schema: _a3s; Owner: postgres
@@ -1333,6 +1592,62 @@ ALTER TABLE ONLY _a3s.function_permission
 
 
 --
+-- Name: function fk_function_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.function
+    ADD CONSTRAINT fk_function_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: profile fk_profile_application_user_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile
+    ADD CONSTRAINT fk_profile_application_user_id FOREIGN KEY (user_id) REFERENCES _a3s.application_user(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: profile_role fk_profile_role_profile_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_role
+    ADD CONSTRAINT fk_profile_role_profile_id FOREIGN KEY (profile_id) REFERENCES _a3s.profile(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: profile_role fk_profile_role_role_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_role
+    ADD CONSTRAINT fk_profile_role_role_id FOREIGN KEY (role_id) REFERENCES _a3s.role(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: profile fk_profile_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile
+    ADD CONSTRAINT fk_profile_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: profile_team fk_profile_team_profile_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_team
+    ADD CONSTRAINT fk_profile_team_profile_id FOREIGN KEY (profile_id) REFERENCES _a3s.profile(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: profile_team fk_profile_team_team_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_team
+    ADD CONSTRAINT fk_profile_team_team_id FOREIGN KEY (team_id) REFERENCES _a3s.team(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: role_function fk_role_function_function_function_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
@@ -1365,6 +1680,30 @@ ALTER TABLE ONLY _a3s.role_role
 
 
 --
+-- Name: role fk_role_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.role
+    ADD CONSTRAINT fk_role_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sub_realm_permission fk_sub_realm_permission_permission_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm_permission
+    ADD CONSTRAINT fk_sub_realm_permission_permission_id FOREIGN KEY (permission_id) REFERENCES _a3s.permission(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sub_realm_permission fk_sub_realm_permission_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm_permission
+    ADD CONSTRAINT fk_sub_realm_permission_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: team_application_data_policy fk_team_application_data_policy_application_data_policy_applica; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
@@ -1378,6 +1717,14 @@ ALTER TABLE ONLY _a3s.team_application_data_policy
 
 ALTER TABLE ONLY _a3s.team_application_data_policy
     ADD CONSTRAINT fk_team_application_data_policy_team_team_id FOREIGN KEY (team_id) REFERENCES _a3s.team(id) ON DELETE CASCADE;
+
+
+--
+-- Name: team fk_team_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.team
+    ADD CONSTRAINT fk_team_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -1402,6 +1749,14 @@ ALTER TABLE ONLY _a3s.team_team
 
 ALTER TABLE ONLY _a3s.team
     ADD CONSTRAINT fk_team_terms_of_service_terms_of_service_id FOREIGN KEY (terms_of_service_id) REFERENCES _a3s.terms_of_service(id) MATCH FULL ON DELETE RESTRICT;
+
+
+--
+-- Name: terms_of_service fk_terms_of_service_sub_realm_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.terms_of_service
+    ADD CONSTRAINT fk_terms_of_service_sub_realm_id FOREIGN KEY (sub_realm_id) REFERENCES _a3s.sub_realm(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
