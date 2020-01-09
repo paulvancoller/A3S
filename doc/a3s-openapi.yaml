@@ -2849,7 +2849,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LdapAuthenticationMode'
+                $ref: '#/components/schemas/SubRealm'
         '400':
           description: Invalid parameters.
           content:
