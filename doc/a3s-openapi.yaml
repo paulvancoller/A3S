@@ -4502,6 +4502,7 @@ components:
         - name
         - description
         - uuid
+        - permissions
       properties:
         uuid:
           $ref: '#/components/schemas/SubRealmId'
@@ -4511,6 +4512,11 @@ components:
         description:
           type: string
           description: A description of the sub-realm.
+        permissions:
+          description: A list of all the permissions that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionId'
           
     SubRealmSubmit:
       description: |
@@ -4520,14 +4526,17 @@ components:
         - name
         - description
       properties:
-        uuid:
-          $ref: '#/components/schemas/SubRealmId'
         name:
           type: string
           description: The name of the sub-realm.
         description:
           type: string
           description: A description of the sub-realm.
+        permissions:
+          description: A list of all the permissions that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionId'
 
     #region Responses
     ErrorResponse:
