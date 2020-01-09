@@ -2763,6 +2763,289 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     #endregion - LdapAuthenticationModes
     
+  # Region - Sub-Realms    
+  '/subrealms':
+    get:
+      tags:    
+        - SubRealm
+      description: Search for Sub-Realms.
+      summary: Search for Sub-Realms.
+      operationId: listSubRealms
+      parameters:
+        - name: orderBy
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: >-
+            a comma separated list of fields in their sort order. Ascending
+            order is assumed. Append desc after a field to indicate descending
+            order.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Pagination:
+              description: Pagination header.
+              schema:
+                $ref: '#/components/schemas/PaginationHeaderResponse'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubRealm'
+
+        '204':
+          description: No Content.
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the list of Sub Realms.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm list not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - SubRealm
+      summary: Create a new Sub-Realm.
+      description: Create a new Sub-Realm.
+      operationId: createSubRealm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubRealmSubmit'
+      responses:
+        '200':    
+          description: Successful. Sub-Realm created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LdapAuthenticationMode'
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to create a Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. The request was correctly structured but some business rules were violated, preventing the creation of the Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/subrealms/{subRealmId}':
+    get:
+      tags:
+        - SubRealm
+      summary: Get a Sub-Realm.
+      description: Get a Sub-Realm by its UUID.
+      operationId: getSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      responses:
+        '200':    
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubRealm'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to read Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - SubRealm
+      summary: Update a Sub-Realm.
+      description: Update a Sub-Realm by its UUID.
+      operationId: updateSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubRealmSubmit'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubRealm'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to update Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. The request was correctly structured but some business rules were violated, preventing the update of the Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - SubRealm
+      summary: Deletes a sub-realm.
+      description: Deletes a sub-realm.
+      operationId: deleteSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      responses:
+        '204':
+          description: No Content.
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to delete Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. Usually returned when the request is correctly structured but some business rules have been violated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  # End Region - Sub Realms
+    
 components:
   schemas:
     #region Policy
@@ -3814,6 +4097,47 @@ components:
       type: string
       format: uuid
     # End Regions - Application Data Policies
+    
+    # Region - Sub-Realms
+    SubRealmId:
+      description: The UUID identifier for a sub-realm.
+      type: string
+      format: uuid
+      
+    SubRealm:
+      description: |
+          Models a sub-realm.
+      type: object
+      required:
+        - name
+        - description
+        - uuid
+      properties:
+        uuid:
+          $ref: '#/components/schemas/SubRealmId'
+        name:
+          type: string
+          description: The name of the sub-realm.
+        description:
+          type: string
+          description: A description of the sub-realm.
+          
+    SubRealmSubmit:
+      description: |
+          Models a sub-realm.
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        uuid:
+          $ref: '#/components/schemas/SubRealmId'
+        name:
+          type: string
+          description: The name of the sub-realm.
+        description:
+          type: string
+          description: A description of the sub-realm.
 
     #region Responses
     ErrorResponse:
