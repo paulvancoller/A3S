@@ -28,14 +28,14 @@ ALTER SCHEMA _a3s OWNER TO postgres;
  -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -		
  --		
 
-  CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA _a3s;		
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA _a3s;		
 
  
  --		
  -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 		
  --		
 
-  COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';		
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';		
 
 
 
