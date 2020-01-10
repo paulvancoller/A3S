@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface ISubRealmsRepository : ITransactableRepository
+    public interface ISubRealmRepository : ITransactableRepository
     {
         Task<SubRealmModel> GetByNameAsync(string name, bool includeRelations);
         Task<SubRealmModel> GetByIdAsync(Guid subRealmId, bool includeRelations);

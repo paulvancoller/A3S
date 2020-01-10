@@ -13,7 +13,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class SubRealmRepository : ISubRealmsRepository
+    public class SubRealmRepository : ISubRealmRepository
     {
         private readonly A3SContext a3SContext;
 
