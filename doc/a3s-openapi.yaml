@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.1.7
+  version: 1.0.5
   title: A3S
 paths:
   #region - User
