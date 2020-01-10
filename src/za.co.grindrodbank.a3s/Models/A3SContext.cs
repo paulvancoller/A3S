@@ -240,7 +240,7 @@ namespace za.co.grindrodbank.a3s.Models
             modelBuilder.Entity<SubRealmPermissionModel>()
                 .HasOne(fp => fp.SubRealm)
                 .WithMany(f => f.SubRealmPermissions)
-                .HasForeignKey(fp => fp.SubRealm);
+                .HasForeignKey(fp => fp.SubRealmId);
 
             modelBuilder.Entity<SubRealmPermissionModel>()
                 .HasOne(fp => fp.Permission)

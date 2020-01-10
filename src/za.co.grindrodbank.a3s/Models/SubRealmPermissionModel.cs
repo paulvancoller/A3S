@@ -7,7 +7,7 @@
 ﻿using System;
 namespace za.co.grindrodbank.a3s.Models
 {
-    public class SubRealmPermissionModel
+    public class SubRealmPermissionModel : AuditableModel
     {
         public Guid SubRealmId { get; set; }
         public SubRealmModel SubRealm { get; set; }
