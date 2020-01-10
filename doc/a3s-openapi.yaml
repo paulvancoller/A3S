@@ -405,7 +405,327 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  '/users/{userId}/profiles':
+    get:
+      tags:
+        - User
+      description: Search for user profiles.
+      summary: Search a user for all their profiles.
+      operationId: listUserProfiles
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The UUID of the user.
+          schema:
+            $ref: '#/components/schemas/UserId'
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 0
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the User profile's name.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+        - name: orderBy
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: >-
+            a comma separated list of fields in their sort order. Ascending
+            order is assumed. Append desc after a field to indicate descending
+            order.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Pagination:
+              description: Pagination header.
+              schema:
+                $ref: '#/components/schemas/PaginationHeaderResponse'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the list of user profiles for this user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - User
+      description: Create a new user profile for a user. UUID not required in request body.
+      summary: Create a user profile.
+      operationId: createUserProfile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The UUID of the user.
+          schema:
+            $ref: '#/components/schemas/UserId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileSubmit'
+      responses:
+        '200':
+          description: Successful. User profile created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized create user profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  '/users/{userId}/profiles/{profileId}':
+    get:
+      tags:
+        - User
+      description: Get a user profile.
+      summary: Get a user's profile by its UUID.
+      operationId: getUserProfile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The UUID of the user.
+          schema:
+            $ref: '#/components/schemas/UserId'
+        - name: profileId
+          in: path
+          required: true
+          description: The UUID of the user profile.
+          schema:
+            $ref: '#/components/schemas/UserProfileId'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access this user's profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User or user profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+    put:
+      tags:
+        - User
+      description: Update an existing user profile.
+      summary: Update a user profile.
+      operationId: updateUserProfile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The UUID of the user.
+          schema:
+            $ref: '#/components/schemas/UserId'
+        - name: profileId
+          in: path
+          required: true
+          description: The UUID of the user profile.
+          schema:
+            $ref: '#/components/schemas/UserProfileId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileSubmit'
+      responses:
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized update user profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User or user profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - User
+      summary: Delete a user profile.
+      description: Deletes a user's profile.
+      operationId: deleteUserProfile
+      parameters:
+        - name: userId
+          description: The UUID of the user.
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/UserId'
+        - name: profileId
+          in: path
+          required: true
+          description: The UUID of the user profile.
+          schema:
+            $ref: '#/components/schemas/UserProfileId'
+      responses:
+        '204':
+          description: No Content.
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to delete user profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User or user profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   #endregion - User
+  
   #region - TwoFactorAuth
   '/twoFactorAuth/users/{userId}':
     delete:
@@ -1054,198 +1374,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   #endregion
-  #region - Policy
-  '/policies':
-    get:
-      tags:
-        - Policy
-      description: Search for policies
-      summary: Search for policies
-      operationId: listPolicies
-      parameters:
-        - name: size
-          in: query
-          required: false
-          description: The size of a page.
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 20
-            format: int32
-            default: 10
-        - name: filterDescription
-          in: query
-          required: false
-          description: A search query filter on the description
-          schema:
-            type: string
-            minLength: 0
-            maxLength: 255
-          example: FilterByEntityType
-        - name: orderBy
-          in: query
-          required: false
-          style: form
-          explode: false
-          description: >-
-            a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: OK
-          headers:
-            X-Pagination:
-              description: Pagination header.
-              schema:
-                $ref: '#/components/schemas/PaginationHeaderResponse'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Team'
-        '400':
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - You are not authorized to access the list of policies.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Policy list not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        500:
-          description: An unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  '/policies/{policyId}':
-    get:
-      tags:
-        - Policy
-      summary: Get a policy.
-      description: Get a policy by its UUID.
-      operationId: getPolicy
-      parameters:
-        - name: policyId
-          in: path
-          description: policy
-          required: true
-          schema:
-            $ref: '#/components/schemas/PolicyId'
-      responses:
-        '200':
-          description: OK.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Policy'
-        '400':
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - You are not authorized to access the policy.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Policy not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        500:
-          description: An unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    put:
-      tags:
-        - Policy
-      summary: Update a policy.
-      description: Update a policy by its UUID.
-      operationId: updatePolicy
-      parameters:
-        - name: policyId
-          in: path
-          description: The UUID of the policy.
-          required: true
-          schema:
-            $ref: '#/components/schemas/PolicyId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PolicySubmit'
-      responses:
-        '200':
-          description: OK.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Policy'
-        '400':
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - You are not authorized to update the policy.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Policy not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        500:
-          description: An unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  #endregion - Policy
+  
   #region - Clients
   '/clients':
     get:
@@ -2763,54 +2892,292 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     #endregion - LdapAuthenticationModes
     
+  # Region - Sub-Realms    
+  '/subrealms':
+    get:
+      tags:    
+        - SubRealm
+      description: Search for Sub-Realms.
+      summary: Search for Sub-Realms.
+      operationId: listSubRealms
+      parameters:
+        - name: orderBy
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: >-
+            a comma separated list of fields in their sort order. Ascending
+            order is assumed. Append desc after a field to indicate descending
+            order.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Pagination:
+              description: Pagination header.
+              schema:
+                $ref: '#/components/schemas/PaginationHeaderResponse'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubRealm'
+
+        '204':
+          description: No Content.
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to access the list of Sub Realms.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm list not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - SubRealm
+      summary: Create a new Sub-Realm.
+      description: Create a new Sub-Realm.
+      operationId: createSubRealm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubRealmSubmit'
+      responses:
+        '200':    
+          description: Successful. Sub-Realm created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubRealm'
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized to create a Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. The request was correctly structured but some business rules were violated, preventing the creation of the Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/subrealms/{subRealmId}':
+    get:
+      tags:
+        - SubRealm
+      summary: Get a Sub-Realm.
+      description: Get a Sub-Realm by its UUID.
+      operationId: getSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      responses:
+        '200':    
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubRealm'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to read Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - SubRealm
+      summary: Update a Sub-Realm.
+      description: Update a Sub-Realm by its UUID.
+      operationId: updateSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubRealmSubmit'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubRealm'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to update Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. The request was correctly structured but some business rules were violated, preventing the update of the Sub-Realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - SubRealm
+      summary: Deletes a sub-realm.
+      description: Deletes a sub-realm.
+      operationId: deleteSubRealm
+      parameters:
+        - name: subRealmId
+          in: path
+          description: The UUID of the Sub-Realm.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SubRealmId'
+      responses:
+        '204':
+          description: No Content.
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:    
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to delete Sub-Realms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub-Realm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible request. Usually returned when the request is correctly structured but some business rules have been violated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  # End Region - Sub Realms
+    
 components:
   schemas:
-    #region Policy
-    PolicyType:
-      description: |
-        Enumeration to describe with what policy type you're busy with
-      type: string
-      enum:
-        - IP
-        - CRON
-        - DATA
-
-    PolicyId:
-      type: string
-      format: uuid
-
-    Policy:
-      description: |
-        A policy can be time based, IP based, role based
-      type: object
-      properties:
-        uuid:
-          $ref: '#/components/schemas/PolicyId'
-        name:
-          type: string
-        description:
-          type: string
-        value1:
-          type: string
-        value2:
-          type: string
-        value3:
-          type: string
-
-    PolicySubmit:
-      description: |
-        Create or update a policy
-      type: object
-      properties:
-        value1:
-          type: string
-        value2:
-          type: string
-        value3:
-          type: string
-    #endregion
-
-    #region Role
+    # Region - Roles
     RoleId:
       type: string
       format: uuid
@@ -2826,6 +3193,8 @@ components:
           type: string
         description:
           type: string
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         functionIds:
           type: array
           items:
@@ -2833,7 +3202,7 @@ components:
             type: string
             format: uuid
         userIds:
-          description: The UUIDs of the users attached to the role
+          description: The UUIDs of the users attached to the role.
           type: array
           items:
             type: string
@@ -2846,20 +3215,22 @@ components:
           
     RoleSubmit:
       description: |
-        Model used to create or update a Role.
+        Model used to create or update a Role. The role can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
       required:
         - uuid
         - name
         - description
       type: object
       properties:
+        uuid:
+          type: string
+          format: uuid
         name:
           type: string
         description:
           type: string
-        uuid:
-          type: string
-          format: uuid
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         roleIds:
           description: The UUIDs of the child roles attached to the role.
           type: array
@@ -2872,9 +3243,9 @@ components:
             type: string
             format: uuid
         
-    #endregion
+    # End Region - Roles 
 
-    #region - Application
+    # Region - Application
     ApplicationId:
       type: string
       description: The UUID of an application.
@@ -2927,7 +3298,7 @@ components:
 
     TermsOfService:
       description: |
-        An agreement the needs to be agreed to by a user
+        Models a terms of service agreement that needs to be agreed to by a user on login.
       type: object
       properties:
         uuid:
@@ -2948,10 +3319,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
 
     TermsOfServiceSubmit:
       description: |
-        An agreement the needs to be agreed to by a user
+        Models a terms of service agreement that needs to be agreed to by a user on login. Used to create or update a terms of service agreement. UUID is required when updating a terms of service agreement. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
+      required:
+        - agreementName
+        - agreementFileData
+        - autoUpdate
       type: object
       properties:
         uuid:
@@ -2962,7 +3339,9 @@ components:
           type: string
         autoUpdate:
           type: boolean
-
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+      
     # End Region - TermsOfService      
 
     # Region - Functions
@@ -2973,7 +3352,13 @@ components:
 
     Function:
       description: |
-        A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application.
+        A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application. May optionally be associated with a sub-realm by specifying a 'subRealmId'.
+      required:
+        - uuid
+        - name
+        - description
+        - applicationId
+        - permissions
       type: object
       properties:
         uuid:
@@ -2984,6 +3369,8 @@ components:
           type: string
         applicationId:
           $ref: '#/components/schemas/ApplicationId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         permissions:
           type: array
           items:
@@ -2991,7 +3378,7 @@ components:
 
     FunctionSubmit:
       description: |
-        Model used to create an new function or update an existing Function.
+        Model used to create an new function or update an existing Function. May optionally be associated with a sub-realm by specifying a 'subRealmId'.
       required:
         - uuid
         - name
@@ -3010,6 +3397,8 @@ components:
           type: string
         applicationId:
           $ref: '#/components/schemas/ApplicationId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         permissions:
           description: A list of permission UUIDs that are to be added to the function.
           type: array
@@ -3088,7 +3477,7 @@ components:
 
     UserSubmit:
       description: |
-        Used to update a user
+        Model used to create or update a user.
       type: object
       required:
         - uuid
@@ -3107,7 +3496,7 @@ components:
         username:
           type: string
         password:
-          description: A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected 
+          description: A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected.
           type: string
         email:
           type: string
@@ -3133,7 +3522,7 @@ components:
             format: uuid            
     UserPasswordChangeSubmit:
       description: |
-        Used to change a user's password
+        Used to change a user's password.
       type: object
       properties:
         uuid:
@@ -3146,8 +3535,51 @@ components:
         oldPassword:
           type: string
     #endregion
+    
+    # Region - User Profile
+    UserProfileSubmit:
+      description: |
+        Models a user profile, which enables context based access for the same user identity, when creating or updating a user profile.
+      required:
+        - name
+        - description
+        - subRealmId
+      type: object
+      properties:
+        name:
+          description: The name of the user profile. This must be unique per user.
+          type: string
+        description:
+          description: A brief description of a user profile and it's intent.
+          type: string
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+    
+    UserProfile:
+      description: |
+        Models a user profile, which enables context based access for the same user identity.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/UserProfileId'
+        name:
+          description: The name of the user profile. This must be unique per user.
+          type: string
+        description:
+          description: A brief description of a user profile and it's intent.
+          type: string
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+          
+    UserProfileId:
+      description: |
+        The unique UUID for a user profile.
+      type: string
+      format: uuid
+        
+    # End Region - User Profile
 
-    #region Team
+    # Region - Team
     TeamId:
       type: string
       format: uuid
@@ -3181,11 +3613,13 @@ components:
             $ref: '#/components/schemas/ApplicationDataPolicyId'
         termsOfServiceId:
             $ref: '#/components/schemas/TermsOfServiceId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
         
 
     TeamSubmit:
       description: |
-        Model used for creating or updating a team.
+        Model used for creating or updating a team. Team can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
       required:
         - uuid
         - name
@@ -3212,7 +3646,10 @@ components:
             type: string
             format: uuid
             nullable: true
-    #endregion
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+        
+    # End Region -Team
     
     # Region -  Clients
     Oauth2ClientSubmit:
@@ -3814,6 +4251,56 @@ components:
       type: string
       format: uuid
     # End Regions - Application Data Policies
+    
+    # Region - Sub-Realms
+    SubRealmId:
+      description: The UUID identifier for a sub-realm.
+      type: string
+      format: uuid
+      
+    SubRealm:
+      description: |
+          Models a sub-realm.
+      type: object
+      required:
+        - name
+        - description
+        - uuid
+        - permissions
+      properties:
+        uuid:
+          $ref: '#/components/schemas/SubRealmId'
+        name:
+          type: string
+          description: The name of the sub-realm.
+        description:
+          type: string
+          description: A description of the sub-realm.
+        permissions:
+          description: A list of all the permissions that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionId'
+          
+    SubRealmSubmit:
+      description: |
+          Models a sub-realm.
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: The name of the sub-realm.
+        description:
+          type: string
+          description: A description of the sub-realm.
+        permissions:
+          description: A list of all the permissions that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionId'
 
     #region Responses
     ErrorResponse:
