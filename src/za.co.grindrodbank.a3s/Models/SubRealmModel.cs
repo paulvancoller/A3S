@@ -18,5 +18,11 @@ namespace za.co.grindrodbank.a3s.Models
         public List<SubRealmPermissionModel> SubRealmPermissions { get; set; }
         // A Sub-realm can have many profiles associted with it.
         public List<ProfileModel> Profiles { get; set; }
+        // A Sub-realm can have many functions associated with it.
+        public List<FunctionModel> Functions { get; set; }
+        // A Sub-realm can have many roles associated with it.
+        public List<RoleModel> Roles { get; set; }
+        // A Sub-realm can have many teams associated with it.
+        public List<TeamModel> Teams { get; set; }
     }
 }
