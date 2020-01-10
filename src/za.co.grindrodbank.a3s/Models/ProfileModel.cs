@@ -5,6 +5,8 @@
  * **************************************************
  */
 ﻿using System;
+using System.Collections.Generic;
+
 namespace za.co.grindrodbank.a3s.Models
 {
     public class ProfileModel : AuditableModel
@@ -16,5 +18,7 @@ namespace za.co.grindrodbank.a3s.Models
         public UserModel User { get; set; }
         // A profile must have one sub-realm associated with it.
         public SubRealmModel SubRealm { get; set; }
+        // A profile can have many roles associated with it.
+        public List<ProfileRoleModel> ProfileRoles { get; set; }
     }
 }
