@@ -261,6 +261,20 @@ namespace za.co.grindrodbank.a3s.Models
                 .WithMany(p => p.ProfileRoles)
                 .HasForeignKey(fp => fp.RoleId);
 
+            // Customisations for many to many relationship between profiles and teams.
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasKey(fp => new { fp.ProfileId, fp.TeamId });
+
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasOne(fp => fp.Profile)
+                .WithMany(f => f.ProfileTeams)
+                .HasForeignKey(fp => fp.ProfileId);
+
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasOne(fp => fp.Team)
+                .WithMany(p => p.ProfileTeams)
+                .HasForeignKey(fp => fp.TeamId);
+
         }
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)

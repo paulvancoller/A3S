@@ -128,6 +128,9 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\ProfileRoleModel.cs">
       <Link>Models\ProfileRoleModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\ProfileTeamModel.cs">
+      <Link>Models\ProfileTeamModel.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\UserRepository.cs">
       <Link>Repositories\UserRepository.cs</Link>
     </Compile>

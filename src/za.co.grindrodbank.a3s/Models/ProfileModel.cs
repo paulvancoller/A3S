@@ -20,5 +20,7 @@ namespace za.co.grindrodbank.a3s.Models
         public SubRealmModel SubRealm { get; set; }
         // A profile can have many roles associated with it.
         public List<ProfileRoleModel> ProfileRoles { get; set; }
+        // A profile can have many teams associated with it.
+        public List<ProfileTeamModel> ProfileTeams { get; set; }
     }
 }
