@@ -233,6 +233,20 @@ namespace za.co.grindrodbank.a3s.Models
                 .Property(p => p.SysPeriod)
                 .HasDefaultValueSql("GetUtcDate()");
 
+            // Customisations for many to many relationship between sub realms and permissions.
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasKey(fp => new { fp.PermissionId, fp.SubRealmId });
+
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasOne(fp => fp.SubRealm)
+                .WithMany(f => f.SubRealmPermissions)
+                .HasForeignKey(fp => fp.SubRealm);
+
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasOne(fp => fp.Permission)
+                .WithMany(p => p.SubRealmPermissions)
+                .HasForeignKey(fp => fp.PermissionId);
+
         }
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)
