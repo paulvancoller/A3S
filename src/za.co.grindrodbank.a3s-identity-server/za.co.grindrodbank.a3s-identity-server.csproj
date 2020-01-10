@@ -119,6 +119,9 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmModel.cs">
       <Link>Models\SubRealmModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\ProfileModel.cs">
+      <Link>Models\ProfileModel.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmPermissionModel.cs">
       <Link>Models\SubRealmPermissionModel.cs</Link>
     </Compile>

@@ -5,18 +5,16 @@
  * **************************************************
  */
 ﻿using System;
-using System.Collections.Generic;
-
 namespace za.co.grindrodbank.a3s.Models
 {
-    public class SubRealmModel : AuditableModel
+    public class ProfileModel : AuditableModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Decription { get; set; }
-        // A Sub-realm can have many permissions associated with them and visa versa. 
-        public List<SubRealmPermissionModel> SubRealmPermissions { get; set; }
-        // A Sub-realm can have many profiles associted with it.
-        public List<ProfileModel> Profiles { get; set; }
+        // A profile must have one user associated with it.
+        public UserModel User { get; set; }
+        // A profile must have one sub-realm associated with it.
+        public SubRealmModel SubRealm { get; set; }
     }
 }
