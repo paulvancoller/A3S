@@ -191,18 +191,6 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\TermsOfServiceRepository.cs">
       <Link>Repositories\TermsOfServiceRepository.cs</Link>
     </Compile>
-    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ISubRealmRepository.cs">
-      <Link>Repositories\ISubRealmRepository.cs</Link>
-    </Compile>
-    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\SubRealmRepository.cs">
-      <Link>Repositories\SubRealmRepository.cs</Link>
-    </Compile>
-    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IProfileRepository.cs">
-      <Link>Repositories\IProfileRepository.cs</Link>
-    </Compile>
-    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ProfileRepository.cs">
-      <Link>Repositories\ProfileRepository.cs</Link>
-    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\TermsOfServiceUserAcceptanceModel.cs">
       <Link>Models\TermsOfServiceUserAcceptanceModel.cs</Link>
     </Compile>
@@ -226,6 +214,18 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\ConnectionClients\LdapConnectionClient.cs">
       <Link>ConnectionClients\LdapConnectionClient.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ISubRealmRepository.cs">
+      <Link>Repositories\ISubRealmRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\SubRealmRepository.cs">
+      <Link>Repositories\SubRealmRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IProfileRepository.cs">
+      <Link>Repositories\IProfileRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ProfileRepository.cs">
+      <Link>Repositories\ProfileRepository.cs</Link>
     </Compile>
 </ItemGroup>
 </Project>
