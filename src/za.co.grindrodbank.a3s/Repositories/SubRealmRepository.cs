@@ -90,7 +90,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<SubRealmModel>> GetListAsync(bool includeRelations)
+        public async Task<List<SubRealmModel>> GetListAsync(bool includeRelations = false)
         {
             if (!includeRelations)
             {
