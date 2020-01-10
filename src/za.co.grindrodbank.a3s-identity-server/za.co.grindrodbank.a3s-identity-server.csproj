@@ -116,6 +116,12 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\UserTokenModel.cs">
       <Link>Models\UserTokenModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmModel.cs">
+      <Link>Models\SubRealmModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmPermissionModel.cs">
+      <Link>Models\SubRealmPermissionModel.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\UserRepository.cs">
       <Link>Repositories\UserRepository.cs</Link>
     </Compile>
