@@ -344,27 +344,6 @@ ALTER TABLE _a3s.aspnet_user_role OWNER TO postgres;
 
 COMMENT ON TABLE _a3s.aspnet_user_role IS 'Asp.Net identity default table. Not Used, but has to exist.';
 
-
---
--- Name: flyway_schema_history; Type: TABLE; Schema: _a3s; Owner: postgres
---
-
-CREATE TABLE _a3s.flyway_schema_history (
-    installed_rank integer NOT NULL,
-    version character varying(50),
-    description character varying(200) NOT NULL,
-    type character varying(20) NOT NULL,
-    script character varying(1000) NOT NULL,
-    checksum integer,
-    installed_by character varying(100) NOT NULL,
-    installed_on timestamp without time zone DEFAULT now() NOT NULL,
-    execution_time integer NOT NULL,
-    success boolean NOT NULL
-);
-
-
-ALTER TABLE _a3s.flyway_schema_history OWNER TO postgres;
-
 --
 -- Name: function; Type: TABLE; Schema: _a3s; Owner: postgres
 --
@@ -763,10 +742,10 @@ COMMENT ON COLUMN _a3s.sub_realm.changed_by IS 'UUID of user that last changed t
 
 
 --
--- Name: COLUMN sub_realm.sys_preriod; Type: COMMENT; Schema: _a3s; Owner: postgres
+-- Name: COLUMN sub_realm.sys_period; Type: COMMENT; Schema: _a3s; Owner: postgres
 --
 
-COMMENT ON COLUMN _a3s.sub_realm.sys_preriod IS 'Temporal data for this record.';
+COMMENT ON COLUMN _a3s.sub_realm.sys_period IS 'Temporal data for this record.';
 
 
 --
@@ -1027,15 +1006,6 @@ ALTER TABLE _a3s.user_team OWNER TO postgres;
 
 COMMENT ON TABLE _a3s.user_team IS 'Users and Teams link';
 
-
---
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
---
-
-ALTER TABLE ONLY _a3s.flyway_schema_history
-    ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
-
-
 --
 -- Name: ldap_authentication_mode_ldap_attribute ldap_authentication_mode_ldap_attribute_pkey; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
 --
@@ -1173,6 +1143,22 @@ ALTER TABLE ONLY _a3s.profile
 
 
 --
+-- Name: profile_role pk_profile_role; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_role
+    ADD CONSTRAINT pk_profile_role PRIMARY KEY (profile_id, role_id);
+
+
+--
+-- Name: profile_team pk_profile_team; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.profile_team
+    ADD CONSTRAINT pk_profile_team PRIMARY KEY (profile_id, team_id);
+
+
+--
 -- Name: role pk_role; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
@@ -1202,6 +1188,14 @@ ALTER TABLE ONLY _a3s.role_role
 
 ALTER TABLE ONLY _a3s.sub_realm
     ADD CONSTRAINT pk_sub_realm PRIMARY KEY (id);
+
+
+--
+-- Name: sub_realm_application_data_policy pk_sub_realm_application_data_policy; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
+--
+
+ALTER TABLE ONLY _a3s.sub_realm_application_data_policy
+    ADD CONSTRAINT pk_sub_realm_application_data_policy PRIMARY KEY (sub_realm_id, application_data_policy_id);
 
 
 --
@@ -1250,30 +1244,6 @@ ALTER TABLE ONLY _a3s.user_role
 
 ALTER TABLE ONLY _a3s.user_team
     ADD CONSTRAINT pk_user_team PRIMARY KEY (team_id, user_id);
-
-
---
--- Name: profile_role profile_role_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
---
-
-ALTER TABLE ONLY _a3s.profile_role
-    ADD CONSTRAINT profile_role_pk PRIMARY KEY (profile_id, role_id);
-
-
---
--- Name: profile_team profile_team_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
---
-
-ALTER TABLE ONLY _a3s.profile_team
-    ADD CONSTRAINT profile_team_pk PRIMARY KEY (profile_id, team_id);
-
-
---
--- Name: sub_realm_application_data_policy sub_realm_application_data_policy_pk; Type: CONSTRAINT; Schema: _a3s; Owner: postgres
---
-
-ALTER TABLE ONLY _a3s.sub_realm_application_data_policy
-    ADD CONSTRAINT sub_realm_application_data_policy_pk PRIMARY KEY (sub_realm_id, application_data_policy_id);
 
 
 --
@@ -1417,13 +1387,6 @@ ALTER TABLE ONLY _a3s.terms_of_service
 
 ALTER TABLE ONLY _a3s.profile
     ADD CONSTRAINT uq_profile UNIQUE (sub_realm_id);
-
-
---
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: _a3s; Owner: postgres
---
-
-CREATE INDEX flyway_schema_history_s_idx ON _a3s.flyway_schema_history USING btree (success);
 
 
 --
@@ -1747,11 +1710,11 @@ ALTER TABLE ONLY _a3s.role
 
 
 --
--- Name: sub_realm_application_data_policy fk_sub_realm_application_data_policy_application_data_po_4939; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
+-- Name: sub_realm_application_data_policy fk_sub_realm_application_data_policy_id; Type: FK CONSTRAINT; Schema: _a3s; Owner: postgres
 --
 
 ALTER TABLE ONLY _a3s.sub_realm_application_data_policy
-    ADD CONSTRAINT fk_sub_realm_application_data_policy_application_data_po_4939 FOREIGN KEY (application_data_policy_id) REFERENCES _a3s.application_data_policy(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_sub_realm_application_data_policy_id FOREIGN KEY (application_data_policy_id) REFERENCES _a3s.application_data_policy(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
