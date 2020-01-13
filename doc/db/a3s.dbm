@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.2-beta" last-position="118,1348" last-zoom="1" max-obj-count="39"
+<dbmodel pgmodeler-ver="0.9.2-beta" last-position="260,1348" last-zoom="1" max-obj-count="39"
 	 default-schema="public" default-owner="postgres">
 <database name="identity_server" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
 	<role name="postgres"/>
@@ -1001,7 +1001,7 @@ On every update of a terms of service agreement version for a team, all user acc
 		<type name="uuid" length="0"/>
 		<comment><![CDATA[UUID of user that last changed the record.]]></comment>
 	</column>
-	<column name="sys_preriod" alias="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
+	<column name="sys_period" alias="sys_period" default-value="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)">
 		<type name="tstzrange" length="0"/>
 		<comment><![CDATA[Temporal data for this record.]]></comment>
 	</column>

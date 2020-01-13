@@ -40,7 +40,7 @@ CREATE TABLE _a3s.sub_realm (
 	name text NOT NULL,
 	description text,
 	changed_by uuid,
-	sys_preriod tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
+	sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
 	CONSTRAINT uk_sub_realm_name UNIQUE (name),
 	CONSTRAINT pk_sub_realm PRIMARY KEY (id)
 
