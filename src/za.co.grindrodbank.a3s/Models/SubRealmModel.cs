@@ -14,8 +14,10 @@ namespace za.co.grindrodbank.a3s.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        // A Sub-realm can have many permissions associated with them and visa versa. 
+        // A Sub-realm can have many permissions associated with it and visa versa. 
         public List<SubRealmPermissionModel> SubRealmPermissions { get; set; }
+        // A Sub-realm can have many application data policies associated with it.
+        public List<SubRealmApplicationDataPolicyModel> SubRealmApplicationDataPolicies { get; set; }
         // A Sub-realm can have many profiles associted with it.
         public List<ProfileModel> Profiles { get; set; }
         // A Sub-realm can have many functions associated with it.

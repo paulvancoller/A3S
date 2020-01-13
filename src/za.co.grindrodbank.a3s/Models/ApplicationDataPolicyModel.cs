@@ -19,6 +19,9 @@ namespace za.co.grindrodbank.a3s.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public ApplicationModel Application { get; set; }
+        // An application data policy can be assigned to many teams.
         public List<TeamApplicationDataPolicyModel> ApplicationDataPolicies { get; set; }
+        // An application data policy can be assigned to many sub-realms.
+        public List<SubRealmApplicationDataPolicyModel> SubRealmApplicationDataPolicies { get; set; }
     }
 }

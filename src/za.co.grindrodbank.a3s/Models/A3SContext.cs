@@ -249,6 +249,20 @@ namespace za.co.grindrodbank.a3s.Models
                 .WithMany(p => p.SubRealmPermissions)
                 .HasForeignKey(fp => fp.PermissionId);
 
+            // Customisations for many to many relationship between sub realms and application data policies.
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasKey(fp => new { fp.ApplicationDataPolicyId, fp.SubRealmId });
+
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasOne(fp => fp.SubRealm)
+                .WithMany(f => f.SubRealmApplicationDataPolicies)
+                .HasForeignKey(fp => fp.SubRealmId);
+
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasOne(fp => fp.ApplicationDataPolicy)
+                .WithMany(p => p.SubRealmApplicationDataPolicies)
+                .HasForeignKey(fp => fp.ApplicationDataPolicyId);
+
             // Customisations for many to many relationship between profiles and roles.
             modelBuilder.Entity<ProfileRoleModel>()
                 .HasKey(fp => new { fp.ProfileId, fp.RoleId });
