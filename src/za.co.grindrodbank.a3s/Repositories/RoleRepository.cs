@@ -65,6 +65,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                           .ThenInclude(rf => rf.Function)
                                         .Include(r => r.ChildRoles)
                                           .ThenInclude(cr => cr.ChildRole)
+                                        .Include(r => r.SubRealm)
                                         .FirstOrDefaultAsync();
         }
 
@@ -84,6 +85,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                           .ThenInclude(rf => rf.Function)
                                         .Include(r => r.ChildRoles)
                                           .ThenInclude(cr => cr.ChildRole)
+                                        .Include(r => r.SubRealm)
                                         .FirstOrDefaultAsync();
         }
 
@@ -97,6 +99,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                           .ThenInclude(rf => rf.Function)
                                         .Include(r => r.ChildRoles)
                                           .ThenInclude(cr => cr.ChildRole)
+                                        .Include(r => r.SubRealm)
                                         .ToListAsync();
         }
 
