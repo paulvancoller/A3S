@@ -111,6 +111,23 @@ COMMENT ON COLUMN _a3s.profile_team.changed_by IS 'UUID of user that last modifi
 COMMENT ON COLUMN _a3s.profile_team.sys_period IS 'Temporal data for this record.';
 -- ddl-end --
 
+-- [ Created objects ] --
+-- object: _a3s.sub_realm_application_data_policy | type: TABLE --
+-- DROP TABLE IF EXISTS _a3s.sub_realm_application_data_policy CASCADE;
+CREATE TABLE _a3s.sub_realm_application_data_policy (
+	sub_realm_id uuid NOT NULL,
+	application_data_policy_id uuid NOT NULL,
+	changed_by uuid,
+	sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
+	CONSTRAINT sub_realm_application_data_policy_pk PRIMARY KEY (sub_realm_id,application_data_policy_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN _a3s.sub_realm_application_data_policy.changed_by IS 'The UUID of the user that last modified this record.';
+-- ddl-end --
+COMMENT ON COLUMN _a3s.sub_realm_application_data_policy.sys_period IS 'The temporal data for this record.';
+-- ddl-end --
+
 -- object: sub_realm_id | type: COLUMN --
 -- ALTER TABLE _a3s.role DROP COLUMN IF EXISTS sub_realm_id CASCADE;
 ALTER TABLE _a3s.role ADD COLUMN sub_realm_id uuid;
@@ -133,8 +150,6 @@ ALTER TABLE _a3s.team ADD COLUMN sub_realm_id uuid;
 -- ALTER TABLE _a3s.terms_of_service DROP COLUMN IF EXISTS sub_realm_id CASCADE;
 ALTER TABLE _a3s.terms_of_service ADD COLUMN sub_realm_id uuid;
 -- ddl-end --
-
-
 
 
 -- [ Created constraints ] --
@@ -229,3 +244,17 @@ ALTER TABLE _a3s.terms_of_service ADD CONSTRAINT fk_terms_of_service_sub_realm_i
 REFERENCES _a3s.sub_realm (id) MATCH FULL
 ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
+
+-- [ Created foreign keys ] --
+-- object: fk_sub_realm_application_data_policy_sub_realm_id | type: CONSTRAINT --
+-- ALTER TABLE _a3s.sub_realm_application_data_policy DROP CONSTRAINT IF EXISTS fk_sub_realm_application_data_policy_sub_realm_id CASCADE;
+ALTER TABLE _a3s.sub_realm_application_data_policy ADD CONSTRAINT fk_sub_realm_application_data_policy_sub_realm_id FOREIGN KEY (sub_realm_id)
+REFERENCES _a3s.sub_realm (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: fk_sub_realm_application_data_policy_application_data_po_4939 | type: CONSTRAINT --
+-- ALTER TABLE _a3s.sub_realm_application_data_policy DROP CONSTRAINT IF EXISTS fk_sub_realm_application_data_policy_application_data_po_4939 CASCADE;
+ALTER TABLE _a3s.sub_realm_application_data_policy ADD CONSTRAINT fk_sub_realm_application_data_policy_application_data_po_4939 FOREIGN KEY (application_data_policy_id)
+REFERENCES _a3s.application_data_policy (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
