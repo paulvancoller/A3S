@@ -56,7 +56,7 @@ COMMENT ON COLUMN _a3s.sub_realm.description IS 'A brief description of the sub-
 -- ddl-end --
 COMMENT ON COLUMN _a3s.sub_realm.changed_by IS 'UUID of user that last changed the record.';
 -- ddl-end --
-COMMENT ON COLUMN _a3s.sub_realm.sys_preriod IS 'Temporal data for this record.';
+COMMENT ON COLUMN _a3s.sub_realm.sys_period IS 'Temporal data for this record.';
 -- ddl-end --
 COMMENT ON CONSTRAINT uk_sub_realm_name ON _a3s.sub_realm  IS 'A uniqueness contraint ensuring that a sub realm''s name is always unique.';
 -- ddl-end --
