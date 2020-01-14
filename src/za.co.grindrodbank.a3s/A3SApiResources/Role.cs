@@ -51,15 +51,22 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Description { get; set; }
 
         /// <summary>
+        /// The UUID identifier for a sub-realm.
+        /// </summary>
+        /// <value>The UUID identifier for a sub-realm.</value>
+        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
+        public Guid SubRealmId { get; set; }
+
+        /// <summary>
         /// Gets or Sets FunctionIds
         /// </summary>
         [DataMember(Name="functionIds", EmitDefaultValue=false)]
         public List<Guid> FunctionIds { get; set; }
 
         /// <summary>
-        /// The UUIDs of the users attached to the role
+        /// The UUIDs of the users attached to the role.
         /// </summary>
-        /// <value>The UUIDs of the users attached to the role</value>
+        /// <value>The UUIDs of the users attached to the role.</value>
         [DataMember(Name="userIds", EmitDefaultValue=false)]
         public List<Guid> UserIds { get; set; }
 
@@ -81,6 +88,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Uuid: ").Append(Uuid).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("  FunctionIds: ").Append(FunctionIds).Append("\n");
             sb.Append("  UserIds: ").Append(UserIds).Append("\n");
             sb.Append("  RoleIds: ").Append(RoleIds).Append("\n");
@@ -136,6 +144,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Description.Equals(other.Description)
                 ) && 
                 (
+                    SubRealmId == other.SubRealmId ||
+                    SubRealmId != null &&
+                    SubRealmId.Equals(other.SubRealmId)
+                ) && 
+                (
                     FunctionIds == other.FunctionIds ||
                     FunctionIds != null &&
                     other.FunctionIds != null &&
@@ -171,6 +184,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (SubRealmId != null)
+                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                     if (FunctionIds != null)
                     hashCode = hashCode * 59 + FunctionIds.GetHashCode();
                     if (UserIds != null)

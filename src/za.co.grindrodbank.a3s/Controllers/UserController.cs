@@ -83,5 +83,30 @@ namespace za.co.grindrodbank.a3s.Controllers
             await userService.ChangePasswordAsync(userPasswordChangeSubmit);
             return NoContent();
         }
+
+        public override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<IActionResult> ListUserProfilesAsync([FromRoute, Required] Guid userId, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<IActionResult> UpdateUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId, [FromBody] UserProfileSubmit userProfileSubmit)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

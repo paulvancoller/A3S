@@ -621,6 +621,501 @@
         "tags" : [ "User" ]
       }
     },
+    "/users/{userId}/profiles" : {
+      "get" : {
+        "description" : "Search for user profiles.",
+        "operationId" : "listUserProfiles",
+        "parameters" : [ {
+          "description" : "The UUID of the user.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserId"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the User profile's name.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "explode" : false,
+          "in" : "query",
+          "name" : "orderBy",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserProfile"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK",
+            "headers" : {
+              "X-Pagination" : {
+                "description" : "Pagination header.",
+                "explode" : false,
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginationHeaderResponse"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the list of user profiles for this user."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Search a user for all their profiles.",
+        "tags" : [ "User" ]
+      },
+      "post" : {
+        "description" : "Create a new user profile for a user. UUID not required in request body.",
+        "operationId" : "createUserProfile",
+        "parameters" : [ {
+          "description" : "The UUID of the user.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserId"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserProfileSubmit"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfile"
+                }
+              }
+            },
+            "description" : "Successful. User profile created."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized create user profiles."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Create a user profile.",
+        "tags" : [ "User" ]
+      }
+    },
+    "/users/{userId}/profiles/{profileId}" : {
+      "delete" : {
+        "description" : "Deletes a user's profile.",
+        "operationId" : "deleteUserProfile",
+        "parameters" : [ {
+          "description" : "The UUID of the user.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserId"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "The UUID of the user profile.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "profileId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserProfileId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid parameters."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to delete user profiles."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User or user profile not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Delete a user profile.",
+        "tags" : [ "User" ]
+      },
+      "get" : {
+        "description" : "Get a user profile.",
+        "operationId" : "getUserProfile",
+        "parameters" : [ {
+          "description" : "The UUID of the user.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserId"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "The UUID of the user profile.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "profileId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserProfileId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfile"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access this user's profile."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User or user profile not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Get a user's profile by its UUID.",
+        "tags" : [ "User" ]
+      },
+      "put" : {
+        "description" : "Update an existing user profile.",
+        "operationId" : "updateUserProfile",
+        "parameters" : [ {
+          "description" : "The UUID of the user.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserId"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "The UUID of the user profile.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "profileId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UserProfileId"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserProfileSubmit"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized update user profiles."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "User or user profile not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Update a user profile.",
+        "tags" : [ "User" ]
+      }
+    },
     "/twoFactorAuth/users/{userId}" : {
       "delete" : {
         "description" : "Removes two-factor authentication for a user.",
@@ -1622,299 +2117,6 @@
         },
         "summary" : "Update a team.",
         "tags" : [ "Team" ]
-      }
-    },
-    "/policies" : {
-      "get" : {
-        "description" : "Search for policies",
-        "operationId" : "listPolicies",
-        "parameters" : [ {
-          "description" : "The size of a page.",
-          "explode" : true,
-          "in" : "query",
-          "name" : "size",
-          "required" : false,
-          "schema" : {
-            "default" : 10,
-            "format" : "int32",
-            "maximum" : 20,
-            "minimum" : 1,
-            "type" : "integer"
-          },
-          "style" : "form"
-        }, {
-          "description" : "A search query filter on the description",
-          "example" : "FilterByEntityType",
-          "explode" : true,
-          "in" : "query",
-          "name" : "filterDescription",
-          "required" : false,
-          "schema" : {
-            "maxLength" : 255,
-            "minLength" : 0,
-            "type" : "string"
-          },
-          "style" : "form"
-        }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
-          "explode" : false,
-          "in" : "query",
-          "name" : "orderBy",
-          "required" : false,
-          "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
-          },
-          "style" : "form"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "items" : {
-                    "$ref" : "#/components/schemas/Team"
-                  },
-                  "type" : "array"
-                }
-              }
-            },
-            "description" : "OK",
-            "headers" : {
-              "X-Pagination" : {
-                "description" : "Pagination header.",
-                "explode" : false,
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginationHeaderResponse"
-                },
-                "style" : "simple"
-              }
-            }
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Bad Request."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Not authenticated."
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Forbidden - You are not authorized to access the list of policies."
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Policy list not found."
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "An unexpected error occurred."
-          }
-        },
-        "summary" : "Search for policies",
-        "tags" : [ "Policy" ]
-      }
-    },
-    "/policies/{policyId}" : {
-      "get" : {
-        "description" : "Get a policy by its UUID.",
-        "operationId" : "getPolicy",
-        "parameters" : [ {
-          "description" : "policy",
-          "explode" : false,
-          "in" : "path",
-          "name" : "policyId",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/components/schemas/PolicyId"
-          },
-          "style" : "simple"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Policy"
-                }
-              }
-            },
-            "description" : "OK."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Bad Request."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Not authenticated."
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Forbidden - You are not authorized to access the policy."
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Policy not found."
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "An unexpected error occurred."
-          }
-        },
-        "summary" : "Get a policy.",
-        "tags" : [ "Policy" ]
-      },
-      "put" : {
-        "description" : "Update a policy by its UUID.",
-        "operationId" : "updatePolicy",
-        "parameters" : [ {
-          "description" : "The UUID of the policy.",
-          "explode" : false,
-          "in" : "path",
-          "name" : "policyId",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/components/schemas/PolicyId"
-          },
-          "style" : "simple"
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PolicySubmit"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Policy"
-                }
-              }
-            },
-            "description" : "OK."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Bad Request."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Not authenticated."
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Forbidden - You are not authorized to update the policy."
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Policy not found."
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "An unexpected error occurred."
-          }
-        },
-        "summary" : "Update a policy.",
-        "tags" : [ "Policy" ]
       }
     },
     "/clients" : {
@@ -4213,72 +4415,448 @@
         "summary" : "Test a LDAP Authentication Mode.",
         "tags" : [ "LdapAuthenticationMode" ]
       }
+    },
+    "/subrealms" : {
+      "get" : {
+        "description" : "Search for Sub-Realms.",
+        "operationId" : "listSubRealms",
+        "parameters" : [ {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "explode" : false,
+          "in" : "query",
+          "name" : "orderBy",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/SubRealm"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK",
+            "headers" : {
+              "X-Pagination" : {
+                "description" : "Pagination header.",
+                "explode" : false,
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginationHeaderResponse"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "204" : {
+            "description" : "No Content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access the list of Sub Realms."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Sub-Realm list not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Search for Sub-Realms.",
+        "tags" : [ "SubRealm" ]
+      },
+      "post" : {
+        "description" : "Create a new Sub-Realm.",
+        "operationId" : "createSubRealm",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SubRealmSubmit"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubRealm"
+                }
+              }
+            },
+            "description" : "Successful. Sub-Realm created."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid parameters."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - Not authorized to create a Sub-Realm."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible request. The request was correctly structured but some business rules were violated, preventing the creation of the Sub-Realm."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Create a new Sub-Realm.",
+        "tags" : [ "SubRealm" ]
+      }
+    },
+    "/subrealms/{subRealmId}" : {
+      "delete" : {
+        "description" : "Deletes a sub-realm.",
+        "operationId" : "deleteSubRealm",
+        "parameters" : [ {
+          "description" : "The UUID of the Sub-Realm.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "subRealmId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/SubRealmId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to delete Sub-Realms."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Sub-Realm not found."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible request. Usually returned when the request is correctly structured but some business rules have been violated."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Deletes a sub-realm.",
+        "tags" : [ "SubRealm" ]
+      },
+      "get" : {
+        "description" : "Get a Sub-Realm by its UUID.",
+        "operationId" : "getSubRealm",
+        "parameters" : [ {
+          "description" : "The UUID of the Sub-Realm.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "subRealmId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/SubRealmId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubRealm"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to read Sub-Realms."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Sub-Realm not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Get a Sub-Realm.",
+        "tags" : [ "SubRealm" ]
+      },
+      "put" : {
+        "description" : "Update a Sub-Realm by its UUID.",
+        "operationId" : "updateSubRealm",
+        "parameters" : [ {
+          "description" : "The UUID of the Sub-Realm.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "subRealmId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/SubRealmId"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SubRealmSubmit"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubRealm"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to update Sub-Realms."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Sub-Realm not found."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible request. The request was correctly structured but some business rules were violated, preventing the update of the Sub-Realm."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Update a Sub-Realm.",
+        "tags" : [ "SubRealm" ]
+      }
     }
   },
   "components" : {
     "schemas" : {
-      "PolicyType" : {
-        "description" : "Enumeration to describe with what policy type you're busy with\n",
-        "enum" : [ "IP", "CRON", "DATA" ],
-        "type" : "string"
-      },
-      "PolicyId" : {
-        "format" : "uuid",
-        "type" : "string"
-      },
-      "Policy" : {
-        "description" : "A policy can be time based, IP based, role based\n",
-        "example" : {
-          "value2" : "value2",
-          "value1" : "value1",
-          "value3" : "value3",
-          "name" : "name",
-          "description" : "description",
-          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-        },
-        "properties" : {
-          "uuid" : {
-            "format" : "uuid",
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "description" : {
-            "type" : "string"
-          },
-          "value1" : {
-            "type" : "string"
-          },
-          "value2" : {
-            "type" : "string"
-          },
-          "value3" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "PolicySubmit" : {
-        "description" : "Create or update a policy\n",
-        "example" : {
-          "value2" : "value2",
-          "value1" : "value1",
-          "value3" : "value3"
-        },
-        "properties" : {
-          "value1" : {
-            "type" : "string"
-          },
-          "value2" : {
-            "type" : "string"
-          },
-          "value3" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
       "RoleId" : {
         "format" : "uuid",
         "type" : "string"
@@ -4286,6 +4864,7 @@
       "Role" : {
         "description" : "A Role within A3S. Roles can have functions assigned to them. Roles can be assigned to users.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "roleIds" : [ null, null ],
           "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
           "name" : "name",
@@ -4304,6 +4883,11 @@
           "description" : {
             "type" : "string"
           },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          },
           "functionIds" : {
             "items" : {
               "description" : "The UUIDS of the functions assigned to this role.",
@@ -4313,7 +4897,7 @@
             "type" : "array"
           },
           "userIds" : {
-            "description" : "The UUIDs of the users attached to the role",
+            "description" : "The UUIDs of the users attached to the role.",
             "items" : {
               "format" : "uuid",
               "type" : "string"
@@ -4331,8 +4915,9 @@
         "type" : "object"
       },
       "RoleSubmit" : {
-        "description" : "Model used to create or update a Role.\n",
+        "description" : "Model used to create or update a Role. The role can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "roleIds" : [ null, null ],
           "name" : "name",
           "description" : "description",
@@ -4340,13 +4925,18 @@
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
         },
         "properties" : {
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
           "name" : {
             "type" : "string"
           },
           "description" : {
             "type" : "string"
           },
-          "uuid" : {
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
             "format" : "uuid",
             "type" : "string"
           },
@@ -4378,6 +4968,7 @@
         "description" : "An application\n",
         "example" : {
           "functions" : [ {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "permissions" : [ {
               "name" : "name",
               "description" : "description",
@@ -4392,6 +4983,7 @@
             "applicationId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
           }, {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "permissions" : [ {
               "name" : "name",
               "description" : "description",
@@ -4476,9 +5068,10 @@
         "type" : "string"
       },
       "TermsOfService" : {
-        "description" : "An agreement the needs to be agreed to by a user\n",
+        "description" : "Models a terms of service agreement that needs to be agreed to by a user on login.\n",
         "example" : {
           "acceptedUserIds" : [ null, null ],
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "agreementName" : "agreementName",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "version" : "version",
@@ -4512,14 +5105,20 @@
               "$ref" : "#/components/schemas/UserId"
             },
             "type" : "array"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
           }
         },
         "type" : "object"
       },
       "TermsOfServiceSubmit" : {
-        "description" : "An agreement the needs to be agreed to by a user\n",
+        "description" : "Models a terms of service agreement that needs to be agreed to by a user on login. Used to create or update a terms of service agreement. UUID is required when updating a terms of service agreement. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.\n",
         "example" : {
           "autoUpdate" : true,
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "agreementName" : "agreementName",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "agreementFileData" : "agreementFileData"
@@ -4537,8 +5136,14 @@
           },
           "autoUpdate" : {
             "type" : "boolean"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
           }
         },
+        "required" : [ "agreementFileData", "agreementName", "autoUpdate" ],
         "type" : "object"
       },
       "FunctionId" : {
@@ -4546,8 +5151,9 @@
         "type" : "string"
       },
       "Function" : {
-        "description" : "A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application.\n",
+        "description" : "A Function - A collection of permissions to denote a piece of functionality in an application. Must be assigned to an application. May optionally be associated with a sub-realm by specifying a 'subRealmId'.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "permissions" : [ {
             "name" : "name",
             "description" : "description",
@@ -4578,6 +5184,11 @@
             "format" : "uuid",
             "type" : "string"
           },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          },
           "permissions" : {
             "items" : {
               "$ref" : "#/components/schemas/Permission"
@@ -4585,11 +5196,13 @@
             "type" : "array"
           }
         },
+        "required" : [ "applicationId", "description", "name", "permissions", "uuid" ],
         "type" : "object"
       },
       "FunctionSubmit" : {
-        "description" : "Model used to create an new function or update an existing Function.\n",
+        "description" : "Model used to create an new function or update an existing Function. May optionally be associated with a sub-realm by specifying a 'subRealmId'.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "permissions" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
           "name" : "name",
           "description" : "description",
@@ -4611,6 +5224,11 @@
           },
           "applicationId" : {
             "description" : "The UUID of an application.",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
             "format" : "uuid",
             "type" : "string"
           },
@@ -4681,6 +5299,7 @@
           "phoneNumber" : "phoneNumber",
           "isDeleted" : true,
           "teams" : [ {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
@@ -4689,6 +5308,7 @@
             "dataPolicyIds" : [ null, null ],
             "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
           }, {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
@@ -4699,6 +5319,7 @@
           } ],
           "surname" : "surname",
           "roles" : [ {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
@@ -4706,6 +5327,7 @@
             "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
           }, {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
             "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
@@ -4769,7 +5391,7 @@
         "type" : "object"
       },
       "UserSubmit" : {
-        "description" : "Used to update a user\n",
+        "description" : "Model used to create or update a user.\n",
         "example" : {
           "password" : "password",
           "phoneNumber" : "phoneNumber",
@@ -4798,7 +5420,7 @@
             "type" : "string"
           },
           "password" : {
-            "description" : "A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected",
+            "description" : "A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected.",
             "type" : "string"
           },
           "email" : {
@@ -4836,7 +5458,7 @@
         "type" : "object"
       },
       "UserPasswordChangeSubmit" : {
-        "description" : "Used to change a user's password\n",
+        "description" : "Used to change a user's password.\n",
         "example" : {
           "oldPassword" : "oldPassword",
           "newPassword" : "newPassword",
@@ -4860,6 +5482,66 @@
         },
         "type" : "object"
       },
+      "UserProfileSubmit" : {
+        "description" : "Models a user profile, which enables context based access for the same user identity, when creating or updating a user profile.\n",
+        "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "name" : "name",
+          "description" : "description"
+        },
+        "properties" : {
+          "name" : {
+            "description" : "The name of the user profile. This must be unique per user.",
+            "type" : "string"
+          },
+          "description" : {
+            "description" : "A brief description of a user profile and it's intent.",
+            "type" : "string"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "name", "subRealmId" ],
+        "type" : "object"
+      },
+      "UserProfile" : {
+        "description" : "Models a user profile, which enables context based access for the same user identity.\n",
+        "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "name" : "name",
+          "description" : "description",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        "properties" : {
+          "uuid" : {
+            "description" : "The unique UUID for a user profile.\n",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "The name of the user profile. This must be unique per user.",
+            "type" : "string"
+          },
+          "description" : {
+            "description" : "A brief description of a user profile and it's intent.",
+            "type" : "string"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "UserProfileId" : {
+        "description" : "The unique UUID for a user profile.\n",
+        "format" : "uuid",
+        "type" : "string"
+      },
       "TeamId" : {
         "format" : "uuid",
         "type" : "string"
@@ -4867,6 +5549,7 @@
       "Team" : {
         "description" : "Models a team.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
           "name" : "name",
           "description" : "description",
@@ -4911,13 +5594,19 @@
           "termsOfServiceId" : {
             "format" : "uuid",
             "type" : "string"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
           }
         },
         "type" : "object"
       },
       "TeamSubmit" : {
-        "description" : "Model used for creating or updating a team.\n",
+        "description" : "Model used for creating or updating a team. Team can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.\n",
         "example" : {
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "name" : "name",
           "description" : "description",
           "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
@@ -4953,6 +5642,11 @@
           "termsOfServiceId" : {
             "format" : "uuid",
             "nullable" : true,
+            "type" : "string"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
             "type" : "string"
           }
         },
@@ -6244,6 +6938,71 @@
       "ApplicationDataPolicyId" : {
         "format" : "uuid",
         "type" : "string"
+      },
+      "SubRealmId" : {
+        "description" : "The UUID identifier for a sub-realm.",
+        "format" : "uuid",
+        "type" : "string"
+      },
+      "SubRealm" : {
+        "description" : "Models a sub-realm.\n",
+        "example" : {
+          "permissions" : [ null, null ],
+          "name" : "name",
+          "description" : "description",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        "properties" : {
+          "uuid" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "The name of the sub-realm.",
+            "type" : "string"
+          },
+          "description" : {
+            "description" : "A description of the sub-realm.",
+            "type" : "string"
+          },
+          "permissions" : {
+            "description" : "A list of all the permissions that are available within the sub-realm.",
+            "items" : {
+              "$ref" : "#/components/schemas/PermissionId"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "description", "name", "permissions", "uuid" ],
+        "type" : "object"
+      },
+      "SubRealmSubmit" : {
+        "description" : "Models a sub-realm.\n",
+        "example" : {
+          "permissions" : [ null, null ],
+          "name" : "name",
+          "description" : "description"
+        },
+        "properties" : {
+          "name" : {
+            "description" : "The name of the sub-realm.",
+            "type" : "string"
+          },
+          "description" : {
+            "description" : "A description of the sub-realm.",
+            "type" : "string"
+          },
+          "permissions" : {
+            "description" : "A list of all the permissions that are available within the sub-realm.",
+            "items" : {
+              "$ref" : "#/components/schemas/PermissionId"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "description", "name" ],
+        "type" : "object"
       },
       "ErrorResponse" : {
         "description" : "Error response object to give more info with HTTP status code",

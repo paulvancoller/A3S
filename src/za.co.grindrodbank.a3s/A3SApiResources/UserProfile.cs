@@ -27,48 +27,31 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Models a terms of service agreement that needs to be agreed to by a user on login. 
+    /// Models a user profile, which enables context based access for the same user identity. 
     /// </summary>
     [DataContract]
-    public partial class TermsOfService : IEquatable<TermsOfService>
+    public partial class UserProfile : IEquatable<UserProfile>
     { 
         /// <summary>
-        /// Gets or Sets Uuid
+        /// The unique UUID for a user profile. 
         /// </summary>
+        /// <value>The unique UUID for a user profile. </value>
         [DataMember(Name="uuid", EmitDefaultValue=false)]
         public Guid Uuid { get; set; }
 
         /// <summary>
-        /// Gets or Sets AgreementName
+        /// The name of the user profile. This must be unique per user.
         /// </summary>
-        [DataMember(Name="agreementName", EmitDefaultValue=false)]
-        public string AgreementName { get; set; }
+        /// <value>The name of the user profile. This must be unique per user.</value>
+        [DataMember(Name="name", EmitDefaultValue=false)]
+        public string Name { get; set; }
 
         /// <summary>
-        /// Gets or Sets Version
+        /// A brief description of a user profile and it&#39;s intent.
         /// </summary>
-        [DataMember(Name="version", EmitDefaultValue=false)]
-        public string Version { get; set; }
-
-        /// <summary>
-        /// Gets or Sets AgreementFileData
-        /// </summary>
-        [DataMember(Name="agreementFileData", EmitDefaultValue=false)]
-        public string AgreementFileData { get; set; }
-
-        /// <summary>
-        /// Teams linked to this terms of service entry.
-        /// </summary>
-        /// <value>Teams linked to this terms of service entry.</value>
-        [DataMember(Name="teamIds", EmitDefaultValue=false)]
-        public List<Guid> TeamIds { get; set; }
-
-        /// <summary>
-        /// A list of User Id&#39;s that have accepted this terms of service entry.
-        /// </summary>
-        /// <value>A list of User Id&#39;s that have accepted this terms of service entry.</value>
-        [DataMember(Name="acceptedUserIds", EmitDefaultValue=false)]
-        public List<Guid> AcceptedUserIds { get; set; }
+        /// <value>A brief description of a user profile and it&#39;s intent.</value>
+        [DataMember(Name="description", EmitDefaultValue=false)]
+        public string Description { get; set; }
 
         /// <summary>
         /// The UUID identifier for a sub-realm.
@@ -84,13 +67,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class TermsOfService {\n");
+            sb.Append("class UserProfile {\n");
             sb.Append("  Uuid: ").Append(Uuid).Append("\n");
-            sb.Append("  AgreementName: ").Append(AgreementName).Append("\n");
-            sb.Append("  Version: ").Append(Version).Append("\n");
-            sb.Append("  AgreementFileData: ").Append(AgreementFileData).Append("\n");
-            sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
-            sb.Append("  AcceptedUserIds: ").Append(AcceptedUserIds).Append("\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -114,15 +94,15 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((TermsOfService)obj);
+            return obj.GetType() == GetType() && Equals((UserProfile)obj);
         }
 
         /// <summary>
-        /// Returns true if TermsOfService instances are equal
+        /// Returns true if UserProfile instances are equal
         /// </summary>
-        /// <param name="other">Instance of TermsOfService to be compared</param>
+        /// <param name="other">Instance of UserProfile to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(TermsOfService other)
+        public bool Equals(UserProfile other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -134,31 +114,14 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Uuid.Equals(other.Uuid)
                 ) && 
                 (
-                    AgreementName == other.AgreementName ||
-                    AgreementName != null &&
-                    AgreementName.Equals(other.AgreementName)
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
                 ) && 
                 (
-                    Version == other.Version ||
-                    Version != null &&
-                    Version.Equals(other.Version)
-                ) && 
-                (
-                    AgreementFileData == other.AgreementFileData ||
-                    AgreementFileData != null &&
-                    AgreementFileData.Equals(other.AgreementFileData)
-                ) && 
-                (
-                    TeamIds == other.TeamIds ||
-                    TeamIds != null &&
-                    other.TeamIds != null &&
-                    TeamIds.SequenceEqual(other.TeamIds)
-                ) && 
-                (
-                    AcceptedUserIds == other.AcceptedUserIds ||
-                    AcceptedUserIds != null &&
-                    other.AcceptedUserIds != null &&
-                    AcceptedUserIds.SequenceEqual(other.AcceptedUserIds)
+                    Description == other.Description ||
+                    Description != null &&
+                    Description.Equals(other.Description)
                 ) && 
                 (
                     SubRealmId == other.SubRealmId ||
@@ -179,16 +142,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                 // Suitable nullity checks etc, of course :)
                     if (Uuid != null)
                     hashCode = hashCode * 59 + Uuid.GetHashCode();
-                    if (AgreementName != null)
-                    hashCode = hashCode * 59 + AgreementName.GetHashCode();
-                    if (Version != null)
-                    hashCode = hashCode * 59 + Version.GetHashCode();
-                    if (AgreementFileData != null)
-                    hashCode = hashCode * 59 + AgreementFileData.GetHashCode();
-                    if (TeamIds != null)
-                    hashCode = hashCode * 59 + TeamIds.GetHashCode();
-                    if (AcceptedUserIds != null)
-                    hashCode = hashCode * 59 + AcceptedUserIds.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                    if (Description != null)
+                    hashCode = hashCode * 59 + Description.GetHashCode();
                     if (SubRealmId != null)
                     hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                 return hashCode;
@@ -198,12 +155,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(TermsOfService left, TermsOfService right)
+        public static bool operator ==(UserProfile left, UserProfile right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(TermsOfService left, TermsOfService right)
+        public static bool operator !=(UserProfile left, UserProfile right)
         {
             return !Equals(left, right);
         }

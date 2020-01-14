@@ -27,7 +27,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Used to update a user 
+    /// Model used to create or update a user. 
     /// </summary>
     [DataContract]
     public partial class UserSubmit : IEquatable<UserSubmit>
@@ -61,9 +61,9 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Username { get; set; }
 
         /// <summary>
-        /// A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected
+        /// A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected.
         /// </summary>
-        /// <value>A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected</value>
+        /// <value>A plain text password field used to create or update the user password. Required for create. If omitted on update, password will not be affected.</value>
         [DataMember(Name="password", EmitDefaultValue=false)]
         public string Password { get; set; }
 

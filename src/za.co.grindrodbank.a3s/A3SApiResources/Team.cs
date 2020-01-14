@@ -77,6 +77,13 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public Guid TermsOfServiceId { get; set; }
 
         /// <summary>
+        /// The UUID identifier for a sub-realm.
+        /// </summary>
+        /// <value>The UUID identifier for a sub-realm.</value>
+        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
+        public Guid SubRealmId { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -91,6 +98,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  UserIds: ").Append(UserIds).Append("\n");
             sb.Append("  DataPolicyIds: ").Append(DataPolicyIds).Append("\n");
             sb.Append("  TermsOfServiceId: ").Append(TermsOfServiceId).Append("\n");
+            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -164,6 +172,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     TermsOfServiceId == other.TermsOfServiceId ||
                     TermsOfServiceId != null &&
                     TermsOfServiceId.Equals(other.TermsOfServiceId)
+                ) && 
+                (
+                    SubRealmId == other.SubRealmId ||
+                    SubRealmId != null &&
+                    SubRealmId.Equals(other.SubRealmId)
                 );
         }
 
@@ -191,6 +204,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + DataPolicyIds.GetHashCode();
                     if (TermsOfServiceId != null)
                     hashCode = hashCode * 59 + TermsOfServiceId.GetHashCode();
+                    if (SubRealmId != null)
+                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                 return hashCode;
             }
         }
