@@ -6,6 +6,7 @@
  */
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using NLog;
@@ -47,6 +48,8 @@ namespace za.co.grindrodbank.a3s.Services
 
                 SubRealmModel newSubRealm = mapper.Map<SubRealmModel>(subRealmSubmit);
                 newSubRealm.ChangedBy = createdById;
+                // Set a new relations list.
+                newSubRealm.SubRealmPermissions = new List<SubRealmPermissionModel>();
                 await AssignPermissionsToSubRealmFromPermissionIdListAsync(newSubRealm, subRealmSubmit.PermissionIds, createdById);
 
                 SubRealmModel createdSubRealm = await subRealmRepository.CreateAsync(newSubRealm);
@@ -64,11 +67,21 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task AssignPermissionsToSubRealmFromPermissionIdListAsync(SubRealmModel subRealm, List<Guid> permissionIds, Guid changedById)
         {
-            // The assignment of permissions to a sub-realm is declarative. Re-set the relation and re-build it from the permission list.
-            subRealm.SubRealmPermissions = new List<SubRealmPermissionModel>();
+            // We want to track which permissions were added so that their changedById can be updated, but leave the permissions that already exist un-touched.
+            List <SubRealmPermissionModel> newSubRealmPermissionsState = new List<SubRealmPermissionModel>();
 
             foreach(var permissionId in permissionIds)
             {
+                // Search existing sub-realm permissions state for the permission.
+                var existingSubRealmPermission = subRealm.SubRealmPermissions.Where(SubRealmPermissionModel => SubRealmPermissionModel.PermissionId == permissionId).FirstOrDefault();
+
+                if(existingSubRealmPermission != null)
+                {
+                    newSubRealmPermissionsState.Add(existingSubRealmPermission);
+                    continue;
+                }
+
+                // If the permissions is new, attempt to add it, but perform some checks first.
                 PermissionModel existingPermission = await permissionRepository.GetByIdAsync(permissionId);
 
                 if(existingPermission == null)
@@ -76,13 +89,15 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Permission with ID '{permissionId}' not found when attempting to assign it to a sub-realm");
                 }
 
-                subRealm.SubRealmPermissions.Add(new SubRealmPermissionModel
+                newSubRealmPermissionsState.Add(new SubRealmPermissionModel
                 {
                     Permission = existingPermission,
                     SubRealm = subRealm,
                     ChangedBy = changedById
                 });
             }
+
+            subRealm.SubRealmPermissions = newSubRealmPermissionsState;
         }
 
         public async Task<SubRealm> GetByIdAsync(Guid subRealmId)
@@ -102,9 +117,36 @@ namespace za.co.grindrodbank.a3s.Services
             throw new NotImplementedException();
         }
 
-        public Task<SubRealm> UpdateAsync(SubRealmSubmit subRealmSubmit)
+        public async Task<SubRealm> UpdateAsync(Guid subRealmId, SubRealmSubmit subRealmSubmit, Guid updatedBy)
         {
-            throw new NotImplementedException();
+            InitSharedTransaction();
+
+            try
+            {
+                SubRealmModel existingSubRealm = await subRealmRepository.GetByIdAsync(subRealmId, true);
+
+                if (existingSubRealm != null)
+                {
+                    RollbackTransaction();
+
+                    throw new ItemNotProcessableException($"Sub-Realm with ID '{subRealmId}' does not exist.");
+                }
+
+                SubRealmModel newSubRealm = mapper.Map<SubRealmModel>(subRealmSubmit);
+                newSubRealm.ChangedBy = updatedBy;
+                await AssignPermissionsToSubRealmFromPermissionIdListAsync(newSubRealm, subRealmSubmit.PermissionIds, updatedBy);
+
+                SubRealmModel createdSubRealm = await subRealmRepository.CreateAsync(newSubRealm);
+                CommitTransaction();
+
+                return mapper.Map<SubRealm>(createdSubRealm);
+
+            }
+            catch
+            {
+                RollbackTransaction();
+                throw;
+            }
         }
 
         public void InitSharedTransaction()
@@ -123,6 +165,11 @@ namespace za.co.grindrodbank.a3s.Services
         {
             subRealmRepository.RollbackTransaction();
             permissionRepository.RollbackTransaction();
+        }
+
+        public Task DeleteAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }
