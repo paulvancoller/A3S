@@ -37,9 +37,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             throw new NotImplementedException();
         }
 
-        public override Task<IActionResult> GetSubRealmAsync([FromRoute, Required] Guid subRealmId)
+        public async override Task<IActionResult> GetSubRealmAsync([FromRoute, Required] Guid subRealmId)
         {
-            throw new NotImplementedException();
+            return Ok(await subRealmService.GetByIdAsync(subRealmId));
         }
 
         public override Task<IActionResult> ListSubRealmsAsync([FromQuery] List<string> orderBy)

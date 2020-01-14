@@ -85,9 +85,16 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        public Task<SubRealm> GetByIdAsync(Guid subRealmId)
+        public async Task<SubRealm> GetByIdAsync(Guid subRealmId)
         {
-            throw new NotImplementedException();
+            SubRealmModel existingSubRealm = await subRealmRepository.GetByIdAsync(subRealmId, true);
+
+            if(existingSubRealm == null)
+            {
+                throw new ItemNotFoundException($"Sub-Realm with ID '{subRealmId}' not found.");
+            }
+
+            return mapper.Map<SubRealm>(existingSubRealm);
         }
 
         public Task<List<SubRealm>> GetListAsync()
