@@ -28,8 +28,7 @@ namespace za.co.grindrodbank.a3s.Controllers
 
         public async override Task<IActionResult> CreateSubRealmAsync([FromBody] SubRealmSubmit subRealmSubmit)
         {
-            var loggedOnUser = ClaimsHelper.GetScalarClaimValue<Guid>(User, ClaimTypes.NameIdentifier, Guid.Empty);
-            return Ok(await subRealmService.CreateAsync(subRealmSubmit, loggedOnUser));
+            return Ok(await subRealmService.CreateAsync(subRealmSubmit, ClaimsHelper.GetUserId(User)));
         }
 
         public override Task<IActionResult> DeleteSubRealmAsync([FromRoute, Required] Guid subRealmId)
@@ -47,9 +46,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             throw new NotImplementedException();
         }
 
-        public override Task<IActionResult> UpdateSubRealmAsync([FromRoute, Required] Guid subRealmId, [FromBody] SubRealmSubmit subRealmSubmit)
+        public async override Task<IActionResult> UpdateSubRealmAsync([FromRoute, Required] Guid subRealmId, [FromBody] SubRealmSubmit subRealmSubmit)
         {
-            throw new NotImplementedException();
+            return Ok(await subRealmService.UpdateAsync(subRealmId, subRealmSubmit, ClaimsHelper.GetUserId(User)));
         }
     }
 }

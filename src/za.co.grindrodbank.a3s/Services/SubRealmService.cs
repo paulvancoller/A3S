@@ -128,11 +128,24 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 SubRealmModel existingSubRealm = await subRealmRepository.GetByIdAsync(subRealmId, true);
 
-                if (existingSubRealm != null)
+                if (existingSubRealm == null)
                 {
                     RollbackTransaction();
 
                     throw new ItemNotFoundException($"Sub-Realm with ID '{subRealmId}' does not exist.");
+                }
+
+                // Sub-Realm names must be unique. If the sub-realm name has changed, then check that another sub-realm does have the same name.
+                if(existingSubRealm.Name != subRealmSubmit.Name)
+                {
+                    SubRealmModel existingNamedSubRealm = await subRealmRepository.GetByNameAsync(subRealmSubmit.Name, false);
+
+                    if (existingNamedSubRealm != null)
+                    {
+                        RollbackTransaction();
+
+                        throw new ItemNotProcessableException($"Cannot update sub-Realm with name '{subRealmSubmit.Name}', as this name is already used by another sub-realm.");
+                    }
                 }
 
                 // Map any potential updates from the submit model onto the existing sub-realms model.
