@@ -200,6 +200,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IIdentityClientRepository, IdentityClientRepository>();
             services.AddScoped<IApplicationDataPolicyRepository, ApplicationDataPolicyRepository>();
             services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
+            services.AddScoped<ISubRealmRepository, SubRealmRepository>();
 
             // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();
@@ -219,6 +220,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ITwoFactorAuthService, TwoFactorAuthService>();
             services.AddScoped<ITermsOfServiceService, TermsOfServiceService>();
             services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<ISubRealmService, SubRealmService>();
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();

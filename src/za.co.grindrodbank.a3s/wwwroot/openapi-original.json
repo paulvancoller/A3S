@@ -6947,7 +6947,15 @@
       "SubRealm" : {
         "description" : "Models a sub-realm.\n",
         "example" : {
-          "permissions" : [ null, null ],
+          "permissions" : [ {
+            "name" : "name",
+            "description" : "description",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }, {
+            "name" : "name",
+            "description" : "description",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          } ],
           "name" : "name",
           "description" : "description",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
@@ -6969,7 +6977,7 @@
           "permissions" : {
             "description" : "A list of all the permissions that are available within the sub-realm.",
             "items" : {
-              "$ref" : "#/components/schemas/PermissionId"
+              "$ref" : "#/components/schemas/Permission"
             },
             "type" : "array"
           }
@@ -6980,9 +6988,9 @@
       "SubRealmSubmit" : {
         "description" : "Models a sub-realm.\n",
         "example" : {
-          "permissions" : [ null, null ],
           "name" : "name",
-          "description" : "description"
+          "description" : "description",
+          "permissionIds" : [ null, null ]
         },
         "properties" : {
           "name" : {
@@ -6993,15 +7001,15 @@
             "description" : "A description of the sub-realm.",
             "type" : "string"
           },
-          "permissions" : {
-            "description" : "A list of all the permissions that are available within the sub-realm.",
+          "permissionIds" : {
+            "description" : "A list of all the permission IDs for the permissions that are to available within the sub-realm.",
             "items" : {
               "$ref" : "#/components/schemas/PermissionId"
             },
             "type" : "array"
           }
         },
-        "required" : [ "description", "name" ],
+        "required" : [ "description", "name", "permissionIds" ],
         "type" : "object"
       },
       "ErrorResponse" : {

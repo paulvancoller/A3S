@@ -4280,7 +4280,7 @@ components:
           description: A list of all the permissions that are available within the sub-realm.
           type: array
           items:
-            $ref: '#/components/schemas/PermissionId'
+            $ref: '#/components/schemas/Permission'
           
     SubRealmSubmit:
       description: |
@@ -4289,6 +4289,7 @@ components:
       required:
         - name
         - description
+        - permissionIds
       properties:
         name:
           type: string
@@ -4296,8 +4297,8 @@ components:
         description:
           type: string
           description: A description of the sub-realm.
-        permissions:
-          description: A list of all the permissions that are available within the sub-realm.
+        permissionIds:
+          description: A list of all the permission IDs for the permissions that are to available within the sub-realm.
           type: array
           items:
             $ref: '#/components/schemas/PermissionId'

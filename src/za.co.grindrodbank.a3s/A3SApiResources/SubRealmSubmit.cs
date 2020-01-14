@@ -49,11 +49,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Description { get; set; }
 
         /// <summary>
-        /// A list of all the permissions that are available within the sub-realm.
+        /// A list of all the permission IDs for the permissions that are to available within the sub-realm.
         /// </summary>
-        /// <value>A list of all the permissions that are available within the sub-realm.</value>
-        [DataMember(Name="permissions", EmitDefaultValue=false)]
-        public List<Guid> Permissions { get; set; }
+        /// <value>A list of all the permission IDs for the permissions that are to available within the sub-realm.</value>
+        [Required]
+        [DataMember(Name="permissionIds", EmitDefaultValue=false)]
+        public List<Guid> PermissionIds { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -65,7 +66,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("class SubRealmSubmit {\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
-            sb.Append("  Permissions: ").Append(Permissions).Append("\n");
+            sb.Append("  PermissionIds: ").Append(PermissionIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -113,10 +114,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Description.Equals(other.Description)
                 ) && 
                 (
-                    Permissions == other.Permissions ||
-                    Permissions != null &&
-                    other.Permissions != null &&
-                    Permissions.SequenceEqual(other.Permissions)
+                    PermissionIds == other.PermissionIds ||
+                    PermissionIds != null &&
+                    other.PermissionIds != null &&
+                    PermissionIds.SequenceEqual(other.PermissionIds)
                 );
         }
 
@@ -134,8 +135,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
-                    if (Permissions != null)
-                    hashCode = hashCode * 59 + Permissions.GetHashCode();
+                    if (PermissionIds != null)
+                    hashCode = hashCode * 59 + PermissionIds.GetHashCode();
                 return hashCode;
             }
         }

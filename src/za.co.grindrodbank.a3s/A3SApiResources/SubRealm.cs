@@ -62,7 +62,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         /// <value>A list of all the permissions that are available within the sub-realm.</value>
         [Required]
         [DataMember(Name="permissions", EmitDefaultValue=false)]
-        public List<Guid> Permissions { get; set; }
+        public List<Permission> Permissions { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
