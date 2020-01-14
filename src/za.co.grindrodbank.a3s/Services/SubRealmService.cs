@@ -21,13 +21,15 @@ namespace za.co.grindrodbank.a3s.Services
     {
         private readonly ISubRealmRepository subRealmRepository;
         private readonly IPermissionRepository permissionRepository;
+        private readonly IApplicationDataPolicyRepository applicationDataPolicyRepository;
         private readonly IMapper mapper;
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
-        public SubRealmService(ISubRealmRepository subRealmRepository, IPermissionRepository permissionRepository, IMapper mapper)
+        public SubRealmService(ISubRealmRepository subRealmRepository, IPermissionRepository permissionRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, IMapper mapper)
         {
             this.subRealmRepository = subRealmRepository;
             this.permissionRepository = permissionRepository;
+            this.applicationDataPolicyRepository = applicationDataPolicyRepository;
             this.mapper = mapper;
         }
 
@@ -41,8 +43,6 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingSubRealm != null)
                 {
-                    RollbackTransaction();
-
                     throw new ItemNotProcessableException($"Sub-Realm with name '{subRealmSubmit.Name}' already exists.");
                 }
 
@@ -50,7 +50,9 @@ namespace za.co.grindrodbank.a3s.Services
                 newSubRealm.ChangedBy = createdById;
                 // Set a new relations list.
                 newSubRealm.SubRealmPermissions = new List<SubRealmPermissionModel>();
+                newSubRealm.SubRealmApplicationDataPolicies = new List<SubRealmApplicationDataPolicyModel>();
                 await AssignPermissionsToSubRealmFromPermissionIdListAsync(newSubRealm, subRealmSubmit.PermissionIds, createdById);
+                await AssignApplicationDataPoliciesToSubRealmFromApplicationDataPolicyIdListAsync(newSubRealm, subRealmSubmit.ApplicationDataPolicyIds, createdById);
 
                 SubRealmModel createdSubRealm = await subRealmRepository.CreateAsync(newSubRealm);
                 CommitTransaction();
@@ -86,7 +88,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingPermission == null)
                 {
-                    throw new ItemNotFoundException($"Permission with ID '{permissionId}' not found when attempting to assign it to a sub-realm");
+                    throw new ItemNotFoundException($"Permission with ID '{permissionId}' not found when attempting to assign it to a sub-realm.");
                 }
 
                 newSubRealmPermissionsState.Add(new SubRealmPermissionModel
@@ -101,6 +103,44 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             subRealm.SubRealmPermissions = newSubRealmPermissionsState;
+        }
+
+        private async Task AssignApplicationDataPoliciesToSubRealmFromApplicationDataPolicyIdListAsync(SubRealmModel subRealm, List<Guid> applicationDataPolicyIds, Guid changedById)
+        {
+            // We want to track which permissions were added so that their changedById can be updated, but leave the permissions that already exist un-touched.
+            List<SubRealmApplicationDataPolicyModel> newApplicationDataPolicyState = new List<SubRealmApplicationDataPolicyModel>();
+
+            foreach (var applicationDataPolicyId in applicationDataPolicyIds)
+            {
+                // Search existing sub-realm permissions state for the permission.
+                var existingSubRealmApplicationDataPolicy = subRealm.SubRealmApplicationDataPolicies.Where(SubRealmApplicationDataPolicyModel => SubRealmApplicationDataPolicyModel.ApplicationDataPolicyId == applicationDataPolicyId).FirstOrDefault();
+
+                if (existingSubRealmApplicationDataPolicy != null)
+                {
+                    newApplicationDataPolicyState.Add(existingSubRealmApplicationDataPolicy);
+                    continue;
+                }
+
+                // If the application data policy is new, attempt to add it, but perform some checks first.
+                ApplicationDataPolicyModel existingApplicationDataPolicy = await applicationDataPolicyRepository.GetByIdAsync(applicationDataPolicyId);
+
+                if (existingApplicationDataPolicy == null)
+                {
+                    throw new ItemNotFoundException($"Application Data Policy with ID '{applicationDataPolicyId}' not found when attempting to assign it to a sub-realm.");
+                }
+
+                newApplicationDataPolicyState.Add(new SubRealmApplicationDataPolicyModel
+                {
+                    ApplicationDataPolicy = existingApplicationDataPolicy,
+                    SubRealm = subRealm,
+                    ChangedBy = changedById
+                });
+
+                // If a permission was added, it indicates that parent sub-realm was changed.
+                subRealm.ChangedBy = changedById;
+            }
+
+            subRealm.SubRealmApplicationDataPolicies = newApplicationDataPolicyState;
         }
 
         public async Task<SubRealm> GetByIdAsync(Guid subRealmId)
@@ -130,8 +170,6 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (existingSubRealm == null)
                 {
-                    RollbackTransaction();
-
                     throw new ItemNotFoundException($"Sub-Realm with ID '{subRealmId}' does not exist.");
                 }
 
@@ -142,8 +180,6 @@ namespace za.co.grindrodbank.a3s.Services
 
                     if (existingNamedSubRealm != null)
                     {
-                        RollbackTransaction();
-
                         throw new ItemNotProcessableException($"Cannot update sub-Realm with name '{subRealmSubmit.Name}', as this name is already used by another sub-realm.");
                     }
                 }
@@ -162,6 +198,7 @@ namespace za.co.grindrodbank.a3s.Services
                 }
 
                 await AssignPermissionsToSubRealmFromPermissionIdListAsync(existingSubRealm, subRealmSubmit.PermissionIds, updatedBy);
+                await AssignApplicationDataPoliciesToSubRealmFromApplicationDataPolicyIdListAsync(existingSubRealm, subRealmSubmit.ApplicationDataPolicyIds, updatedBy);
 
                 existingSubRealm = await subRealmRepository.UpdateAsync(existingSubRealm);
                 CommitTransaction();
@@ -179,18 +216,21 @@ namespace za.co.grindrodbank.a3s.Services
         {
             subRealmRepository.InitSharedTransaction();
             permissionRepository.InitSharedTransaction();
+            applicationDataPolicyRepository.InitSharedTransaction();
         }
 
         public void CommitTransaction()
         {
             subRealmRepository.CommitTransaction();
             subRealmRepository.CommitTransaction();
+            applicationDataPolicyRepository.CommitTransaction();
         }
 
         public void RollbackTransaction()
         {
             subRealmRepository.RollbackTransaction();
             permissionRepository.RollbackTransaction();
+            applicationDataPolicyRepository.RollbackTransaction();
         }
 
         public Task DeleteAsync()

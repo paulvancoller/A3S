@@ -6958,6 +6958,15 @@
           } ],
           "name" : "name",
           "description" : "description",
+          "applicationDataPolicies" : [ {
+            "name" : "name",
+            "description" : "description",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }, {
+            "name" : "name",
+            "description" : "description",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          } ],
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
         },
         "properties" : {
@@ -6980,14 +6989,22 @@
               "$ref" : "#/components/schemas/Permission"
             },
             "type" : "array"
+          },
+          "applicationDataPolicies" : {
+            "description" : "A list of all the application data policies that are available within the sub-realm.",
+            "items" : {
+              "$ref" : "#/components/schemas/ApplicationDataPolicy"
+            },
+            "type" : "array"
           }
         },
-        "required" : [ "description", "name", "permissions", "uuid" ],
+        "required" : [ "applicationDataPolicies", "description", "name", "permissions", "uuid" ],
         "type" : "object"
       },
       "SubRealmSubmit" : {
         "description" : "Models a sub-realm.\n",
         "example" : {
+          "applicationDataPolicyIds" : [ null, null ],
           "name" : "name",
           "description" : "description",
           "permissionIds" : [ null, null ]
@@ -7002,14 +7019,21 @@
             "type" : "string"
           },
           "permissionIds" : {
-            "description" : "A list of all the permission IDs for the permissions that are to available within the sub-realm.",
+            "description" : "A list of all the permission IDs for the permissions that are to be available within the sub-realm.",
             "items" : {
               "$ref" : "#/components/schemas/PermissionId"
             },
             "type" : "array"
+          },
+          "applicationDataPolicyIds" : {
+            "description" : "A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.",
+            "items" : {
+              "$ref" : "#/components/schemas/ApplicationDataPolicyId"
+            },
+            "type" : "array"
           }
         },
-        "required" : [ "description", "name", "permissionIds" ],
+        "required" : [ "applicationDataPolicyIds", "description", "name", "permissionIds" ],
         "type" : "object"
       },
       "ErrorResponse" : {

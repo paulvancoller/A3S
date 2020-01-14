@@ -17,7 +17,8 @@ namespace za.co.grindrodbank.a3s.MappingProfiles
         public SubRealmModelSubRealmResourceMapper()
         {
             CreateMap<SubRealmModel, SubRealm>().ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id))
-                                                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.SubRealmPermissions.Select(fp => fp.Permission)));
+                                                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.SubRealmPermissions.Select(fp => fp.Permission)))
+                                                .ForMember(dest => dest.ApplicationDataPolicies, opt => opt.MapFrom(src => src.SubRealmApplicationDataPolicies.Select(fp => fp.ApplicationDataPolicy)));
         }
     }
 }

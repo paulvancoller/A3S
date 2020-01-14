@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -49,12 +43,20 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Description { get; set; }
 
         /// <summary>
-        /// A list of all the permission IDs for the permissions that are to available within the sub-realm.
+        /// A list of all the permission IDs for the permissions that are to be available within the sub-realm.
         /// </summary>
-        /// <value>A list of all the permission IDs for the permissions that are to available within the sub-realm.</value>
+        /// <value>A list of all the permission IDs for the permissions that are to be available within the sub-realm.</value>
         [Required]
         [DataMember(Name="permissionIds", EmitDefaultValue=false)]
         public List<Guid> PermissionIds { get; set; }
+
+        /// <summary>
+        /// A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.
+        /// </summary>
+        /// <value>A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.</value>
+        [Required]
+        [DataMember(Name="applicationDataPolicyIds", EmitDefaultValue=false)]
+        public List<Guid> ApplicationDataPolicyIds { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -67,6 +69,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  PermissionIds: ").Append(PermissionIds).Append("\n");
+            sb.Append("  ApplicationDataPolicyIds: ").Append(ApplicationDataPolicyIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -118,6 +121,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     PermissionIds != null &&
                     other.PermissionIds != null &&
                     PermissionIds.SequenceEqual(other.PermissionIds)
+                ) && 
+                (
+                    ApplicationDataPolicyIds == other.ApplicationDataPolicyIds ||
+                    ApplicationDataPolicyIds != null &&
+                    other.ApplicationDataPolicyIds != null &&
+                    ApplicationDataPolicyIds.SequenceEqual(other.ApplicationDataPolicyIds)
                 );
         }
 
@@ -137,6 +146,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (PermissionIds != null)
                     hashCode = hashCode * 59 + PermissionIds.GetHashCode();
+                    if (ApplicationDataPolicyIds != null)
+                    hashCode = hashCode * 59 + ApplicationDataPolicyIds.GetHashCode();
                 return hashCode;
             }
         }

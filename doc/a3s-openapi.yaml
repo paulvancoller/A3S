@@ -4267,6 +4267,7 @@ components:
         - description
         - uuid
         - permissions
+        - applicationDataPolicies
       properties:
         uuid:
           $ref: '#/components/schemas/SubRealmId'
@@ -4281,6 +4282,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Permission'
+        applicationDataPolicies:
+          description: A list of all the application data policies that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationDataPolicy'
           
     SubRealmSubmit:
       description: |
@@ -4290,6 +4296,7 @@ components:
         - name
         - description
         - permissionIds
+        - applicationDataPolicyIds
       properties:
         name:
           type: string
@@ -4298,10 +4305,15 @@ components:
           type: string
           description: A description of the sub-realm.
         permissionIds:
-          description: A list of all the permission IDs for the permissions that are to available within the sub-realm.
+          description: A list of all the permission IDs for the permissions that are to be available within the sub-realm.
           type: array
           items:
             $ref: '#/components/schemas/PermissionId'
+        applicationDataPolicyIds:
+          description: A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationDataPolicyId'
 
     #region Responses
     ErrorResponse:

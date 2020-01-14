@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -65,6 +59,14 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<Permission> Permissions { get; set; }
 
         /// <summary>
+        /// A list of all the application data policies that are available within the sub-realm.
+        /// </summary>
+        /// <value>A list of all the application data policies that are available within the sub-realm.</value>
+        [Required]
+        [DataMember(Name="applicationDataPolicies", EmitDefaultValue=false)]
+        public List<ApplicationDataPolicy> ApplicationDataPolicies { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -76,6 +78,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Permissions: ").Append(Permissions).Append("\n");
+            sb.Append("  ApplicationDataPolicies: ").Append(ApplicationDataPolicies).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -132,6 +135,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Permissions != null &&
                     other.Permissions != null &&
                     Permissions.SequenceEqual(other.Permissions)
+                ) && 
+                (
+                    ApplicationDataPolicies == other.ApplicationDataPolicies ||
+                    ApplicationDataPolicies != null &&
+                    other.ApplicationDataPolicies != null &&
+                    ApplicationDataPolicies.SequenceEqual(other.ApplicationDataPolicies)
                 );
         }
 
@@ -153,6 +162,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (Permissions != null)
                     hashCode = hashCode * 59 + Permissions.GetHashCode();
+                    if (ApplicationDataPolicies != null)
+                    hashCode = hashCode * 59 + ApplicationDataPolicies.GetHashCode();
                 return hashCode;
             }
         }
