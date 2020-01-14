@@ -1,6 +1,6 @@
-﻿{
+{
 	"info": {
-		"_postman_id": "1f83a55a-381a-48b9-907b-b2977aad30e7",
+		"_postman_id": "1d5eb912-2873-45bd-afc2-f4d77cf0f2ce",
 		"name": "A3S",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -3337,6 +3337,158 @@
 				}
 			],
 			"description": "Contains all the requests for obtaining lists and individual clients via the API. There are no APIs to either create or update clients, as this is intended to only be done by the application itself within the security contract definitions that clients supply.",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "SubRealms",
+			"item": [
+				{
+					"name": "CreateSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"sub-realm-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-sub-realm-new\",\n    \"description\": \"Test new sub-realm description\",\n    \"permissionIds\": [\"{{permission-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/subrealms",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms"
+							]
+						},
+						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+					},
+					"response": []
+				},
+				{
+					"name": "GetSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-sub-realm-updated\",\n    \"description\": \"Test new sub-realm description updated\",\n    \"permissionIds\": [\"{{permission-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				}
+			],
+			"description": "Contains all the requests pertaining to SubRealms.",
 			"protocolProfileBehavior": {}
 		}
 	],
