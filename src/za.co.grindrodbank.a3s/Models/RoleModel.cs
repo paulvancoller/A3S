@@ -20,5 +20,9 @@ namespace za.co.grindrodbank.a3s.Models
         public List<UserRoleModel> UserRoles { get; set; }
         public List<RoleRoleModel> ParentRoles { get; set; }
         public List<RoleRoleModel> ChildRoles { get; set; }
+        // A role can be assigned to many profiles.
+        public List<ProfileRoleModel> ProfileRoles { get; set; }
+        // A role can be assigned to a single sub-realm.
+        public SubRealmModel SubRealm { get; set; }
     }
 }

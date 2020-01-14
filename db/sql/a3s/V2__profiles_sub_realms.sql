@@ -5,6 +5,7 @@
 -- **************************************************
 --
 
+
 -- [ Created objects ] --
 -- object: _a3s.profile | type: TABLE --
 -- DROP TABLE IF EXISTS _a3s.profile CASCADE;
@@ -40,7 +41,7 @@ CREATE TABLE _a3s.sub_realm (
 	name text NOT NULL,
 	description text,
 	changed_by uuid,
-	sys_preriod tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
+	sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
 	CONSTRAINT uk_sub_realm_name UNIQUE (name),
 	CONSTRAINT pk_sub_realm PRIMARY KEY (id)
 
@@ -56,7 +57,7 @@ COMMENT ON COLUMN _a3s.sub_realm.description IS 'A brief description of the sub-
 -- ddl-end --
 COMMENT ON COLUMN _a3s.sub_realm.changed_by IS 'UUID of user that last changed the record.';
 -- ddl-end --
-COMMENT ON COLUMN _a3s.sub_realm.sys_preriod IS 'Temporal data for this record.';
+COMMENT ON COLUMN _a3s.sub_realm.sys_period IS 'Temporal data for this record.';
 -- ddl-end --
 COMMENT ON CONSTRAINT uk_sub_realm_name ON _a3s.sub_realm  IS 'A uniqueness contraint ensuring that a sub realm''s name is always unique.';
 -- ddl-end --
@@ -86,7 +87,7 @@ CREATE TABLE _a3s.profile_role (
 	role_id uuid NOT NULL,
 	changed_by uuid NOT NULL,
 	sys_period tstzrange NOT NULL DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
-	CONSTRAINT profile_role_pk PRIMARY KEY (profile_id,role_id)
+	CONSTRAINT pk_profile_role PRIMARY KEY (profile_id,role_id)
 
 );
 -- ddl-end --
@@ -102,13 +103,29 @@ CREATE TABLE _a3s.profile_team (
 	team_id uuid NOT NULL,
 	changed_by uuid,
 	sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
-	CONSTRAINT profile_team_pk PRIMARY KEY (profile_id,team_id)
+	CONSTRAINT pk_profile_team PRIMARY KEY (profile_id,team_id)
 
 );
 -- ddl-end --
 COMMENT ON COLUMN _a3s.profile_team.changed_by IS 'UUID of user that last modified the record.';
 -- ddl-end --
 COMMENT ON COLUMN _a3s.profile_team.sys_period IS 'Temporal data for this record.';
+-- ddl-end --
+
+-- object: _a3s.sub_realm_application_data_policy | type: TABLE --
+-- DROP TABLE IF EXISTS _a3s.sub_realm_application_data_policy CASCADE;
+CREATE TABLE _a3s.sub_realm_application_data_policy (
+	sub_realm_id uuid NOT NULL,
+	application_data_policy_id uuid NOT NULL,
+	changed_by uuid,
+	sys_period tstzrange DEFAULT tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone),
+	CONSTRAINT pk_sub_realm_application_data_policy PRIMARY KEY (sub_realm_id,application_data_policy_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN _a3s.sub_realm_application_data_policy.changed_by IS 'The UUID of the user that last modified this record.';
+-- ddl-end --
+COMMENT ON COLUMN _a3s.sub_realm_application_data_policy.sys_period IS 'The temporal data for this record.';
 -- ddl-end --
 
 -- object: sub_realm_id | type: COLUMN --
@@ -228,4 +245,18 @@ ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE _a3s.terms_of_service ADD CONSTRAINT fk_terms_of_service_sub_realm_id FOREIGN KEY (sub_realm_id)
 REFERENCES _a3s.sub_realm (id) MATCH FULL
 ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: fk_sub_realm_application_data_policy_sub_realm_id | type: CONSTRAINT --
+-- ALTER TABLE _a3s.sub_realm_application_data_policy DROP CONSTRAINT IF EXISTS fk_sub_realm_application_data_policy_sub_realm_id CASCADE;
+ALTER TABLE _a3s.sub_realm_application_data_policy ADD CONSTRAINT fk_sub_realm_application_data_policy_sub_realm_id FOREIGN KEY (sub_realm_id)
+REFERENCES _a3s.sub_realm (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: fk_sub_realm_application_data_policy_id | type: CONSTRAINT --
+-- ALTER TABLE _a3s.sub_realm_application_data_policy DROP CONSTRAINT IF EXISTS fk_sub_realm_application_data_policy_id CASCADE;
+ALTER TABLE _a3s.sub_realm_application_data_policy ADD CONSTRAINT fk_sub_realm_application_data_policy_id FOREIGN KEY (application_data_policy_id)
+REFERENCES _a3s.application_data_policy (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
 -- ddl-end --
