@@ -95,6 +95,9 @@ namespace za.co.grindrodbank.a3s.Services
                     SubRealm = subRealm,
                     ChangedBy = changedById
                 });
+
+                // If a permission was added, it indicates that parent sub-realm was changed.
+                subRealm.ChangedBy = changedById;
             }
 
             subRealm.SubRealmPermissions = newSubRealmPermissionsState;
@@ -129,18 +132,28 @@ namespace za.co.grindrodbank.a3s.Services
                 {
                     RollbackTransaction();
 
-                    throw new ItemNotProcessableException($"Sub-Realm with ID '{subRealmId}' does not exist.");
+                    throw new ItemNotFoundException($"Sub-Realm with ID '{subRealmId}' does not exist.");
                 }
 
-                SubRealmModel newSubRealm = mapper.Map<SubRealmModel>(subRealmSubmit);
-                newSubRealm.ChangedBy = updatedBy;
-                await AssignPermissionsToSubRealmFromPermissionIdListAsync(newSubRealm, subRealmSubmit.PermissionIds, updatedBy);
+                // Map any potential updates from the submit model onto the existing sub-realms model.
+                if(subRealmSubmit.Name != existingSubRealm.Name)
+                {
+                    existingSubRealm.Name = subRealmSubmit.Name;
+                    existingSubRealm.ChangedBy = updatedBy;
+                }
 
-                SubRealmModel createdSubRealm = await subRealmRepository.CreateAsync(newSubRealm);
+                if(subRealmSubmit.Description != existingSubRealm.Description)
+                {
+                    existingSubRealm.Description = subRealmSubmit.Description;
+                    existingSubRealm.ChangedBy = updatedBy;
+                }
+
+                await AssignPermissionsToSubRealmFromPermissionIdListAsync(existingSubRealm, subRealmSubmit.PermissionIds, updatedBy);
+
+                existingSubRealm = await subRealmRepository.UpdateAsync(existingSubRealm);
                 CommitTransaction();
 
-                return mapper.Map<SubRealm>(createdSubRealm);
-
+                return mapper.Map<SubRealm>(existingSubRealm);
             }
             catch
             {
