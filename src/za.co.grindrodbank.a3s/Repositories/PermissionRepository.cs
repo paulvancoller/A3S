@@ -77,6 +77,8 @@ namespace za.co.grindrodbank.a3s.Repositories
                                             .Include(p => p.ApplicationFunctionPermissions)
                                              .ThenInclude(afp => afp.ApplicationFunction)
                                              .ThenInclude(af => af.Application)
+                                            .Include(p => p.SubRealmPermissions)
+                                             .ThenInclude(psrp => psrp.SubRealm)
                                             .FirstOrDefault();
             }
 
@@ -91,6 +93,8 @@ namespace za.co.grindrodbank.a3s.Repositories
                                             .Include(p => p.ApplicationFunctionPermissions)
                                              .ThenInclude(afp => afp.ApplicationFunction)
                                              .ThenInclude(af => af.Application)
+                                            .Include(p => p.SubRealmPermissions)
+                                             .ThenInclude(psrp => psrp.SubRealm)
                                             .FirstOrDefaultAsync();
             }
             return await a3SContext.Permission.Where(p => p.Name == name).FirstOrDefaultAsync();
@@ -120,6 +124,8 @@ namespace za.co.grindrodbank.a3s.Repositories
                                               .Include(p => p.ApplicationFunctionPermissions)
                                                .ThenInclude(afp => afp.ApplicationFunction)
                                                .ThenInclude(af => af.Application)
+                                              .Include(p => p.SubRealmPermissions)
+                                               .ThenInclude(psrp => psrp.SubRealm)
                                               .FirstOrDefaultAsync();
         }
     }
