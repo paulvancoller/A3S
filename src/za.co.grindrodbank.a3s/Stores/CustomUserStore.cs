@@ -117,7 +117,7 @@ namespace za.co.grindrodbank.a3s.Stores
             if (encrypted)
             {
                 tokenEntity = await a3SContext.UserToken
-                    .FromSqlRaw("SELECT user_id, login_provider, name, _a3s.pgp_sym_decrypt(\"value\"::bytea, {0}) as \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {1} and login_provider = {2} and name = {3}",
+                    .FromSqlRaw("SELECT user_id, login_provider, name, pgp_sym_decrypt(\"value\"::bytea, {0}) as \"value\", is_verified FROM _a3s.application_user_token WHERE user_id = {1} and login_provider = {2} and name = {3}",
                     encryptionKey,
                     user.Id,
                     loginProvider,
@@ -215,7 +215,7 @@ namespace za.co.grindrodbank.a3s.Stores
 
         private async Task StoreEncryptedValue(UserModel user, string loginProvider, string name, string value)
         {
-            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.application_user_token SET value = _a3s.pgp_sym_encrypt({0}, {1}) where user_id = {2} and login_provider = {3} and name = {4};",
+            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.application_user_token SET value = pgp_sym_encrypt({0}, {1}) where user_id = {2} and login_provider = {3} and name = {4};",
                 value,
                 encryptionKey,
                 user.Id,
