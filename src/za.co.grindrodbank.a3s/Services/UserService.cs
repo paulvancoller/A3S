@@ -404,7 +404,7 @@ namespace za.co.grindrodbank.a3s.Services
                     continue;
                 }
 
-                // If this point of the execution is reached, we know we are adding a new profile role.
+                // If this point of the execution is reached, we know we are adding a new profile team entry.
                 var teamToAdd = await teamRepository.GetByIdAsync(teamIdToAdd, true);
 
                 if (teamToAdd == null)
