@@ -105,7 +105,6 @@ namespace za.co.grindrodbank.a3s.Services
                 function.ChangedBy = updatedByGuid;
 
                 await CheckForApplicationAndAssignToFunctionIfExists(function, functionSubmit);
-                await CheckForSubRealmAndAssignToFunctionIfExists(function, functionSubmit);
                 await CheckThatPermissionsExistAndAssignToFunction(function, functionSubmit);
 
                 // All successful
