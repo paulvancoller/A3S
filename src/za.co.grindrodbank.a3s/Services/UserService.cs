@@ -341,7 +341,7 @@ namespace za.co.grindrodbank.a3s.Services
             newUserProfile.ProfileRoles = new List<ProfileRoleModel>();
             newUserProfile.ProfileTeams = new List<ProfileTeamModel>();
             await AssignRolesToUserProfileFromRoleIdList(newUserProfile, userProfileSubmit.RoleIds, createdById);
-            await AssignTeamsToUserProfileFromRoleIdList(newUserProfile, userProfileSubmit.TeamIds, createdById);
+            await AssignTeamsToUserProfileFromTeamIdList(newUserProfile, userProfileSubmit.TeamIds, createdById);
 
             user.Profiles.Add(newUserProfile);
         }
@@ -388,7 +388,7 @@ namespace za.co.grindrodbank.a3s.Services
             userProfile.ProfileRoles = newProfileRolesState;
         }
 
-        private async Task AssignTeamsToUserProfileFromRoleIdList(ProfileModel userProfile, List<Guid> teamIds, Guid changedById)
+        private async Task AssignTeamsToUserProfileFromTeamIdList(ProfileModel userProfile, List<Guid> teamIds, Guid changedById)
         {
             List<ProfileTeamModel> newProfileTeamState = new List<ProfileTeamModel>();
 
