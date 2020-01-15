@@ -57,6 +57,20 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public Guid SubRealmId { get; set; }
 
         /// <summary>
+        /// Gets or Sets RoleIds
+        /// </summary>
+        [Required]
+        [DataMember(Name="roleIds", EmitDefaultValue=false)]
+        public List<Guid> RoleIds { get; set; }
+
+        /// <summary>
+        /// Gets or Sets TeamIds
+        /// </summary>
+        [Required]
+        [DataMember(Name="teamIds", EmitDefaultValue=false)]
+        public List<Guid> TeamIds { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -67,6 +81,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
+            sb.Append("  RoleIds: ").Append(RoleIds).Append("\n");
+            sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -117,6 +133,18 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     SubRealmId == other.SubRealmId ||
                     SubRealmId != null &&
                     SubRealmId.Equals(other.SubRealmId)
+                ) && 
+                (
+                    RoleIds == other.RoleIds ||
+                    RoleIds != null &&
+                    other.RoleIds != null &&
+                    RoleIds.SequenceEqual(other.RoleIds)
+                ) && 
+                (
+                    TeamIds == other.TeamIds ||
+                    TeamIds != null &&
+                    other.TeamIds != null &&
+                    TeamIds.SequenceEqual(other.TeamIds)
                 );
         }
 
@@ -136,6 +164,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (SubRealmId != null)
                     hashCode = hashCode * 59 + SubRealmId.GetHashCode();
+                    if (RoleIds != null)
+                    hashCode = hashCode * 59 + RoleIds.GetHashCode();
+                    if (TeamIds != null)
+                    hashCode = hashCode * 59 + TeamIds.GetHashCode();
                 return hashCode;
             }
         }

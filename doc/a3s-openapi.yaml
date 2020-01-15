@@ -3462,9 +3462,6 @@ components:
           type: boolean
           description: True if this user is considered deleted.
         ldapAuthenticationModeId:
-          type: string
-          format: uuid
-          nullable: true
           $ref: '#/components/schemas/LdapAuthenticationModeId'
         roles:
           type: array
@@ -3513,13 +3510,11 @@ components:
         roleIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/RoleId'
         teamIds:
           type: array
           items:
-            type: string
-            format: uuid            
+            $ref: '#/components/schemas/TeamId'          
     UserPasswordChangeSubmit:
       description: |
         Used to change a user's password.
@@ -3544,6 +3539,8 @@ components:
         - name
         - description
         - subRealmId
+        - roleIds
+        - teamIds
       type: object
       properties:
         name:
@@ -3554,6 +3551,14 @@ components:
           type: string
         subRealmId:
           $ref: '#/components/schemas/SubRealmId'
+        roleIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleId'
+        teamIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamId' 
     
     UserProfile:
       description: |
@@ -3570,6 +3575,14 @@ components:
           type: string
         subRealmId:
           $ref: '#/components/schemas/SubRealmId'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team' 
           
     UserProfileId:
       description: |
@@ -4310,7 +4323,7 @@ components:
           items:
             $ref: '#/components/schemas/PermissionId'
         applicationDataPolicyIds:
-          description: A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.
+          description: A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.
           type: array
           items:
             $ref: '#/components/schemas/ApplicationDataPolicyId'

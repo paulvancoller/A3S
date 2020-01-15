@@ -5395,14 +5395,14 @@
         "example" : {
           "password" : "password",
           "phoneNumber" : "phoneNumber",
-          "roleIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+          "roleIds" : [ null, null ],
           "surname" : "surname",
           "name" : "name",
           "avatar" : "avatar",
           "ldapAuthenticationModeId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "email" : "email",
-          "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+          "teamIds" : [ null, null ],
           "username" : "username"
         },
         "properties" : {
@@ -5441,15 +5441,13 @@
           },
           "roleIds" : {
             "items" : {
-              "format" : "uuid",
-              "type" : "string"
+              "$ref" : "#/components/schemas/RoleId"
             },
             "type" : "array"
           },
           "teamIds" : {
             "items" : {
-              "format" : "uuid",
-              "type" : "string"
+              "$ref" : "#/components/schemas/TeamId"
             },
             "type" : "array"
           }
@@ -5486,8 +5484,10 @@
         "description" : "Models a user profile, which enables context based access for the same user identity, when creating or updating a user profile.\n",
         "example" : {
           "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "roleIds" : [ null, null ],
           "name" : "name",
-          "description" : "description"
+          "description" : "description",
+          "teamIds" : [ null, null ]
         },
         "properties" : {
           "name" : {
@@ -5502,15 +5502,63 @@
             "description" : "The UUID identifier for a sub-realm.",
             "format" : "uuid",
             "type" : "string"
+          },
+          "roleIds" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RoleId"
+            },
+            "type" : "array"
+          },
+          "teamIds" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TeamId"
+            },
+            "type" : "array"
           }
         },
-        "required" : [ "description", "name", "subRealmId" ],
+        "required" : [ "description", "name", "roleIds", "subRealmId", "teamIds" ],
         "type" : "object"
       },
       "UserProfile" : {
         "description" : "Models a user profile, which enables context based access for the same user identity.\n",
         "example" : {
           "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "teams" : [ {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "name" : "name",
+            "description" : "description",
+            "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "dataPolicyIds" : [ null, null ],
+            "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
+          }, {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "name" : "name",
+            "description" : "description",
+            "termsOfServiceId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "dataPolicyIds" : [ null, null ],
+            "teamIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ]
+          } ],
+          "roles" : [ {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "roleIds" : [ null, null ],
+            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "name" : "name",
+            "description" : "description",
+            "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }, {
+            "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "roleIds" : [ null, null ],
+            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "name" : "name",
+            "description" : "description",
+            "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          } ],
           "name" : "name",
           "description" : "description",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
@@ -5533,6 +5581,18 @@
             "description" : "The UUID identifier for a sub-realm.",
             "format" : "uuid",
             "type" : "string"
+          },
+          "roles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Role"
+            },
+            "type" : "array"
+          },
+          "teams" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Team"
+            },
+            "type" : "array"
           }
         },
         "type" : "object"
@@ -7026,7 +7086,7 @@
             "type" : "array"
           },
           "applicationDataPolicyIds" : {
-            "description" : "A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.",
+            "description" : "A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.",
             "items" : {
               "$ref" : "#/components/schemas/ApplicationDataPolicyId"
             },

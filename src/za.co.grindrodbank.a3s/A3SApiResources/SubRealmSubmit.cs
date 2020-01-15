@@ -57,9 +57,9 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<Guid> PermissionIds { get; set; }
 
         /// <summary>
-        /// A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.
+        /// A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.
         /// </summary>
-        /// <value>A list of all the application data policy IDs of the application data policies that are to be available within the sub-realm.</value>
+        /// <value>A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.</value>
         [Required]
         [DataMember(Name="applicationDataPolicyIds", EmitDefaultValue=false)]
         public List<Guid> ApplicationDataPolicyIds { get; set; }
