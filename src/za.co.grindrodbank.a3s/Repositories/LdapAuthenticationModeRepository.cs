@@ -20,7 +20,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         private readonly string encryptionKey;
 
         private const string SELECT_COLUMNS_EXCEPT_PASSWORD = "id, name, host_name, port, is_ldaps, account, base_dn, changed_by, sys_period";
-        private const string SELECT_COLUMNS_PASSWORD = "_a3s.pgp_sym_decrypt(password::bytea, {0}) as \"password\"";
+        private const string SELECT_COLUMNS_PASSWORD = "pgp_sym_decrypt(password::bytea, {0}) as \"password\"";
         private const string SELECT_TABLE = "_a3s.ldap_authentication_mode";
         private readonly string SELECT_STATEMENT_EXCLUDING_PASSWORD = $"SELECT {SELECT_COLUMNS_EXCEPT_PASSWORD}, '' as \"password\" FROM {SELECT_TABLE}";
         private readonly string SELECT_STATEMENT_INCLUDING_PASSWORD = $"SELECT {SELECT_COLUMNS_EXCEPT_PASSWORD}, {SELECT_COLUMNS_PASSWORD} FROM {SELECT_TABLE}";
@@ -129,7 +129,7 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         private async Task StoreEncryptedPassword(Guid ldapAuthenticationModeId, string password)
         {
-            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.ldap_authentication_mode SET password = _a3s.pgp_sym_encrypt({0}, {1}) WHERE id = {2};", password, encryptionKey, ldapAuthenticationModeId);
+            await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.ldap_authentication_mode SET password = pgp_sym_encrypt({0}, {1}) WHERE id = {2};", password, encryptionKey, ldapAuthenticationModeId);
             await a3SContext.SaveChangesAsync(); 
         }
    }
