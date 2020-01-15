@@ -412,7 +412,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if (teamToAdd.SubRealm.Id != userProfile.SubRealm.Id)
                 {
-                    throw new ItemNotProcessableException($"Cannot assign role to a profile as they are in different sub-realms.");
+                    throw new ItemNotProcessableException($"Cannot assign team to a profile as they are in different sub-realms.");
                 }
 
                 userProfile.ProfileTeams.Add(new ProfileTeamModel
