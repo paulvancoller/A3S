@@ -155,9 +155,9 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<SubRealm>(existingSubRealm);
         }
 
-        public Task<List<SubRealm>> GetListAsync()
+        public async Task<List<SubRealm>> GetListAsync()
         {
-            throw new NotImplementedException();
+            return mapper.Map<List<SubRealm>>(await subRealmRepository.GetListAsync(true));
         }
 
         public async Task<SubRealm> UpdateAsync(Guid subRealmId, SubRealmSubmit subRealmSubmit, Guid updatedBy)
