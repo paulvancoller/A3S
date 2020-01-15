@@ -233,9 +233,19 @@ namespace za.co.grindrodbank.a3s.Services
             applicationDataPolicyRepository.RollbackTransaction();
         }
 
-        public Task DeleteAsync()
+        public async Task DeleteAsync(Guid subRealmId)
         {
-            throw new NotImplementedException();
+            // Deleting a sub-realm may need to be refined a little. A sub-realm has many profiles, which in turn, could have many functions, roles
+            // and teams assgined to it. There may need to be logic to remove all the entities that are possible related to the sub-realm too.
+            // For now, we are just going to delete the main sub-realm entity, and allow any immediate cascades to occur.
+            var subRealmToDelete = await subRealmRepository.GetByIdAsync(subRealmId, true);
+
+            if(subRealmToDelete == null)
+            {
+                throw new ItemNotFoundException($"Sub-realm with ID '{subRealmId}' does not exist.");
+            }
+
+            await subRealmRepository.DeleteAsync(subRealmToDelete);
         }
     }
 }

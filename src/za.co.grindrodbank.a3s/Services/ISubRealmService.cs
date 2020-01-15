@@ -17,6 +17,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<SubRealm> CreateAsync(SubRealmSubmit subRealmSubmit, Guid createdById);
         Task<SubRealm> UpdateAsync(Guid subRealmId, SubRealmSubmit subRealmSubmit, Guid updatedBy);
         Task<List<SubRealm>> GetListAsync();
-        Task DeleteAsync();
+        Task DeleteAsync(Guid subRealmId);
     }
 }

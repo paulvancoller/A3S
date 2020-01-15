@@ -7,7 +7,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using za.co.grindrodbank.a3s.A3SApiResources;
@@ -31,9 +30,10 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await subRealmService.CreateAsync(subRealmSubmit, ClaimsHelper.GetUserId(User)));
         }
 
-        public override Task<IActionResult> DeleteSubRealmAsync([FromRoute, Required] Guid subRealmId)
+        public async override Task<IActionResult> DeleteSubRealmAsync([FromRoute, Required] Guid subRealmId)
         {
-            throw new NotImplementedException();
+            await subRealmService.DeleteAsync(subRealmId);
+            return NoContent();
         }
 
         public async override Task<IActionResult> GetSubRealmAsync([FromRoute, Required] Guid subRealmId)
