@@ -2235,6 +2235,76 @@
 			"protocolProfileBehavior": {}
 		},
 		{
+			"name": "UserProfiles",
+			"item": [
+				{
+					"name": "CreateUserProfile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"New User Profile Name\",\n\t\"description\": \"New User Profile description\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-guid}}\"],\n\t\"teamIds\": [\"{{team-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				}
+			],
+			"description": "All the requests pertaining to user profiles.",
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Applications",
 			"item": [
 				{
@@ -3438,6 +3508,39 @@
 					"response": []
 				},
 				{
+					"name": "GetSubRealmList",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/subrealms",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
 					"name": "UpdateSubRealm",
 					"request": {
 						"auth": {
@@ -3473,6 +3576,47 @@
 								}
 							}
 						},
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
 						"url": {
 							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
 							"host": [
