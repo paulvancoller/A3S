@@ -520,6 +520,67 @@
 					"response": []
 				},
 				{
+					"name": "CreateFunctionWithinSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"function-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-function\",\n    \"description\": \"test-function description\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/functions",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions"
+							]
+						},
+						"description": "Creates a new function, which is a business friendly collection of permissions. Functions must contain permissions from a single application (micro-services), as defined by the business rules. This application is indicated by the 'applicationId' component of the request body. To obtain a suitable application ID, run the 'GetApplications' function to get a list of all registered applications. Select a UUID from one of these applications and set it as the value of the 'application-guid' environment variable."
+					},
+					"response": []
+				},
+				{
 					"name": "UpdateFunction",
 					"event": [
 						{
