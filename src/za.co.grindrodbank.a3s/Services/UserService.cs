@@ -370,7 +370,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Role with ID '{roleIdToAdd}' not found when attempting to add the role to a profile.");
                 }
 
-                if(roleToAdd.SubRealm.Id != userProfile.SubRealm.Id)
+                if(roleToAdd.SubRealm == null || roleToAdd.SubRealm.Id != userProfile.SubRealm.Id)
                 {
                     throw new ItemNotProcessableException($"Cannot assign role to a profile as they are in different sub-realms.");
                 }
@@ -404,7 +404,7 @@ namespace za.co.grindrodbank.a3s.Services
                     continue;
                 }
 
-                // If this point of the execution is reached, we know we are adding a new profile team entry.
+                // If this point of the execution is reached, we know we are adding a new .
                 var teamToAdd = await teamRepository.GetByIdAsync(teamIdToAdd, true);
 
                 if (teamToAdd == null)
@@ -412,7 +412,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Team with ID '{teamIdToAdd}' not found when attempting to add the team to a profile.");
                 }
 
-                if (teamToAdd.SubRealm.Id != userProfile.SubRealm.Id)
+                if (teamToAdd.SubRealm == null || teamToAdd.SubRealm.Id != userProfile.SubRealm.Id)
                 {
                     throw new ItemNotProcessableException($"Cannot assign team to a profile as they are in different sub-realms.");
                 }
