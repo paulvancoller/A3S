@@ -1,3 +1,10 @@
+--
+-- *************************************************
+-- Copyright (c) 2019, Grindrod Bank Limited
+-- License MIT: https://opensource.org/licenses/MIT
+-- **************************************************
+--
+
 DO $$
 BEGIN
   CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
