@@ -84,9 +84,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             return NoContent();
         }
 
-        public override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
+        public async override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
         {
-            throw new NotImplementedException();
+            return Ok(await userService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
 
         public override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
