@@ -3201,12 +3201,6 @@ components:
             description: The UUIDS of the functions assigned to this role.
             type: string
             format: uuid
-        userIds:
-          description: The UUIDs of the users attached to the role.
-          type: array
-          items:
-            type: string
-            format: uuid
         roleIds:
           description: The UUIDs of the child roles attached to the role.
           type: array

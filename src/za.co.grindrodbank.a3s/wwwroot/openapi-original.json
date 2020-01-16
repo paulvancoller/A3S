@@ -4866,7 +4866,6 @@
         "example" : {
           "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "roleIds" : [ null, null ],
-          "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
           "name" : "name",
           "description" : "description",
           "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
@@ -4891,14 +4890,6 @@
           "functionIds" : {
             "items" : {
               "description" : "The UUIDS of the functions assigned to this role.",
-              "format" : "uuid",
-              "type" : "string"
-            },
-            "type" : "array"
-          },
-          "userIds" : {
-            "description" : "The UUIDs of the users attached to the role.",
-            "items" : {
               "format" : "uuid",
               "type" : "string"
             },
@@ -5321,7 +5312,6 @@
           "roles" : [ {
             "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
-            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
             "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
@@ -5329,7 +5319,6 @@
           }, {
             "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
-            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
             "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
@@ -5545,7 +5534,6 @@
           "roles" : [ {
             "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
-            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
             "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
@@ -5553,7 +5541,6 @@
           }, {
             "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
             "roleIds" : [ null, null ],
-            "userIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],
             "name" : "name",
             "description" : "description",
             "functionIds" : [ "046b6c7f-0b8a-43b9-b35d-6489e6daee91", "046b6c7f-0b8a-43b9-b35d-6489e6daee91" ],

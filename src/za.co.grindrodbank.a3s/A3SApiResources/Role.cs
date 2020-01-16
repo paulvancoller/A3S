@@ -64,13 +64,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<Guid> FunctionIds { get; set; }
 
         /// <summary>
-        /// The UUIDs of the users attached to the role.
-        /// </summary>
-        /// <value>The UUIDs of the users attached to the role.</value>
-        [DataMember(Name="userIds", EmitDefaultValue=false)]
-        public List<Guid> UserIds { get; set; }
-
-        /// <summary>
         /// The UUIDs of the child roles attached to the role.
         /// </summary>
         /// <value>The UUIDs of the child roles attached to the role.</value>
@@ -90,7 +83,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("  FunctionIds: ").Append(FunctionIds).Append("\n");
-            sb.Append("  UserIds: ").Append(UserIds).Append("\n");
             sb.Append("  RoleIds: ").Append(RoleIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -155,12 +147,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     FunctionIds.SequenceEqual(other.FunctionIds)
                 ) && 
                 (
-                    UserIds == other.UserIds ||
-                    UserIds != null &&
-                    other.UserIds != null &&
-                    UserIds.SequenceEqual(other.UserIds)
-                ) && 
-                (
                     RoleIds == other.RoleIds ||
                     RoleIds != null &&
                     other.RoleIds != null &&
@@ -188,8 +174,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                     if (FunctionIds != null)
                     hashCode = hashCode * 59 + FunctionIds.GetHashCode();
-                    if (UserIds != null)
-                    hashCode = hashCode * 59 + UserIds.GetHashCode();
                     if (RoleIds != null)
                     hashCode = hashCode * 59 + RoleIds.GetHashCode();
                 return hashCode;
