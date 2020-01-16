@@ -818,6 +818,67 @@
 					"response": []
 				},
 				{
+					"name": "CreateRoleWithinSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"role-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-new-subrealmed\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"roleIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+					},
+					"response": []
+				},
+				{
 					"name": "GetRoles",
 					"request": {
 						"auth": {
@@ -2428,11 +2489,6 @@
 							"script": {
 								"id": "17701951-d606-4279-9b65-a0c54763335f",
 								"exec": [
-									"pm.test(\"Set profile GUID environment variable.\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('uuid');",
-									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
-									"});",
 									""
 								],
 								"type": "text/javascript"
@@ -2464,6 +2520,70 @@
 								"value": "application/json"
 							}
 						],
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles",
+								"{{profile-guid}}"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUserProfile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"profile-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"User Profile Name - Updated\",\n\t\"description\": \"User Profile description - updated\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-guid}}\"],\n\t\"teamIds\": [\"{{team-guid}}\"]\n}"
+						},
 						"url": {
 							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
 							"host": [
