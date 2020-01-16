@@ -404,7 +404,7 @@ namespace za.co.grindrodbank.a3s.Services
                     continue;
                 }
 
-                // If this point of the execution is reached, we know we are adding a new .
+                // If this point of the execution is reached, we know we are adding a new team.
                 var teamToAdd = await teamRepository.GetByIdAsync(teamIdToAdd, true);
 
                 if (teamToAdd == null)

@@ -22,13 +22,15 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ITeamRepository teamRepository;
         private readonly IApplicationDataPolicyRepository applicationDataPolicyRepository;
         private readonly ITermsOfServiceRepository termsOfServiceRepository;
+        private readonly ISubRealmRepository subRealmRepository;
         private readonly IMapper mapper;
 
-        public TeamService(ITeamRepository teamRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, ITermsOfServiceRepository termsOfServiceRepository, IMapper mapper)
+        public TeamService(ITeamRepository teamRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, ITermsOfServiceRepository termsOfServiceRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
             this.teamRepository = teamRepository;
             this.applicationDataPolicyRepository = applicationDataPolicyRepository;
             this.termsOfServiceRepository = termsOfServiceRepository;
+            this.subRealmRepository = subRealmRepository;
             this.mapper = mapper;
         }
 
@@ -47,6 +49,7 @@ namespace za.co.grindrodbank.a3s.Services
                 var teamModel = mapper.Map<TeamModel>(teamSubmit);
                 teamModel.ChangedBy = createdById;
 
+                await CheckForSubRealmAndAssignToTeamIfExists(teamModel, teamSubmit);
                 await AssignTeamsToTeamFromTeamIdList(teamModel, teamSubmit.TeamIds);
                 await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds);
                 await ValidateTermsOfServiceEntry(teamModel.TermsOfServiceId);
@@ -112,6 +115,7 @@ namespace za.co.grindrodbank.a3s.Services
                 existingTeam.TermsOfServiceId = teamSubmit.TermsOfServiceId;
                 existingTeam.ChangedBy = updatedById;
 
+                // Note: Sub-Realms cannot be changed once create, hence the absense of a call to 'CheckForSubRealmAndAssignToTeamIfExists' function.
                 await AssignTeamsToTeamFromTeamIdList(existingTeam, teamSubmit.TeamIds);
                 await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds);
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
@@ -213,6 +217,18 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Unable to find Application Data Policy with ID '{applicationDataPolicyId}' when attempting to assign it to team '{team.Name}'.");
                 }
 
+                // If there is a Sub-Realm associated with team, we must ensure that the data-policy is also is associated with the same sub-realm.
+                if (team.SubRealm != null)
+                {
+                    // scan through all the sub-realms associated with the data policy to ensure that the data policy is assigned to the sub-realm that the team is associated with.
+                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.Where(sradp => sradp.SubRealm.Id == team.SubRealm.Id).FirstOrDefault();
+
+                    if (subRealmDataPolicy == null)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a data policy with ID '{applicationDataPolicyToAdd.Id}' to a team within the '{team.SubRealm.Name}' sub-realm but the data policy does not exist within that sub-realm.");
+                    }
+                }
+
                 team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                 {
                     Team = team,
@@ -221,6 +237,19 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             return team;
+        }
+
+        private async Task CheckForSubRealmAndAssignToTeamIfExists(TeamModel team, TeamSubmit teamSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (teamSubmit.SubRealmId == null || teamSubmit.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(teamSubmit.SubRealmId, false);
+
+            team.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{teamSubmit.SubRealmId}' does not exist.");
         }
 
         public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)

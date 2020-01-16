@@ -128,13 +128,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             var existingSubRealm = await subRealmRepository.GetByIdAsync(functionSubmit.SubRealmId, false);
-
-            if(existingSubRealm == null)
-            {
-                throw new ItemNotFoundException($"Sub-realm with ID '{functionSubmit.SubRealmId}' does not exist.");
-            }
-
-            function.SubRealm = existingSubRealm;
+            function.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{functionSubmit.SubRealmId}' does not exist.");
         }
 
         public async Task DeleteAsync(Guid functionId)
@@ -152,13 +146,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task CheckForApplicationAndAssignToFunctionIfExists(FunctionModel function, FunctionSubmit functionSubmit)
         {
             var application = await applicationRepository.GetByIdAsync(functionSubmit.ApplicationId);
-
-            if (application == null)
-            {
-                throw new ItemNotFoundException($"Application with UUID: '{functionSubmit.ApplicationId}' not found. Cannot create function '{functionSubmit.Name}' with this application.");
-            }
-
-            function.Application = application;
+            function.Application = application ?? throw new ItemNotFoundException($"Application with UUID: '{functionSubmit.ApplicationId}' not found. Cannot create function '{functionSubmit.Name}' with this application.");
         }
 
         private async Task CheckThatPermissionsExistAndAssignToFunction(FunctionModel function, FunctionSubmit functionSubmit)

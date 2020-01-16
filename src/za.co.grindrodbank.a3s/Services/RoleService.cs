@@ -234,13 +234,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             var existingSubRealm = await subRealmRepository.GetByIdAsync(roleSubmit.SubRealmId, false);
-
-            if (existingSubRealm == null)
-            {
-                throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
-            }
-
-            role.SubRealm = existingSubRealm;
+            role.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
         }
 
         private void BeginAllTransactions()
