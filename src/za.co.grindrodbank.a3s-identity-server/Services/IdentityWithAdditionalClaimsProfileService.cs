@@ -43,8 +43,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
                 context.LogProfileRequest(Logger);
                 var profileId = context.ValidatedRequest.Raw["profile_id"];
 
-                Logger.LogError($"Profile ID: {profileId}");
-
                 var sub = context.Subject.GetSubjectId();
                 var user = await _userManager.FindByIdAsync(sub);
                 var principal = await _claimsFactory.CreateAsync(user);
