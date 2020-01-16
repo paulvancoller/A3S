@@ -144,6 +144,13 @@ namespace za.co.grindrodbank.a3s.Services
                             throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
                         }
                     }
+                    else
+                    {
+                        if(function.SubRealm != null)
+                        {
+                            throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                        }
+                    }
 
                     role.RoleFunctions.Add(new RoleFunctionModel
                     {
@@ -198,6 +205,13 @@ namespace za.co.grindrodbank.a3s.Services
                 if (roleModel.SubRealm != null)
                 {
                     if (roleToAddAsChildRole.SubRealm == null || roleModel.SubRealm.Id != roleToAddAsChildRole.SubRealm.Id)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                    }
+                }
+                else
+                {
+                    if(roleToAddAsChildRole.SubRealm != null)
                     {
                         throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
                     }
