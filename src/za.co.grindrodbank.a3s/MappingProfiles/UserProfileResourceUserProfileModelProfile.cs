@@ -17,7 +17,8 @@ namespace za.co.grindrodbank.a3s.MappingProfiles
         public UserProfileResourceUserProfileModelProfile()
         {
             CreateMap<ProfileModel, UserProfile>().ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.ProfileRoles.Select(pr => pr.Role)))
-                                                  .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.ProfileTeams.Select(pt => pt.Team)));
+                                                  .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.ProfileTeams.Select(pt => pt.Team)))
+                                                  .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

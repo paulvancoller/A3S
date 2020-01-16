@@ -213,14 +213,14 @@ namespace za.co.grindrodbank.a3s.Services
             throw new NotImplementedException();
         }
 
-        public Task<UserProfile> GetUserProfileByIdAsync(Guid userProfileId)
+        public async Task<UserProfile> GetUserProfileByIdAsync(Guid userProfileId)
         {
-            throw new NotImplementedException();
+            return mapper.Map<UserProfile>(await profileRepository.GetByIdAsync(userProfileId, true));
         }
 
-        public Task<UserProfile> GetUserProfileByNameAsync(Guid userId, string userProfileName)
+        public async Task<UserProfile> GetUserProfileByNameAsync(Guid userId, string userProfileName)
         {
-            throw new NotImplementedException();
+            return mapper.Map<UserProfile>(await profileRepository.GetByNameAsync(userId, userProfileName, true));
         }
 
         public async Task<List<UserProfile>> GetUserProfileListForUserAsync(Guid userId)

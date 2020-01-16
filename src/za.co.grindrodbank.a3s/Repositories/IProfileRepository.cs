@@ -13,7 +13,7 @@ namespace za.co.grindrodbank.a3s.Repositories
 {
     public interface IProfileRepository : ITransactableRepository
     {
-        Task<ProfileModel> GetByNameAsync(string name, bool includeRelations);
+        Task<ProfileModel> GetByNameAsync(Guid userId, string name, bool includeRelations);
         Task<ProfileModel> GetByIdAsync(Guid profileId, bool includeRelations);
         Task<ProfileModel> CreateAsync(ProfileModel profile);
         Task<ProfileModel> UpdateAsync(ProfileModel profile);

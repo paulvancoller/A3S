@@ -2309,7 +2309,7 @@
 									"pm.test(\"Set profile GUID environment variable.\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property('uuid');",
-									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"    pm.environment.set(\"profile-guid\", jsonData.uuid);",
 									"});",
 									""
 								],
@@ -2355,6 +2355,125 @@
 								"users",
 								"{{user-guid}}",
 								"profiles"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserProfilesListForUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserProfileByProfileGuid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles",
+								"{{profile-guid}}"
 							]
 						},
 						"description": "Creates a use with basic attributes set."

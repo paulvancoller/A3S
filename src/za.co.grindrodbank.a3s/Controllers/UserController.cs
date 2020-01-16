@@ -96,9 +96,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             throw new NotImplementedException();
         }
 
-        public override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        public async override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
         {
-            throw new NotImplementedException();
+            return Ok(await profileService.GetUserProfileByIdAsync(profileId));
         }
 
         public async override Task<IActionResult> ListUserProfilesAsync([FromRoute, Required] Guid userId, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
