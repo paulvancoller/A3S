@@ -5,8 +5,11 @@
  * **************************************************
  */
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace za.co.grindrodbank.a3s.Models
 {
+    [Table("ProfileRole")]
     public class ProfileRoleModel : AuditableModel
     {
         public Guid ProfileId { get; set; }

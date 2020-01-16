@@ -201,6 +201,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IApplicationDataPolicyRepository, ApplicationDataPolicyRepository>();
             services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
             services.AddScoped<ISubRealmRepository, SubRealmRepository>();
+            services.AddScoped<IProfileRepository, ProfileRepository>();
 
             // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();

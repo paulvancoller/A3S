@@ -16,14 +16,16 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ITeamRepository teamRepository;
         private readonly IRoleRepository roleRepository;
         private readonly ISubRealmRepository subRealmRepository;
+        private readonly IProfileRepository profileRepository;
         private readonly IMapper mapper;
 
-        public ProfileService(IUserRepository userRepository, ITeamRepository teamRepository, IRoleRepository roleRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
+        public ProfileService(IUserRepository userRepository, ITeamRepository teamRepository, IRoleRepository roleRepository, ISubRealmRepository subRealmRepository, IProfileRepository profileRepository, IMapper mapper)
         {
             this.userRepository = userRepository;
             this.teamRepository = teamRepository;
             this.roleRepository = roleRepository;
             this.subRealmRepository = subRealmRepository;
+            this.profileRepository = profileRepository;
             this.mapper = mapper;
         }
 
@@ -215,11 +217,10 @@ namespace za.co.grindrodbank.a3s.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<UserProfile>> GetUserProfileListForUserAsync(Guid userId)
+        public async Task<List<UserProfile>> GetUserProfileListForUserAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            return mapper.Map<List<UserProfile>>(await profileRepository.GetListForUserAsync(userId, true));
         }
-
 
         public Task<UserProfile> UpdateUserProfileAsync(Guid userId, UserProfileSubmit userProfileSubmit, Guid upddatedById)
         {
