@@ -84,12 +84,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             userRepository.GetByIdAsync(userGuid, true).Returns(mockedUserModel);
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
             var userResource = await userService.GetByIdAsync(userGuid, true);
 
             Assert.NotNull(userResource);
@@ -105,7 +104,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var guid = Guid.NewGuid();
@@ -130,7 +128,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             userRepository.UpdateAsync(Arg.Any<UserModel>()).Returns(userModelMock);
             userRepository.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>()).Returns(userModelMock);
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
             var userResource = await userService.UpdateAsync(userSubmit, Guid.NewGuid());
 
             Assert.NotNull(userResource);
@@ -148,7 +146,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var userModelMock = new UserModel
@@ -176,7 +173,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             userRepository.UpdateAsync(Arg.Any<UserModel>()).Returns(userModelMock);
             userRepository.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>()).Returns(userModelMock);
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             var userResource = await userService.CreateAsync(userCreate, Guid.NewGuid());
 
@@ -198,7 +195,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             Exception catchingException = null;
             try
@@ -220,12 +217,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var testGuid = Guid.NewGuid();
             userRepository.GetByIdAsync(testGuid, Arg.Any<bool>()).Returns(new UserModel() { Id = testGuid.ToString() });
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             Exception catchingException = null;
             try
@@ -248,7 +244,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var userPasswordChangeSubmit = new UserPasswordChangeSubmit()
@@ -259,7 +254,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 NewPasswordConfirmed = "newPassword1"
             };
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             Exception caughtException = null;
             try
@@ -281,7 +276,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var userPasswordChangeSubmit = new UserPasswordChangeSubmit()
@@ -291,7 +285,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 NewPasswordConfirmed = "newPassword1"
             };
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             Exception caughtException = null;
             try
@@ -314,7 +308,6 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
-            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var userPasswordChangeSubmit = new UserPasswordChangeSubmit()
@@ -325,7 +318,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 NewPasswordConfirmed = "newPassword2"
             };
 
-            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, subRealmRepository, mapper, ldapConnectionService);
+            var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);
 
             Exception caughtException = null;
             try

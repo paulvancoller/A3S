@@ -19,13 +19,5 @@ namespace za.co.grindrodbank.a3s.Services
         Task<List<User>> GetListAsync();
         Task DeleteAsync(Guid userId);
         Task ChangePasswordAsync(UserPasswordChangeSubmit changeSubmit);
-        // User Profile related functions.
-        Task<UserProfile> CreateUserProfileAsync(Guid userId, UserProfileSubmit userProfileSubmit, Guid createdById);
-        Task<UserProfile> UpdateUserProfileAsync(Guid userId, UserProfileSubmit userProfileSubmit, Guid upddatedById);
-        Task<List<UserProfile>> GetUserProfileListAsync();
-        Task<UserProfile> GetUserProfileByIdAsync(Guid userProfileId);
-        // A user profile has a compound key consisting of the user ID and the name of the profile.
-        Task<UserProfile> GetUserProfileByNameAsync(Guid userId, string userProfileName);
-        Task DeleteUserProfileAsync();
     }
 }

@@ -19,5 +19,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<ProfileModel> UpdateAsync(ProfileModel profile);
         Task DeleteAsync(ProfileModel profile);
         Task<List<ProfileModel>> GetListAsync(bool includeRelations);
+        Task<List<ProfileModel>> GetListForUserAsync(Guid userId, bool includeRelations);
     }
 }

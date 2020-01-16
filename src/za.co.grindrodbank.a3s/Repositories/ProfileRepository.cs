@@ -113,5 +113,22 @@ namespace za.co.grindrodbank.a3s.Repositories
 
             return profile;
         }
+
+        public async Task<List<ProfileModel>> GetListForUserAsync(Guid userId, bool includeRelations)
+        {
+            if(!includeRelations)
+            {
+                return await a3SContext.Profile.ToListAsync();
+            }
+
+            return await a3SContext.Profile.Where(p => p.User.Id == userId.ToString())
+                                           .Include(p => p.SubRealm)
+                                           .Include(p => p.User)
+                                           .Include(p => p.ProfileRoles)
+                                             .ThenInclude(pr => pr.Role)
+                                           .Include(p => p.ProfileTeams)
+                                             .ThenInclude(pt => pt.Team)
+                                           .ToListAsync();
+        }
     }
 }

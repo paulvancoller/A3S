@@ -21,10 +21,12 @@ namespace za.co.grindrodbank.a3s.Controllers
     public class UserController : UserApiController
     {
         private readonly IUserService userService;
+        private readonly IProfileService profileService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IProfileService profileService)
         {
             this.userService = userService;
+            this.profileService = profileService;
         }
 
         [Authorize(Policy = "permission:a3s.users.create")]
@@ -86,7 +88,7 @@ namespace za.co.grindrodbank.a3s.Controllers
 
         public async override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
         {
-            return Ok(await userService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
+            return Ok(await profileService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
 
         public override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
