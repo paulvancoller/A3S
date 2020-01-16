@@ -91,9 +91,10 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await profileService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
 
-        public override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        public async override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
         {
-            throw new NotImplementedException();
+            await profileService.DeleteUserProfileAsync(userId, profileId);
+            return NoContent();
         }
 
         public async override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
@@ -106,9 +107,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await profileService.GetUserProfileListForUserAsync(userId));
         }
 
-        public override Task<IActionResult> UpdateUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId, [FromBody] UserProfileSubmit userProfileSubmit)
+        public async override Task<IActionResult> UpdateUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId, [FromBody] UserProfileSubmit userProfileSubmit)
         {
-            throw new NotImplementedException();
+            return Ok(await profileService.UpdateUserProfileAsync(userId, profileId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
     }
 }

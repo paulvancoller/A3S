@@ -112,6 +112,32 @@ namespace za.co.grindrodbank.a3s.Services
             user.Profiles.Add(newUserProfile);
         }
 
+        private async Task UpdateExistingUserProfile(UserModel user, ProfileModel userProfile, UserProfileSubmit userProfileSubmit, Guid updatedById)
+        {
+            // If the name is being updated, ensure that the does not have a profile with the new name.
+            if(userProfile.Name != userProfileSubmit.Name)
+            {
+                var existingUserProfileWithName = user.Profiles.Where(up => up.Name == userProfileSubmit.Name).FirstOrDefault();
+
+                if(existingUserProfileWithName != null)
+                {
+                    throw new ItemNotProcessableException($"User with ID '{user.Id}' already has a profile with name '{userProfileSubmit.Name}'! Cannot update current profile name to that name.");
+                }
+
+                userProfile.Name = userProfileSubmit.Name;
+                userProfile.ChangedBy = updatedById;
+            }
+
+            if(userProfile.Description != userProfileSubmit.Description)
+            {
+                userProfile.Description = userProfileSubmit.Description;
+                userProfile.ChangedBy = updatedById;
+            }
+
+            await AssignRolesToUserProfileFromRoleIdList(userProfile, userProfileSubmit.RoleIds, updatedById);
+            await AssignTeamsToUserProfileFromTeamIdList(userProfile, userProfileSubmit.TeamIds, updatedById);
+        }
+
         private async Task CheckForSubRealmAndAssignToProfileIfExists(ProfileModel profile, UserProfileSubmit userProfileSubmit)
         {
             // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
@@ -153,7 +179,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Cannot assign role with ID '{roleIdToAdd}' to the '{userProfile.Name}' profile as they are in different sub-realms.");
                 }
 
-                userProfile.ProfileRoles.Add(new ProfileRoleModel
+                newProfileRolesState.Add(new ProfileRoleModel
                 {
                     Profile = userProfile,
                     Role = roleToAdd,
@@ -195,7 +221,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Cannot assign team to a profile as they are in different sub-realms.");
                 }
 
-                userProfile.ProfileTeams.Add(new ProfileTeamModel
+                newProfileTeamState.Add(new ProfileTeamModel
                 {
                     Profile = userProfile,
                     Team = teamToAdd,
@@ -208,9 +234,23 @@ namespace za.co.grindrodbank.a3s.Services
             userProfile.ProfileTeams = newProfileTeamState;
         }
 
-        public Task DeleteUserProfileAsync()
+        public async Task DeleteUserProfileAsync(Guid userId, Guid userProfileId)
         {
-            throw new NotImplementedException();
+            var existingUser = await userRepository.GetByIdAsync(userId, false);
+
+            if (existingUser == null)
+            {
+                throw new ItemNotFoundException($"User with ID '{userId}' not found.");
+            }
+
+            var existingUserProfile = await profileRepository.GetByIdAsync(userProfileId, true);
+
+            if (existingUserProfile == null || existingUserProfile.User.Id != userId.ToString())
+            {
+                throw new ItemNotFoundException($"User profile with ID '{userProfileId}' not found for user with ID '{userId}'.");
+            }
+
+            await profileRepository.DeleteAsync(existingUserProfile);
         }
 
         public async Task<UserProfile> GetUserProfileByIdAsync(Guid userProfileId)
@@ -228,9 +268,38 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<UserProfile>>(await profileRepository.GetListForUserAsync(userId, true));
         }
 
-        public Task<UserProfile> UpdateUserProfileAsync(Guid userId, UserProfileSubmit userProfileSubmit, Guid upddatedById)
+        public async Task<UserProfile> UpdateUserProfileAsync(Guid userId, Guid userProfileId, UserProfileSubmit userProfileSubmit, Guid updatedById)
         {
-            throw new NotImplementedException();
+            InitSharedTransaction();
+
+            try
+            {
+                var existingUser = await userRepository.GetByIdAsync(userId, false);
+
+                if (existingUser == null)
+                {
+                    throw new ItemNotFoundException($"User with ID '{userId}' not found.");
+                }
+
+                var existingUserProfile = await profileRepository.GetByIdAsync(userProfileId, true);
+
+                if (existingUserProfile == null || existingUserProfile.User.Id != userId.ToString())
+                {
+                    throw new ItemNotFoundException($"User profile with ID '{userProfileId}' not found for user with ID '{userId}'.");
+                }
+
+                await UpdateExistingUserProfile(existingUser, existingUserProfile, userProfileSubmit, updatedById);
+
+                await userRepository.UpdateAsync(existingUser);
+                CommitTransaction();
+
+                return mapper.Map<UserProfile>(existingUser.Profiles.Where(up => up.Id == userProfileId).FirstOrDefault());
+            }
+            catch
+            {
+                RollbackTransaction();
+                throw;
+            }
         }
     }
 }
