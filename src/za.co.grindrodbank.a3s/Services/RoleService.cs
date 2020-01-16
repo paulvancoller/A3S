@@ -21,15 +21,17 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IRoleRepository roleRepository;
         private readonly IUserRepository userRepository;
         private readonly IFunctionRepository functionRepository;
+        private readonly ISubRealmRepository subRealmRepository;
 
         private readonly IMapper mapper;
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
-        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, IMapper mapper)
+        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
             this.functionRepository = functionRepository;
+            this.subRealmRepository = subRealmRepository;
             this.mapper = mapper;
         }
 
@@ -50,6 +52,7 @@ namespace za.co.grindrodbank.a3s.Services
                 newRole.ChangedBy = createdById;
 
                 await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
+                await CheckForSubRealmAndAssignToRoleIfExists(newRole, roleSubmit);
                 await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
                 // All successful
@@ -101,6 +104,7 @@ namespace za.co.grindrodbank.a3s.Services
                 role.ChangedBy = updatedById;
 
                 await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
+                // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.
                 await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
 
                 // All successful
@@ -188,6 +192,24 @@ namespace za.co.grindrodbank.a3s.Services
                     ChildRole = roleToAddAsChildRole
                 });
             }
+        }
+
+        private async Task CheckForSubRealmAndAssignToRoleIfExists(RoleModel role, RoleSubmit roleSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (roleSubmit.SubRealmId == null || roleSubmit.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(roleSubmit.SubRealmId, false);
+
+            if (existingSubRealm == null)
+            {
+                throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
+            }
+
+            role.SubRealm = existingSubRealm;
         }
 
         private void BeginAllTransactions()
