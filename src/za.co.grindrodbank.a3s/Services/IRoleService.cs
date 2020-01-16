@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public interface IRoleService
+    public interface IRoleService : ITransactableService
     {
         Task<Role> GetByIdAsync(Guid roleId);
         Task<Role> UpdateAsync(RoleSubmit roleSubmit, Guid updatedById);

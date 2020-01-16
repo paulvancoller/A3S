@@ -328,15 +328,7 @@ namespace za.co.grindrodbank.a3s.Services
                 ChangedBy = createdById
             };
 
-            // Ensure that the sub realm ID actually corresponds to an existing sub-realm.
-            var existingSubRealm = await subRealmRepository.GetByIdAsync(userProfileSubmit.SubRealmId, false);
-
-            if(existingSubRealm == null)
-            {
-                throw new ItemNotFoundException($"Sub-realm with ID '{userProfileSubmit.SubRealmId}' not found when attempting to associate it with a user profile.");
-            }
-
-            newUserProfile.SubRealm = existingSubRealm;
+            await CheckForSubRealmAndAssignToProfileIfExists(newUserProfile, userProfileSubmit);
             // Ensure we have a defacto blank ProfileRoles and ProfileTeams associations.
             newUserProfile.ProfileRoles = new List<ProfileRoleModel>();
             newUserProfile.ProfileTeams = new List<ProfileTeamModel>();
@@ -344,6 +336,18 @@ namespace za.co.grindrodbank.a3s.Services
             await AssignTeamsToUserProfileFromTeamIdList(newUserProfile, userProfileSubmit.TeamIds, createdById);
 
             user.Profiles.Add(newUserProfile);
+        }
+
+        private async Task CheckForSubRealmAndAssignToProfileIfExists(ProfileModel profile, UserProfileSubmit userProfileSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (userProfileSubmit.SubRealmId == null || userProfileSubmit.SubRealmId == Guid.Empty)
+            {
+                throw new InvalidFormatException("Profiles must contain a 'sub_realm_id'.");
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(userProfileSubmit.SubRealmId, false);
+            profile.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{userProfileSubmit.SubRealmId}' does not exist.");
         }
 
         private async Task AssignRolesToUserProfileFromRoleIdList(ProfileModel userProfile, List<Guid> roleIds, Guid changedById)
@@ -372,7 +376,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(roleToAdd.SubRealm == null || roleToAdd.SubRealm.Id != userProfile.SubRealm.Id)
                 {
-                    throw new ItemNotProcessableException($"Cannot assign role to a profile as they are in different sub-realms.");
+                    throw new ItemNotProcessableException($"Cannot assign role with ID '{roleIdToAdd}' to the '{userProfile.Name}' profile as they are in different sub-realms.");
                 }
 
                 userProfile.ProfileRoles.Add(new ProfileRoleModel

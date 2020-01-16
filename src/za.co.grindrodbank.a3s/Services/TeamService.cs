@@ -37,7 +37,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Team> CreateAsync(TeamSubmit teamSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -57,13 +57,13 @@ namespace za.co.grindrodbank.a3s.Services
                 var createdTeam = mapper.Map<Team>(await teamRepository.CreateAsync(teamModel));
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return createdTeam;
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -92,7 +92,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -121,13 +121,13 @@ namespace za.co.grindrodbank.a3s.Services
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Team>(await teamRepository.UpdateAsync(existingTeam));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -273,22 +273,28 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
         }
 
-        private void BeginAllTransactions()
+        public void InitSharedTransaction()
         {
             teamRepository.InitSharedTransaction();
             applicationDataPolicyRepository.InitSharedTransaction();
+            termsOfServiceRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             teamRepository.CommitTransaction();
             applicationDataPolicyRepository.CommitTransaction();
+            termsOfServiceRepository.CommitTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             teamRepository.RollbackTransaction();
             applicationDataPolicyRepository.RollbackTransaction();
+            termsOfServiceRepository.RollbackTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
     }
 }

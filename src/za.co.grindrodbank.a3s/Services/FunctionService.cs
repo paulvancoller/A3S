@@ -37,7 +37,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Function> CreateAsync(FunctionSubmit functionSubmit, Guid createdByGuid)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -58,13 +58,13 @@ namespace za.co.grindrodbank.a3s.Services
                 await CheckThatPermissionsExistAndAssignToFunction(function, functionSubmit);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Function>(await functionRepository.CreateAsync(function));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -82,7 +82,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Function> UpdateAsync(FunctionSubmit functionSubmit, Guid updatedByGuid)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -108,13 +108,13 @@ namespace za.co.grindrodbank.a3s.Services
                 await CheckThatPermissionsExistAndAssignToFunction(function, functionSubmit);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Function>(await functionRepository.UpdateAsync(function));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -122,7 +122,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task CheckForSubRealmAndAssignToFunctionIfExists(FunctionModel function, FunctionSubmit functionSubmit)
         {
             // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
-            if(functionSubmit.SubRealmId == null || functionSubmit.SubRealmId == Guid.Empty)
+            if (functionSubmit.SubRealmId == null || functionSubmit.SubRealmId == Guid.Empty)
             {
                 return;
             }
@@ -170,11 +170,11 @@ namespace za.co.grindrodbank.a3s.Services
                     }
 
                     // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.
-                    if(function.SubRealm != null)
+                    if (function.SubRealm != null)
                     {
                         var subRealmPermission = permission.SubRealmPermissions.Where(psrp => psrp.SubRealm.Id == function.SubRealm.Id).FirstOrDefault();
 
-                        if(subRealmPermission == null)
+                        if (subRealmPermission == null)
                         {
                             throw new ItemNotProcessableException($"Attempting to add a permission with ID '{permission.Id}' to a function within the '{function.SubRealm.Name}' sub-realm but the permission does not exist within that sub-realm.");
                         }
@@ -189,25 +189,28 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void BeginAllTransactions()
+        public void InitSharedTransaction()
         {
             permissionRepository.InitSharedTransaction();
             applicationRepository.InitSharedTransaction();
             functionRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             permissionRepository.CommitTransaction();
             applicationRepository.CommitTransaction();
             functionRepository.CommitTransaction();
+            subRealmRepository.CommitTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             permissionRepository.RollbackTransaction();
             applicationRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
+            subRealmRepository.RollbackTransaction();
         }
     }
 }

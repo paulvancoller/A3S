@@ -22,9 +22,7 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IUserRepository userRepository;
         private readonly IFunctionRepository functionRepository;
         private readonly ISubRealmRepository subRealmRepository;
-
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
@@ -38,7 +36,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Role> CreateAsync(RoleSubmit roleSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -57,13 +55,13 @@ namespace za.co.grindrodbank.a3s.Services
                 await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Role>(await roleRepository.CreateAsync(newRole));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -81,7 +79,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Role> UpdateAsync(RoleSubmit roleSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -109,13 +107,13 @@ namespace za.co.grindrodbank.a3s.Services
                 await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Role>(await roleRepository.UpdateAsync(role));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -237,25 +235,28 @@ namespace za.co.grindrodbank.a3s.Services
             role.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
         }
 
-        private void BeginAllTransactions()
+        public void InitSharedTransaction()
         {
             userRepository.InitSharedTransaction();
             roleRepository.InitSharedTransaction();
             functionRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             userRepository.CommitTransaction();
             roleRepository.CommitTransaction();
             functionRepository.CommitTransaction();
+            subRealmRepository.CommitTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             userRepository.RollbackTransaction();
             roleRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
+            subRealmRepository.RollbackTransaction();
         }
     }
 }
