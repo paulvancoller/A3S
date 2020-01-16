@@ -178,6 +178,22 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
                 }
 
+                // If there is a Sub-Realm associated with parent team, we must ensure that the child team we are attempting to add to the parent is in the same sub realm.
+                if (teamModel.SubRealm != null)
+                {
+                    if (teamToAddAsChild.SubRealm == null || teamModel.SubRealm.Id != teamToAddAsChild.SubRealm.Id)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                    }
+                }
+                else
+                {
+                    if (teamToAddAsChild.SubRealm != null)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                    }
+                }
+
                 teamModel.ChildTeams.Add(new TeamTeamModel
                 {
                     ParentTeam = teamModel,
