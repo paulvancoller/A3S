@@ -20,20 +20,23 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
     using za.co.grindrodbank.a3s.Models;
     using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
+    using za.co.grindrodbank.a3s.Repositories;
 
     public class IdentityWithAdditionalClaimsProfileService : IProfileService
     {
         private readonly IUserClaimsPrincipalFactory<UserModel> _claimsFactory;
         private readonly UserManager<UserModel> _userManager;
         private readonly A3SContext a3SContext;
+        private readonly IProfileRepository profileRepository;
         protected readonly ILogger Logger;
 
-        public IdentityWithAdditionalClaimsProfileService(UserManager<UserModel> userManager,  IUserClaimsPrincipalFactory<UserModel> claimsFactory, ILogger<IdentityWithAdditionalClaimsProfileService> logger, A3SContext a3SContext)
+        public IdentityWithAdditionalClaimsProfileService(UserManager<UserModel> userManager,  IUserClaimsPrincipalFactory<UserModel> claimsFactory, ILogger<IdentityWithAdditionalClaimsProfileService> logger, A3SContext a3SContext, IProfileRepository profileRepository)
         {
             _userManager = userManager;
             _claimsFactory = claimsFactory;
             Logger = logger;
             this.a3SContext = a3SContext;
+            this.profileRepository = profileRepository;
         }
  
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
@@ -49,20 +52,20 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
                 var claims = principal.Claims.ToList();
                 claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
 
-                await GeneratePermissionsClaimMapFromSubject(claims, context, user);
-                await GenerateDataPolicyClaimMapFromSubject(claims, context, user);
-                await GenerateTeamsClaimMapFromSubject(claims, context, user);
+                var profileName = context.ValidatedRequest.Raw["profile_name"];
 
-                if (user.Email != null)
+                if(profileName == null)
                 {
-                    claims.Add(new Claim(IdentityServerConstants.StandardScopes.Email, user.Email));
+                   await GenerateClaimsMapForUser(claims, context, user);
+                }
+                else
+                {
+                    await GenerateClaimsMapForUserProfile(profileName, claims, user);
                 }
 
-                if (user.UserName != null)
-                {
-                    claims.Add(new Claim("username", user.UserName));
-                }
-
+                // Generate the user Identity related claims, which are independent of user or user-profile claims.
+                GenerateBaseUserClaimsMap(user, claims);
+                
                 context.IssuedClaims = claims;
                 context.LogIssuedClaims(Logger);
             }
@@ -70,6 +73,40 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             {
                 Logger.LogError(ex, ex.Message);
                 throw;
+            }
+        }
+
+        private async Task GenerateClaimsMapForUser(List<Claim> claims, ProfileDataRequestContext context, UserModel user)
+        {
+            await GeneratePermissionsClaimMapFromSubject(claims, context, user);
+            await GenerateDataPolicyClaimMapFromSubject(claims, context, user);
+            await GenerateTeamsClaimMapFromSubject(claims, context, user);
+        }
+
+        private async Task GenerateClaimsMapForUserProfile(string profileName, List<Claim> claims, UserModel user)
+        {
+            // Determine whether the profile legitimately belongs to the user.
+            var userProfile = await profileRepository.GetByNameAsync(Guid.Parse(user.Id), profileName, false);
+
+            // If there is no profile associated with the user, return empty claims. Alternatively, maybe an error should be thrown?
+            if(userProfile == null)
+            {
+                return;
+            }
+
+            await GeneratePermissionsClaimMapForUserProfile(claims, user, userProfile);
+        }
+
+        private void GenerateBaseUserClaimsMap(UserModel user, List<Claim> claims)
+        {
+            if (user.Email != null)
+            {
+                claims.Add(new Claim(IdentityServerConstants.StandardScopes.Email, user.Email));
+            }
+
+            if (user.UserName != null)
+            {
+                claims.Add(new Claim("username", user.UserName));
             }
         }
 
@@ -199,5 +236,48 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             var user = await _userManager.FindByIdAsync(sub);
             context.IsActive = user != null;
         }
+
+        private async Task GeneratePermissionsClaimMapForUserProfile(List<Claim> claims, UserModel user, ProfileModel userProfile)
+        {
+            // Get the permissions for the Subject from the A3S database.
+            var permissions = await a3SContext.Permission
+                 .FromSqlRaw("select \"ParentRolePermission\".* " +
+                          "FROM _a3s.profile " +
+                          "JOIN _a3s.profile_role ON profile.id = profile_role.profile_id " +
+                          "JOIN _a3s.role ON role.id = profile_role.role_id " +
+                          "JOIN _a3s.role_function ON role.id = role_function.role_id " +
+                          "JOIN _a3s.function ON role_function.function_id = function.id " +
+                          "JOIN _a3s.function_permission ON function.id = function_permission.function_id " +
+                          "JOIN _a3s.permission AS \"ParentRolePermission\" ON function_permission.permission_id = \"ParentRolePermission\".id " +
+                          "WHERE profile.id = {0} " +
+                          "UNION " +
+                          "select \"ChildRoleFunctionPermissions\".* " +
+                          "FROM _a3s.profile " +
+                          "JOIN _a3s.user_profile ON profile.id = profile_role.profile_id " +
+                          "JOIN _a3s.role AS \"ParentRole\" ON \"ParentRole\".id = profile_role.role_id " +
+                          "JOIN _a3s.role_role ON \"ParentRole\".id = role_role.parent_role_id " +
+                          "JOIN _a3s.role AS \"ChildRole\" ON \"ChildRole\".id = role_role.child_role_id " +
+                          "JOIN _a3s.role_function AS \"ChildRoleFunctionMap\" ON \"ChildRole\".id = \"ChildRoleFunctionMap\".role_id " +
+                          "JOIN _a3s.function AS \"ChildRoleFunctions\" ON \"ChildRoleFunctionMap\".function_id = \"ChildRoleFunctions\".id " +
+                          "JOIN _a3s.function_permission AS \"ChildRoleFunctionPermissionsMap\" ON \"ChildRoleFunctions\".id = \"ChildRoleFunctionPermissionsMap\".function_id " +
+                          "JOIN _a3s.permission AS \"ChildRoleFunctionPermissions\" ON \"ChildRoleFunctionPermissionsMap\".permission_id = \"ChildRoleFunctionPermissions\".id " +
+                          "WHERE application_user.id = {0}", userProfile.Id)
+                          .OrderBy(p => p.Name)
+                          .ToListAsync();
+
+            if (permissions != null)
+            {
+                foreach (var permission in permissions)
+                {
+                    Logger.LogDebug($"Permission from A3S for User: '{user.UserName}' with Profile: '{userProfile.Name}'. Permission: '{permission.Name}'");
+                    // Ensure only a distinct set of permissions gets mapped into tokens.
+                    if (!claims.Exists(uc => uc.Type == "permission" && uc.Value == permission.Name))
+                    {
+                        claims.Add(new Claim("permission", permission.Name));
+                    }
+                }
+            }
+        }
+
     }
 }
