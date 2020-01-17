@@ -51,7 +51,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 await CheckForSubRealmAndAssignToTeamIfExists(teamModel, teamSubmit);
                 await AssignTeamsToTeamFromTeamIdList(teamModel, teamSubmit.TeamIds);
-                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds);
+                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds, createdById);
                 await ValidateTermsOfServiceEntry(teamModel.TermsOfServiceId);
 
                 var createdTeam = mapper.Map<Team>(await teamRepository.CreateAsync(teamModel));
@@ -117,7 +117,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // Note: Sub-Realms cannot be changed once create, hence the absense of a call to 'CheckForSubRealmAndAssignToTeamIfExists' function.
                 await AssignTeamsToTeamFromTeamIdList(existingTeam, teamSubmit.TeamIds);
-                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds);
+                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds, updatedById);
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
 
                 var updatedTeam = await teamRepository.UpdateAsync(existingTeam);
@@ -210,7 +210,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="applicationDataPolicyIds"></param>
         /// <returns></returns>
-        private async Task AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds)
+        private async Task AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds, Guid changedById)
         {
             if (applicationDataPolicyIds == null)
             {
@@ -249,7 +249,8 @@ namespace za.co.grindrodbank.a3s.Services
                 team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                 {
                     Team = team,
-                    ApplicationDataPolicy = applicationDataPolicyToAdd
+                    ApplicationDataPolicy = applicationDataPolicyToAdd,
+                    ChangedBy = changedById
                 });
             }
         }
