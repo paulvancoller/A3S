@@ -44,14 +44,12 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             try
             {
                 context.LogProfileRequest(Logger);
-
                 var sub = context.Subject.GetSubjectId();
                 var user = await _userManager.FindByIdAsync(sub);
                 var principal = await _claimsFactory.CreateAsync(user);
-
                 var claims = principal.Claims.ToList();
                 claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
-
+                // Attempt to obtain a 'profile_name' from the request to see if the user is obtaining a token for a profile.
                 var profileName = context.ValidatedRequest.Raw["profile_name"];
 
                 if(profileName == null)
