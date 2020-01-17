@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public interface IFunctionService
+    public interface IFunctionService : ITransactableService
     {
         Task<Function> GetByIdAsync(Guid functionId);
         Task<Function> UpdateAsync(FunctionSubmit functionSubmit, Guid updatedByGuid);

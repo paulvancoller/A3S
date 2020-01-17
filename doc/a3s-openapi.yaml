@@ -3201,12 +3201,6 @@ components:
             description: The UUIDS of the functions assigned to this role.
             type: string
             format: uuid
-        userIds:
-          description: The UUIDs of the users attached to the role.
-          type: array
-          items:
-            type: string
-            format: uuid
         roleIds:
           description: The UUIDs of the child roles attached to the role.
           type: array
@@ -3462,9 +3456,6 @@ components:
           type: boolean
           description: True if this user is considered deleted.
         ldapAuthenticationModeId:
-          type: string
-          format: uuid
-          nullable: true
           $ref: '#/components/schemas/LdapAuthenticationModeId'
         roles:
           type: array
@@ -3513,13 +3504,11 @@ components:
         roleIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/RoleId'
         teamIds:
           type: array
           items:
-            type: string
-            format: uuid            
+            $ref: '#/components/schemas/TeamId'          
     UserPasswordChangeSubmit:
       description: |
         Used to change a user's password.
@@ -3544,6 +3533,8 @@ components:
         - name
         - description
         - subRealmId
+        - roleIds
+        - teamIds
       type: object
       properties:
         name:
@@ -3554,6 +3545,14 @@ components:
           type: string
         subRealmId:
           $ref: '#/components/schemas/SubRealmId'
+        roleIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleId'
+        teamIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamId' 
     
     UserProfile:
       description: |
@@ -3570,6 +3569,14 @@ components:
           type: string
         subRealmId:
           $ref: '#/components/schemas/SubRealmId'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team' 
           
     UserProfileId:
       description: |
@@ -4267,6 +4274,7 @@ components:
         - description
         - uuid
         - permissions
+        - applicationDataPolicies
       properties:
         uuid:
           $ref: '#/components/schemas/SubRealmId'
@@ -4280,7 +4288,12 @@ components:
           description: A list of all the permissions that are available within the sub-realm.
           type: array
           items:
-            $ref: '#/components/schemas/PermissionId'
+            $ref: '#/components/schemas/Permission'
+        applicationDataPolicies:
+          description: A list of all the application data policies that are available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationDataPolicy'
           
     SubRealmSubmit:
       description: |
@@ -4289,6 +4302,8 @@ components:
       required:
         - name
         - description
+        - permissionIds
+        - applicationDataPolicyIds
       properties:
         name:
           type: string
@@ -4296,11 +4311,16 @@ components:
         description:
           type: string
           description: A description of the sub-realm.
-        permissions:
-          description: A list of all the permissions that are available within the sub-realm.
+        permissionIds:
+          description: A list of all the permission IDs for the permissions that are to be available within the sub-realm.
           type: array
           items:
             $ref: '#/components/schemas/PermissionId'
+        applicationDataPolicyIds:
+          description: A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationDataPolicyId'
 
     #region Responses
     ErrorResponse:

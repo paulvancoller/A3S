@@ -72,7 +72,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                                 .FirstOrDefaultAsync();
         }
 
-        public async Task<ProfileModel> GetByNameAsync(string name, bool includeRelations)
+        public async Task<ProfileModel> GetByNameAsync(Guid userId, string name, bool includeRelations)
         {
             if (!includeRelations)
             {
@@ -81,13 +81,14 @@ namespace za.co.grindrodbank.a3s.Repositories
             }
 
             return await a3SContext.Profile.Where(p => p.Name == name)
-                                                .Include(p => p.SubRealm)
-                                                .Include(p => p.User)
-                                                .Include(p => p.ProfileRoles)
-                                                  .ThenInclude(pr => pr.Role)
-                                                .Include(p => p.ProfileTeams)
-                                                  .ThenInclude(pt => pt.Team)
-                                                .FirstOrDefaultAsync();
+                                           .Where(p => p.User.Id == userId.ToString())
+                                           .Include(p => p.SubRealm)
+                                           .Include(p => p.User)
+                                           .Include(p => p.ProfileRoles)
+                                             .ThenInclude(pr => pr.Role)
+                                           .Include(p => p.ProfileTeams)
+                                             .ThenInclude(pt => pt.Team)
+                                           .FirstOrDefaultAsync();
         }
 
         public async Task<List<ProfileModel>> GetListAsync(bool includeRelations = false)
@@ -112,6 +113,23 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.SaveChangesAsync();
 
             return profile;
+        }
+
+        public async Task<List<ProfileModel>> GetListForUserAsync(Guid userId, bool includeRelations)
+        {
+            if(!includeRelations)
+            {
+                return await a3SContext.Profile.ToListAsync();
+            }
+
+            return await a3SContext.Profile.Where(p => p.User.Id == userId.ToString())
+                                           .Include(p => p.SubRealm)
+                                           .Include(p => p.User)
+                                           .Include(p => p.ProfileRoles)
+                                             .ThenInclude(pr => pr.Role)
+                                           .Include(p => p.ProfileTeams)
+                                             .ThenInclude(pt => pt.Team)
+                                           .ToListAsync();
         }
     }
 }

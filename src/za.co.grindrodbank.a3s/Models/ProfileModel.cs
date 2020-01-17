@@ -13,7 +13,7 @@ namespace za.co.grindrodbank.a3s.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Decription { get; set; }
+        public string Description { get; set; }
         // A profile must have one user associated with it.
         public UserModel User { get; set; }
         // A profile must have one sub-realm associated with it.

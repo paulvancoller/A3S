@@ -27,58 +27,42 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Model used for creating or updating a team. Team can be optionally associated with a sub-realm by specifying the &#39;subRealmId&#39; of the sub-realm. 
+    /// Models a sub-realm. 
     /// </summary>
     [DataContract]
-    public partial class TeamSubmit : IEquatable<TeamSubmit>
+    public partial class SubRealmSubmit : IEquatable<SubRealmSubmit>
     { 
         /// <summary>
-        /// Gets or Sets Uuid
+        /// The name of the sub-realm.
         /// </summary>
-        [Required]
-        [DataMember(Name="uuid", EmitDefaultValue=false)]
-        public Guid Uuid { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Name
-        /// </summary>
+        /// <value>The name of the sub-realm.</value>
         [Required]
         [DataMember(Name="name", EmitDefaultValue=false)]
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or Sets Description
+        /// A description of the sub-realm.
         /// </summary>
+        /// <value>A description of the sub-realm.</value>
         [Required]
         [DataMember(Name="description", EmitDefaultValue=false)]
         public string Description { get; set; }
 
         /// <summary>
-        /// The UUIDs of the child teams (in the case of a compound team)
+        /// A list of all the permission IDs for the permissions that are to be available within the sub-realm.
         /// </summary>
-        /// <value>The UUIDs of the child teams (in the case of a compound team)</value>
-        [DataMember(Name="teamIds", EmitDefaultValue=false)]
-        public List<Guid> TeamIds { get; set; }
+        /// <value>A list of all the permission IDs for the permissions that are to be available within the sub-realm.</value>
+        [Required]
+        [DataMember(Name="permissionIds", EmitDefaultValue=false)]
+        public List<Guid> PermissionIds { get; set; }
 
         /// <summary>
-        /// The application data policies that are applied to this team.
+        /// A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.
         /// </summary>
-        /// <value>The application data policies that are applied to this team.</value>
-        [DataMember(Name="dataPolicyIds", EmitDefaultValue=false)]
-        public List<Guid> DataPolicyIds { get; set; }
-
-        /// <summary>
-        /// Gets or Sets TermsOfServiceId
-        /// </summary>
-        [DataMember(Name="termsOfServiceId", EmitDefaultValue=true)]
-        public Guid? TermsOfServiceId { get; set; }
-
-        /// <summary>
-        /// The UUID identifier for a sub-realm.
-        /// </summary>
-        /// <value>The UUID identifier for a sub-realm.</value>
-        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
-        public Guid SubRealmId { get; set; }
+        /// <value>A list of all the application data policy IDs for the application data policies that are to be available within the sub-realm.</value>
+        [Required]
+        [DataMember(Name="applicationDataPolicyIds", EmitDefaultValue=false)]
+        public List<Guid> ApplicationDataPolicyIds { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -87,14 +71,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class TeamSubmit {\n");
-            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
+            sb.Append("class SubRealmSubmit {\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
-            sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
-            sb.Append("  DataPolicyIds: ").Append(DataPolicyIds).Append("\n");
-            sb.Append("  TermsOfServiceId: ").Append(TermsOfServiceId).Append("\n");
-            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
+            sb.Append("  PermissionIds: ").Append(PermissionIds).Append("\n");
+            sb.Append("  ApplicationDataPolicyIds: ").Append(ApplicationDataPolicyIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -117,25 +98,20 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((TeamSubmit)obj);
+            return obj.GetType() == GetType() && Equals((SubRealmSubmit)obj);
         }
 
         /// <summary>
-        /// Returns true if TeamSubmit instances are equal
+        /// Returns true if SubRealmSubmit instances are equal
         /// </summary>
-        /// <param name="other">Instance of TeamSubmit to be compared</param>
+        /// <param name="other">Instance of SubRealmSubmit to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(TeamSubmit other)
+        public bool Equals(SubRealmSubmit other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
-                (
-                    Uuid == other.Uuid ||
-                    Uuid != null &&
-                    Uuid.Equals(other.Uuid)
-                ) && 
                 (
                     Name == other.Name ||
                     Name != null &&
@@ -147,26 +123,16 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Description.Equals(other.Description)
                 ) && 
                 (
-                    TeamIds == other.TeamIds ||
-                    TeamIds != null &&
-                    other.TeamIds != null &&
-                    TeamIds.SequenceEqual(other.TeamIds)
+                    PermissionIds == other.PermissionIds ||
+                    PermissionIds != null &&
+                    other.PermissionIds != null &&
+                    PermissionIds.SequenceEqual(other.PermissionIds)
                 ) && 
                 (
-                    DataPolicyIds == other.DataPolicyIds ||
-                    DataPolicyIds != null &&
-                    other.DataPolicyIds != null &&
-                    DataPolicyIds.SequenceEqual(other.DataPolicyIds)
-                ) && 
-                (
-                    TermsOfServiceId == other.TermsOfServiceId ||
-                    TermsOfServiceId != null &&
-                    TermsOfServiceId.Equals(other.TermsOfServiceId)
-                ) && 
-                (
-                    SubRealmId == other.SubRealmId ||
-                    SubRealmId != null &&
-                    SubRealmId.Equals(other.SubRealmId)
+                    ApplicationDataPolicyIds == other.ApplicationDataPolicyIds ||
+                    ApplicationDataPolicyIds != null &&
+                    other.ApplicationDataPolicyIds != null &&
+                    ApplicationDataPolicyIds.SequenceEqual(other.ApplicationDataPolicyIds)
                 );
         }
 
@@ -180,20 +146,14 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Uuid != null)
-                    hashCode = hashCode * 59 + Uuid.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
-                    if (TeamIds != null)
-                    hashCode = hashCode * 59 + TeamIds.GetHashCode();
-                    if (DataPolicyIds != null)
-                    hashCode = hashCode * 59 + DataPolicyIds.GetHashCode();
-                    if (TermsOfServiceId != null)
-                    hashCode = hashCode * 59 + TermsOfServiceId.GetHashCode();
-                    if (SubRealmId != null)
-                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
+                    if (PermissionIds != null)
+                    hashCode = hashCode * 59 + PermissionIds.GetHashCode();
+                    if (ApplicationDataPolicyIds != null)
+                    hashCode = hashCode * 59 + ApplicationDataPolicyIds.GetHashCode();
                 return hashCode;
             }
         }
@@ -201,12 +161,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(TeamSubmit left, TeamSubmit right)
+        public static bool operator ==(SubRealmSubmit left, SubRealmSubmit right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(TeamSubmit left, TeamSubmit right)
+        public static bool operator !=(SubRealmSubmit left, SubRealmSubmit right)
         {
             return !Equals(left, right);
         }

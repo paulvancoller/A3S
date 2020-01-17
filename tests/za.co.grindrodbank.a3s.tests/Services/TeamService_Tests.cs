@@ -130,10 +130,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(teamGuid, false).Returns(mockedTeamModel);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);
 
             Assert.NotNull(teamResource);
@@ -148,11 +149,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(teamGuid, false).Returns(mockedTeamModel);
             termsOfServiceRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<bool>())).Do(x => { throw new ItemNotFoundException(); });
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
             var teamResource = await teamService.GetByIdAsync(teamGuid);
 
             Assert.NotNull(teamResource);
@@ -168,6 +170,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(mockedTeamModel.UserTeams[0].TeamId, Arg.Any<bool>())
                 .Returns(mockedTeamModel.UserTeams[0].Team);
@@ -183,7 +186,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             termsOfServiceRepository.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<bool>())
                 .Returns(mockedTeamModel.TermsOfService);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             var teamResource = await teamService.CreateAsync(mockedTeamSubmitModel, Guid.NewGuid());
@@ -202,11 +205,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<bool>())).Do(x => throw new ItemNotFoundException());
             teamRepository.CreateAsync(Arg.Any<TeamModel>()).Returns(mockedTeamModel);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -231,12 +235,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(mockedTeamModel.UserTeams[0].TeamId, Arg.Any<bool>())
                 .Returns(mockedTeamModel.UserTeams[0].Team);
             teamRepository.CreateAsync(Arg.Any<TeamModel>()).Returns(mockedTeamModel);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -260,6 +265,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(mockedTeamModel.UserTeams[0].TeamId, Arg.Any<bool>())
                 .Returns(mockedTeamModel.UserTeams[0].Team);
@@ -267,7 +273,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             teamRepository.GetByNameAsync(mockedTeamSubmitModel.Name, Arg.Any<bool>()).Returns(mockedTeamModel);
             teamRepository.CreateAsync(Arg.Any<TeamModel>()).Returns(mockedTeamModel);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -291,12 +297,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(mockedTeamModel.UserTeams[0].TeamId, Arg.Any<bool>())
                 .Returns(mockedTeamModel.UserTeams[0].Team);
             teamRepository.CreateAsync(Arg.Any<TeamModel>()).Returns(mockedTeamModel);
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -321,6 +328,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var teamRepository = Substitute.For<ITeamRepository>();
             var termsOfServiceRepository = Substitute.For<ITermsOfServiceRepository>();
             var applicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             teamRepository.GetByIdAsync(mockedTeamModel.UserTeams[0].TeamId, Arg.Any<bool>())
                 .Returns(mockedTeamModel.UserTeams[0].Team);
@@ -336,7 +344,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     }
                 });
 
-            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, mapper);
+            var teamService = new TeamService(teamRepository, applicationDataPolicyRepository, termsOfServiceRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;

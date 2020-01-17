@@ -1,6 +1,6 @@
-﻿{
+{
 	"info": {
-		"_postman_id": "1f83a55a-381a-48b9-907b-b2977aad30e7",
+		"_postman_id": "1d5eb912-2873-45bd-afc2-f4d77cf0f2ce",
 		"name": "A3S",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -520,6 +520,67 @@
 					"response": []
 				},
 				{
+					"name": "CreateFunctionWithinSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set function GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"function-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-function\",\n    \"description\": \"test-function description\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/functions",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"functions"
+							]
+						},
+						"description": "Creates a new function, which is a business friendly collection of permissions. Functions must contain permissions from a single application (micro-services), as defined by the business rules. This application is indicated by the 'applicationId' component of the request body. To obtain a suitable application ID, run the 'GetApplications' function to get a list of all registered applications. Select a UUID from one of these applications and set it as the value of the 'application-guid' environment variable."
+					},
+					"response": []
+				},
+				{
 					"name": "UpdateFunction",
 					"event": [
 						{
@@ -742,6 +803,67 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"test-role-new\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-guid}}\"],\n    \"roleIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/roles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateRoleWithinSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"role-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-role-new-subrealmed\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"roleIds\": []\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/roles",
@@ -2235,6 +2357,254 @@
 			"protocolProfileBehavior": {}
 		},
 		{
+			"name": "UserProfiles",
+			"item": [
+				{
+					"name": "CreateUserProfile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"profile-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"New User Profile Name\",\n\t\"description\": \"New User Profile description\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-guid}}\"],\n\t\"teamIds\": [\"{{team-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserProfilesListForUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"user-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserProfileByProfileGuid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles",
+								"{{profile-guid}}"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUserProfile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17701951-d606-4279-9b65-a0c54763335f",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"profile-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"User Profile Name - Updated\",\n\t\"description\": \"User Profile description - updated\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-guid}}\"],\n\t\"teamIds\": [\"{{team-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"users",
+								"{{user-guid}}",
+								"profiles",
+								"{{profile-guid}}"
+							]
+						},
+						"description": "Creates a use with basic attributes set."
+					},
+					"response": []
+				}
+			],
+			"description": "All the requests pertaining to user profiles.",
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Applications",
 			"item": [
 				{
@@ -3337,6 +3707,232 @@
 				}
 			],
 			"description": "Contains all the requests for obtaining lists and individual clients via the API. There are no APIs to either create or update clients, as this is intended to only be done by the application itself within the security contract definitions that clients supply.",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "SubRealms",
+			"item": [
+				{
+					"name": "CreateSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"sub-realm-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-sub-realm-new\",\n    \"description\": \"Test new sub-realm description\",\n    \"permissionIds\": [\"{{permission-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/subrealms",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms"
+							]
+						},
+						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+					},
+					"response": []
+				},
+				{
+					"name": "GetSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
+					"name": "GetSubRealmList",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/subrealms",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-sub-realm-updated\",\n    \"description\": \"Test new sub-realm description updated\",\n    \"permissionIds\": [\"{{permission-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSubRealm",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"subrealms",
+								"{{sub-realm-guid}}"
+							]
+						},
+						"description": "Gets a permissions by it's UUID. It is recommended that the desired UUID is obtained by running the 'GetPermissions' function to see all currently registered permissions. Copy the UUID of the desired permission and set it as the 'permission-guid' value in the Postman environment that is being used."
+					},
+					"response": []
+				}
+			],
+			"description": "Contains all the requests pertaining to SubRealms.",
 			"protocolProfileBehavior": {}
 		}
 	],

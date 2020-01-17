@@ -21,10 +21,12 @@ namespace za.co.grindrodbank.a3s.Controllers
     public class UserController : UserApiController
     {
         private readonly IUserService userService;
+        private readonly IProfileService profileService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IProfileService profileService)
         {
             this.userService = userService;
+            this.profileService = profileService;
         }
 
         [Authorize(Policy = "permission:a3s.users.create")]
@@ -82,6 +84,32 @@ namespace za.co.grindrodbank.a3s.Controllers
 
             await userService.ChangePasswordAsync(userPasswordChangeSubmit);
             return NoContent();
+        }
+
+        public async override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
+        {
+            return Ok(await profileService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
+        }
+
+        public async override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        {
+            await profileService.DeleteUserProfileAsync(userId, profileId);
+            return NoContent();
+        }
+
+        public async override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
+        {
+            return Ok(await profileService.GetUserProfileByIdAsync(profileId));
+        }
+
+        public async override Task<IActionResult> ListUserProfilesAsync([FromRoute, Required] Guid userId, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
+        {
+            return Ok(await profileService.GetUserProfileListForUserAsync(userId));
+        }
+
+        public async override Task<IActionResult> UpdateUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId, [FromBody] UserProfileSubmit userProfileSubmit)
+        {
+            return Ok(await profileService.UpdateUserProfileAsync(userId, profileId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
     }
 }

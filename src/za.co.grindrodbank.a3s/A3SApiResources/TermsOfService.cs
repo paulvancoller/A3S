@@ -27,7 +27,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// An agreement the needs to be agreed to by a user 
+    /// Models a terms of service agreement that needs to be agreed to by a user on login. 
     /// </summary>
     [DataContract]
     public partial class TermsOfService : IEquatable<TermsOfService>
@@ -71,6 +71,13 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<Guid> AcceptedUserIds { get; set; }
 
         /// <summary>
+        /// The UUID identifier for a sub-realm.
+        /// </summary>
+        /// <value>The UUID identifier for a sub-realm.</value>
+        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
+        public Guid SubRealmId { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -84,6 +91,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  AgreementFileData: ").Append(AgreementFileData).Append("\n");
             sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
             sb.Append("  AcceptedUserIds: ").Append(AcceptedUserIds).Append("\n");
+            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -151,6 +159,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     AcceptedUserIds != null &&
                     other.AcceptedUserIds != null &&
                     AcceptedUserIds.SequenceEqual(other.AcceptedUserIds)
+                ) && 
+                (
+                    SubRealmId == other.SubRealmId ||
+                    SubRealmId != null &&
+                    SubRealmId.Equals(other.SubRealmId)
                 );
         }
 
@@ -176,6 +189,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + TeamIds.GetHashCode();
                     if (AcceptedUserIds != null)
                     hashCode = hashCode * 59 + AcceptedUserIds.GetHashCode();
+                    if (SubRealmId != null)
+                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                 return hashCode;
             }
         }

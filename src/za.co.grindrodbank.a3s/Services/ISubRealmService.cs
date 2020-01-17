@@ -11,12 +11,12 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public interface ITeamService : ITransactableService
+    public interface ISubRealmService : ITransactableService
     {
-        Task<Team> GetByIdAsync(Guid teamId, bool includeRelations = false);
-        Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById);
-        Task<Team> CreateAsync(TeamSubmit teamSubmit, Guid createdById);
-        Task<List<Team>> GetListAsync();
-        Task<List<Team>> GetListAsync(Guid teamMemberUserGuid);
+        Task<SubRealm> GetByIdAsync(Guid subRealmId);
+        Task<SubRealm> CreateAsync(SubRealmSubmit subRealmSubmit, Guid createdById);
+        Task<SubRealm> UpdateAsync(Guid subRealmId, SubRealmSubmit subRealmSubmit, Guid updatedBy);
+        Task<List<SubRealm>> GetListAsync();
+        Task DeleteAsync(Guid subRealmId);
     }
 }

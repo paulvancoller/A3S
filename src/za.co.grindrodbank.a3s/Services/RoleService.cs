@@ -21,22 +21,22 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IRoleRepository roleRepository;
         private readonly IUserRepository userRepository;
         private readonly IFunctionRepository functionRepository;
-
+        private readonly ISubRealmRepository subRealmRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
-        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, IMapper mapper)
+        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
             this.functionRepository = functionRepository;
+            this.subRealmRepository = subRealmRepository;
             this.mapper = mapper;
         }
 
         public async Task<Role> CreateAsync(RoleSubmit roleSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -49,17 +49,19 @@ namespace za.co.grindrodbank.a3s.Services
                 RoleModel newRole = mapper.Map<RoleModel>(roleSubmit);
                 newRole.ChangedBy = createdById;
 
+                // The potentially assigned sub-realm is used within the 'AssignFunctionsToRoleFromFunctionIdList' function, so perform sub-realm assignmentd first.
+                await CheckForSubRealmAndAssignToRoleIfExists(newRole, roleSubmit);
                 await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
                 await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Role>(await roleRepository.CreateAsync(newRole));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -77,7 +79,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Role> UpdateAsync(RoleSubmit roleSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -101,16 +103,17 @@ namespace za.co.grindrodbank.a3s.Services
                 role.ChangedBy = updatedById;
 
                 await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
+                // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.
                 await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Role>(await roleRepository.UpdateAsync(role));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -129,6 +132,22 @@ namespace za.co.grindrodbank.a3s.Services
                     if (function == null)
                     {
                         throw new ItemNotFoundException("Unable to find a function with ID: " + functionId + "when attempting to assign it to a role.");
+                    }
+
+                    // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
+                    if (role.SubRealm != null)
+                    {
+                        if (function.SubRealm == null || function.SubRealm.Id != role.SubRealm.Id)
+                        {
+                            throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                        }
+                    }
+                    else
+                    {
+                        if(function.SubRealm != null)
+                        {
+                            throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                        }
                     }
 
                     role.RoleFunctions.Add(new RoleFunctionModel
@@ -152,7 +171,6 @@ namespace za.co.grindrodbank.a3s.Services
             // Child Roles are not mandatory. If the role IDs are null, return without resetting their state
             if (roleIds == null)
             {
-                logger.Warn($"Role IDs are null. Returning.");
                 return;
             }
 
@@ -161,7 +179,6 @@ namespace za.co.grindrodbank.a3s.Services
 
             if (roleIds.Count == 0)
             {
-                logger.Warn($"Role IDs list is empty. Returning.");
                 return;
             }
 
@@ -182,6 +199,22 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                 }
 
+                // If there is a Sub-Realm associated with role, we must ensure that the child role we are attempting to add to the role is associated with the same sub realm.
+                if (roleModel.SubRealm != null)
+                {
+                    if (roleToAddAsChildRole.SubRealm == null || roleModel.SubRealm.Id != roleToAddAsChildRole.SubRealm.Id)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                    }
+                }
+                else
+                {
+                    if(roleToAddAsChildRole.SubRealm != null)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                    }
+                }
+
                 roleModel.ChildRoles.Add(new RoleRoleModel
                 {
                     ParentRole = roleModel,
@@ -190,25 +223,40 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void BeginAllTransactions()
+        private async Task CheckForSubRealmAndAssignToRoleIfExists(RoleModel role, RoleSubmit roleSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (roleSubmit.SubRealmId == null || roleSubmit.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(roleSubmit.SubRealmId, false);
+            role.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
+        }
+
+        public void InitSharedTransaction()
         {
             userRepository.InitSharedTransaction();
             roleRepository.InitSharedTransaction();
             functionRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             userRepository.CommitTransaction();
             roleRepository.CommitTransaction();
             functionRepository.CommitTransaction();
+            subRealmRepository.CommitTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             userRepository.RollbackTransaction();
             roleRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
+            subRealmRepository.RollbackTransaction();
         }
     }
 }

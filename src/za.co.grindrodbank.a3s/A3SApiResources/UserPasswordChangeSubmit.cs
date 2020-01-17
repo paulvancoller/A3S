@@ -27,7 +27,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Used to change a user&#39;s password 
+    /// Used to change a user&#39;s password. 
     /// </summary>
     [DataContract]
     public partial class UserPasswordChangeSubmit : IEquatable<UserPasswordChangeSubmit>

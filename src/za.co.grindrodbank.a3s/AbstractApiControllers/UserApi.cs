@@ -78,6 +78,29 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         public abstract Task<IActionResult> CreateUserAsync([FromBody]UserSubmit userSubmit);
 
         /// <summary>
+        /// Create a user profile.
+        /// </summary>
+        /// <remarks>Create a new user profile for a user. UUID not required in request body.</remarks>
+        /// <param name="userId">The UUID of the user.</param>
+        /// <param name="userProfileSubmit"></param>
+        /// <response code="200">Successful. User profile created.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized create user profiles.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPost]
+        [Route("/users/{userId}/profiles")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(UserProfile))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> CreateUserProfileAsync([FromRoute][Required]Guid userId, [FromBody]UserProfileSubmit userProfileSubmit);
+
+        /// <summary>
         /// Delete a user.
         /// </summary>
         /// <remarks>Mark a user as deleted.</remarks>
@@ -97,6 +120,28 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> DeleteUserAsync([FromRoute][Required]Guid userId);
+
+        /// <summary>
+        /// Delete a user profile.
+        /// </summary>
+        /// <remarks>Deletes a user&#39;s profile.</remarks>
+        /// <param name="userId">The UUID of the user.</param>
+        /// <param name="profileId">The UUID of the user profile.</param>
+        /// <response code="204">No Content.</response>
+        /// <response code="400">Invalid parameters.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - Not authorized to delete user profiles.</response>
+        /// <response code="404">User or user profile not found.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpDelete]
+        [Route("/users/{userId}/profiles/{profileId}")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> DeleteUserProfileAsync([FromRoute][Required]Guid userId, [FromRoute][Required]Guid profileId);
 
         /// <summary>
         /// Get a user by its UUID.
@@ -119,6 +164,55 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> GetUserAsync([FromRoute][Required]Guid userId);
+
+        /// <summary>
+        /// Get a user&#39;s profile by its UUID.
+        /// </summary>
+        /// <remarks>Get a user profile.</remarks>
+        /// <param name="userId">The UUID of the user.</param>
+        /// <param name="profileId">The UUID of the user profile.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to access this user&#39;s profile.</response>
+        /// <response code="404">User or user profile not found.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpGet]
+        [Route("/users/{userId}/profiles/{profileId}")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(UserProfile))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> GetUserProfileAsync([FromRoute][Required]Guid userId, [FromRoute][Required]Guid profileId);
+
+        /// <summary>
+        /// Search a user for all their profiles.
+        /// </summary>
+        /// <remarks>Search for user profiles.</remarks>
+        /// <param name="userId">The UUID of the user.</param>
+        /// <param name="page">The page to view.</param>
+        /// <param name="size">The size of a page.</param>
+        /// <param name="filterName">A search query filter on the User profile&#39;s name.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to access the list of user profiles for this user.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpGet]
+        [Route("/users/{userId}/profiles")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(List<UserProfile>))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> ListUserProfilesAsync([FromRoute][Required]Guid userId, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]List<string> orderBy);
 
         /// <summary>
         /// Search for users.
@@ -174,5 +268,27 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> UpdateUserAsync([FromRoute][Required]Guid userId, [FromBody]UserSubmit userSubmit);
+
+        /// <summary>
+        /// Update a user profile.
+        /// </summary>
+        /// <remarks>Update an existing user profile.</remarks>
+        /// <param name="userId">The UUID of the user.</param>
+        /// <param name="profileId">The UUID of the user profile.</param>
+        /// <param name="userProfileSubmit"></param>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized update user profiles.</response>
+        /// <response code="404">User or user profile not found.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPut]
+        [Route("/users/{userId}/profiles/{profileId}")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> UpdateUserProfileAsync([FromRoute][Required]Guid userId, [FromRoute][Required]Guid profileId, [FromBody]UserProfileSubmit userProfileSubmit);
     }
 }

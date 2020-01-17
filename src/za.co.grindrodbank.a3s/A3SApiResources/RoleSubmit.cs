@@ -27,11 +27,18 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Model used to create or update a Role. 
+    /// Model used to create or update a Role. The role can be optionally associated with a sub-realm by specifying the &#39;subRealmId&#39; of the sub-realm. 
     /// </summary>
     [DataContract]
     public partial class RoleSubmit : IEquatable<RoleSubmit>
     { 
+        /// <summary>
+        /// Gets or Sets Uuid
+        /// </summary>
+        [Required]
+        [DataMember(Name="uuid", EmitDefaultValue=false)]
+        public Guid Uuid { get; set; }
+
         /// <summary>
         /// Gets or Sets Name
         /// </summary>
@@ -47,11 +54,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or Sets Uuid
+        /// The UUID identifier for a sub-realm.
         /// </summary>
-        [Required]
-        [DataMember(Name="uuid", EmitDefaultValue=false)]
-        public Guid Uuid { get; set; }
+        /// <value>The UUID identifier for a sub-realm.</value>
+        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
+        public Guid SubRealmId { get; set; }
 
         /// <summary>
         /// The UUIDs of the child roles attached to the role.
@@ -74,9 +81,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             var sb = new StringBuilder();
             sb.Append("class RoleSubmit {\n");
+            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
-            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
+            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("  RoleIds: ").Append(RoleIds).Append("\n");
             sb.Append("  FunctionIds: ").Append(FunctionIds).Append("\n");
             sb.Append("}\n");
@@ -116,6 +124,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
 
             return 
                 (
+                    Uuid == other.Uuid ||
+                    Uuid != null &&
+                    Uuid.Equals(other.Uuid)
+                ) && 
+                (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
@@ -126,9 +139,9 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Description.Equals(other.Description)
                 ) && 
                 (
-                    Uuid == other.Uuid ||
-                    Uuid != null &&
-                    Uuid.Equals(other.Uuid)
+                    SubRealmId == other.SubRealmId ||
+                    SubRealmId != null &&
+                    SubRealmId.Equals(other.SubRealmId)
                 ) && 
                 (
                     RoleIds == other.RoleIds ||
@@ -154,12 +167,14 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (Uuid != null)
+                    hashCode = hashCode * 59 + Uuid.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
-                    if (Uuid != null)
-                    hashCode = hashCode * 59 + Uuid.GetHashCode();
+                    if (SubRealmId != null)
+                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                     if (RoleIds != null)
                     hashCode = hashCode * 59 + RoleIds.GetHashCode();
                     if (FunctionIds != null)

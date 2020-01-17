@@ -38,12 +38,18 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<ApplicationDataPolicyModel> GetByIdAsync(Guid applicationDataPolicyId)
         {
-            return await a3SContext.ApplicationDataPolicy.Where(adp => adp.Id == applicationDataPolicyId).FirstOrDefaultAsync();
+            return await a3SContext.ApplicationDataPolicy.Where(adp => adp.Id == applicationDataPolicyId)
+                                                         .Include(adp => adp.SubRealmApplicationDataPolicies)
+                                                           .ThenInclude(sradp => sradp.SubRealm)
+                                                         .FirstOrDefaultAsync();
         }
 
         public async Task<ApplicationDataPolicyModel> GetByNameAsync(string name)
         {
-            return await a3SContext.ApplicationDataPolicy.Where(adp => adp.Name == name).FirstOrDefaultAsync();
+            return await a3SContext.ApplicationDataPolicy.Where(adp => adp.Name == name)
+                                                         .Include(adp => adp.SubRealmApplicationDataPolicies)
+                                                           .ThenInclude(sradp => sradp.SubRealm)
+                                                         .FirstOrDefaultAsync();
         }
 
         public async Task<List<ApplicationDataPolicyModel>> GetListAsync()

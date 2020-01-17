@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace za.co.grindrodbank.a3s.Models
 {
     [Table("SubRealmApplicationDataPolicy")]
-    public class SubRealmApplicationDataPolicyModel
+    public class SubRealmApplicationDataPolicyModel : AuditableModel
     {
         public Guid SubRealmId { get; set; }
         public SubRealmModel SubRealm { get; set; }

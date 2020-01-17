@@ -94,10 +94,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(guid).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
             var functionResource = await functionService.GetByIdAsync(guid);
 
             Assert.NotNull(functionResource);
@@ -112,11 +113,14 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             permissionRepository.GetByIdWithApplicationAsync(mockedFunctionModel.FunctionPermissions[0].PermissionId)
                 .Returns(mockedFunctionModel.FunctionPermissions[0].Permission);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+
+
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -141,11 +145,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             applicationRepository.GetByIdAsync(mockedFunctionModel.Application.Id)
                 .Returns(mockedFunctionModel.Application);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -170,6 +175,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             // Change ApplicationId to break link between the permission and Application
             mockedFunctionModel.FunctionPermissions[0].Permission.ApplicationFunctionPermissions[0].ApplicationFunction.Application.Id = Guid.NewGuid();
@@ -180,7 +186,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 .Returns(mockedFunctionModel.FunctionPermissions[0].Permission);
             functionRepository.CreateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -204,6 +210,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             applicationRepository.GetByIdAsync(mockedFunctionModel.Application.Id)
                 .Returns(mockedFunctionModel.Application);
@@ -211,7 +218,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 .Returns(mockedFunctionModel.FunctionPermissions[0].Permission);
             functionRepository.CreateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             var functionResource = await functionService.CreateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
@@ -229,6 +236,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             applicationRepository.GetByIdAsync(mockedFunctionModel.Application.Id)
                 .Returns(mockedFunctionModel.Application);
@@ -238,7 +246,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             functionRepository.GetByNameAsync(mockedFunctionSubmitModel.Name).Returns(mockedFunctionModel);
             functionRepository.CreateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -262,6 +270,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetListAsync().Returns(
                 new List<FunctionModel>()
@@ -270,7 +279,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     mockedFunctionModel
                 });
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             var functionList = await functionService.GetListAsync();
@@ -288,6 +297,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             applicationRepository.GetByIdAsync(mockedFunctionModel.Application.Id)
                 .Returns(mockedFunctionModel.Application);
@@ -296,7 +306,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             functionRepository.GetByIdAsync(mockedFunctionModel.Id).Returns(mockedFunctionModel);
             functionRepository.UpdateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             var functionResource = await functionService.UpdateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
@@ -315,6 +325,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             applicationRepository.GetByIdAsync(mockedFunctionModel.Application.Id)
                 .Returns(mockedFunctionModel.Application);
@@ -322,7 +333,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 .Returns(mockedFunctionModel.FunctionPermissions[0].Permission);
             functionRepository.UpdateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -346,6 +357,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             mockedFunctionSubmitModel.Name += "_changed_name";
 
@@ -357,7 +369,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             functionRepository.GetByNameAsync(mockedFunctionSubmitModel.Name).Returns(mockedFunctionModel);
             functionRepository.UpdateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -381,6 +393,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             mockedFunctionSubmitModel.Name += "_changed_name";
 
@@ -391,7 +404,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             functionRepository.GetByIdAsync(mockedFunctionModel.Id).Returns(mockedFunctionModel);
             functionRepository.UpdateAsync(Arg.Any<FunctionModel>()).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             var functionResource = await functionService.UpdateAsync(mockedFunctionSubmitModel, Guid.NewGuid());
@@ -410,10 +423,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedFunctionModel.Id).Returns(mockedFunctionModel);
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -437,8 +451,9 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var functionRepository = Substitute.For<IFunctionRepository>();
             var permissionRepository = Substitute.For<IPermissionRepository>();
             var applicationRepository = Substitute.For<IApplicationRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
-            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, mapper);
+            var functionService = new FunctionService(functionRepository, permissionRepository, applicationRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
