@@ -120,10 +120,11 @@ namespace za.co.grindrodbank.a3s.Services
                 await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds);
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
 
+                var updatedTeam = await teamRepository.UpdateAsync(existingTeam);
                 // All successful
                 CommitTransaction();
 
-                return mapper.Map<Team>(await teamRepository.UpdateAsync(existingTeam));
+                return mapper.Map<Team>(updatedTeam);
             }
             catch
             {
@@ -209,11 +210,11 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="applicationDataPolicyIds"></param>
         /// <returns></returns>
-        private async Task<TeamModel> AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds)
+        private async Task AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds)
         {
             if (applicationDataPolicyIds == null)
             {
-                return team;
+                return;
             }
 
             team.ApplicationDataPolicies = new List<TeamApplicationDataPolicyModel>();
@@ -221,7 +222,7 @@ namespace za.co.grindrodbank.a3s.Services
             // If the list is set, but there are no elements in it, this is intepretted as re-setting the associated application data policies.
             if (applicationDataPolicyIds.Count == 0)
             {
-                return team;
+                return;
             }
 
             foreach (var applicationDataPolicyId in applicationDataPolicyIds)
@@ -251,8 +252,6 @@ namespace za.co.grindrodbank.a3s.Services
                     ApplicationDataPolicy = applicationDataPolicyToAdd
                 });
             }
-
-            return team;
         }
 
         private async Task CheckForSubRealmAndAssignToTeamIfExists(TeamModel team, TeamSubmit teamSubmit)
