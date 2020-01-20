@@ -23,19 +23,26 @@ services:
   a3s-identity-server:
     networks:
       - a3s-quickstart
-    image: "grindrodbank/a3s-identity-server"
+    image: "grindrodbank/a3s-identity-server:v1.1.0-rc"
     restart: always
     ports:
       - 80:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - FLYWAY_ENABLE=true
+      - DATABASE_SERVER=a3s-postgresql
+      - DATABASE_NAME=identity_server
+      - DATABASE_PORT=5432
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=postgres
+      - FLYWAY_CONNECTION_RETRIES=5
     depends_on:
       - php-ldap-admin
 
   a3s:
     networks:
       - a3s-quickstart
-    image: "grindrodbank/a3s"
+    image: "grindrodbank/a3s:v1.1.0-rc"
     restart: always
     ports:
       - 8081:80
