@@ -23,7 +23,7 @@ services:
   a3s-identity-server:
     networks:
       - a3s-quickstart
-    image: "grindrodbank/a3s-identity-server:v1.1.0-rc"
+    image: "grindrodbank/a3s-identity-server"
     restart: always
     ports:
       - 80:80
@@ -42,7 +42,7 @@ services:
   a3s:
     networks:
       - a3s-quickstart
-    image: "grindrodbank/a3s:v1.1.0-rc"
+    image: "grindrodbank/a3s"
     restart: always
     ports:
       - 8081:80

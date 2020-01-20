@@ -24,7 +24,7 @@ echo " Flyway Migrations First  [$FLYWAY_ENABLE]"
 echo "========================================================================="
 if [ "$FLYWAY_ENABLE" = "true" ]; then
 	echo "> Migrating A3S database with flyway..."
-	/flyway/flyway -url=jdbc:postgresql://$DATABASE_SERVER:$DATABASE_PORT/$DATABASE_NAME -schemas=_a3s -baselineOnMigrate=true -baselineVersion=0 -locations=filesystem:/flyway/sql/a3s -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -connectRetries=$FLYWAY_CONNECTION_RETRIES -q migrate
+	/flyway/flyway -url=jdbc:postgresql://$DATABASE_SERVER:$DATABASE_PORT/$DATABASE_NAME -schemas=_a3s -defaultSchema=_a3s -baselineOnMigrate=true -baselineVersion=0 -locations=filesystem:/flyway/sql/a3s -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -connectRetries=$FLYWAY_CONNECTION_RETRIES -q migrate
 	echo "> Done migrating A3S database with flyway..."
 fi
 
