@@ -192,6 +192,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var teamRepository = Substitute.For<ITeamRepository>();
             var ldapRepository = Substitute.For<ILdapAuthenticationModeRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
             var ldapConnectionService = Substitute.For<ILdapConnectionService>();
 
             var userService = new UserService(userRepository, roleRepository, teamRepository, ldapRepository, mapper, ldapConnectionService);

@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public interface ITeamService
+    public interface ITeamService : ITransactableService
     {
         Task<Team> GetByIdAsync(Guid teamId, bool includeRelations = false);
         Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById);

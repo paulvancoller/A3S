@@ -65,6 +65,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                         .ThenInclude(ct => ct.ChildTeam)
                                       .Include(t => t.ApplicationDataPolicies)
                                         .ThenInclude(adp => adp.ApplicationDataPolicy)
+                                      .Include(t => t.SubRealm)
                                       .FirstOrDefaultAsync();
             }
 
@@ -79,6 +80,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                          .ThenInclude(ct => ct.ChildTeam)
                                         .Include(t => t.ApplicationDataPolicies)
                                          .ThenInclude(adp => adp.ApplicationDataPolicy)
+                                        .Include(t => t.SubRealm)
                                         .ToListAsync();
         }
 
@@ -101,6 +103,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                         .ThenInclude(ct => ct.ChildTeam)
                                       .Include(t => t.ApplicationDataPolicies)
                                         .ThenInclude(adp => adp.ApplicationDataPolicy)
+                                      .Include(t => t.SubRealm)
                                       .FirstOrDefaultAsync();
             }
 
@@ -131,6 +134,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                               .ThenInclude(ct => ct.ChildTeam)
                           .Include(t => t.ApplicationDataPolicies)
                               .ThenInclude(adp => adp.ApplicationDataPolicy)
+                          .Include(t => t.SubRealm)
                           .ToListAsync();
         }
     }

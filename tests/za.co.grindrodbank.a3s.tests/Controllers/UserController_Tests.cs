@@ -23,7 +23,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             var result = await controller.GetUserAsync(Guid.Empty);
@@ -38,7 +39,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             var result = await controller.GetUserAsync(Guid.NewGuid());
@@ -52,12 +54,13 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
+            var profileService = Substitute.For<IProfileService>();
             var testGuid = Guid.NewGuid();
             var testName = "TestUserName";
 
             userService.GetByIdAsync(testGuid, true).Returns(new User { Uuid = testGuid, Username = testName });
 
-            var controller = new UserController(userService);
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.GetUserAsync(testGuid);
@@ -77,6 +80,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
+            var profileService = Substitute.For<IProfileService>();
 
             var inList = new List<User>();
             inList.Add(new User { Name = "Test Users 1", Uuid = Guid.NewGuid() });
@@ -85,7 +89,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             userService.GetListAsync().Returns(inList);
 
-            var controller = new UserController(userService);
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.ListUsersAsync(false, false, false, string.Empty, 0, 50, string.Empty, string.Empty, null);
@@ -109,7 +113,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.UpdateUserAsync(Guid.Empty, null);
@@ -124,6 +129,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
+            var profileService = Substitute.For<IProfileService>();
             var inputModel = new UserSubmit()
             {
                 Uuid = Guid.NewGuid(),
@@ -154,7 +160,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new UserController(userService);
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.UpdateUserAsync(inputModel.Uuid, inputModel);
@@ -180,6 +186,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
+            var profileService = Substitute.For<IProfileService>();
             var inputModel = new UserSubmit()
             {
                 Name = "Test Name",
@@ -200,7 +207,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new UserController(userService);
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.CreateUserAsync(inputModel);
@@ -223,7 +230,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.DeleteUserAsync(Guid.Empty);
@@ -238,7 +246,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.DeleteUserAsync(Guid.NewGuid());
@@ -253,7 +262,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             // Act
             IActionResult actionResult = await controller.ChangeUserPasswordAsync(Guid.Empty, null);
@@ -268,7 +278,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var userService = Substitute.For<IUserService>();
-            var controller = new UserController(userService);
+            var profileService = Substitute.For<IProfileService>();
+            var controller = new UserController(userService, profileService);
 
             var guid = Guid.NewGuid();
             var userPasswordChangeSubmit = new UserPasswordChangeSubmit()

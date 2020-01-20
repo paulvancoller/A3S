@@ -20,5 +20,6 @@ namespace za.co.grindrodbank.a3s.Models
         public string Description { get; set; }
         public List<FunctionPermissionModel> FunctionPermissions { get; set; }
         public List<ApplicationFunctionPermissionModel> ApplicationFunctionPermissions { get; set; }
+        public List<SubRealmPermissionModel> SubRealmPermissions { get; set; }
     }
 }

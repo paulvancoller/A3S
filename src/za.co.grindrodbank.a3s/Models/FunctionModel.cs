@@ -21,5 +21,7 @@ namespace za.co.grindrodbank.a3s.Models
         public List<FunctionPermissionModel> FunctionPermissions { get; set; }
         public List<RoleFunctionModel> RoleFunctions { get; set; }
         public ApplicationModel Application { get; set; }
+        // A function can be associated with a single Sub Realm.
+        public SubRealmModel SubRealm { get; set; }
     }
 }

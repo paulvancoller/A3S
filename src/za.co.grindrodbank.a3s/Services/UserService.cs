@@ -11,11 +11,9 @@ using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
-using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Extensions;
 using System.Linq;
-using Microsoft.AspNetCore.Identity;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -28,8 +26,7 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IMapper mapper;
         private readonly ILdapConnectionService ldapConnectionService;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ITeamRepository teamRepository, ILdapAuthenticationModeRepository ldapAuthenticationModeRepository,
-            IMapper mapper, ILdapConnectionService ldapConnectionService)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ITeamRepository teamRepository, ILdapAuthenticationModeRepository ldapAuthenticationModeRepository, IMapper mapper, ILdapConnectionService ldapConnectionService)
         {
             this.userRepository = userRepository;
             this.roleRepository = roleRepository;
@@ -42,7 +39,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<User> CreateAsync(UserSubmit userSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -92,13 +89,13 @@ namespace za.co.grindrodbank.a3s.Services
                 createdUser = await userRepository.UpdateAsync(createdUser);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<User>(createdUser);
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -116,7 +113,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<User> UpdateAsync(UserSubmit userSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -158,13 +155,13 @@ namespace za.co.grindrodbank.a3s.Services
                 UserModel updatedUser = await userRepository.UpdateAsync(userModel);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<User>(updatedUser);
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -197,7 +194,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task DeleteAsync(Guid userId)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -209,11 +206,11 @@ namespace za.co.grindrodbank.a3s.Services
                 await userRepository.DeleteAsync(userModel);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -285,24 +282,29 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void BeginAllTransactions()
+        
+
+        public void InitSharedTransaction()
         {
             userRepository.InitSharedTransaction();
             roleRepository.InitSharedTransaction();
+            teamRepository.InitSharedTransaction();
             ldapAuthenticationModeRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             userRepository.CommitTransaction();
             roleRepository.CommitTransaction();
+            teamRepository.InitSharedTransaction();
             ldapAuthenticationModeRepository.CommitTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             userRepository.RollbackTransaction();
             roleRepository.RollbackTransaction();
+            teamRepository.InitSharedTransaction();
             ldapAuthenticationModeRepository.RollbackTransaction();
         }
     }

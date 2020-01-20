@@ -22,20 +22,22 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IFunctionRepository functionRepository;
         private readonly IPermissionRepository permissionRepository;
         private readonly IApplicationRepository applicationRepository;
+        private readonly ISubRealmRepository subRealmRepository;
         private readonly IMapper mapper;
 
-        public FunctionService(IFunctionRepository functionRepository, IPermissionRepository permissionRepository, IApplicationRepository applicationRepository, IMapper mapper)
+        public FunctionService(IFunctionRepository functionRepository, IPermissionRepository permissionRepository, IApplicationRepository applicationRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
             this.functionRepository = functionRepository;
             this.applicationRepository = applicationRepository;
             this.permissionRepository = permissionRepository;
+            this.subRealmRepository = subRealmRepository;
             this.mapper = mapper;
         }
 
         public async Task<Function> CreateAsync(FunctionSubmit functionSubmit, Guid createdByGuid)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -43,24 +45,26 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingFunction != null)
                     throw new ItemNotProcessableException($"Function with Name '{functionSubmit.Name}' already exist.");
 
-                var function = new FunctionModel();
-
-                function.Name = functionSubmit.Name;
-                function.Description = functionSubmit.Description;
-                function.FunctionPermissions = new List<FunctionPermissionModel>();
-                function.ChangedBy = createdByGuid;
+                var function = new FunctionModel
+                {
+                    Name = functionSubmit.Name,
+                    Description = functionSubmit.Description,
+                    FunctionPermissions = new List<FunctionPermissionModel>(),
+                    ChangedBy = createdByGuid
+                };
 
                 await CheckForApplicationAndAssignToFunctionIfExists(function, functionSubmit);
+                await CheckForSubRealmAndAssignToFunctionIfExists(function, functionSubmit);
                 await CheckThatPermissionsExistAndAssignToFunction(function, functionSubmit);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Function>(await functionRepository.CreateAsync(function));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -78,7 +82,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Function> UpdateAsync(FunctionSubmit functionSubmit, Guid updatedByGuid)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -104,15 +108,27 @@ namespace za.co.grindrodbank.a3s.Services
                 await CheckThatPermissionsExistAndAssignToFunction(function, functionSubmit);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Function>(await functionRepository.UpdateAsync(function));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
+        }
+
+        private async Task CheckForSubRealmAndAssignToFunctionIfExists(FunctionModel function, FunctionSubmit functionSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (functionSubmit.SubRealmId == null || functionSubmit.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(functionSubmit.SubRealmId, false);
+            function.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{functionSubmit.SubRealmId}' does not exist.");
         }
 
         public async Task DeleteAsync(Guid functionId)
@@ -130,13 +146,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task CheckForApplicationAndAssignToFunctionIfExists(FunctionModel function, FunctionSubmit functionSubmit)
         {
             var application = await applicationRepository.GetByIdAsync(functionSubmit.ApplicationId);
-
-            if (application == null)
-            {
-                throw new ItemNotFoundException($"Application with UUID: '{functionSubmit.ApplicationId}' not found. Cannot create function '{functionSubmit.Name}' with this application.");
-            }
-
-            function.Application = application;
+            function.Application = application ?? throw new ItemNotFoundException($"Application with UUID: '{functionSubmit.ApplicationId}' not found. Cannot create function '{functionSubmit.Name}' with this application.");
         }
 
         private async Task CheckThatPermissionsExistAndAssignToFunction(FunctionModel function, FunctionSubmit functionSubmit)
@@ -159,6 +169,17 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotProcessableException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
                     }
 
+                    // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.
+                    if (function.SubRealm != null)
+                    {
+                        var subRealmPermission = permission.SubRealmPermissions.Where(psrp => psrp.SubRealm.Id == function.SubRealm.Id).FirstOrDefault();
+
+                        if (subRealmPermission == null)
+                        {
+                            throw new ItemNotProcessableException($"Attempting to add a permission with ID '{permission.Id}' to a function within the '{function.SubRealm.Name}' sub-realm but the permission does not exist within that sub-realm.");
+                        }
+                    }
+
                     function.FunctionPermissions.Add(new FunctionPermissionModel
                     {
                         Function = function,
@@ -168,25 +189,28 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void BeginAllTransactions()
+        public void InitSharedTransaction()
         {
             permissionRepository.InitSharedTransaction();
             applicationRepository.InitSharedTransaction();
             functionRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             permissionRepository.CommitTransaction();
             applicationRepository.CommitTransaction();
             functionRepository.CommitTransaction();
+            subRealmRepository.CommitTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             permissionRepository.RollbackTransaction();
             applicationRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
+            subRealmRepository.RollbackTransaction();
         }
     }
 }

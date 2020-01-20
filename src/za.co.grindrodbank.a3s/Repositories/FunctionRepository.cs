@@ -60,6 +60,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                             .Include(f => f.FunctionPermissions)
                                               .ThenInclude(fp => fp.Permission)
                                             .Include(f => f.Application)
+                                            .Include(f => f.SubRealm)
                                             .FirstOrDefaultAsync();
         }
 
@@ -69,6 +70,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                                             .Include(f => f.FunctionPermissions)
                                               .ThenInclude(fp => fp.Permission)
                                             .Include(f => f.Application)
+                                            .Include(f => f.SubRealm)
                                             .FirstOrDefaultAsync();
         }
 
@@ -77,6 +79,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             return await a3SContext.Function.Include(f => f.FunctionPermissions)
                                               .ThenInclude(fp => fp.Permission)
                                              .Include(f => f.Application)
+                                             .Include(f => f.SubRealm)
                                              .ToListAsync();
         }
 

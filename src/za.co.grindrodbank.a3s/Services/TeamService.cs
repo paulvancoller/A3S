@@ -22,20 +22,22 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ITeamRepository teamRepository;
         private readonly IApplicationDataPolicyRepository applicationDataPolicyRepository;
         private readonly ITermsOfServiceRepository termsOfServiceRepository;
+        private readonly ISubRealmRepository subRealmRepository;
         private readonly IMapper mapper;
 
-        public TeamService(ITeamRepository teamRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, ITermsOfServiceRepository termsOfServiceRepository, IMapper mapper)
+        public TeamService(ITeamRepository teamRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, ITermsOfServiceRepository termsOfServiceRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
         {
             this.teamRepository = teamRepository;
             this.applicationDataPolicyRepository = applicationDataPolicyRepository;
             this.termsOfServiceRepository = termsOfServiceRepository;
+            this.subRealmRepository = subRealmRepository;
             this.mapper = mapper;
         }
 
         public async Task<Team> CreateAsync(TeamSubmit teamSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -47,6 +49,7 @@ namespace za.co.grindrodbank.a3s.Services
                 var teamModel = mapper.Map<TeamModel>(teamSubmit);
                 teamModel.ChangedBy = createdById;
 
+                await CheckForSubRealmAndAssignToTeamIfExists(teamModel, teamSubmit);
                 await AssignTeamsToTeamFromTeamIdList(teamModel, teamSubmit.TeamIds);
                 await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds);
                 await ValidateTermsOfServiceEntry(teamModel.TermsOfServiceId);
@@ -54,13 +57,13 @@ namespace za.co.grindrodbank.a3s.Services
                 var createdTeam = mapper.Map<Team>(await teamRepository.CreateAsync(teamModel));
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return createdTeam;
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -89,7 +92,7 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            BeginAllTransactions();
+            InitSharedTransaction();
 
             try
             {
@@ -112,18 +115,19 @@ namespace za.co.grindrodbank.a3s.Services
                 existingTeam.TermsOfServiceId = teamSubmit.TermsOfServiceId;
                 existingTeam.ChangedBy = updatedById;
 
+                // Note: Sub-Realms cannot be changed once create, hence the absense of a call to 'CheckForSubRealmAndAssignToTeamIfExists' function.
                 await AssignTeamsToTeamFromTeamIdList(existingTeam, teamSubmit.TeamIds);
                 await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds);
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
 
                 // All successful
-                CommitAllTransactions();
+                CommitTransaction();
 
                 return mapper.Map<Team>(await teamRepository.UpdateAsync(existingTeam));
             }
             catch
             {
-                RollbackAllTransactions();
+                RollbackTransaction();
                 throw;
             }
         }
@@ -174,6 +178,22 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
                 }
 
+                // If there is a Sub-Realm associated with parent team, we must ensure that the child team we are attempting to add to the parent is in the same sub realm.
+                if (teamModel.SubRealm != null)
+                {
+                    if (teamToAddAsChild.SubRealm == null || teamModel.SubRealm.Id != teamToAddAsChild.SubRealm.Id)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                    }
+                }
+                else
+                {
+                    if (teamToAddAsChild.SubRealm != null)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                    }
+                }
+
                 teamModel.ChildTeams.Add(new TeamTeamModel
                 {
                     ParentTeam = teamModel,
@@ -213,6 +233,18 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Unable to find Application Data Policy with ID '{applicationDataPolicyId}' when attempting to assign it to team '{team.Name}'.");
                 }
 
+                // If there is a Sub-Realm associated with team, we must ensure that the data-policy is also is associated with the same sub-realm.
+                if (team.SubRealm != null)
+                {
+                    // scan through all the sub-realms associated with the data policy to ensure that the data policy is assigned to the sub-realm that the team is associated with.
+                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.Where(sradp => sradp.SubRealm.Id == team.SubRealm.Id).FirstOrDefault();
+
+                    if (subRealmDataPolicy == null)
+                    {
+                        throw new ItemNotProcessableException($"Attempting to add a data policy with ID '{applicationDataPolicyToAdd.Id}' to a team within the '{team.SubRealm.Name}' sub-realm but the data policy does not exist within that sub-realm.");
+                    }
+                }
+
                 team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                 {
                     Team = team,
@@ -223,27 +255,46 @@ namespace za.co.grindrodbank.a3s.Services
             return team;
         }
 
+        private async Task CheckForSubRealmAndAssignToTeamIfExists(TeamModel team, TeamSubmit teamSubmit)
+        {
+            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
+            if (teamSubmit.SubRealmId == null || teamSubmit.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var existingSubRealm = await subRealmRepository.GetByIdAsync(teamSubmit.SubRealmId, false);
+
+            team.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{teamSubmit.SubRealmId}' does not exist.");
+        }
+
         public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)
         {
             return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
         }
 
-        private void BeginAllTransactions()
+        public void InitSharedTransaction()
         {
             teamRepository.InitSharedTransaction();
             applicationDataPolicyRepository.InitSharedTransaction();
+            termsOfServiceRepository.InitSharedTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void CommitAllTransactions()
+        public void CommitTransaction()
         {
             teamRepository.CommitTransaction();
             applicationDataPolicyRepository.CommitTransaction();
+            termsOfServiceRepository.CommitTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
 
-        private void RollbackAllTransactions()
+        public void RollbackTransaction()
         {
             teamRepository.RollbackTransaction();
             applicationDataPolicyRepository.RollbackTransaction();
+            termsOfServiceRepository.RollbackTransaction();
+            subRealmRepository.InitSharedTransaction();
         }
     }
 }

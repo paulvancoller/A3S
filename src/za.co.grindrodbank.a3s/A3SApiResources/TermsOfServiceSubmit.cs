@@ -27,7 +27,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// An agreement the needs to be agreed to by a user 
+    /// Models a terms of service agreement that needs to be agreed to by a user on login. Used to create or update a terms of service agreement. UUID is required when updating a terms of service agreement. Can be optionally associated with a sub-realm by specifying the &#39;subRealmId&#39; of the sub-realm. 
     /// </summary>
     [DataContract]
     public partial class TermsOfServiceSubmit : IEquatable<TermsOfServiceSubmit>
@@ -41,20 +41,30 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         /// <summary>
         /// Gets or Sets AgreementName
         /// </summary>
+        [Required]
         [DataMember(Name="agreementName", EmitDefaultValue=false)]
         public string AgreementName { get; set; }
 
         /// <summary>
         /// Gets or Sets AgreementFileData
         /// </summary>
+        [Required]
         [DataMember(Name="agreementFileData", EmitDefaultValue=false)]
         public string AgreementFileData { get; set; }
 
         /// <summary>
         /// Gets or Sets AutoUpdate
         /// </summary>
+        [Required]
         [DataMember(Name="autoUpdate", EmitDefaultValue=true)]
         public bool AutoUpdate { get; set; }
+
+        /// <summary>
+        /// The UUID identifier for a sub-realm.
+        /// </summary>
+        /// <value>The UUID identifier for a sub-realm.</value>
+        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
+        public Guid SubRealmId { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -68,6 +78,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  AgreementName: ").Append(AgreementName).Append("\n");
             sb.Append("  AgreementFileData: ").Append(AgreementFileData).Append("\n");
             sb.Append("  AutoUpdate: ").Append(AutoUpdate).Append("\n");
+            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -123,6 +134,11 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     AutoUpdate == other.AutoUpdate ||
                     
                     AutoUpdate.Equals(other.AutoUpdate)
+                ) && 
+                (
+                    SubRealmId == other.SubRealmId ||
+                    SubRealmId != null &&
+                    SubRealmId.Equals(other.SubRealmId)
                 );
         }
 
@@ -144,6 +160,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + AgreementFileData.GetHashCode();
                     
                     hashCode = hashCode * 59 + AutoUpdate.GetHashCode();
+                    if (SubRealmId != null)
+                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                 return hashCode;
             }
         }

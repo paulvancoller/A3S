@@ -24,5 +24,9 @@ namespace za.co.grindrodbank.a3s.Models
         public List<TeamApplicationDataPolicyModel> ApplicationDataPolicies { get; set; }
         public Guid? TermsOfServiceId { get; set; }
         public TermsOfServiceModel TermsOfService { get; set; }
+        // A team can have many profiles associated with it.
+        public List<ProfileTeamModel> ProfileTeams { get; set; }
+        // A team can be assigned to a single sub-realm.
+        public SubRealmModel SubRealm { get; set; }
     }
 }

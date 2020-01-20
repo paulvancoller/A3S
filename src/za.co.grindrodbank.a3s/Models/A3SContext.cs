@@ -39,6 +39,8 @@ namespace za.co.grindrodbank.a3s.Models
         public DbSet<ApplicationDataPolicyModel> ApplicationDataPolicy { get; set; }
         public DbSet<TermsOfServiceModel> TermsOfService { get; set; }
         public DbSet<TermsOfServiceUserAcceptanceModel> TermsOfServiceUserAcceptance { get; set; }
+        public DbSet<SubRealmModel> SubRealm { get; set; }
+        public DbSet<ProfileModel> Profile { get; set; }
 
         // Identity specific database tables. We want to operate on these, but let them be managed by Identity.
         public DbSet<UserClaimModel> ApplicationUserClaims { get; set; }
@@ -232,6 +234,62 @@ namespace za.co.grindrodbank.a3s.Models
             modelBuilder.Entity<ApplicationModel>()
                 .Property(p => p.SysPeriod)
                 .HasDefaultValueSql("GetUtcDate()");
+
+            // Customisations for many to many relationship between sub realms and permissions.
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasKey(fp => new { fp.PermissionId, fp.SubRealmId });
+
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasOne(fp => fp.SubRealm)
+                .WithMany(f => f.SubRealmPermissions)
+                .HasForeignKey(fp => fp.SubRealmId);
+
+            modelBuilder.Entity<SubRealmPermissionModel>()
+                .HasOne(fp => fp.Permission)
+                .WithMany(p => p.SubRealmPermissions)
+                .HasForeignKey(fp => fp.PermissionId);
+
+            // Customisations for many to many relationship between sub realms and application data policies.
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasKey(fp => new { fp.ApplicationDataPolicyId, fp.SubRealmId });
+
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasOne(fp => fp.SubRealm)
+                .WithMany(f => f.SubRealmApplicationDataPolicies)
+                .HasForeignKey(fp => fp.SubRealmId);
+
+            modelBuilder.Entity<SubRealmApplicationDataPolicyModel>()
+                .HasOne(fp => fp.ApplicationDataPolicy)
+                .WithMany(p => p.SubRealmApplicationDataPolicies)
+                .HasForeignKey(fp => fp.ApplicationDataPolicyId);
+
+            // Customisations for many to many relationship between profiles and roles.
+            modelBuilder.Entity<ProfileRoleModel>()
+                .HasKey(fp => new { fp.ProfileId, fp.RoleId });
+
+            modelBuilder.Entity<ProfileRoleModel>()
+                .HasOne(fp => fp.Profile)
+                .WithMany(f => f.ProfileRoles)
+                .HasForeignKey(fp => fp.ProfileId);
+
+            modelBuilder.Entity<ProfileRoleModel>()
+                .HasOne(fp => fp.Role)
+                .WithMany(p => p.ProfileRoles)
+                .HasForeignKey(fp => fp.RoleId);
+
+            // Customisations for many to many relationship between profiles and teams.
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasKey(fp => new { fp.ProfileId, fp.TeamId });
+
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasOne(fp => fp.Profile)
+                .WithMany(f => f.ProfileTeams)
+                .HasForeignKey(fp => fp.ProfileId);
+
+            modelBuilder.Entity<ProfileTeamModel>()
+                .HasOne(fp => fp.Team)
+                .WithMany(p => p.ProfileTeams)
+                .HasForeignKey(fp => fp.TeamId);
 
         }
 

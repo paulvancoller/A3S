@@ -96,10 +96,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             roleRepository.GetByIdAsync(roleGuid).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
             var roleResource = await roleService.GetByIdAsync(roleGuid);
 
             Assert.NotNull(roleResource);
@@ -114,6 +115,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
@@ -125,7 +127,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             var roleResource = await roleService.CreateAsync(mockedRoleSubmitModel, Guid.NewGuid());
@@ -143,11 +145,12 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>())).Do(x => throw new ItemNotFoundException());
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -172,13 +175,14 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
             roleRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>())).Do(x => throw new ItemNotFoundException());
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -202,6 +206,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
@@ -209,7 +214,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.GetByNameAsync(mockedRoleSubmitModel.Name).Returns(mockedRoleModel);
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -233,12 +238,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -263,6 +269,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
@@ -278,7 +285,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     }
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -303,6 +310,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             roleRepository.GetListAsync().Returns(
                 new List<RoleModel>()
@@ -311,7 +319,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     mockedRoleModel
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             var roleList = await roleService.GetListAsync();
@@ -329,6 +337,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
@@ -341,7 +350,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());
@@ -359,12 +368,13 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -388,6 +398,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>())).Do(x => throw new ItemNotFoundException());
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
@@ -398,7 +409,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -422,13 +433,14 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.GetByIdAsync(mockedRoleModel.Id).Returns(mockedRoleModel);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -452,6 +464,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             functionRepository.GetByIdAsync(mockedRoleModel.RoleFunctions[0].FunctionId)
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
@@ -468,7 +481,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     }
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -492,6 +505,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             mockedRoleSubmitModel.Name += "_changed_name";
 
@@ -501,7 +515,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.GetByNameAsync(mockedRoleSubmitModel.Name).Returns(mockedRoleModel);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -525,6 +539,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             var roleRepository = Substitute.For<IRoleRepository>();
             var userRepository = Substitute.For<IUserRepository>();
             var functionRepository = Substitute.For<IFunctionRepository>();
+            var subRealmRepository = Substitute.For<ISubRealmRepository>();
 
             mockedRoleSubmitModel.Name += "_changed_name";
 
@@ -539,7 +554,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, mapper);
 
             // Act
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());

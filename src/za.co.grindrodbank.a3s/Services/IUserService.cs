@@ -7,12 +7,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.A3SApiResources;
 
 namespace za.co.grindrodbank.a3s.Services
 {
-    public interface IUserService
+    public interface IUserService : ITransactableService
     {
         Task<User> GetByIdAsync(Guid userId, bool includeRelations = false);
         Task<User> UpdateAsync(UserSubmit userSubmit, Guid updatedById);

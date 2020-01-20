@@ -4,7 +4,8 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Claims;
 
@@ -40,6 +41,16 @@ namespace za.co.grindrodbank.a3s.Helpers
             }
 
             return dataPolicyList;
+        }
+
+        /// <summary>
+        /// Obtains the User ID claim from the ClaimsPrinciple.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public static Guid GetUserId(ClaimsPrincipal user)
+        {
+            return GetScalarClaimValue(user, ClaimTypes.NameIdentifier, Guid.Empty);
         }
     }
 }
