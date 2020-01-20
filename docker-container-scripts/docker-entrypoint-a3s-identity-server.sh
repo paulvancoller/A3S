@@ -23,10 +23,6 @@ echo "========================================================================="
 echo " Flyway Migrations First  [$FLYWAY_ENABLE]"
 echo "========================================================================="
 if [ "$FLYWAY_ENABLE" = "true" ]; then
-	echo "> Migrating A3S database with flyway..."
-	/flyway/flyway -url=jdbc:postgresql://$DATABASE_SERVER:$DATABASE_PORT/$DATABASE_NAME -schemas=_a3s -baselineOnMigrate=true -baselineVersion=0 -locations=filesystem:/flyway/sql/a3s -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -connectRetries=$FLYWAY_CONNECTION_RETRIES -q migrate
-	echo "> Done migrating A3S database with flyway..."
-
 	echo "> Migrating IDS4 database with flyway..."
 	/flyway/flyway -url=jdbc:postgresql://$DATABASE_SERVER:$DATABASE_PORT/$DATABASE_NAME -schemas=_ids4 -baselineOnMigrate=true -baselineVersion=0 -locations=filesystem:/flyway/sql/ids4 -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -connectRetries=$FLYWAY_CONNECTION_RETRIES -q migrate
 	echo "> Done migrating IDS4 database with flyway..."
@@ -39,4 +35,4 @@ echo "========================================================================="
 
 # NB! Run the actual application using 'exec', as this results in the correct PID being set for the actual dotnet application, thus enabling it to receive signals (such as sigterms) correctly
 # This drastically reduces the time to correctly and safely bring down the container.
-exec dotnet za.co.grindrodbank.a3s.dll
+exec dotnet za.co.grindrodbank.a3s-identity-server.dll
