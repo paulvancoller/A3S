@@ -11,7 +11,6 @@ using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
-using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using System.Linq;
 
