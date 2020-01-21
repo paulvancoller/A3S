@@ -13,10 +13,24 @@ WORKDIR /app/za.co.grindrodbank.a3s-identity-server
 RUN dotnet restore
 RUN dotnet publish -c Release -o /out
 
+# Add Flyway to the 
+FROM flyway/flyway:latest-alpine AS flywayinstall
+#WORKDIR /app
+RUN mkdir -p /flyway/sql/ids4
+
+COPY db/sql/ids4 /flyway/sql/ids4
+
+# Copy docker scripts
+COPY ./docker-container-scripts/docker-entrypoint-a3s-identity-server.sh /
+USER root
+RUN chmod +x /*.sh
+USER flyway
+
 # runtime stage
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 WORKDIR /app
 COPY --from=build-env /out .
+COPY --from=flywayinstall / /
 COPY src/za.co.grindrodbank.a3s-identity-server/identityServer4Dev.pfx .
 
-ENTRYPOINT ["dotnet", "za.co.grindrodbank.a3s-identity-server.dll"]
+ENTRYPOINT ["/docker-entrypoint-a3s-identity-server.sh"]

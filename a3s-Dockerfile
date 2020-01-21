@@ -18,13 +18,11 @@ RUN dotnet publish -c Release -o out
 FROM flyway/flyway:latest-alpine AS flywayinstall
 #WORKDIR /app
 RUN mkdir -p /flyway/sql/a3s
-RUN mkdir -p /flyway/sql/ids4
 
 COPY db/sql/a3s /flyway/sql/a3s
-COPY db/sql/ids4 /flyway/sql/ids4
 
 # Copy docker scripts
-COPY ./docker-container-scripts/*.sh /
+COPY ./docker-container-scripts/docker-entrypoint-a3s.sh /
 USER root
 RUN chmod +x /*.sh
 USER flyway
@@ -35,4 +33,4 @@ WORKDIR /app
 COPY --from=build-env /app/out .
 COPY --from=flywayinstall / /
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint-a3s.sh"]
