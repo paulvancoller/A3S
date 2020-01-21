@@ -197,6 +197,12 @@ jobs:
           name: Verify installations
           command: apk --no-cache add --update git openssh gnupg
       - run: gpg --version; git version; ssh -V
+      - run:
+          name: import GPG key
+          command: echo -e "$GPG_KEY" | gpg --import
+      - run:
+          name: decrypt secrets
+          command: gpg --no-tty --batch --passphrase "$GPG_PASSPHRASE" --pinentry-mode loopback --output secrets.env --decrypt secrets.env.gpg     
       - run: mkdir ~/build && cd ~/build 
       - checkout:
           path: ~/build
