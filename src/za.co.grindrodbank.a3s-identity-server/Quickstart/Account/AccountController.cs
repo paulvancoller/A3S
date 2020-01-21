@@ -134,16 +134,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 }
                 else
                 {
-                    if (result.IsLockedOut)
-                    {
-                        await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "account locked out"));
-                        ModelState.AddModelError(string.Empty, AccountOptions.AccountLockedOutErrorMessage);
-                    }
-                    else
-                    {
-                        await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
-                        ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
-                    }
+                    await HandleFailureLoginResult(result, model.Username);
                 }
             }
 
@@ -411,6 +402,20 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /*****************************************/
         /* helper APIs for the AccountController */
         /*****************************************/
+
+        private async Task HandleFailureLoginResult(Microsoft.AspNetCore.Identity.SignInResult result, string username)
+        {
+            if (result.IsLockedOut)
+            {
+                await _events.RaiseAsync(new UserLoginFailureEvent(username, "account locked out"));
+                ModelState.AddModelError(string.Empty, AccountOptions.AccountLockedOutErrorMessage);
+            }
+            else
+            {
+                await _events.RaiseAsync(new UserLoginFailureEvent(username, "invalid credentials"));
+                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+            }
+        }
 
         private async Task UpdateUser2faStatus(string userId)
         {

@@ -31,20 +31,17 @@ namespace Host.Quickstart.Account
         private readonly UserManager<UserModel> _userManager;
         private readonly SignInManager<UserModel> _signInManager;
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly IClientStore _clientStore;
         private readonly IEventService _events;
 
         public ExternalController(
             UserManager<UserModel> userManager,
             SignInManager<UserModel> signInManager,
             IIdentityServerInteractionService interaction,
-            IClientStore clientStore,
             IEventService events)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _interaction = interaction;
-            _clientStore = clientStore;
             _events = events;
         }
 
@@ -291,10 +288,12 @@ namespace Host.Quickstart.Account
 
         private void ProcessLoginCallbackForWsFed(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
         {
+            throw new NotSupportedException();
         }
 
         private void ProcessLoginCallbackForSaml2p(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
         {
+            throw new NotSupportedException();
         }
     }
 }
