@@ -11,7 +11,6 @@ using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
-using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using System.Linq;
 
@@ -51,7 +50,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 await CheckForSubRealmAndAssignToTeamIfExists(teamModel, teamSubmit);
                 await AssignTeamsToTeamFromTeamIdList(teamModel, teamSubmit.TeamIds);
-                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds);
+                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(teamModel, teamSubmit.DataPolicyIds, createdById);
                 await ValidateTermsOfServiceEntry(teamModel.TermsOfServiceId);
 
                 var createdTeam = mapper.Map<Team>(await teamRepository.CreateAsync(teamModel));
@@ -117,13 +116,14 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // Note: Sub-Realms cannot be changed once create, hence the absense of a call to 'CheckForSubRealmAndAssignToTeamIfExists' function.
                 await AssignTeamsToTeamFromTeamIdList(existingTeam, teamSubmit.TeamIds);
-                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds);
+                await AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(existingTeam, teamSubmit.DataPolicyIds, updatedById);
                 await ValidateTermsOfServiceEntry(existingTeam.TermsOfServiceId);
 
+                var updatedTeam = await teamRepository.UpdateAsync(existingTeam);
                 // All successful
                 CommitTransaction();
 
-                return mapper.Map<Team>(await teamRepository.UpdateAsync(existingTeam));
+                return mapper.Map<Team>(updatedTeam);
             }
             catch
             {
@@ -209,11 +209,11 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="team"></param>
         /// <param name="applicationDataPolicyIds"></param>
         /// <returns></returns>
-        private async Task<TeamModel> AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds)
+        private async Task AssignApplicationDataPoliciesToTeamFromDataPolicyIdList(TeamModel team, List<Guid> applicationDataPolicyIds, Guid changedById)
         {
             if (applicationDataPolicyIds == null)
             {
-                return team;
+                return;
             }
 
             team.ApplicationDataPolicies = new List<TeamApplicationDataPolicyModel>();
@@ -221,7 +221,7 @@ namespace za.co.grindrodbank.a3s.Services
             // If the list is set, but there are no elements in it, this is intepretted as re-setting the associated application data policies.
             if (applicationDataPolicyIds.Count == 0)
             {
-                return team;
+                return;
             }
 
             foreach (var applicationDataPolicyId in applicationDataPolicyIds)
@@ -248,11 +248,10 @@ namespace za.co.grindrodbank.a3s.Services
                 team.ApplicationDataPolicies.Add(new TeamApplicationDataPolicyModel
                 {
                     Team = team,
-                    ApplicationDataPolicy = applicationDataPolicyToAdd
+                    ApplicationDataPolicy = applicationDataPolicyToAdd,
+                    ChangedBy = changedById
                 });
             }
-
-            return team;
         }
 
         private async Task CheckForSubRealmAndAssignToTeamIfExists(TeamModel team, TeamSubmit teamSubmit)

@@ -565,7 +565,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-function\",\n    \"description\": \"test-function description\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
+							"raw": "{\n    \"name\": \"test-function-subrealm\",\n    \"description\": \"test-function description subrealm\",\n    \"applicationId\": \"{{application-guid}}\",\n    \"permissions\": [\"{{permission-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/functions",
@@ -1334,7 +1334,68 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"teamIds\": [],\n    \"dataPolicies\": []\n}"
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{a3s-host}}/teams",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"teams"
+							]
+						},
+						"description": "Creates a new team."
+					},
+					"response": []
+				},
+				{
+					"name": "CreateTeamWithinSubRealm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+								"exec": [
+									"pm.test(\"Set profile GUID environment variable.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.environment.set(\"team-guid\", jsonData.uuid);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -1395,7 +1456,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"teamIds\": [],\n    \"dataPolicies\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
+							"raw": "{\n    \"name\": \"test-team-new\",\n    \"description\": \"test new team description\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [],\n    \"termsOfServiceId\": \"{{terms-of-service-guid}}\"\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams",
@@ -1506,7 +1567,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n\t\"description\": \"updated team description.\",\n    \"name\": \"test-team-updated\",\n    \"teamIds\": [\"{{team-guid}}\"],\n    \"dataPolicies\": [\"{{application-data-policy-guid}}\"]\n}"
+							"raw": "{\n\t\"uuid\": \"{{team-guid}}\",\n\t\"description\": \"updated team description.\",\n    \"name\": \"test-team-updated\",\n    \"teamIds\": [\"{{team-guid}}\"],\n    \"dataPolicyIds\": [\"{{application-data-policy-guid}}\"]\n}"
 						},
 						"url": {
 							"raw": "{{a3s-host}}/teams/{{team-guid}}",
