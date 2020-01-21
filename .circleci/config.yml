@@ -195,7 +195,7 @@ jobs:
       - run: apk upgrade
       - run: 
           name: Verify installations
-          command: apk --no-cache add --update git openssh gpg
+          command: apk --no-cache add --update git openssh gnupg
       - run: gpg --version; git version; 
       - run: cd ~/build && git init && ssh -V
       - checkout:
