@@ -200,9 +200,9 @@ jobs:
       - run: mkdir ~/build && cd ~/build 
       - checkout:
           path: ~/build
-      - run: pwd; ls -l; find ~/build
+      - run: pwd; ls -l; ls -l ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
       - run: 
-          working_directory: ~/build/shared-libraries/java/za.co.grindrodbank.security.java
+          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
           command: mvn clean install
   a3s-docker-build-push:
     docker:
