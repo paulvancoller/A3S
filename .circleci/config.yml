@@ -188,13 +188,16 @@ jobs:
     docker:
       - image: maven:3.5.3-jdk-8-alpine
     steps:
-      # Update, upgrade, then install git and openssh 
+      # Update, upgrade, then install git, openssh and gpg
       # as the container doesn't have these installed
       # and we are using parameters to the checkout command 
       - run: apk update
       - run: apk upgrade
-      - run: apk --no-cache add --update git openssh
-      - run: cd ~/build && git init
+      - run: 
+          name: Verify installations
+          command: apk --no-cache add --update git openssh gpg
+      - run: gpg --version; git version; 
+      - run: cd ~/build && git init && ssh -V
       - checkout:
           path: ~/build
       - run: 
@@ -328,4 +331,3 @@ workflows:
           requires:
           - build-dotnet-libs
           <<: *only-tags
-          
