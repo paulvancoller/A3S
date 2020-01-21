@@ -38,7 +38,7 @@ jobs:
       # Update, upgrade, then install git and openssh for a clean checkout
       - run: apk update
       - run: apk upgrade
-      - run: apk --no-cache add --update git openssh
+      - run: apk --no-cache add --update git openssh openjdk8
       - checkout
       - attach_workspace:
           at: ~/workspace
