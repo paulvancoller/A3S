@@ -31,7 +31,7 @@
             </activation>
             <properties>
                 <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-                <gpg.keyname>44F1405FA941B8744A93FF5CE02AE26B30F5F718</gpg.keyname>
+                <gpg.keyname>4938B9AEA58854CEA23B57B459CEC294560F9686</gpg.keyname>
                 <!-- <gpg.passphraseServerId>${gpg.keyname}</gpg.passphraseServerId>
                 <gpg.defaultKeyring>false</gpg.defaultKeyring> -->
             </properties>
