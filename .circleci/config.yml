@@ -199,7 +199,7 @@ jobs:
       - run: gpg --version; git version; ssh -V
       - run:
           name: import GPG key
-          command: echo -e "$GPG_KEY" | gpg --import
+          command: echo -e "$GPG_KEY" | gpg --import || echo $?
       - run: gpg --list-keys
       - run:
           name: decrypt secrets
