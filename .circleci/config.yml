@@ -202,7 +202,7 @@ jobs:
           command: echo -e "$GPG_KEY" | gpg --import
       - run:
           name: decrypt secrets
-          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch  --pinentry-mode loopback --command-fd 0 --output secrets.env --decrypt secrets.env.gpg || echo $?    
+          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --output secrets.env --decrypt secrets.env.gpg || echo $?    
       - run: mkdir ~/build && cd ~/build 
       - checkout:
           path: ~/build
