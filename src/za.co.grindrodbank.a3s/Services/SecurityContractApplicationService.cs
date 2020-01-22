@@ -139,40 +139,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var dataPolicyToAdd in applicationSecurityContractDefinition.DataPolicies)
                 {
-                    logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Adding data policy '{dataPolicyToAdd.Name}' to application '{application.Name}'.");
-                    var existingDataPolicy = application.ApplicationDataPolicies.Find(adp => adp.Name == dataPolicyToAdd.Name);
-
-                    if(existingDataPolicy == null)
-                    {
-                        //check that the data policy does not exist within other applications.
-                        var dataPolicyAttachedToOtherApplication = await applicationDataPolicyRepository.GetByNameAsync(dataPolicyToAdd.Name);
-                        if(dataPolicyAttachedToOtherApplication != null)
-                        {
-                            var errorMessage = $"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy with name alreay exists in another application. Not adding it!";
-                            if (dryRun)
-                            {
-                                securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                                continue;
-                            }
-
-                            throw new ItemNotProcessableException(errorMessage);
-                        }
-
-                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
-                        application.ApplicationDataPolicies.Add(new ApplicationDataPolicyModel
-                        {
-                            Name = dataPolicyToAdd.Name,
-                            Description = dataPolicyToAdd.Description,
-                            ChangedBy = updatedById
-                        });
-                    }
-                    else
-                    {
-                        logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
-                        // Bind possible changes to the editable components of the data policy.
-                        existingDataPolicy.Description = dataPolicyToAdd.Description;
-                        existingDataPolicy.ChangedBy = updatedById;
-                    }
+                    await AddSpecificApplicationDataPolyFromSecurityContractToApplication(application, dataPolicyToAdd, updatedById, dryRun, securityContractDryRunResult);
                 }
             }
             else
@@ -181,6 +148,44 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             return await applicationRepository.UpdateAsync(application);
+        }
+
+        private async Task AddSpecificApplicationDataPolyFromSecurityContractToApplication(ApplicationModel application, SecurityContractApplicationDataPolicy dataPolicyToAdd, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Adding data policy '{dataPolicyToAdd.Name}' to application '{application.Name}'.");
+            var existingDataPolicy = application.ApplicationDataPolicies.Find(adp => adp.Name == dataPolicyToAdd.Name);
+
+            if (existingDataPolicy == null)
+            {
+                //check that the data policy does not exist within other applications.
+                var dataPolicyAttachedToOtherApplication = await applicationDataPolicyRepository.GetByNameAsync(dataPolicyToAdd.Name);
+                if (dataPolicyAttachedToOtherApplication != null)
+                {
+                    var errorMessage = $"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy with name alreay exists in another application. Not adding it!";
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                        return;
+                    }
+
+                    throw new ItemNotProcessableException(errorMessage);
+                }
+
+                logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' was not assigned to application '{application.Name}'. Adding it.");
+                application.ApplicationDataPolicies.Add(new ApplicationDataPolicyModel
+                {
+                    Name = dataPolicyToAdd.Name,
+                    Description = dataPolicyToAdd.Description,
+                    ChangedBy = updatedById
+                });
+            }
+            else
+            {
+                logger.Debug($"[applications.fullname: '{application.Name}'].[dataPolicies.name: '{dataPolicyToAdd.Name}']: Data policy '{dataPolicyToAdd.Name}' is currently assigned to application '{application.Name}'. Updating it.");
+                // Bind possible changes to the editable components of the data policy.
+                existingDataPolicy.Description = dataPolicyToAdd.Description;
+                existingDataPolicy.ChangedBy = updatedById;
+            }
         }
 
         private async Task<ApplicationModel> UpdateExistingApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
