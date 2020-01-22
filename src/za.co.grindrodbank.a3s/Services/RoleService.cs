@@ -133,21 +133,7 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotFoundException("Unable to find a function with ID: " + functionId + "when attempting to assign it to a role.");
                     }
 
-                    // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
-                    if (role.SubRealm != null)
-                    {
-                        if (function.SubRealm == null || function.SubRealm.Id != role.SubRealm.Id)
-                        {
-                            throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
-                        }
-                    }
-                    else
-                    {
-                        if(function.SubRealm != null)
-                        {
-                            throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
-                        }
-                    }
+                    ConfirmSubRealmAssociation(role, function);
 
                     role.RoleFunctions.Add(new RoleFunctionModel
                     {
@@ -156,6 +142,26 @@ namespace za.co.grindrodbank.a3s.Services
                     });
                 }
             }
+        }
+
+        private void ConfirmSubRealmAssociation(RoleModel role, FunctionModel function)
+        {
+            // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
+            if (role.SubRealm != null)
+            {
+                if (function.SubRealm == null || function.SubRealm.Id != role.SubRealm.Id)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                }
+            }
+            else
+            {
+                if (function.SubRealm != null)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                }
+            }
+
         }
 
         /// <summary>
