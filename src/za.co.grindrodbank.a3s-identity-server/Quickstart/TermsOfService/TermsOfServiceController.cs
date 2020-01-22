@@ -139,7 +139,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             bool showAfterSuccessManagementScreen = false;
 
-            if (configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
+            if (configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
                 showAfterSuccessManagementScreen = true;
 
             return showAfterSuccessManagementScreen;

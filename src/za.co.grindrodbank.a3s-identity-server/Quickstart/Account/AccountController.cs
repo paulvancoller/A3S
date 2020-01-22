@@ -316,9 +316,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (button != "validate")
                 return await CancelTokenRequest(model.RedirectUrl);
 
-            // check if we are in the context of an authorization request
-            var context = await _interaction.GetAuthorizationContextAsync(model.RedirectUrl);
-
             if (ModelState.IsValid)
             {
                 model.OTP = model.OTP.Replace(" ", string.Empty).Replace("-", string.Empty);
@@ -353,7 +350,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             // build a model so the logout page knows what to display
             var vm = await BuildLogoutViewModelAsync(logoutId);
 
-            if (vm.ShowLogoutPrompt == false)
+            if (!vm.ShowLogoutPrompt)
             {
                 // if the request for logout was properly authenticated from IdentityServer, then
                 // we don't need to show the prompt and can just log the user out directly.
@@ -601,7 +598,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             bool showAfterSuccessManagementScreen = false;
 
-            if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
+            if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
                 showAfterSuccessManagementScreen = true;
 
             return showAfterSuccessManagementScreen;

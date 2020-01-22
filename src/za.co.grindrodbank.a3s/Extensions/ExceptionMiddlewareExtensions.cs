@@ -98,7 +98,8 @@ namespace GlobalErrorHandling.Extensions
                     }
 
                     // Check for a SecurityContractDryRunException - This is not really an exception, just an always roll back dry run.
-                    if (contextFeature.Error is SecurityContractDryRunException)
+                    var contextFeatureError = contextFeature.Error as SecurityContractDryRunException;
+                    if (contextFeatureError != null)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
 
@@ -107,7 +108,7 @@ namespace GlobalErrorHandling.Extensions
                             Message = "No Errors Detected - Security contract OK."
                         };
 
-                        if (((SecurityContractDryRunException)contextFeature.Error).ValidationWarnings.Any())
+                        if (contextFeatureError.ValidationWarnings.Any())
                         {
                             validationResult.Message = "No Errors Detected - But there are some warnings.";
                             var validationWarningList = new List<SecurityContractValidationWarning>();

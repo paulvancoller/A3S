@@ -88,6 +88,11 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Team>>(await teamRepository.GetListAsync());
         }
 
+        public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)
+        {
+            return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
+        }
+
         public async Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
@@ -265,11 +270,6 @@ namespace za.co.grindrodbank.a3s.Services
             var existingSubRealm = await subRealmRepository.GetByIdAsync(teamSubmit.SubRealmId, false);
 
             team.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{teamSubmit.SubRealmId}' does not exist.");
-        }
-
-        public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)
-        {
-            return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
         }
 
         public void InitSharedTransaction()
