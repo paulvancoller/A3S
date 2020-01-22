@@ -6,6 +6,7 @@
  */
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
@@ -52,6 +53,16 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
         }
 
         public Task<List<ApplicationModel>> GetListAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PaginatedResult<T>> GetPaginatedListAsync<T>(IQueryable<T> query, int page, int pageSize) where T : class
         {
             throw new NotImplementedException();
         }
