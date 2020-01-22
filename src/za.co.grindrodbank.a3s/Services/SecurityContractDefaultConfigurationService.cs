@@ -111,8 +111,11 @@ namespace za.co.grindrodbank.a3s.Services
 
             // Reset the state of the application functions, as the security contract declares the desired state and we have already used to the historic state
             // to clear any functions that don't appear within the security contract.
-            application.Functions = new List<FunctionModel>();
-            application.ChangedBy = updatedById;
+            if (application != null)
+            {
+                application.Functions = new List<FunctionModel>();
+                application.ChangedBy = updatedById;
+            }
 
             foreach (var defaultFunction in defaultApplication.Functions)
             {
