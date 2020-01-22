@@ -16,6 +16,6 @@ namespace za.co.grindrodbank.a3s.Services
     public interface IApplicationService
     {
         Task<Application> GetByIdAsync(Guid applicationId);
-        Task<PaginatedResult> GetListAsync(int page, int pageSize, string filterName, List<string> orderBy);
+        Task<PaginatedResult<ApplicationModel>> GetListAsync(int page, int pageSize, string filterName, List<string> orderBy);
     }
 }

@@ -9,13 +9,13 @@ using System.Collections.Generic;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class PaginatedResult : IPaginatedResult
+    public class PaginatedResult<T> : IPaginatedResult<T> where T : class
     {
-        public IEnumerable<dynamic> Results { get; set; }
+        public IList<T> Results { get; set; }
 
         public PaginatedResult()
         {
-            Results = new List<dynamic>();
+            Results = new List<T>();
         }
 
         public int CurrentPage { get; set; }

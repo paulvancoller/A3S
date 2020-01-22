@@ -7,7 +7,7 @@ namespace za.co.grindrodbank.a3s.Helpers
 {
     public interface IPaginationHelper
     {
-        void AddHeaderMetaData(IPaginatedResult paginatedResult, string pageRouteName,
-            IUrlHelper urlHelper, HttpResponse response);
+        void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, string pageRouteName,
+            IUrlHelper urlHelper, HttpResponse response) where T : class;
     }
 }

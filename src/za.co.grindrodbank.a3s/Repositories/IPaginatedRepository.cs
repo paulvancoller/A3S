@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface IPaginatedRepository
+    public interface IPaginatedRepository<T> where T : class
     {
-        public Task<PaginatedResult> GetPaginatedListAsync<T>(IQueryable<T> query, int page, int pageSize) where T : class;
+        public Task<PaginatedResult<T>> GetPaginatedListAsync(IQueryable<T> query, int page, int pageSize);
     }
 }

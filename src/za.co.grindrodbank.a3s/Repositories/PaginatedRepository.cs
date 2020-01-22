@@ -11,13 +11,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class PaginatedRepository : IPaginatedRepository
+    public class PaginatedRepository<T> : IPaginatedRepository<T> where T : class
     {
         public PaginatedRepository()
         {
         }
 
-        public async Task<PaginatedResult> GetPaginatedListAsync<T>(IQueryable<T> query, int page, int pageSize) where T : class
+        public async Task<PaginatedResult<T>> GetPaginatedListAsync(IQueryable<T> query, int page, int pageSize)
         {
             // Set default page and page size for all paginated lists here.
             // This should be pulled from configuration.
@@ -31,7 +31,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                 pageSize = 10;
             }
 
-            var result = new PaginatedResult
+            var result = new PaginatedResult<T>
             {
                 CurrentPage = page,
                 PageSize = pageSize,

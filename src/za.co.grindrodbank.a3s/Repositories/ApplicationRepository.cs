@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class ApplicationRepository : PaginatedRepository, IApplicationRepository
+    public class ApplicationRepository : PaginatedRepository<ApplicationModel>, IApplicationRepository
     {
         private readonly A3SContext a3SContext;
 
@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             return application;
         }
 
-        public Task<PaginatedResult> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
+        public async Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
         {
             IQueryable<ApplicationModel> query = a3SContext.Application.Include(a => a.Functions)
                                                  .ThenInclude(f => f.FunctionPermissions)
@@ -109,7 +109,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                 query = query.Where(a => a.Name == filterName);
             }
 
-            return GetPaginatedListAsync(query, page, pageSize);
+            return await GetPaginatedListAsync(query, page, pageSize);
         }
     }
 }
