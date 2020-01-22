@@ -2342,17 +2342,6 @@
         "description" : "Search for applications.",
         "operationId" : "listApplications",
         "parameters" : [ {
-          "description" : "If this field is set, then fill in the permissions member field\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "permissions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
           "description" : "The page to view.",
           "explode" : true,
           "in" : "query",
@@ -2380,11 +2369,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "A search query filter on the application's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,

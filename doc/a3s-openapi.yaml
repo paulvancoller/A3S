@@ -1530,14 +1530,6 @@ paths:
       summary: Search for applications.
       operationId: listApplications
       parameters:
-        - name: permissions
-          in: query
-          required: false
-          description: |
-            If this field is set, then fill in the permissions member field.
-          schema:
-            type: boolean
-            default: false
         - name: page
           in: query
           required: false
