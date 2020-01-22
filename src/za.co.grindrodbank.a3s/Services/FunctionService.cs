@@ -168,22 +168,27 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotProcessableException($"Permission with UUID: '{permissionId}' does not belong to application with ID: {functionSubmit.ApplicationId}. Not adding it to function '{functionSubmit.Name}'.");
                     }
 
-                    // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.
-                    if (function.SubRealm != null)
-                    {
-                        var subRealmPermission = permission.SubRealmPermissions.FirstOrDefault(psrp => psrp.SubRealm.Id == function.SubRealm.Id);
-
-                        if (subRealmPermission == null)
-                        {
-                            throw new ItemNotProcessableException($"Attempting to add a permission with ID '{permission.Id}' to a function within the '{function.SubRealm.Name}' sub-realm but the permission does not exist within that sub-realm.");
-                        }
-                    }
+                    PerformSubrealmCheck(function, permission);
 
                     function.FunctionPermissions.Add(new FunctionPermissionModel
                     {
                         Function = function,
                         Permission = permission
                     });
+                }
+            }
+        }
+
+        private void PerformSubrealmCheck(FunctionModel function, PermissionModel permission)
+        {
+            // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.
+            if (function.SubRealm != null)
+            {
+                var subRealmPermission = permission.SubRealmPermissions.FirstOrDefault(psrp => psrp.SubRealm.Id == function.SubRealm.Id);
+
+                if (subRealmPermission == null)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a permission with ID '{permission.Id}' to a function within the '{function.SubRealm.Name}' sub-realm but the permission does not exist within that sub-realm.");
                 }
             }
         }
