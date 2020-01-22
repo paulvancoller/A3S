@@ -161,7 +161,25 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
                 }
             }
+        }
 
+        private void ConfirmSubRealmAssociation(RoleModel roleModel, RoleModel roleToAddAsChildRole)
+        {
+            // If there is a Sub-Realm associated with role, we must ensure that the child role we are attempting to add to the role is associated with the same sub realm.
+            if (roleModel.SubRealm != null)
+            {
+                if (roleToAddAsChildRole.SubRealm == null || roleModel.SubRealm.Id != roleToAddAsChildRole.SubRealm.Id)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                }
+            }
+            else
+            {
+                if (roleToAddAsChildRole.SubRealm != null)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                }
+            }
         }
 
         /// <summary>
@@ -204,21 +222,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                 }
 
-                // If there is a Sub-Realm associated with role, we must ensure that the child role we are attempting to add to the role is associated with the same sub realm.
-                if (roleModel.SubRealm != null)
-                {
-                    if (roleToAddAsChildRole.SubRealm == null || roleModel.SubRealm.Id != roleToAddAsChildRole.SubRealm.Id)
-                    {
-                        throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
-                    }
-                }
-                else
-                {
-                    if(roleToAddAsChildRole.SubRealm != null)
-                    {
-                        throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
-                    }
-                }
+                ConfirmSubRealmAssociation(roleModel, roleToAddAsChildRole);
 
                 roleModel.ChildRoles.Add(new RoleRoleModel
                 {
