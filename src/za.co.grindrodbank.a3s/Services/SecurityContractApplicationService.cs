@@ -212,55 +212,60 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var functionResource in applicationSecurityContractDefinition.ApplicationFunctions)
             {
-                var applicationFunction = application.ApplicationFunctions.Find(af => af.Name == functionResource.Name);
-
-                if (applicationFunction == null)
-                {
-                    logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' does not exist. Creating it.");
-                    // We now know this application does not have a function with the name assigned. However, another one might, check for this.
-                    var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(functionResource.Name);
-
-                    if(existingApplicationFunction != null)
-                    {
-                        var errorMessage = $"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists in another application. Cannot assign it to application: '{application.Name}'";
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotProcessableException(errorMessage);
-                    }
-
-                    application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
-                }
-                else
-                {
-                    logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists. Updating it.");
-                    // Edit an existing function.
-                    applicationFunction.Name = functionResource.Name;
-                    applicationFunction.Description = functionResource.Description;
-                    applicationFunction.ChangedBy = updatedByGuid;
-
-                    if (functionResource.Permissions != null)
-                    {
-                        DetectAndUnassignPermissionsRemovedFromFunctions(applicationFunction, functionResource);
-
-                        // Add any new permissions to the function.
-                        foreach (var permission in functionResource.Permissions)
-                        {
-                            AddSecurityContractPermissionToApplicationFunctionAndUpdatePermissionIfChanged(applicationFunction, permission, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult);
-                        }
-                    }
-                    else
-                    {
-                        // Remove any possible permissions that are assigned to the application function.
-                        applicationFunction.ApplicationFunctionPermissions.Clear();
-                    }
-                }
+                await SynchroniseSpecificFunctionFromResourceServerDefinitionToApplication(functionResource, application, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
             }
 
             return await applicationRepository.UpdateAsync(application);
+        }
+
+        private async Task SynchroniseSpecificFunctionFromResourceServerDefinitionToApplication(SecurityContractFunction functionResource, ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            var applicationFunction = application.ApplicationFunctions.Find(af => af.Name == functionResource.Name);
+
+            if (applicationFunction == null)
+            {
+                logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' does not exist. Creating it.");
+                // We now know this application does not have a function with the name assigned. However, another one might, check for this.
+                var existingApplicationFunction = await applicationFunctionRepository.GetByNameAsync(functionResource.Name);
+
+                if (existingApplicationFunction != null)
+                {
+                    var errorMessage = $"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists in another application. Cannot assign it to application: '{application.Name}'";
+                    if (dryRun)
+                    {
+                        securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                        return;
+                    }
+
+                    throw new ItemNotProcessableException(errorMessage);
+                }
+
+                application.ApplicationFunctions.Add(CreateNewApplicationFunctionFromSecurityContractApplicationFunction(functionResource, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult));
+            }
+            else
+            {
+                logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{functionResource.Name}']: Application function with name '{functionResource.Name}' already exists. Updating it.");
+                // Edit an existing function.
+                applicationFunction.Name = functionResource.Name;
+                applicationFunction.Description = functionResource.Description;
+                applicationFunction.ChangedBy = updatedByGuid;
+
+                if (functionResource.Permissions != null)
+                {
+                    DetectAndUnassignPermissionsRemovedFromFunctions(applicationFunction, functionResource);
+
+                    // Add any new permissions to the function.
+                    foreach (var permission in functionResource.Permissions)
+                    {
+                        AddSecurityContractPermissionToApplicationFunctionAndUpdatePermissionIfChanged(applicationFunction, permission, updatedByGuid, applicationSecurityContractDefinition.Fullname, dryRun, securityContractDryRunResult);
+                    }
+                }
+                else
+                {
+                    // Remove any possible permissions that are assigned to the application function.
+                    applicationFunction.ApplicationFunctionPermissions.Clear();
+                }
+            }
         }
 
         private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
