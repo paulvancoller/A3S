@@ -12,7 +12,7 @@ using System;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
-    public class AccountOptions
+    public static class AccountOptions
     {
         public static readonly bool AllowLocalLogin = true;
         public static readonly bool AllowRememberLogin = true;

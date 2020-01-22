@@ -171,7 +171,7 @@ namespace za.co.grindrodbank.a3s.Services
                     // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.
                     if (function.SubRealm != null)
                     {
-                        var subRealmPermission = permission.SubRealmPermissions.Where(psrp => psrp.SubRealm.Id == function.SubRealm.Id).FirstOrDefault();
+                        var subRealmPermission = permission.SubRealmPermissions.FirstOrDefault(psrp => psrp.SubRealm.Id == function.SubRealm.Id);
 
                         if (subRealmPermission == null)
                         {

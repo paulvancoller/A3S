@@ -242,7 +242,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (team.SubRealm != null)
                 {
                     // scan through all the sub-realms associated with the data policy to ensure that the data policy is assigned to the sub-realm that the team is associated with.
-                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.Where(sradp => sradp.SubRealm.Id == team.SubRealm.Id).FirstOrDefault();
+                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.FirstOrDefault(sradp => sradp.SubRealm.Id == team.SubRealm.Id);
 
                     if (subRealmDataPolicy == null)
                     {

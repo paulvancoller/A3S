@@ -574,14 +574,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return new RegisterTwoFactorViewModel()
             {
                 RedirectUrl = redirectUrl,
-                AllowRegisterAuthenticator = ShouldAllowAuthenticatorRegistration(userId),
+                AllowRegisterAuthenticator = ShouldAllowAuthenticatorRegistration(),
                 HasAuthenticator = _userManager.IsAuthenticatorTokenVerified(user),
                 TwoFACompulsary = TwoFACompulsary()
             };
 
         }
 
-        private bool ShouldAllowAuthenticatorRegistration(string userId)
+        private bool ShouldAllowAuthenticatorRegistration()
         {
             if (!_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
                 return false;
@@ -592,16 +592,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private bool TwoFACompulsary()
         {
             return _configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("OrganizationEnforced");
-        }
-
-        private bool ShowAfterSuccessManagementScreen()
-        {
-            bool showAfterSuccessManagementScreen = false;
-
-            if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
-                showAfterSuccessManagementScreen = true;
-
-            return showAfterSuccessManagementScreen;
         }
 
         private async Task<RegisterTwoFactorAuthenticatorViewModel> GetRegister2FAAuthenticatorViewModel(string redirectUrl, string userId, bool resetUnverifiedAuthenticatorKey)

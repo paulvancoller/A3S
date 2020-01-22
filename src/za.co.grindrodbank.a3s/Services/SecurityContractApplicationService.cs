@@ -112,11 +112,11 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task<ApplicationModel> SynchroniseApplicationDataPoliciesWithSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
+            await RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(application, applicationSecurityContractDefinition);
             return await AddApplicationDataPoliciesFromSecurityContractToApplication(application, applicationSecurityContractDefinition, updatedById, dryRun, securityContractDryRunResult);
         }
 
-        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private async Task<ApplicationModel> RemoveApplicationDataPoliciesCurrentlyAssignedToApplicationThatAreNoLongerInSecurityContract(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
         {
             if(application.ApplicationDataPolicies != null && application.ApplicationDataPolicies.Any())
             {
@@ -193,7 +193,7 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task<ApplicationModel> SynchroniseFunctions(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, Guid updatedByGuid, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
         {
-            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition, dryRun, securityContractDryRunResult);
+            await DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(application, applicationSecurityContractDefinition);
             await permissionRepository.DeletePermissionsNotAssignedToApplicationFunctionsAsync();
             await SynchroniseFunctionsFromResourceServerDefinitionToApplication(application, applicationSecurityContractDefinition, updatedByGuid, dryRun, securityContractDryRunResult);
 
@@ -258,7 +258,7 @@ namespace za.co.grindrodbank.a3s.Services
             return await applicationRepository.UpdateAsync(application);
         }
 
-        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private async Task<ApplicationModel> DetectApplicationFunctionsRemovedFromSecurityContractAndRemoveFromApplication(ApplicationModel application, SecurityContractApplication applicationSecurityContractDefinition)
         {
             if (application.ApplicationFunctions.Count > 0)
             {

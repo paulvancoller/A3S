@@ -190,11 +190,7 @@ namespace za.co.grindrodbank.a3s.Stores
 
         public async Task AgreeToTermsOfService(string userId, Guid termsOfServiceId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new ArgumentNullException(nameof(userId));
-
-            if (termsOfServiceId == Guid.Empty)
-                throw new ArgumentNullException(nameof(termsOfServiceId));
+            CheckTermsOfServiceAgreementParameters(userId, termsOfServiceId);
 
             var agreementEntry =
                 await a3SContext.TermsOfServiceUserAcceptance.SingleOrDefaultAsync(
@@ -211,6 +207,16 @@ namespace za.co.grindrodbank.a3s.Stores
                 a3SContext.TermsOfServiceUserAcceptance.Add(agreementEntry);
                 await a3SContext.SaveChangesAsync();
             }
+        }
+
+        private void CheckTermsOfServiceAgreementParameters(string userId, Guid termsOfServiceId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentNullException(nameof(userId));
+
+            if (termsOfServiceId == Guid.Empty)
+                throw new ArgumentNullException(nameof(termsOfServiceId));
+
         }
 
         private async Task StoreEncryptedValue(UserModel user, string loginProvider, string name, string value)

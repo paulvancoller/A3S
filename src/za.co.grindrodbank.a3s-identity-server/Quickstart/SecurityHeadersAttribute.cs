@@ -34,10 +34,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
                 var csp = GetCsp(context);
-                // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
-                //csp += "upgrade-insecure-requests;";
-                // also an example if you need client images to be displayed from twitter
-                // csp += "img-src 'self' https://pbs.twimg.com;";
 
                 // once for standards compliant browsers
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))

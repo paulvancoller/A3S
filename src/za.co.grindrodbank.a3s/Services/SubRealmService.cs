@@ -23,7 +23,6 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IPermissionRepository permissionRepository;
         private readonly IApplicationDataPolicyRepository applicationDataPolicyRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public SubRealmService(ISubRealmRepository subRealmRepository, IPermissionRepository permissionRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, IMapper mapper)
         {
@@ -75,7 +74,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach(var permissionId in permissionIds)
             {
                 // Search existing sub-realm permissions state for the permission.
-                var existingSubRealmPermission = subRealm.SubRealmPermissions.Where(SubRealmPermissionModel => SubRealmPermissionModel.PermissionId == permissionId).FirstOrDefault();
+                var existingSubRealmPermission = subRealm.SubRealmPermissions.FirstOrDefault(SubRealmPermissionModel => SubRealmPermissionModel.PermissionId == permissionId);
 
                 if(existingSubRealmPermission != null)
                 {
@@ -113,7 +112,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach (var applicationDataPolicyId in applicationDataPolicyIds)
             {
                 // Search existing sub-realm permissions state for the permission.
-                var existingSubRealmApplicationDataPolicy = subRealm.SubRealmApplicationDataPolicies.Where(SubRealmApplicationDataPolicyModel => SubRealmApplicationDataPolicyModel.ApplicationDataPolicyId == applicationDataPolicyId).FirstOrDefault();
+                var existingSubRealmApplicationDataPolicy = subRealm.SubRealmApplicationDataPolicies.FirstOrDefault(SubRealmApplicationDataPolicyModel => SubRealmApplicationDataPolicyModel.ApplicationDataPolicyId == applicationDataPolicyId);
 
                 if (existingSubRealmApplicationDataPolicy != null)
                 {

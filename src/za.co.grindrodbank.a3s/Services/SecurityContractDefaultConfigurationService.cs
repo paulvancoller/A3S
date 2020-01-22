@@ -28,7 +28,9 @@ namespace za.co.grindrodbank.a3s.Services
 
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
-        public SecurityContractDefaultConfigurationService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ITeamRepository teamRepository, IApplicationRepository applicationRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, ILdapAuthenticationModeRepository ldapAuthenticationModeRepository)
+        public SecurityContractDefaultConfigurationService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository,
+            ITeamRepository teamRepository, IApplicationRepository applicationRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository,
+            ILdapAuthenticationModeRepository ldapAuthenticationModeRepository)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
@@ -107,7 +109,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             // Use the currrent state of the assigned application functions to determine which ones are potentially no longer in the YAML.
-            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, dryRun, securityContractDryRunResult, defaultApplication.Name, defaultConfigurationName);
+            await DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(application, defaultApplication.Functions, defaultApplication.Name, defaultConfigurationName);
 
             // Reset the state of the application functions, as the security contract declares the desired state and we have already used to the historic state
             // to clear any functions that don't appear within the security contract.
@@ -221,11 +223,10 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="application"></param>
         /// <param name="securityContractDefaultConfigurationFunctions"></param>
         /// <returns></returns>
-        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string applicationName, string defaultConfigurationName)
+        private async Task<ApplicationModel> DetectFunctionsRemovedFromSecurityContractDefaultsAndRemoveFromApplication(ApplicationModel application, List<SecurityContractDefaultConfigurationFunction> securityContractDefaultConfigurationFunctions, string applicationName, string defaultConfigurationName)
         {
             if (application.Functions.Count > 0)
             {
-                //logger.Debug($"[defaultConfiguration.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}']: {application.Functions.Count}");
                 for (int i = application.Functions.Count - 1; i >= 0; i--)
                 {
                     logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{applicationName}'].[functions.name: '{application.Functions[i].Name}']: Checking whether function: '{application.Functions[i].Name}' should be removed from application '{application.Name}'.");
@@ -402,10 +403,10 @@ namespace za.co.grindrodbank.a3s.Services
                 return;
 
             foreach (var defaultLdapAuthMode in securityContractDefaultConfiguration.LdapAuthenticationModes)
-                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById, dryRun, securityContractDryRunResult, securityContractDefaultConfiguration.Name);
+                await ApplyIndividualDefaultLdapAuthMode(defaultLdapAuthMode, updatedById, securityContractDefaultConfiguration.Name);
         }
 
-        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
+        private async Task ApplyIndividualDefaultLdapAuthMode(SecurityContractDefaultConfigurationLdapAuthMode defaultLdapAuthMode, Guid updatedById, string defaultConfigurationName)
         {
             logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[ldapAuthenticationModes.name: '{defaultLdapAuthMode.Name}']: Operating on default ldap auth mode '{defaultLdapAuthMode.Name}'.");
             var defaultLdapAuthToApply = new LdapAuthenticationModeModel();

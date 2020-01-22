@@ -174,7 +174,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 return Redirect("~/");
 
             // user might have clicked on a malicious link - should be logged
-            throw new Exception("invalid return URL");
+            throw new ArgumentException("invalid return URL");
         }
 
         private async Task<IActionResult> CancelTokenRequest(string returnUrl)
