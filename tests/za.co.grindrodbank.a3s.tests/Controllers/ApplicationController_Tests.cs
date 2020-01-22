@@ -45,12 +45,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             inList.Add(new ApplicationModel { Name = "Test Applications 2", Id = Guid.NewGuid() });
             inList.Add(new ApplicationModel { Name = "Test Applications 3", Id = Guid.NewGuid() });
 
-            //var outList = new List<Application>();
-            //outList.Add(new Application { Name = "Test Applications 1", Uuid = Guid.NewGuid() });
-            //outList.Add(new Application { Name = "Test Applications 2", Uuid = Guid.NewGuid() });
-            //outList.Add(new Application { Name = "Test Applications 3", Uuid = Guid.NewGuid() });
-
-
             // Set up the paginated response object
             PaginatedResult<ApplicationModel> paginatedResult = new PaginatedResult<ApplicationModel>
             {

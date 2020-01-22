@@ -38,6 +38,7 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Mvc;
 using za.co.grindrodbank.a3s.ConnectionClients;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace za.co.grindrodbank.a3s
 {
@@ -226,7 +227,8 @@ namespace za.co.grindrodbank.a3s
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
-
+            //services.AddScoped<IUrlHelper, UrlHelper>();
+            services.AddScoped<IPaginationHelper, PaginationHelper>();
             // Register Connection Clients
             services.AddScoped<ILdapConnectionClient, LdapConnectionClient>();
         }

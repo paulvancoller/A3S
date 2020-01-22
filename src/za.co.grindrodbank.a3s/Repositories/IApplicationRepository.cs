@@ -16,7 +16,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<ApplicationModel> GetByNameAsync(string name);
         Task<ApplicationModel> GetByIdAsync(Guid applicationId);
         Task<List<ApplicationModel>> GetListAsync();
-        Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy);
+        Task<PaginatedResult> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy);
         Task<ApplicationModel> CreateAsync(ApplicationModel application);
         Task<ApplicationModel> UpdateAsync(ApplicationModel application);
     }

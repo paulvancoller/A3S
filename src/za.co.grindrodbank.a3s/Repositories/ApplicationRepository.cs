@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             return application;
         }
 
-        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
+        public Task<PaginatedResult> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
         {
             IQueryable<ApplicationModel> query = a3SContext.Application.Include(a => a.Functions)
                                                  .ThenInclude(f => f.FunctionPermissions)
