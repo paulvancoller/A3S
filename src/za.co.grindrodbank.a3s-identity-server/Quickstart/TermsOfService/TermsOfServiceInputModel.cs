@@ -4,7 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI

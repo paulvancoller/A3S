@@ -4,9 +4,8 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Helpers

@@ -4,13 +4,10 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using NLog;
 using NLog.Web;
-using Sentry;
 
 namespace za.co.grindrodbank.a3s
 {

@@ -4,7 +4,6 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
 namespace za.co.grindrodbank.a3s
 {
     public static class A3SConstants
