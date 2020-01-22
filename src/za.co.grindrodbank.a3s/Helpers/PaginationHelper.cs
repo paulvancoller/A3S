@@ -5,6 +5,8 @@
  * **************************************************
  */
 ﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,26 +17,30 @@ namespace za.co.grindrodbank.a3s.Helpers
 {
     public class PaginationHelper : IPaginationHelper
     {
-        public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, string pageRouteName
-            , IUrlHelper urlHelper, HttpResponse response) where T : class
+        public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, List<string> orderBy, string pageRouteName,
+            IUrlHelper urlHelper, HttpResponse response) where T : class
         {
             var previousPageLink = paginatedResult.CurrentPage > 1
-                ? CreatePagedLinkRelToCurrentPage(paginatedResult, urlHelper, pageRouteName, -1)
+                ? CreatePagedLinkRelToCurrentPage(paginatedResult, filters, orderBy, urlHelper, pageRouteName, -1)
                 : null;
 
 
             var nextPageLink = HasNextPage(paginatedResult)
-                ? CreatePagedLinkRelToCurrentPage(paginatedResult, urlHelper, pageRouteName, 1)
+                ? CreatePagedLinkRelToCurrentPage(paginatedResult, filters, orderBy, urlHelper, pageRouteName, 1)
                 : null;
 
             var first = CreatePageLink(pageSize: paginatedResult.PageSize,
                                        pageNumber: 1, 
                                        pageRouteName: pageRouteName,
+                                       filters: filters,
+                                       orderBy: orderBy,
                                        urlHelper: urlHelper);
 
             var last = CreatePageLink(pageSize: paginatedResult.PageSize,
                                        pageNumber: GetTotalPages(paginatedResult),
                                        pageRouteName: pageRouteName,
+                                       filters: filters,
+                                       orderBy: orderBy,
                                        urlHelper: urlHelper);
 
             var paginationMetadata = new
@@ -64,23 +70,40 @@ namespace za.co.grindrodbank.a3s.Helpers
         }
 
 
-        private string CreatePagedLinkRelToCurrentPage<T>(IPaginatedResult<T> paginatedResult, IUrlHelper urlHelper,
+        private string CreatePagedLinkRelToCurrentPage<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, List<string> orderBy, IUrlHelper urlHelper,
             string pageRouteName, int pagesFromCurrentPage) where T : class
         {
             return CreatePageLink(pageSize: paginatedResult.PageSize,
                                    pageNumber: paginatedResult.CurrentPage + pagesFromCurrentPage,
                                    pageRouteName: pageRouteName,
+                                   filters: filters,
+                                   orderBy: orderBy,
                                    urlHelper: urlHelper);
         }
 
-        private string CreatePageLink(int pageSize, int pageNumber, string pageRouteName, IUrlHelper urlHelper)
+        private string CreatePageLink(int pageSize, int pageNumber, List<KeyValuePair<string, string>> filters, List<string> orderBy, string pageRouteName, IUrlHelper urlHelper)
         {
-            return urlHelper.Link(pageRouteName,
-                      new
-                      {
-                          page = pageNumber,
-                          size = pageSize
-                      });
+            // append the page and size query params to the generated URL.
+            dynamic pageRouteValues = new ExpandoObject() as IDictionary<string, Object>; ;
+            
+            pageRouteValues.page = pageNumber;
+            pageRouteValues.size = pageSize;
+
+            // append any potential filter state to the generated URL by adding it to 'pageRouteValues'.
+            foreach (var keyValuePair in filters)
+            {
+                //pageRouteValues.Add(keyValuePair.Key, keyValuePair.Value);
+                ((IDictionary<string, Object>)pageRouteValues)[keyValuePair.Key] = keyValuePair.Value;
+            }
+            // generate the orderBy comma-separated array and append it to the generated URL by adding it to 'pageRouteValues'.
+            if (orderBy != null && orderBy.Any()) {
+                // Implode the orderBy list into a comma separated list.
+                string commaSeparatedValues = string.Join(",", orderBy);
+
+                pageRouteValues.orderBy = $"[{commaSeparatedValues}]";
+            }            
+
+            return urlHelper.Link(pageRouteName, pageRouteValues);
         }
     }
 }

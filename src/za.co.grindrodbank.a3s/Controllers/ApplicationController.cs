@@ -39,7 +39,13 @@ namespace za.co.grindrodbank.a3s.Controllers
         public async override Task<IActionResult> ListApplicationsAsync([FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
         {
             PaginatedResult<ApplicationModel> paginatedResult = await applicationService.GetListAsync(page, size, filterName, orderBy);
-            paginationHelper.AddHeaderMetaData(paginatedResult, "ListApplications", Url, Response);
+            // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
+            List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("filterName", filterName)
+            };
+
+            paginationHelper.AddHeaderMetaData(paginatedResult, currrentFilters, orderBy, "ListApplications", Url, Response);
 
             return Ok(mapper.Map<List<Application>>(paginatedResult.Results));
         }
