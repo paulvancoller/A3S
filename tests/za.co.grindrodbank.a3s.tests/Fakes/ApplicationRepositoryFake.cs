@@ -67,6 +67,11 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             throw new NotImplementedException();
         }
 
+        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(IQueryable<ApplicationModel> query, int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
         public void InitSharedTransaction()
         {
             throw new NotImplementedException();

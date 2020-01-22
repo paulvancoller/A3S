@@ -17,6 +17,7 @@ using AutoMapper;
 using za.co.grindrodbank.a3s.MappingProfiles;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
+using za.co.grindrodbank.a3s.Helpers;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
@@ -39,6 +40,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var applicationService = Substitute.For<IApplicationService>();
+            var paginationHelper = Substitute.For<IPaginationHelper>();
 
             var inList = new List<ApplicationModel>();
             inList.Add(new ApplicationModel { Name = "Test Applications 1", Id = Guid.NewGuid() });
@@ -56,7 +58,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             applicationService.GetListAsync(1, 50, string.Empty, null).Returns(paginatedResult);
 
-            var controller = new ApplicationController(applicationService, mapper);
+            var controller = new ApplicationController(applicationService, mapper, paginationHelper);
 
             // Act
             IActionResult actionResult = await controller.ListApplicationsAsync(1, 50, string.Empty, null);
