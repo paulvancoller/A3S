@@ -1534,7 +1534,7 @@ paths:
           in: query
           required: false
           description: |
-            If this field is set, then fill in the permissions member field
+            If this field is set, then fill in the permissions member field.
           schema:
             type: boolean
             default: false
@@ -1557,10 +1557,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the description
+          description: A search query filter on the application's name.
           schema:
             type: string
             minLength: 0
