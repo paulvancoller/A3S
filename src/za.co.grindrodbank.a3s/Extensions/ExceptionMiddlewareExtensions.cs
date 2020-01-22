@@ -110,7 +110,32 @@ namespace GlobalErrorHandling.Extensions
                 return;
             }
 
+            await SpecifyDryRunErrorHandlingLogic(context);
+
+            // Default 500 Catch All
+            WriteException(contextFeature.Error);
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            await context.Response.WriteAsync(new ErrorResponse()
+            {
+                Message = "Internal Server Error."
+            }.ToJson());
+        }
+
+        private static async Task SpecifyDryRunErrorHandlingLogic(HttpContext context)
+        {
             // Check for a SecurityContractDryRunException - This is not really an exception, just an always roll back dry run.
+            var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+            if (contextFeature == null)
+            {
+                await context.Response.WriteAsync(new ErrorResponse()
+                {
+                    Message = "Internal Server Error."
+                }.ToJson());
+
+                return;
+            }
+
             var contextFeatureError = contextFeature.Error as SecurityContractDryRunException;
             if (contextFeatureError != null)
             {
@@ -161,15 +186,6 @@ namespace GlobalErrorHandling.Extensions
 
                 return;
             }
-
-            // Default 500 Catch All
-            WriteException(contextFeature.Error);
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            await context.Response.WriteAsync(new ErrorResponse()
-            {
-                Message = "Internal Server Error."
-            }.ToJson());
         }
     }
 }
