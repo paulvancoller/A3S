@@ -52,12 +52,7 @@ namespace Host.Quickstart.Account
         {
             if (string.IsNullOrEmpty(returnUrl)) returnUrl = "~/";
 
-            // validate returnUrl - either it is a valid OIDC URL or back to a local page
-            if (!Url.IsLocalUrl(returnUrl) && !_interaction.IsValidReturnUrl(returnUrl))
-            {
-                // user might have clicked on a malicious link - should be logged
-                throw new ArgumentException("invalid return URL");
-            }
+            ValidateReturnUrl(returnUrl);
 
             if (AccountOptions.WindowsAuthenticationSchemeName == provider)
             {
@@ -78,6 +73,16 @@ namespace Host.Quickstart.Account
                 };
 
                 return Challenge(props, provider);
+            }
+        }
+
+        private void ValidateReturnUrl(string returnUrl)
+        {
+            // validate returnUrl - either it is a valid OIDC URL or back to a local page
+            if (!Url.IsLocalUrl(returnUrl) && !_interaction.IsValidReturnUrl(returnUrl))
+            {
+                // user might have clicked on a malicious link - should be logged
+                throw new ArgumentException("invalid return URL");
             }
         }
 

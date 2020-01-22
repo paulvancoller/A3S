@@ -269,7 +269,6 @@ namespace za.co.grindrodbank.a3s.Services
                         logger.Debug($"[applications.fullname: '{application.Name}'].[applicationFunctions.name: '{application.ApplicationFunctions[i].Name}']: ApplicationFunction: '{application.ApplicationFunctions[i].Name}' was previously assigned to application '{application.Name}' but no longer is within the security contract being processed. Un-assigning ApplicationFunction '{application.ApplicationFunctions[i].Name}' from application '{application.Name}'!");
                         // Note: This only removes the application function permissions association. The permission will still exist. We cannot remove the permission here, as it may be assigned to other functions.
                         await applicationFunctionRepository.DeleteAsync(application.ApplicationFunctions[i]);
-                        //application.ApplicationFunctions.RemoveAt(i);
                     }
                 }
             }

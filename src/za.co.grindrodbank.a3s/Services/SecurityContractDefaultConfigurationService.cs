@@ -46,7 +46,7 @@ namespace za.co.grindrodbank.a3s.Services
             logger.Debug($"[defautlConfigurations.name: '{securityContractDefaultConfiguration.Name}']: Applying default configuration: '{securityContractDefaultConfiguration.Name}'");
             await ApplyAllDefaultApplications(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
             await ApplyAllDefaultRoles(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
-            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
+            await ApplyAllDefaultLdapAuthModes(securityContractDefaultConfiguration, updatedById);
             await ApplyAllDefaultUsers(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
             await ApplyAllDefaultTeams(securityContractDefaultConfiguration, updatedById, dryRun, securityContractDryRunResult);
         }
@@ -395,7 +395,7 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="securityContractDefaultConfiguration"></param>
         /// <returns></returns>
-        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        private async Task ApplyAllDefaultLdapAuthModes(SecurityContractDefaultConfiguration securityContractDefaultConfiguration, Guid updatedById)
         {
             logger.Debug($"[defaultConfigurations.name: '{securityContractDefaultConfiguration.Name}'].[ldapAuthenticationModes]: Applying default LDAP Authentication modes configuration.");
 
