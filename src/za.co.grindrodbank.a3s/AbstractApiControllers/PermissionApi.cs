@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Permission not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/permissions/{permissionId}")]
+        [Route("/permissions/{permissionId}", Name = "GetPermission")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Permission))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -69,7 +63,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Permission list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/permissions")]
+        [Route("/permissions", Name = "ListPermissions")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Permission>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

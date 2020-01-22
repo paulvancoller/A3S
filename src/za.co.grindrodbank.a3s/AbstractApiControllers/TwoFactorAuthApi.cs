@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/twoFactorAuth/users/{userId}")]
+        [Route("/twoFactorAuth/users/{userId}", Name = "RemoveTwoFactorAuthentication")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -65,7 +59,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/twoFactorAuth/validate")]
+        [Route("/twoFactorAuth/validate", Name = "ValidateTwoFactorAuthenticationOTP")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(ValidationResultResponse))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

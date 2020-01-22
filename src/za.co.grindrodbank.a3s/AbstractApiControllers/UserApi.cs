@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/users/{userId}/changePassword")]
+        [Route("/users/{userId}/changePassword", Name = "ChangeUserPassword")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -66,7 +60,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible entity. The request was correctly structured, but some business rules were violated, preventing the user creation.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/users")]
+        [Route("/users", Name = "CreateUser")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(UserSubmit))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -90,7 +84,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/users/{userId}/profiles")]
+        [Route("/users/{userId}/profiles", Name = "CreateUserProfile")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(UserProfile))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -112,7 +106,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/users/{userId}")]
+        [Route("/users/{userId}", Name = "DeleteUser")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -134,7 +128,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User or user profile not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/users/{userId}/profiles/{profileId}")]
+        [Route("/users/{userId}/profiles/{profileId}", Name = "DeleteUserProfile")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -155,7 +149,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/users/{userId}")]
+        [Route("/users/{userId}", Name = "GetUser")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(User))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -178,7 +172,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User or user profile not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/users/{userId}/profiles/{profileId}")]
+        [Route("/users/{userId}/profiles/{profileId}", Name = "GetUserProfile")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(UserProfile))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -204,7 +198,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/users/{userId}/profiles")]
+        [Route("/users/{userId}/profiles", Name = "ListUserProfiles")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<UserProfile>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -234,7 +228,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/users")]
+        [Route("/users", Name = "ListUsers")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<User>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -258,7 +252,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible entity. The request was correctly structured, but some business rules were violated, preventing the user update.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/users/{userId}")]
+        [Route("/users/{userId}", Name = "UpdateUser")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(User))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -282,7 +276,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">User or user profile not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/users/{userId}/profiles/{profileId}")]
+        [Route("/users/{userId}/profiles/{profileId}", Name = "UpdateUserProfile")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]

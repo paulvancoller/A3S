@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function related entity (such as permissions) not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/functions")]
+        [Route("/functions", Name = "CreateFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -66,7 +60,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "DeleteFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -87,7 +81,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "GetFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -113,7 +107,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/functions")]
+        [Route("/functions", Name = "ListFunctions")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Function>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -137,7 +131,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Functions not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "UpdateFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

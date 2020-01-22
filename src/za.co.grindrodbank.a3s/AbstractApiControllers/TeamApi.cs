@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -45,7 +39,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the creation of the team.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpPost]
-        [Route("/teams")]
+        [Route("/teams", Name = "CreateTeam")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Team))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -68,7 +62,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Team not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/teams/{teamId}")]
+        [Route("/teams/{teamId}", Name = "GetTeam")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Team))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -96,7 +90,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Teams list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/teams")]
+        [Route("/teams", Name = "ListTeams")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Team>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -120,7 +114,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity - The requests was correctly structured, but some business rules were violated, preventing the update.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/teams/{teamId}")]
+        [Route("/teams/{teamId}", Name = "UpdateTeam")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Team))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

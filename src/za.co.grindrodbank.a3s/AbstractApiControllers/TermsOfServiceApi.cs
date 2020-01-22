@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -43,7 +37,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="403">Forbidden - You are not authorized to create terms of service entries.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/termsOfService")]
+        [Route("/termsOfService", Name = "CreateTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(TermsOfService))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -65,7 +59,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Terms of service entry cannot be deleted.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/termsOfService/{termsOfServiceId}")]
+        [Route("/termsOfService/{termsOfServiceId}", Name = "DeleteTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -87,7 +81,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Terms of service entry not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/termsOfService/{termsOfServiceId}")]
+        [Route("/termsOfService/{termsOfServiceId}", Name = "GetTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(TermsOfService))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -110,7 +104,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="403">Forbidden - You are not authorized to access the list of terms of service entries.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/termsOfService")]
+        [Route("/termsOfService", Name = "ListTermsOfServices")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<TermsOfService>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Client not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/clients/{clientId}")]
+        [Route("/clients/{clientId}", Name = "GetClient")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Oauth2Client))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -69,7 +63,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Client list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/clients")]
+        [Route("/clients", Name = "ListClients")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Oauth2Client>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -44,7 +38,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. The request was correctly structured but some business rules were violated, preventing the creation of the Sub-Realm.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/subrealms")]
+        [Route("/subrealms", Name = "CreateSubRealm")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(SubRealm))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -67,7 +61,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. Usually returned when the request is correctly structured but some business rules have been violated.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/subrealms/{subRealmId}")]
+        [Route("/subrealms/{subRealmId}", Name = "DeleteSubRealm")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -89,7 +83,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Sub-Realm not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/subrealms/{subRealmId}")]
+        [Route("/subrealms/{subRealmId}", Name = "GetSubRealm")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(SubRealm))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -112,7 +106,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Sub-Realm list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/subrealms")]
+        [Route("/subrealms", Name = "ListSubRealms")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<SubRealm>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -136,7 +130,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. The request was correctly structured but some business rules were violated, preventing the update of the Sub-Realm.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/subrealms/{subRealmId}")]
+        [Route("/subrealms/{subRealmId}", Name = "UpdateSubRealm")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(SubRealm))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

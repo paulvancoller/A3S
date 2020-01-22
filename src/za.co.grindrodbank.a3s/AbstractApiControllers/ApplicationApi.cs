@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -47,7 +41,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Application list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/applications")]
+        [Route("/applications", Name = "ListApplications")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Application>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

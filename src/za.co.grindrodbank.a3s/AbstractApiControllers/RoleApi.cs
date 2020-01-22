@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -45,7 +39,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the creation of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/roles")]
+        [Route("/roles", Name = "CreateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(RoleSubmit))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -68,7 +62,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Role not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/roles/{roleId}")]
+        [Route("/roles/{roleId}", Name = "GetRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -94,7 +88,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Roles list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/roles")]
+        [Route("/roles", Name = "ListRoles")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Role>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -118,7 +112,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the updating of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/roles/{roleId}")]
+        [Route("/roles/{roleId}", Name = "UpdateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

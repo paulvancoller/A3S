@@ -39,7 +39,7 @@ namespace za.co.grindrodbank.a3s.Controllers
         public async override Task<IActionResult> ListApplicationsAsync([FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
         {
             PaginatedResult<ApplicationModel> paginatedResult = await applicationService.GetListAsync(page, size, filterName, orderBy);
-            paginationHelper.AddHeaderMetaData(paginatedResult, "/applications", Url, Response);
+            paginationHelper.AddHeaderMetaData(paginatedResult, "ListApplications", Url, Response);
 
             return Ok(mapper.Map<List<Application>>(paginatedResult.Results));
         }

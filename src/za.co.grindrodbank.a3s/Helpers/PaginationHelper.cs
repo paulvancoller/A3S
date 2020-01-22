@@ -18,7 +18,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, string pageRouteName
             , IUrlHelper urlHelper, HttpResponse response) where T : class
         {
-            var previousPageLink = paginatedResult.CurrentPage > 0
+            var previousPageLink = paginatedResult.CurrentPage > 1
                 ? CreatePagedLinkRelToCurrentPage(paginatedResult, urlHelper, pageRouteName, -1)
                 : null;
 
@@ -28,7 +28,7 @@ namespace za.co.grindrodbank.a3s.Helpers
                 : null;
 
             var first = CreatePageLink(pageSize: paginatedResult.PageSize,
-                                       pageNumber: 0,  // Zero based page numbering
+                                       pageNumber: 1, 
                                        pageRouteName: pageRouteName,
                                        urlHelper: urlHelper);
 
@@ -39,9 +39,9 @@ namespace za.co.grindrodbank.a3s.Helpers
 
             var paginationMetadata = new
             {
-                total = paginatedResult.RowCount,
+                total = GetTotalPages(paginatedResult),
                 size = paginatedResult.PageSize,
-                count = paginatedResult.Results.Count,
+                count = paginatedResult.RowCount,
                 current = paginatedResult.CurrentPage,
                 prev = previousPageLink,
                 next = nextPageLink,
@@ -54,8 +54,7 @@ namespace za.co.grindrodbank.a3s.Helpers
 
         private int GetTotalPages<T>(IPaginatedResult<T> paginatedResult) where T : class
         {
-            return Convert.ToInt32(Math.Ceiling(((decimal)paginatedResult.RowCount / (decimal)paginatedResult.PageSize)))
-                - 1; // Zero based page numbering
+            return Convert.ToInt32(Math.Ceiling((paginatedResult.RowCount / (decimal)paginatedResult.PageSize))); // 1 based page numbering
         }
 
         private bool HasNextPage<T>(IPaginatedResult<T> paginatedResult) where T: class
@@ -79,8 +78,8 @@ namespace za.co.grindrodbank.a3s.Helpers
             return urlHelper.Link(pageRouteName,
                       new
                       {
-                          pageNumber,
-                          pageSize
+                          page = pageNumber,
+                          size = pageSize
                       });
         }
     }

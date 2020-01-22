@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -45,7 +39,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. The request was correctly structured but some business rules were violated, preventing the creation of the LDAP Authentication Mode.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/authenticationModes/ldap")]
+        [Route("/authenticationModes/ldap", Name = "CreateLdapAuthenticationMode")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(LdapAuthenticationMode))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -69,7 +63,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. Most likely returned as a result of there still being users assigned to the LDAP Auth Mode that a deletion attempt was made for.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}")]
+        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}", Name = "DeleteLdapAuthenticationMode")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -91,7 +85,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">LDAP Auth Mode not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}")]
+        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}", Name = "GetLdapAuthenticationMode")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(LdapAuthenticationMode))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -114,7 +108,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">LDAP Authentication mode list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/authenticationModes/ldap")]
+        [Route("/authenticationModes/ldap", Name = "ListLdapAuthenticationModes")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<LdapAuthenticationMode>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -136,7 +130,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">LDAP Authentication Mode not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/authenticationModes/ldap/test")]
+        [Route("/authenticationModes/ldap/test", Name = "TestLdapAuthenticationMode")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(ValidationResultResponse))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -160,7 +154,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible request. The request was correctly structured but some business rules were violated, preventing the update of the LDAP Authentication Mode.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}")]
+        [Route("/authenticationModes/ldap/{ldapAuthenticationModeId}", Name = "UpdateLdapAuthenticationMode")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(LdapAuthenticationMode))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
