@@ -711,6 +711,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             }
 
+            // Only redirect to return URL if a valid context is loaded (based on the registered URL).
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
             if (context != null)

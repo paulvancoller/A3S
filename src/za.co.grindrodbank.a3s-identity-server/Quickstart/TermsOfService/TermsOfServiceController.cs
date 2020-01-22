@@ -152,6 +152,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 return RedirectToAction("LoginSuccessful", "Account", new { redirectUrl = returnUrl, show2FARegMessage = true });
 
             // check if we are in the context of an authorization request
+            // Only redirect to return URL if a valid context is loaded (based on the registered URL).
             var context = await interaction.GetAuthorizationContextAsync(returnUrl);
 
             await events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
@@ -168,10 +169,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
                 return Redirect(returnUrl);
             }
-
-            // request for a local page
-            if (Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
 
             if (string.IsNullOrEmpty(returnUrl))
                 return Redirect("~/");
