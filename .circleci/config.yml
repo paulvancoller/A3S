@@ -198,11 +198,8 @@ jobs:
           name: Verify installations
           command: gpg --version; git version; ssh -V
       - run:
-          name: decrypt secrets
-          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --import <( echo $GPG_KEY_B64 | base64 -d ) || echo $?
-      - run:
           name: import GPG key
-          command:  gpg --import secrets.env || echo $?
+          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --import <( echo $GPG_KEY_B64 | base64 -d ) || echo $?
       - run: gpg --list-keys
       - run: mkdir ~/build && cd ~/build 
       - checkout:
