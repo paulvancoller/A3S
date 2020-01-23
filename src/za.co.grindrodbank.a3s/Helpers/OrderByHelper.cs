@@ -20,6 +20,11 @@ namespace za.co.grindrodbank.a3s.Helpers
         {
             List<KeyValuePair<string, string>> orderByKeyValueList = new List<KeyValuePair<string, string>>();
 
+            if (string.IsNullOrEmpty(commaSeparateOrderByString))
+            {
+                return orderByKeyValueList;
+            }
+
             var orderByComponents = commaSeparateOrderByString.Split(',');
 
             foreach (var orderByTerm in orderByComponents)
