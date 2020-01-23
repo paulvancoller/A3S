@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.Helpers
@@ -24,7 +25,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         /// <param name="orderBy">A list of all the orderBy strings.</param>
         /// <param name="urlHelper"></param>
         /// <param name="response"></param>
-        void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName, 
+        PaginationHeaderResponse AddPaginationHeaderMetaDataToResponse<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName, 
             IUrlHelper urlHelper, HttpResponse response) where T : class;
     }
 }

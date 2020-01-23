@@ -22,15 +22,8 @@ namespace za.co.grindrodbank.a3s.Repositories
         {
             // Set default page and page size for all paginated lists here.
             // This should be pulled from configuration.
-            if (page == 0)
-            {
-                page = 1;
-            }
-
-            if (pageSize == 0)
-            {
-                pageSize = 10;
-            }
+            page = page == 0 ? 1 : page;
+            pageSize = pageSize == 0 ? 10 : pageSize;
 
             var result = new PaginatedResult<T>
             {

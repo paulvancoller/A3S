@@ -10,13 +10,14 @@ using System.Dynamic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.Helpers
 {
     public class PaginationHelper : IPaginationHelper
     {
-        public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName,
+        public PaginationHeaderResponse AddPaginationHeaderMetaDataToResponse<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName,
             IUrlHelper urlHelper, HttpResponse response) where T : class
         {
             var previousPageLink = paginatedResult.CurrentPage > 1
@@ -42,19 +43,22 @@ namespace za.co.grindrodbank.a3s.Helpers
                                        orderBy: orderBy,
                                        urlHelper: urlHelper);
 
-            var paginationMetadata = new
+            PaginationHeaderResponse paginationHeaderResponse = new PaginationHeaderResponse
             {
-                total = GetTotalPages(paginatedResult),
-                size = paginatedResult.PageSize,
-                count = paginatedResult.RowCount,
-                current = paginatedResult.CurrentPage,
-                prev = previousPageLink,
-                next = nextPageLink,
-                first,
-                last
+                Total = GetTotalPages(paginatedResult),
+                Size = paginatedResult.PageSize,
+                Count = paginatedResult.RowCount,
+                Current = paginatedResult.CurrentPage,
+                Prev = previousPageLink,
+                Next = nextPageLink,
+                First = first,
+                Last = last
             };
 
-            response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+            
+            response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationHeaderResponse));
+
+            return paginationHeaderResponse;
         }
 
         private int GetTotalPages<T>(IPaginatedResult<T> paginatedResult) where T : class

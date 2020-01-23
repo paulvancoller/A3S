@@ -69,9 +69,9 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public string First { get; set; }
 
         /// <summary>
-        /// The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters. If this is the first page in the result set then this will be [null].
+        /// The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters.
         /// </summary>
-        /// <value>The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters. If this is the first page in the result set then this will be [null].</value>
+        /// <value>The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters.</value>
         [DataMember(Name="last", EmitDefaultValue=false)]
         public string Last { get; set; }
 

@@ -1566,7 +1566,6 @@ paths:
           description: >-
             a comma separated list of fields in their sort order. Ascending
             order is assumed. Append '_desc' after a field to indicate descending order.
-            order.
           schema:
             type: string
       responses:
@@ -4366,8 +4365,7 @@ components:
           description: >-
             The link to the last page of results containing [size] results. This
             link includes the page, size, filter, orderBy and fields query
-            parameters. If this is the first page in the result set then this
-            will be [null].
+            parameters.
         prev:
           type: string
           format: url
