@@ -227,8 +227,8 @@ namespace za.co.grindrodbank.a3s
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
-            //services.AddScoped<IUrlHelper, UrlHelper>();
             services.AddScoped<IPaginationHelper, PaginationHelper>();
+            services.AddScoped<IOrderByHelper, OrderByHelper>();
             // Register Connection Clients
             services.AddScoped<ILdapConnectionClient, LdapConnectionClient>();
         }

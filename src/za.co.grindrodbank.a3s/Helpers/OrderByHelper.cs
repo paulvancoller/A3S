@@ -5,12 +5,14 @@
  * **************************************************
  */
 ﻿using System.Collections.Generic;
+using System.Linq;
+using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.Helpers
 {
-    public class OrderByFormatConversionHelper : IOrderByFormatConversionHelper
+    public class OrderByHelper : IOrderByHelper
     {
-        public OrderByFormatConversionHelper()
+        public OrderByHelper()
         {
         }
 
@@ -28,21 +30,37 @@ namespace za.co.grindrodbank.a3s.Helpers
                     if (splitOrderByTermArrray[1] == "desc")
                     {
                         orderByKeyValueList.Add(new KeyValuePair<string, string>(splitOrderByTermArrray[0], "desc"));
+                        continue;
                     }
 
                     if (splitOrderByTermArrray[1] == "asc")
                     {
                         orderByKeyValueList.Add(new KeyValuePair<string, string>(splitOrderByTermArrray[0], "asc"));
+                        continue;
                     }
                 }
 
                 if(splitOrderByTermArrray.Length == 1)
                 {
                     orderByKeyValueList.Add(new KeyValuePair<string, string>(splitOrderByTermArrray[0], "asc"));
+                    continue;
                 }
+
+                throw new InvalidFormatException($"Invalid orderBy parameter supplied. '{orderByTerm}' is not a valid format.");
             }
 
             return orderByKeyValueList;
         }
+
+        public void ValidateOrderByListOnlyContainsCertainElements(List<KeyValuePair<string, string>> orderByKeyValueList, List<string> desiredOrderByKeys)
+        {
+            foreach (var orderByListKeyValuePair in orderByKeyValueList)
+            {
+                if (!desiredOrderByKeys.Contains(orderByListKeyValuePair.Key)){
+                    throw new InvalidFormatException($"Invalid orderBy parameter supplied. The '{orderByListKeyValuePair.Key}' value is not valid for this request.");
+                }
+            }
+        }
+
     }
 }
