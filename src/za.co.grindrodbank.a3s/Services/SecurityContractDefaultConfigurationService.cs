@@ -121,40 +121,45 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var defaultFunction in defaultApplication.Functions)
             {
-                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: Preparing to add function '{defaultFunction.Name}' to application '{defaultApplication.Name}'.");
-                if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
-                {
-                    var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}'.";
-                    logger.Warn(warningMessage);
-
-                    if (dryRun)
-                    {
-                        securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
-                    }
-
-                    continue;
-                }
-
-                var functionModelToAdd = new FunctionModel();
-                // check to see if there is an existing function.
-                var existingFunction = await functionRepository.GetByNameAsync(defaultFunction.Name);
-
-                if (existingFunction != null)
-                    functionModelToAdd = existingFunction;
-
-                functionModelToAdd.Application = application;
-                functionModelToAdd.Description = defaultFunction.Description;
-                functionModelToAdd.Name = defaultFunction.Name;
-                functionModelToAdd.ChangedBy = updatedById;
-
-                // Clear the current permissions assigned to the function as they are to be re-created.
-                functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
-
-                AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
+                await ApplyIndividualDefaultApplicationDefaulFunction(defaultFunction, defaultApplication, application, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
             }
 
             // Update the application with its new application function state.
             await applicationRepository.UpdateAsync(application);
+        }
+
+        private async Task ApplyIndividualDefaultApplicationDefaulFunction(SecurityContractDefaultConfigurationFunction defaultFunction, SecurityContractDefaultConfigurationApplication defaultApplication, ApplicationModel application, Guid updatedById, string defaultConfigurationName, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
+            logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: Preparing to add function '{defaultFunction.Name}' to application '{defaultApplication.Name}'.");
+            if (defaultFunction.Permissions == null || defaultFunction.Permissions.Count == 0)
+            {
+                var warningMessage = $"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{defaultFunction.Name}']: No permissions defined for function '{defaultFunction.Name}'. Not assiging it to application '{defaultApplication.Name}'.";
+                logger.Warn(warningMessage);
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationWarnings.Add(warningMessage);
+                }
+
+                return;
+            }
+
+            var functionModelToAdd = new FunctionModel();
+            // check to see if there is an existing function.
+            var existingFunction = await functionRepository.GetByNameAsync(defaultFunction.Name);
+
+            if (existingFunction != null)
+                functionModelToAdd = existingFunction;
+
+            functionModelToAdd.Application = application;
+            functionModelToAdd.Description = defaultFunction.Description;
+            functionModelToAdd.Name = defaultFunction.Name;
+            functionModelToAdd.ChangedBy = updatedById;
+
+            // Clear the current permissions assigned to the function as they are to be re-created.
+            functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
+
+            AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
         }
 
         /// <summary>
