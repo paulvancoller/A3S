@@ -160,6 +160,13 @@ namespace za.co.grindrodbank.a3s.Services
             functionModelToAdd.FunctionPermissions = new List<FunctionPermissionModel>();
 
             AddPermissionsToFunctionsEnsuringTheyExistsAndAreAssigedToTheApplication(application, defaultFunction, defaultApplication, functionModelToAdd, updatedById, defaultConfigurationName, dryRun, securityContractDryRunResult);
+
+            // Persist the application function, but only if there is at least a single permission associated with it.
+            if (functionModelToAdd.FunctionPermissions.Count > 0)
+            {
+                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
+                application.Functions.Add(functionModelToAdd);
+            }
         }
 
         /// <summary>
@@ -212,13 +219,6 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotFoundException(errorMessage);
                     }
                 }
-            }
-
-            // Persist the application function, but only if there is at least a single permission associated with it.
-            if (functionModelToAdd.FunctionPermissions.Count > 0)
-            {
-                logger.Debug($"[defautlConfigurations.name: '{defaultConfigurationName}'].[applications.name: '{defaultApplication.Name}'].[functions.name: '{functionModelToAdd.Name}']: Assigning function '{functionModelToAdd.Name}' to application '{application.Name}'");
-                application.Functions.Add(functionModelToAdd);
             }
         }
 
