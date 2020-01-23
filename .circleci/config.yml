@@ -207,7 +207,7 @@ jobs:
       - run: pwd; ls -l; ls -l ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
       - run: 
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn clean install
+          command: mvn clean install -s maven-settings.xml
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
