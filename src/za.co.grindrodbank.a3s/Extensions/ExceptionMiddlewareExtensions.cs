@@ -110,7 +110,8 @@ namespace GlobalErrorHandling.Extensions
                 return;
             }
 
-            await SpecifyDryRunErrorHandlingLogic(context);
+            if (await SpecifyDryRunErrorHandlingLogic(context))
+                return;
 
             // Default 500 Catch All
             WriteException(contextFeature.Error);
@@ -122,7 +123,7 @@ namespace GlobalErrorHandling.Extensions
             }.ToJson());
         }
 
-        private static async Task SpecifyDryRunErrorHandlingLogic(HttpContext context)
+        private static async Task<bool> SpecifyDryRunErrorHandlingLogic(HttpContext context)
         {
             // Check for a SecurityContractDryRunException - This is not really an exception, just an always roll back dry run.
             var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
@@ -133,7 +134,7 @@ namespace GlobalErrorHandling.Extensions
                     Message = "Internal Server Error."
                 }.ToJson());
 
-                return;
+                return true;
             }
 
             var contextFeatureError = contextFeature.Error as SecurityContractDryRunException;
@@ -184,8 +185,10 @@ namespace GlobalErrorHandling.Extensions
 
                 await context.Response.WriteAsync(validationResult.ToJson());
 
-                return;
+                return true;
             }
+
+            return false;
         }
     }
 }
