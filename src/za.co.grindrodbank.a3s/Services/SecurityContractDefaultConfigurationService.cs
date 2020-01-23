@@ -797,46 +797,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 foreach (var teamToAdd in defaultTeamToApply.Teams)
                 {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
-
-                    // Ensure that the role exists.
-                    var existingchildTeam = await teamRepository.GetByNameAsync(teamToAdd, true);
-
-                    if (existingchildTeam == null)
-                    {
-                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.";
-
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotFoundException(errorMessage);
-                    }
-
-                    // check that we are not attempting to add a compound team as a child, as this is prohibited.
-                    if (existingchildTeam.ChildTeams.Any())
-                    {
-                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'";
-
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotProcessableException(errorMessage);
-                    }
-
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{existingchildTeam.Name}'is being assigned to team '{defaultTeamToApply.Name}'.");
-
-                    teamModel.ChildTeams.Add(new TeamTeamModel
-                    {
-                        ParentTeam = teamModel,
-                        ChildTeam = existingchildTeam,
-                        ChangedBy = updatedById
-                    });
+                    await AssignIndividualChildTeamToTeam(teamToAdd, defaultTeamToApply, teamModel, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
                 }
             }
         }
@@ -857,6 +818,50 @@ namespace za.co.grindrodbank.a3s.Services
             contractDefaultConfig.LdapAuthenticationModes = await RetrieveDefaultConfigLdapAuthenticationModes();
 
             return contractDefaultConfig;
+        }
+
+        private async Task AssignIndividualChildTeamToTeam(string teamToAdd, SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
+        {
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Attempting to add child team: '{teamToAdd}' to team '{defaultTeamToApply.Name}'.");
+
+            // Ensure that the role exists.
+            var existingchildTeam = await teamRepository.GetByNameAsync(teamToAdd, true);
+
+            if (existingchildTeam == null)
+            {
+                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{teamToAdd}' not found when attempting to assinging it to team '{defaultTeamToApply.Name}'.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotFoundException(errorMessage);
+            }
+
+            // check that we are not attempting to add a compound team as a child, as this is prohibited.
+            if (existingchildTeam.ChildTeams.Any())
+            {
+                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Team '{existingchildTeam.Name}' already contains child teams. Cannot add it as a child team of team '{teamModel.Name}'";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotProcessableException(errorMessage);
+            }
+
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{defaultTeamToApply.Name}']: Child team '{existingchildTeam.Name}'is being assigned to team '{defaultTeamToApply.Name}'.");
+
+            teamModel.ChildTeams.Add(new TeamTeamModel
+            {
+                ParentTeam = teamModel,
+                ChildTeam = existingchildTeam,
+                ChangedBy = updatedById
+            });
         }
 
         private async Task<List<SecurityContractDefaultConfigurationApplication>> RetrieveDefaultConfigApplications()
