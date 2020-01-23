@@ -349,49 +349,54 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 foreach (var roleToAdd in defaultRole.Roles)
                 {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Attempting to add child role: '{roleToAdd}' to role '{defaultRole.Name}'.");
-
-                    // Ensure that the role exists.
-                    var existingChildRole = await roleRepository.GetByNameAsync(roleToAdd);
-
-                    if (existingChildRole == null)
-                    {
-                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRole.Name}'.";
-
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotFoundException(errorMessage);
-                    }
-
-                    // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
-                    // asserted that the child row has no child roles attached to it.
-                    if (existingChildRole.ChildRoles.Count > 0)
-                    {
-                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRole.Name}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.";
-
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotProcessableException(errorMessage);
-                    }
-
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRole.Name}']: Role: '{defaultRole.Name}': Child role '{existingChildRole.Name}' exists and is being assigned to role '{defaultRole.Name}'.");
-
-                    defaultRoleToApply.ChildRoles.Add(new RoleRoleModel
-                    {
-                        ParentRole = defaultRoleToApply,
-                        ChildRole = existingChildRole,
-                        ChangedBy = updatedById
-                    });
+                    await ApplyIndividualChildRoleToDefaultRole(roleToAdd, defaultRole.Name, defaultRoleToApply, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
                 }
             }
+        }
+
+        private async Task ApplyIndividualChildRoleToDefaultRole(string roleToAdd, string defaultRoleName, RoleModel defaultRoleToApply, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
+        {
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRoleName}']: Role: '{defaultRoleName}': Attempting to add child role: '{roleToAdd}' to role '{defaultRoleName}'.");
+
+            // Ensure that the role exists.
+            var existingChildRole = await roleRepository.GetByNameAsync(roleToAdd);
+
+            if (existingChildRole == null)
+            {
+                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRoleName}']: Role: '{defaultRoleName}': Child role '{roleToAdd}' does not exist. Cannot assign it to parent role '{defaultRoleName}'.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotFoundException(errorMessage);
+            }
+
+            // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
+            // asserted that the child row has no child roles attached to it.
+            if (existingChildRole.ChildRoles.Count > 0)
+            {
+                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRoleName}']: Role: '{defaultRoleName}': Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{existingChildRole.Name} with ID: '{existingChildRole.Id}' as a child role of Role: '{defaultRoleName}'. However, it already has '{existingChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotProcessableException(errorMessage);
+            }
+
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'][roles.name: '{defaultRoleName}']: Role: '{defaultRoleName}': Child role '{existingChildRole.Name}' exists and is being assigned to role '{defaultRoleName}'.");
+
+            defaultRoleToApply.ChildRoles.Add(new RoleRoleModel
+            {
+                ParentRole = defaultRoleToApply,
+                ChildRole = existingChildRole,
+                ChangedBy = updatedById
+            });
         }
 
         /// <summary>
