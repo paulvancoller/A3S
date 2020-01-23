@@ -109,6 +109,16 @@ namespace za.co.grindrodbank.a3s.Repositories
                 query = query.Where(a => a.Name == filterName);
             }
 
+            foreach(var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = orderByComponent.Value == "asc" ? query.OrderBy(a => a.Name) : query.OrderByDescending(a => a.Name);
+                        break;
+                }
+            }
+
             return await GetPaginatedListFromQueryAsync(query, page, pageSize);
         }
     }
