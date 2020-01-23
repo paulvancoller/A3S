@@ -92,7 +92,6 @@ namespace za.co.grindrodbank.a3s.Helpers
             // append any potential filter state to the generated URL by adding it to 'pageRouteValues'.
             foreach (var keyValuePair in filters)
             {
-                //pageRouteValues.Add(keyValuePair.Key, keyValuePair.Value);
                 ((IDictionary<string, Object>)pageRouteValues)[keyValuePair.Key] = keyValuePair.Value;
             }
             // generate the orderBy comma-separated array and append it to the generated URL by adding it to 'pageRouteValues'.

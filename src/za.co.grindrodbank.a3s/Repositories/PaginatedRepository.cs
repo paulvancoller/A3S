@@ -38,7 +38,6 @@ namespace za.co.grindrodbank.a3s.Repositories
                 RowCount = query.Count()
             };
 
-
             var pageCount = (double)result.RowCount / pageSize;
             result.PageCount = (int)Math.Ceiling(pageCount);
 
