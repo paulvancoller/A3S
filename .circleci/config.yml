@@ -191,19 +191,19 @@ jobs:
       # Update, upgrade, then install git, openssh and gpg
       # as the container doesn't have these installed
       # and we are using parameters to the checkout command 
-      - run: apk update
-      - run: apk upgrade
+      - run: 
+          name: Install dependencies
+          command: apk update; apk upgrade; apk --no-cache add --update git openssh gnupg
       - run: 
           name: Verify installations
-          command: apk --no-cache add --update git openssh gnupg
-      - run: gpg --version; git version; ssh -V
-      - run:
-          name: import GPG key
-          command: echo -e "$GPG_KEY" | gpg --import || echo $?
-      - run: gpg --list-keys
+          command: gpg --version; git version; ssh -V
       - run:
           name: decrypt secrets
-          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --output secrets.env --decrypt secrets.env.gpg || echo $?    
+          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --output secrets.env --decrypt <($GPG_KEY ) || echo $?
+      - run:
+          name: import GPG key
+          command:  gpg --import secrets.env || echo $?
+      - run: gpg --list-keys
       - run: mkdir ~/build && cd ~/build 
       - checkout:
           path: ~/build
