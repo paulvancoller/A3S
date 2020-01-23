@@ -193,7 +193,9 @@
 			</plugin>
 		</plugins>
 	</build>
-
+    <properties>
+      <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+    </properties>
 
 	<scm>
 		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
