@@ -30,6 +30,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
 	</properties>
 
 	<dependencies>
@@ -193,9 +194,6 @@
 			</plugin>
 		</plugins>
 	</build>
-    <properties>
-      <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-    </properties>
 
 	<scm>
 		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
