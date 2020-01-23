@@ -16,12 +16,6 @@ namespace za.co.grindrodbank.a3s.Helpers
             {
                 var splitOrderByTermArrray = orderByTerm.Split('_');
 
-                // Check if the term is actually legitimate. Don't add it if it is not.
-                if(splitOrderByTermArrray.Length > 2)
-                {
-                    continue;
-                }
-
                 if(splitOrderByTermArrray.Length == 2)
                 {
                     // Ensure tha we dont add if a bogus non-direction indicating second term was provided.
