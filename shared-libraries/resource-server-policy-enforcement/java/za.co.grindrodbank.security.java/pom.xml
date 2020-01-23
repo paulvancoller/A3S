@@ -180,8 +180,12 @@
 						</goals>
 						<configuration>
 							<gpgArguments>
+								<arg>--batch</arg>
+								<arg>--no-tty</arg>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
+								<arg>--command-fd</arg>
+								<arg>0</arg>
 							</gpgArguments>
 						</configuration>					
 					</execution>
