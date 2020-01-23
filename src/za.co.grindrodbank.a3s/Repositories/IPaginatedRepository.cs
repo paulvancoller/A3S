@@ -11,6 +11,6 @@ namespace za.co.grindrodbank.a3s.Repositories
 {
     public interface IPaginatedRepository<T> where T : class
     {
-        public Task<PaginatedResult<T>> GetPaginatedListAsync(IQueryable<T> query, int page, int pageSize);
+        public Task<PaginatedResult<T>> GetPaginatedListFromQueryAsync(IQueryable<T> query, int page, int pageSize);
     }
 }

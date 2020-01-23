@@ -13,7 +13,7 @@ using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Fakes
 {
-    public class ApplicationRepositoryFake : IApplicationRepository
+    public class ApplicationRepositoryFake : PaginatedRepository<ApplicationModel>, IApplicationRepository
     {
         ApplicationModel mockedApplicationModel;
 
@@ -57,17 +57,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             throw new NotImplementedException();
         }
 
-        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<PaginatedResult<T>> GetPaginatedListAsync<T>(IQueryable<T> query, int page, int pageSize) where T : class
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(IQueryable<ApplicationModel> query, int page, int pageSize)
+        public Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy)
         {
             throw new NotImplementedException();
         }

@@ -1565,12 +1565,10 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
+            order is assumed. Append '_desc' after a field to indicate descending order.
             order.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK

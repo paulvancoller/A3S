@@ -7,7 +7,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -17,7 +16,7 @@ namespace za.co.grindrodbank.a3s.Helpers
 {
     public class PaginationHelper : IPaginationHelper
     {
-        public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, List<string> orderBy, string pageRouteName,
+        public void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName,
             IUrlHelper urlHelper, HttpResponse response) where T : class
         {
             var previousPageLink = paginatedResult.CurrentPage > 1
@@ -70,7 +69,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         }
 
 
-        private string CreatePagedLinkRelToCurrentPage<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, List<string> orderBy, IUrlHelper urlHelper,
+        private string CreatePagedLinkRelToCurrentPage<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, IUrlHelper urlHelper,
             string pageRouteName, int pagesFromCurrentPage) where T : class
         {
             return CreatePageLink(pageSize: paginatedResult.PageSize,
@@ -81,7 +80,7 @@ namespace za.co.grindrodbank.a3s.Helpers
                                    urlHelper: urlHelper);
         }
 
-        private string CreatePageLink(int pageSize, int pageNumber, List<KeyValuePair<string, string>> filters, List<string> orderBy, string pageRouteName, IUrlHelper urlHelper)
+        private string CreatePageLink(int pageSize, int pageNumber, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName, IUrlHelper urlHelper)
         {
             // append the page and size query params to the generated URL.
             dynamic pageRouteValues = new ExpandoObject() as IDictionary<string, Object>; ;
@@ -94,12 +93,9 @@ namespace za.co.grindrodbank.a3s.Helpers
             {
                 ((IDictionary<string, Object>)pageRouteValues)[keyValuePair.Key] = keyValuePair.Value;
             }
-            // generate the orderBy comma-separated array and append it to the generated URL by adding it to 'pageRouteValues'.
-            if (orderBy != null && orderBy.Any()) {
-                // Implode the orderBy list into a comma separated list.
-                string commaSeparatedValues = string.Join(",", orderBy);
-
-                pageRouteValues.orderBy = $"[{commaSeparatedValues}]";
+            // append the orderBy component, as it was received, to the URL.
+            if (orderBy != null) {
+                pageRouteValues.orderBy = orderBy;
             }            
 
             return urlHelper.Link(pageRouteName, pageRouteValues);

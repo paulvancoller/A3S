@@ -18,18 +18,13 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
         }
 
         [Fact]
-        public void GetKeyValueListWithOrderByTermAndOrderDirection_GivenSingleStringOrderByList()
+        public void GetKeyValueListWithOrderByTermAndOrderDirection_GivenSingleCommaSeparatedOrderByString()
         {
-            List<string> singleTermOrderByList = new List<string>
-            {
-                "testTerm1",
-                "testTerm2_desc",
-                "testTerm3_asc"
-            };
+            string commaSeparatedOrderBy = "testTerm1,testTerm2_desc,testTerm3_asc";
 
             var orderByHelper = new OrderByHelper();
 
-            var convertedKeyValuePairList = orderByHelper.ConvertSingleTermOrderByListToKeyValuePairList(singleTermOrderByList);
+            var convertedKeyValuePairList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(commaSeparatedOrderBy);
 
             Assert.True(convertedKeyValuePairList[0].Key == "testTerm1", $"Expected first converted orderBy term key to be 'testTerm1' but actual value is {convertedKeyValuePairList[0].Key}");
             Assert.True(convertedKeyValuePairList[0].Value == "asc", $"Expected first covnerted orderBy term value to be 'asc' but actual value is {convertedKeyValuePairList[0].Key}");
@@ -42,40 +37,29 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
         }
 
         [Fact]
-        public void GetKeyValueListWithOrderByTerm_ExpectInvalidaFormatException_GivenErroneousMultiSeparatorSingleStringOrderByList()
+        public void GetKeyValueListWithOrderByTerm_ExpectInvalidaFormatException_GivenErroneousMultiSeparatorCommaSeparatedOrderByString()
         {
-            List<string> singleTermOrderByList = new List<string>
-            {
-                "testTerm1_desc_test",
-            };
+            string commaSeparatedOrderBy = "testTerm1_desc_test";
 
             var orderByHelper = new OrderByHelper();
 
-            Assert.Throws<InvalidFormatException>(() => orderByHelper.ConvertSingleTermOrderByListToKeyValuePairList(singleTermOrderByList));
+            Assert.Throws<InvalidFormatException>(() => orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(commaSeparatedOrderBy));
         }
 
         [Fact]
-        public void GetKeyValueListWithOrderByTerm_ExpectInvalidaFormatException_GivenErroneousDirectionalSingleStringOrderByList()
+        public void GetKeyValueListWithOrderByTerm_ExpectInvalidaFormatException_GivenErroneousDirectionalCommaSeparatedOrderByString()
         {
-            List<string> singleTermOrderByList = new List<string>
-            {
-                "testTerm1_rubbish",
-            };
+            string commaSeparatedOrderBy = "testTerm1_rubbish";
 
             var orderByHelper = new OrderByHelper();
 
-            Assert.Throws<InvalidFormatException>(() => orderByHelper.ConvertSingleTermOrderByListToKeyValuePairList(singleTermOrderByList));
+            Assert.Throws<InvalidFormatException>(() => orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(commaSeparatedOrderBy));
         }
 
         [Fact]
         public void ValidateKeyValueListWithOrderByTermIsTrue_GivenValidDesiredOrderByElements()
         {
-            List<string> singleTermOrderByList = new List<string>
-            {
-                "testTerm1",
-                "testTerm2_desc",
-                "testTerm3_asc"
-            };
+            string commaSeparatedOrderBy = "testTerm1,testTerm2_desc,testTerm3_asc";
 
             List<string> desiredOrderByTerms = new List<string>
             {
@@ -85,7 +69,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             };
 
             var orderByHelper = new OrderByHelper();
-            var convertedList = orderByHelper.ConvertSingleTermOrderByListToKeyValuePairList(singleTermOrderByList);
+            var convertedList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(commaSeparatedOrderBy);
 
             try
             {
@@ -102,12 +86,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
         [Fact]
         public void ValidateKeyValueListWithOrderByTermThrowsException_GivenInValidDesiredOrderByElements()
         {
-            List<string> singleTermOrderByList = new List<string>
-            {
-                "testTerm1",
-                "testTerm2_desc",
-                "testTerm5_asc"
-            };
+            string commaSeparatedOrderBy = "testTerm1,testTerm2_desc,testTerm5_asc";
 
             List<string> desiredOrderByTerms = new List<string>
             {
@@ -117,7 +96,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             };
 
             var orderByHelper = new OrderByHelper();
-            var convertedList = orderByHelper.ConvertSingleTermOrderByListToKeyValuePairList(singleTermOrderByList);
+            var convertedList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(commaSeparatedOrderBy);
 
             Assert.Throws<InvalidFormatException>(() => orderByHelper.ValidateOrderByListOnlyContainsCertainElements(convertedList, desiredOrderByTerms));
         }

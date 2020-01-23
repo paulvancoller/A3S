@@ -17,7 +17,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         {
         }
 
-        public async Task<PaginatedResult<T>> GetPaginatedListAsync(IQueryable<T> query, int page, int pageSize)
+        public async Task<PaginatedResult<T>> GetPaginatedListFromQueryAsync(IQueryable<T> query, int page, int pageSize)
         {
             // Set default page and page size for all paginated lists here.
             // This should be pulled from configuration.

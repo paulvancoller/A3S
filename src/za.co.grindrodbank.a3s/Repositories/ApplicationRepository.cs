@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.Repositories
             return application;
         }
 
-        public async Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<string> orderBy)
+        public async Task<PaginatedResult<ApplicationModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy)
         {
             IQueryable<ApplicationModel> query = a3SContext.Application.Include(a => a.Functions)
                                                  .ThenInclude(f => f.FunctionPermissions)
@@ -109,7 +109,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                 query = query.Where(a => a.Name == filterName);
             }
 
-            return await GetPaginatedListAsync(query, page, pageSize);
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
         }
     }
 }

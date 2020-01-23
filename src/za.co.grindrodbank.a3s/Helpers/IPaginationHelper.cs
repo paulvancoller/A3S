@@ -24,7 +24,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         /// <param name="orderBy">A list of all the orderBy strings.</param>
         /// <param name="urlHelper"></param>
         /// <param name="response"></param>
-        void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, List<string> orderBy, string pageRouteName, 
+        void AddHeaderMetaData<T>(IPaginatedResult<T> paginatedResult, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName, 
             IUrlHelper urlHelper, HttpResponse response) where T : class;
     }
 }

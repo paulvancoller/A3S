@@ -19,7 +19,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        public List<KeyValuePair<string, string>> ConvertSingleTermOrderByListToKeyValuePairList(List<string> singleTermOrderByList);
+        public List<KeyValuePair<string, string>> ConvertCommaSeparateOrderByStringToKeyValuePairList(string commaSeparateOrderByString);
 
         /// <summary>
         /// Validates the an order by list only contains desired elements. Throws a 'InvalidFormatException' if not.

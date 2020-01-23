@@ -16,11 +16,13 @@ namespace za.co.grindrodbank.a3s.Helpers
         {
         }
 
-        public List<KeyValuePair<string, string>> ConvertSingleTermOrderByListToKeyValuePairList(List<string> singleTermOrderByList)
+        public List<KeyValuePair<string, string>> ConvertCommaSeparateOrderByStringToKeyValuePairList(string commaSeparateOrderByString)
         {
             List<KeyValuePair<string, string>> orderByKeyValueList = new List<KeyValuePair<string, string>>();
 
-            foreach (var orderByTerm in singleTermOrderByList)
+            var orderByComponents = commaSeparateOrderByString.Split(',');
+
+            foreach (var orderByTerm in orderByComponents)
             {
                 var splitOrderByTermArrray = orderByTerm.Split('_');
 
@@ -57,7 +59,7 @@ namespace za.co.grindrodbank.a3s.Helpers
             foreach (var orderByListKeyValuePair in orderByKeyValueList)
             {
                 if (!desiredOrderByKeys.Contains(orderByListKeyValuePair.Key)){
-                    throw new InvalidFormatException($"Invalid orderBy parameter supplied. The '{orderByListKeyValuePair.Key}' value is not valid for this request.");
+                    throw new InvalidFormatException($"Invalid orderBy parameter supplied. The '{orderByListKeyValuePair.Key}' component is not valid for this request.");
                 }
             }
         }
