@@ -741,32 +741,37 @@ namespace za.co.grindrodbank.a3s.Services
 
                 foreach (var userName in userNames)
                 {
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attmepting to add user '{userName}' to tea, '{team.Name}'");
-                    var user = await userRepository.GetByUsernameAsync(userName, false);
-
-                    if (user == null)
-                    {
-                        var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.";
-
-                        if (dryRun)
-                        {
-                            securityContractDryRunResult.ValidationErrors.Add(errorMessage);
-                            continue;
-                        }
-
-                        throw new ItemNotFoundException(errorMessage);
-                    }
-
-                    logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Adding user '{userName}' to team: {team.Name}");
-
-                    team.UserTeams.Add(new UserTeamModel
-                    {
-                        Team = team,
-                        User = user,
-                        ChangedBy = updatedById
-                    });
+                    await AssignIndividualUserToTeam(userName, team, updatedById, dryRun, securityContractDryRunResult, defaultConfigurationName);
                 }
             }
+        }
+
+        private async Task AssignIndividualUserToTeam(string userName, TeamModel team, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
+        {
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attmepting to add user '{userName}' to tea, '{team.Name}'");
+            var user = await userRepository.GetByUsernameAsync(userName, false);
+
+            if (user == null)
+            {
+                var errorMessage = $"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Unable to find a user with Username: '{userName}' when attempting to assign the user to team {team.Name}.";
+
+                if (dryRun)
+                {
+                    securityContractDryRunResult.ValidationErrors.Add(errorMessage);
+                    return;
+                }
+
+                throw new ItemNotFoundException(errorMessage);
+            }
+
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Adding user '{userName}' to team: {team.Name}");
+
+            team.UserTeams.Add(new UserTeamModel
+            {
+                Team = team,
+                User = user,
+                ChangedBy = updatedById
+            });
         }
 
         private async Task AssignChildTeamsToTeam(SecurityContractDefaultConfigurationTeam defaultTeamToApply, TeamModel teamModel, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
