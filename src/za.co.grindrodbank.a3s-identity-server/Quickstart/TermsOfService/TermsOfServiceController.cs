@@ -139,7 +139,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         {
             bool showAfterSuccessManagementScreen = false;
 
-            if (configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
+            if (configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
                 showAfterSuccessManagementScreen = true;
 
             return showAfterSuccessManagementScreen;
@@ -152,6 +152,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 return RedirectToAction("LoginSuccessful", "Account", new { redirectUrl = returnUrl, show2FARegMessage = true });
 
             // check if we are in the context of an authorization request
+            // Only redirect to return URL if a valid context is loaded (based on the registered URL).
             var context = await interaction.GetAuthorizationContextAsync(returnUrl);
 
             await events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
@@ -169,15 +170,11 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 return Redirect(returnUrl);
             }
 
-            // request for a local page
-            if (Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-
             if (string.IsNullOrEmpty(returnUrl))
                 return Redirect("~/");
 
             // user might have clicked on a malicious link - should be logged
-            throw new Exception("invalid return URL");
+            throw new ArgumentException("invalid return URL");
         }
 
         private async Task<IActionResult> CancelTokenRequest(string returnUrl)

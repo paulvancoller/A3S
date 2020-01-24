@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Extensions;
@@ -52,7 +51,7 @@ namespace za.co.grindrodbank.a3s.Services
                         );
                 }
 
-                UserModel updatedUser = await userRepository.UpdateAsync(userModel);
+                await userRepository.UpdateAsync(userModel);
 
                 // All successful
                 CommitAllTransactions();

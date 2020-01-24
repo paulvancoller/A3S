@@ -88,6 +88,11 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Team>>(await teamRepository.GetListAsync());
         }
 
+        public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)
+        {
+            return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
+        }
+
         public async Task<Team> UpdateAsync(TeamSubmit teamSubmit, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
@@ -163,43 +168,48 @@ namespace za.co.grindrodbank.a3s.Services
 
             foreach (var childTeamId in teamIds)
             {
-                // It is imperative to fetch the child teams with their relations, as potential child teams are assessed for the child team below.
-                var teamToAddAsChild = await teamRepository.GetByIdAsync(childTeamId, true);
-
-                if (teamToAddAsChild == null)
-                {
-                    throw new ItemNotFoundException($"Unable to find existing team by ID: '{childTeamId}', when attempting to assign that team to existing team: '{teamModel.Name}' as a child team.");
-                }
-
-                //Teams can only be added to a team as a child if it has no children of it's own. This prevents having compound teams that contain child compound teams.
-                if (teamToAddAsChild.ChildTeams.Count > 0)
-                {
-                    // Note: 'teamModel' may not have an ID as this function is potentially called from the createAsync function prior to persisting the team into the database. Use it's name when referencing it for safety.
-                    throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
-                }
-
-                // If there is a Sub-Realm associated with parent team, we must ensure that the child team we are attempting to add to the parent is in the same sub realm.
-                if (teamModel.SubRealm != null)
-                {
-                    if (teamToAddAsChild.SubRealm == null || teamModel.SubRealm.Id != teamToAddAsChild.SubRealm.Id)
-                    {
-                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
-                    }
-                }
-                else
-                {
-                    if (teamToAddAsChild.SubRealm != null)
-                    {
-                        throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
-                    }
-                }
-
-                teamModel.ChildTeams.Add(new TeamTeamModel
-                {
-                    ParentTeam = teamModel,
-                    ChildTeam = teamToAddAsChild
-                });
+                await AssignIndividualTeamToTeamFromTeamIdList(childTeamId, teamModel);
             }
+        }
+
+        private async Task AssignIndividualTeamToTeamFromTeamIdList(Guid childTeamId, TeamModel teamModel)
+        {
+            // It is imperative to fetch the child teams with their relations, as potential child teams are assessed for the child team below.
+            var teamToAddAsChild = await teamRepository.GetByIdAsync(childTeamId, true);
+
+            if (teamToAddAsChild == null)
+            {
+                throw new ItemNotFoundException($"Unable to find existing team by ID: '{childTeamId}', when attempting to assign that team to existing team: '{teamModel.Name}' as a child team.");
+            }
+
+            //Teams can only be added to a team as a child if it has no children of it's own. This prevents having compound teams that contain child compound teams.
+            if (teamToAddAsChild.ChildTeams.Count > 0)
+            {
+                // Note: 'teamModel' may not have an ID as this function is potentially called from the createAsync function prior to persisting the team into the database. Use it's name when referencing it for safety.
+                throw new ItemNotProcessableException($"Adding compound team as child of a team is prohibited. Attempting to add team with name: '{teamToAddAsChild.Name}' and ID: '{teamToAddAsChild.Id}' as a child team of team with name: '{teamModel.Name}'. However it already has '{teamToAddAsChild.ChildTeams.Count}' child teams of its own.");
+            }
+
+            // If there is a Sub-Realm associated with parent team, we must ensure that the child team we are attempting to add to the parent is in the same sub realm.
+            if (teamModel.SubRealm != null)
+            {
+                if (teamToAddAsChild.SubRealm == null || teamModel.SubRealm.Id != teamToAddAsChild.SubRealm.Id)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                }
+            }
+            else
+            {
+                if (teamToAddAsChild.SubRealm != null)
+                {
+                    throw new ItemNotProcessableException($"Attempting to add a team with ID '{teamToAddAsChild.Id}' as a child team of team with ID '{teamModel.Id}' but the two teams are not within the same sub-realm.");
+                }
+            }
+
+            teamModel.ChildTeams.Add(new TeamTeamModel
+            {
+                ParentTeam = teamModel,
+                ChildTeam = teamToAddAsChild
+            });
         }
 
         /// <summary>
@@ -237,7 +247,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (team.SubRealm != null)
                 {
                     // scan through all the sub-realms associated with the data policy to ensure that the data policy is assigned to the sub-realm that the team is associated with.
-                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.Where(sradp => sradp.SubRealm.Id == team.SubRealm.Id).FirstOrDefault();
+                    var subRealmDataPolicy = applicationDataPolicyToAdd.SubRealmApplicationDataPolicies.FirstOrDefault(sradp => sradp.SubRealm.Id == team.SubRealm.Id);
 
                     if (subRealmDataPolicy == null)
                     {
@@ -265,11 +275,6 @@ namespace za.co.grindrodbank.a3s.Services
             var existingSubRealm = await subRealmRepository.GetByIdAsync(teamSubmit.SubRealmId, false);
 
             team.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{teamSubmit.SubRealmId}' does not exist.");
-        }
-
-        public async Task<List<Team>> GetListAsync(Guid teamMemberUserGuid)
-        {
-            return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
         }
 
         public void InitSharedTransaction()

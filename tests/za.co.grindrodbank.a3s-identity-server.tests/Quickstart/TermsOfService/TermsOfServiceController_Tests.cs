@@ -391,55 +391,6 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         }
 
         [Fact]
-        public async Task Index_ExecutedWithNoOutstandingAgreementsAndNoContextWithLocalRedirectUrl_RedirectResultReturned()
-        {
-            //Arrange
-            var id = Guid.NewGuid().ToString();
-            using var termsOfServiceController = new TermsOfServiceController(fakeUserManager, termsOfServiceRepository, mockConfiguration, mockIdentityServerInteractionService,
-                mockEventService, mockClientStore, fakeSignInManager)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = new DefaultHttpContext()
-                    {
-                        User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(ClaimTypes.Name, "example name"),
-                            new Claim(ClaimTypes.NameIdentifier, id),
-                            new Claim("sub", id),
-                            new Claim("custom-claim", "example claim value"),
-                        }, "mock")),
-                    }
-                }
-            };
-
-            fakeUserManager.SetUserModel(userModel);
-            termsOfServiceRepository.GetAllOutstandingAgreementsByUserAsync(Arg.Any<Guid>()).Returns(new List<Guid>());
-
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(Directory.GetCurrentDirectory())
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddEnvironmentVariables();
-
-            var config = builder.Build();
-            config.GetSection("TwoFactorAuthentication")["OrganizationEnforced"] = "false";
-            config.GetSection("TwoFactorAuthentication")["AuthenticatorEnabled"] = "false";
-            mockConfiguration.GetSection("TwoFactorAuthentication").Returns(config.GetSection("TwoFactorAuthentication"));
-
-            var urlHelper = Substitute.For<IUrlHelper>();
-            urlHelper.IsLocalUrl(Arg.Any<string>()).Returns(true);
-            termsOfServiceController.Url = urlHelper;
-
-            // Act
-            var actionResult = await termsOfServiceController.Index(RETURN_URL, 0);
-
-            // Assert
-            var viewResult = actionResult as RedirectResult;
-            Assert.NotNull(viewResult);
-            Assert.True(viewResult.Url == RETURN_URL, $"Redirect Url must be '{RETURN_URL}'.");
-        }
-
-        [Fact]
         public async Task Index_ExecutedWithNoOutstandingAgreementsAndNoContextWithEmptyRedirectUrl_RedirectResultReturned()
         {
             //Arrange

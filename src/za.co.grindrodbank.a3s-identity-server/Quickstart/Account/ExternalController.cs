@@ -7,7 +7,6 @@
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -31,20 +30,17 @@ namespace Host.Quickstart.Account
         private readonly UserManager<UserModel> _userManager;
         private readonly SignInManager<UserModel> _signInManager;
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly IClientStore _clientStore;
         private readonly IEventService _events;
 
         public ExternalController(
             UserManager<UserModel> userManager,
             SignInManager<UserModel> signInManager,
             IIdentityServerInteractionService interaction,
-            IClientStore clientStore,
             IEventService events)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _interaction = interaction;
-            _clientStore = clientStore;
             _events = events;
         }
 
@@ -56,12 +52,7 @@ namespace Host.Quickstart.Account
         {
             if (string.IsNullOrEmpty(returnUrl)) returnUrl = "~/";
 
-            // validate returnUrl - either it is a valid OIDC URL or back to a local page
-            if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
-            {
-                // user might have clicked on a malicious link - should be logged
-                throw new Exception("invalid return URL");
-            }
+            ValidateReturnUrl(returnUrl);
 
             if (AccountOptions.WindowsAuthenticationSchemeName == provider)
             {
@@ -85,6 +76,16 @@ namespace Host.Quickstart.Account
             }
         }
 
+        private void ValidateReturnUrl(string returnUrl)
+        {
+            // validate returnUrl - either it is a valid OIDC URL or back to a local page
+            if (!Url.IsLocalUrl(returnUrl) && !_interaction.IsValidReturnUrl(returnUrl))
+            {
+                // user might have clicked on a malicious link - should be logged
+                throw new ArgumentException("invalid return URL");
+            }
+        }
+
         /// <summary>
         /// Post processing of external authentication
         /// </summary>
@@ -95,7 +96,7 @@ namespace Host.Quickstart.Account
             var result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
             if (result?.Succeeded != true)
             {
-                throw new Exception("External authentication error");
+                throw new ArgumentException("External authentication error");
             }
 
             // lookup our user and external provider info
@@ -114,8 +115,6 @@ namespace Host.Quickstart.Account
             var additionalLocalClaims = new List<Claim>();
             var localSignInProps = new AuthenticationProperties();
             ProcessLoginCallbackForOidc(result, additionalLocalClaims, localSignInProps);
-            ProcessLoginCallbackForWsFed(result, additionalLocalClaims, localSignInProps);
-            ProcessLoginCallbackForSaml2p(result, additionalLocalClaims, localSignInProps);
 
             // issue authentication cookie for user
             // we must issue the cookie maually, and can't use the SignInManager because
@@ -196,7 +195,7 @@ namespace Host.Quickstart.Account
             // depending on the external provider, some other claim type might be used
             var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                               externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
-                              throw new Exception("Unknown userid");
+                              throw new ArgumentException("Unknown userid");
 
             // remove the user id claim so we don't include it as an extra claim if/when we provision the user
             var claims = externalUser.Claims.ToList();
@@ -256,16 +255,16 @@ namespace Host.Quickstart.Account
                 UserName = Guid.NewGuid().ToString(),
             };
             var identityResult = await _userManager.CreateAsync(user);
-            if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+            if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
 
             if (filtered.Any())
             {
                 identityResult = await _userManager.AddClaimsAsync(user, filtered);
-                if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+                if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
             }
 
             identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
-            if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+            if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
 
             return user;
         }
@@ -287,14 +286,6 @@ namespace Host.Quickstart.Account
             {
                 localSignInProps.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = id_token } });
             }
-        }
-
-        private void ProcessLoginCallbackForWsFed(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
-        {
-        }
-
-        private void ProcessLoginCallbackForSaml2p(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
-        {
         }
     }
 }

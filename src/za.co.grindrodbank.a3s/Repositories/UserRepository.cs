@@ -23,7 +23,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         // This is the underlying identity user store manager. Use this, as it inlcudes numerous operations such as password hashing.
         private readonly UserManager<UserModel> identityUserManager;
         private readonly ISafeRandomizerService safeRandomizerService;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public UserRepository(A3SContext a3SContext, UserManager<UserModel> identityUserManager, ISafeRandomizerService safeRandomizerService)
         {

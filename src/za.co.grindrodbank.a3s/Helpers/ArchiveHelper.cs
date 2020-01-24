@@ -40,11 +40,6 @@ namespace za.co.grindrodbank.a3s.Helpers
             return ExtractFilesInTarGz(stream, fileNamesOnly: false);
         }
 
-        private void ExtractFilesInTarGz(Stream stream)
-        {
-            ExtractFilesInTarGz(stream, fileNamesOnly: true);
-        }
-
         private List<InMemoryFile> ExtractFilesInTarGz(Stream stream, bool fileNamesOnly)
         {
             // A GZipStream is not seekable, so copy it first to a MemoryStream

@@ -62,19 +62,42 @@ namespace za.co.grindrodbank.a3s.Services
                 client.IdentityTokenLifetime = oauth2ClientSubmit.IdentityTokenLifetime;
             }
 
+            ApplyClientAllowedScopes(client, oauth2ClientSubmit);
+            ApplyClientAllowedGrantTypes(client, oauth2ClientSubmit);
+            ApplyClientSecrets(client, oauth2ClientSubmit);
+            ApplyClientRedirectUris(client, oauth2ClientSubmit);
+            ApplyClientPostLogoutRedirectUris(client, oauth2ClientSubmit);
+            ApplyClientAllowedCorsOrigins(client, oauth2ClientSubmit, dryRun, securityContractDryRunResult);
+
+            if (newClient)
+            {
+                logger.Debug($"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Client '{oauth2ClientSubmit.ClientId}' does not exist. Creating it.");
+                return mapper.Map<Oauth2Client>(await identityClientRepository.CreateAsync(client));
+            }
+
+            logger.Debug($"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Client '{oauth2ClientSubmit.ClientId}' already exists. Updating it.");
+            return mapper.Map<Oauth2Client>(await identityClientRepository.UpdateAsync(client));
+        }
+
+        private void ApplyClientAllowedScopes(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit)
+        {
             client.AllowedScopes = new List<ClientScope>();
 
-            foreach(var clientScope in oauth2ClientSubmit.AllowedScopes)
+            foreach (var clientScope in oauth2ClientSubmit.AllowedScopes)
             {
-                client.AllowedScopes.Add(new ClientScope {
+                client.AllowedScopes.Add(new ClientScope
+                {
                     Client = client,
                     Scope = clientScope
                 });
             }
+        }
 
+        private void ApplyClientAllowedGrantTypes(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit)
+        {
             client.AllowedGrantTypes = new List<ClientGrantType>();
 
-            foreach(var grantType in oauth2ClientSubmit.AllowedGrantTypes)
+            foreach (var grantType in oauth2ClientSubmit.AllowedGrantTypes)
             {
                 client.AllowedGrantTypes.Add(new ClientGrantType
                 {
@@ -82,7 +105,10 @@ namespace za.co.grindrodbank.a3s.Services
                     GrantType = grantType
                 });
             }
+        }
 
+        private void ApplyClientSecrets(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit)
+        {
             client.ClientSecrets = new List<ClientSecret>();
 
             if (oauth2ClientSubmit.HashedClientSecrets != null && oauth2ClientSubmit.HashedClientSecrets.Count > 0)
@@ -107,32 +133,10 @@ namespace za.co.grindrodbank.a3s.Services
                     });
                 }
             }
+        }
 
-            client.RedirectUris = new List<ClientRedirectUri>();
-
-            foreach(var redirectUri in oauth2ClientSubmit.RedirectUris)
-            {
-                client.RedirectUris.Add(new ClientRedirectUri
-                {
-                    Client = client,
-                    RedirectUri = redirectUri
-                });
-            }
-
-            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
-
-            if (oauth2ClientSubmit.PostLogoutRedirectUris != null && oauth2ClientSubmit.PostLogoutRedirectUris.Any())
-            {
-                foreach (var postLogoutRedirectUri in oauth2ClientSubmit.PostLogoutRedirectUris)
-                {
-                    client.PostLogoutRedirectUris.Add(new ClientPostLogoutRedirectUri
-                    {
-                        Client = client,
-                        PostLogoutRedirectUri = postLogoutRedirectUri
-                    });
-                }
-            }
-
+        private void ApplyClientAllowedCorsOrigins(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult)
+        {
             client.AllowedCorsOrigins = new List<ClientCorsOrigin>();
 
             if (oauth2ClientSubmit.AllowedCorsOrigins != null && oauth2ClientSubmit.AllowedCorsOrigins.Any())
@@ -160,15 +164,37 @@ namespace za.co.grindrodbank.a3s.Services
                     });
                 }
             }
+        }
 
-            if (newClient)
+        private void ApplyClientRedirectUris(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit)
+        {
+            client.RedirectUris = new List<ClientRedirectUri>();
+
+            foreach (var redirectUri in oauth2ClientSubmit.RedirectUris)
             {
-                logger.Debug($"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Client '{oauth2ClientSubmit.ClientId}' does not exist. Creating it.");
-                return mapper.Map<Oauth2Client>(await identityClientRepository.CreateAsync(client));
+                client.RedirectUris.Add(new ClientRedirectUri
+                {
+                    Client = client,
+                    RedirectUri = redirectUri
+                });
             }
+        }
 
-            logger.Debug($"[client.clientId: '{oauth2ClientSubmit.ClientId}']: Client '{oauth2ClientSubmit.ClientId}' already exists. Updating it.");
-            return mapper.Map<Oauth2Client>(await identityClientRepository.UpdateAsync(client));
+        public void ApplyClientPostLogoutRedirectUris(IdentityServer4.EntityFramework.Entities.Client client, Oauth2ClientSubmit oauth2ClientSubmit)
+        {
+            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>();
+
+            if (oauth2ClientSubmit.PostLogoutRedirectUris != null && oauth2ClientSubmit.PostLogoutRedirectUris.Any())
+            {
+                foreach (var postLogoutRedirectUri in oauth2ClientSubmit.PostLogoutRedirectUris)
+                {
+                    client.PostLogoutRedirectUris.Add(new ClientPostLogoutRedirectUri
+                    {
+                        Client = client,
+                        PostLogoutRedirectUri = postLogoutRedirectUri
+                    });
+                }
+            }
         }
 
         public async Task<List<Oauth2ClientSubmit>> GetClientDefinitionsAsync()

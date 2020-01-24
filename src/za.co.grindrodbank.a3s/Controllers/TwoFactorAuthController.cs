@@ -17,7 +17,7 @@ namespace za.co.grindrodbank.a3s.Controllers
 {
     public class TwoFactorAuthController : TwoFactorAuthApiController
     {
-        ITwoFactorAuthService twoFactorAuthService;
+        private readonly ITwoFactorAuthService twoFactorAuthService;
         
         public TwoFactorAuthController(ITwoFactorAuthService twoFactorAuthService)
         {

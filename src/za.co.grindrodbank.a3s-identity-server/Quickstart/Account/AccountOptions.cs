@@ -12,23 +12,23 @@ using System;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
 {
-    public class AccountOptions
+    public static class AccountOptions
     {
-        public static bool AllowLocalLogin = true;
-        public static bool AllowRememberLogin = true;
-        public static TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
+        public static readonly bool AllowLocalLogin = true;
+        public static readonly bool AllowRememberLogin = true;
+        public static readonly TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
 
-        public static bool ShowLogoutPrompt = true;
-        public static bool AutomaticRedirectAfterSignOut = false;
+        public static readonly bool ShowLogoutPrompt = true;
+        public static readonly bool AutomaticRedirectAfterSignOut = false;
 
         // specify the Windows authentication scheme being used
         public static readonly string WindowsAuthenticationSchemeName = Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme;
         // if user uses windows auth, should we load the groups from windows
-        public static bool IncludeWindowsGroups = false;
+        public static readonly bool IncludeWindowsGroups = false;
 
-        public static string InvalidCredentialsErrorMessage = "Invalid username or password";
-        public static string AccountLockedOutErrorMessage = "Account has been are locked out";
-        public static string OTPSendErrorMessage = "There was an error sending your OTP on the email address specified";
+        public static readonly string InvalidCredentialsErrorMessage = "Invalid username or password";
+        public static readonly string AccountLockedOutErrorMessage = "Account has been are locked out";
+        public static readonly string OTPSendErrorMessage = "There was an error sending your OTP on the email address specified";
 
     }
 }
