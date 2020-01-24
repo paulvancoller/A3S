@@ -32,7 +32,7 @@ namespace za.co.grindrodbank.a3s.Extensions
                     }
             }
 
-            return source.OrderBy(sortSelector);
+            return ascending? source.OrderBy(sortSelector) : source.OrderByDescending(sortSelector);
         }
     }
 }

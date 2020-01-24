@@ -169,11 +169,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         {
             IQueryable<UserModel> query = a3SContext.User.Where(x => !x.IsDeleted);
 
-            if(includeRelations)
-            {
-                query = IncludeUserRelations(query);
-            }
-
             if (!string.IsNullOrWhiteSpace(filterName))
             {
                 query = query.Where(u => u.FirstName == filterName || u.Surname == filterName);
@@ -182,6 +177,11 @@ namespace za.co.grindrodbank.a3s.Repositories
             if (!string.IsNullOrWhiteSpace(filterUsername))
             {
                 query = query.Where(u => u.UserName == filterUsername);
+            }
+
+            if (includeRelations)
+            {
+                query = IncludeUserRelations(query);
             }
 
             foreach (var orderByComponent in orderBy)

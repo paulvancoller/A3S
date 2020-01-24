@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
@@ -114,7 +115,7 @@ namespace za.co.grindrodbank.a3s.Repositories
                 switch (orderByComponent.Key)
                 {
                     case "name":
-                        query = orderByComponent.Value == "asc" ? query.OrderBy(a => a.Name) : query.OrderByDescending(a => a.Name);
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
                         break;
                 }
             }
