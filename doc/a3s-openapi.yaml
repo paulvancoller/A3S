@@ -14,42 +14,13 @@ paths:
       summary: Search for users.
       operationId: listUsers
       parameters:
-        - name: teams
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the teams member field
+          description: Determines whether all entities related to the user are returned.
           schema:
             type: boolean
             default: false
-        - name: roles
-          in: query
-          required: false
-          description: Whether to fill in the roles member field
-          schema:
-            type: boolean
-            default: false
-        - name: functions
-          in: query
-          required: false
-          description: Whether to fill in the functions member field
-          schema:
-            type: boolean
-            default: false
-        - name: locale
-          in: query
-          required: false
-          description: |
-            If this field is set, translate all applicable fields to a specific locale
-          schema:
-            type: string
-            maxLength: 5
-            minLength: 2
-            default: en
-            example:
-              - en-za
-              - en-us
-              - af-za
-              - en
         - name: page
           in: query
           required: false
@@ -81,22 +52,17 @@ paths:
         - name: filterUsername
           in: query
           required: false
-          description: A search query filter on the User's username
+          description: A search query filter on the User's username.
           schema:
             type: string
         - name: orderBy
           in: query
           required: false
-          style: form
-          explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK

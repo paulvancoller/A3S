@@ -14,50 +14,14 @@
         "description" : "Search for users.",
         "operationId" : "listUsers",
         "parameters" : [ {
-          "description" : "Whether to fill in the teams member field",
+          "description" : "Determines whether all entities related to the user are returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "teams",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
             "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the roles member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "roles",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the functions member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "functions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "If this field is set, translate all applicable fields to a specific locale\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "locale",
-          "required" : false,
-          "schema" : {
-            "default" : "en",
-            "example" : "[\"en-za\",\"en-us\",\"af-za\",\"en\"]",
-            "maxLength" : 5,
-            "minLength" : 2,
-            "type" : "string"
           },
           "style" : "form"
         }, {
@@ -101,7 +65,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the User's username",
+          "description" : "A search query filter on the User's username.",
           "explode" : true,
           "in" : "query",
           "name" : "filterUsername",
@@ -111,16 +75,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
-          "explode" : false,
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.",
+          "explode" : true,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

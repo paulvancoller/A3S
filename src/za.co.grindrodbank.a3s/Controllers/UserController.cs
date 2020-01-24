@@ -15,6 +15,9 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.AbstractApiControllers;
 using za.co.grindrodbank.a3s.Helpers;
 using System.Security.Claims;
+using za.co.grindrodbank.a3s.Repositories;
+using za.co.grindrodbank.a3s.Models;
+using AutoMapper;
 
 namespace za.co.grindrodbank.a3s.Controllers
 {
@@ -22,11 +25,17 @@ namespace za.co.grindrodbank.a3s.Controllers
     {
         private readonly IUserService userService;
         private readonly IProfileService profileService;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IMapper mapper;
 
-        public UserController(IUserService userService, IProfileService profileService)
+        public UserController(IUserService userService, IProfileService profileService, IPaginationHelper paginationHelper, IOrderByHelper orderByHelper, IMapper mapper)
         {
             this.userService = userService;
             this.profileService = profileService;
+            this.paginationHelper = paginationHelper;
+            this.orderByHelper = orderByHelper;
+            this.mapper = mapper;
         }
 
         [Authorize(Policy = "permission:a3s.users.create")]
@@ -51,9 +60,23 @@ namespace za.co.grindrodbank.a3s.Controllers
         }
 
         [Authorize(Policy = "permission:a3s.users.read")]
-        public async override Task<IActionResult> ListUsersAsync([FromQuery] bool teams, [FromQuery] bool roles, [FromQuery] bool functions, [FromQuery, StringLength(5, MinimumLength = 2)] string locale, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] string filterUsername, [FromQuery] List<string> orderBy)
+        public async override Task<IActionResult> ListUsersAsync([FromQuery]bool includeRelations, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength = 0)]string filterName, [FromQuery]string filterUsername, [FromQuery]string orderBy)
         {
-            return Ok(await userService.GetListAsync());
+            List<KeyValuePair<string, string>> orderByKeyValueList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(orderBy);
+            // Validate only correct order by components were supplied.
+            orderByHelper.ValidateOrderByListOnlyContainsCertainElements(orderByKeyValueList, new List<string> { "firstName", "lastName", "username" });
+            PaginatedResult<UserModel> paginatedResult = await userService.GetPaginatedListAsync(page, size, includeRelations, filterName, filterUsername, orderByKeyValueList);
+            // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
+            List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("includeRelations", includeRelations ? "true" : "false"),
+                new KeyValuePair<string, string>("filterName", filterName),
+                new KeyValuePair<string, string>("filterUsername", filterUsername)
+            };
+
+            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListUsers", Url, Response);
+
+            return Ok(mapper.Map<List<User>>(paginatedResult.Results));
         }
 
         [Authorize(Policy = "permission:a3s.users.update")]
