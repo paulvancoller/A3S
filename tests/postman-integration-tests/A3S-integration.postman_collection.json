@@ -1,6 +1,6 @@
 ﻿{
 	"info": {
-		"_postman_id": "36e4ca37-e2ea-4174-b566-74bae0248326",
+		"_postman_id": "d4c32f54-f5e5-4260-9a8d-c0c587a751a8",
 		"name": "A3S - Integration",
 		"description": "A Postman collection desgined to be executed remotely using Newman within the CI/CD context.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -5756,12 +5756,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{a3s-host}}/teams",
+							"raw": "{{a3s-host}}/teams?includeRelations=true",
 							"host": [
 								"{{a3s-host}}"
 							],
 							"path": [
 								"teams"
+							],
+							"query": [
+								{
+									"key": "includeRelations",
+									"value": "true"
+								}
 							]
 						},
 						"description": "Gets a list of teams from the API."
