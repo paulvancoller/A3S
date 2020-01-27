@@ -71,7 +71,7 @@ namespace za.co.grindrodbank.a3s.Controllers
                 new KeyValuePair<string, string>("filterName", filterName)
             };
 
-            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListUsers", Url, Response);
+            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListRoles", Url, Response);
 
             return Ok(mapper.Map<List<Role>>(paginatedResult.Results));
         }
