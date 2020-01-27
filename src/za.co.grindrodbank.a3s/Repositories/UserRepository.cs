@@ -188,10 +188,10 @@ namespace za.co.grindrodbank.a3s.Repositories
             {
                 switch (orderByComponent.Key)
                 {
-                    case "firstName":
+                    case "name":
                         query = query.AppendOrderBy(a => a.FirstName, orderByComponent.Value == "asc" ? true : false);
                         break;
-                    case "lastName":
+                    case "surname":
                         query = query.AppendOrderBy(a => a.Surname, orderByComponent.Value == "asc" ? true : false);
                         break;
                     case "username":

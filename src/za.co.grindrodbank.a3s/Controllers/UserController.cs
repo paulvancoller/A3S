@@ -64,7 +64,7 @@ namespace za.co.grindrodbank.a3s.Controllers
         {
             List<KeyValuePair<string, string>> orderByKeyValueList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(orderBy);
             // Validate only correct order by components were supplied.
-            orderByHelper.ValidateOrderByListOnlyContainsCertainElements(orderByKeyValueList, new List<string> { "firstName", "lastName", "username" });
+            orderByHelper.ValidateOrderByListOnlyContainsCertainElements(orderByKeyValueList, new List<string> { "name", "surname", "username" });
             PaginatedResult<UserModel> paginatedResult = await userService.GetPaginatedListAsync(page, size, includeRelations, filterName, filterUsername, orderByKeyValueList);
             // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
             List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>

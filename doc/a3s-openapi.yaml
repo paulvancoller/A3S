@@ -27,9 +27,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -43,7 +43,7 @@ paths:
         - name: filterName
           in: query
           required: false
-          description: A search query filter on the User's name.
+          description: A search query filter on the User's name. Will apply the search to first names and surname.
           schema:
             type: string
             minLength: 0
@@ -60,7 +60,7 @@ paths:
           required: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append '_desc' after a field to indicate descending order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name', 'surname', 'username'.
           schema:
             type: string
       responses:

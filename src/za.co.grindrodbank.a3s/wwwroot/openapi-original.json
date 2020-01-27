@@ -31,9 +31,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -52,7 +52,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the User's name.",
+          "description" : "A search query filter on the User's name. Will apply the search to first names and surname.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
@@ -75,7 +75,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'firstName', 'surname', 'username'.",
           "explode" : true,
           "in" : "query",
           "name" : "orderBy",
