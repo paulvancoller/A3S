@@ -799,10 +799,10 @@ paths:
       summary: Search for Roles.
       operationId: listRoles
       parameters:
-        - name: users
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the users member field
+          description: Determines whether the entities related to the role are returned.
           schema:
             type: boolean
             default: false
@@ -812,9 +812,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -825,10 +825,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the role's description.
+          description: A search query filter on the role's name.
           schema:
             type: string
             minLength: 0
@@ -841,12 +841,10 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
+            
       responses:
         '200':
           description: OK.

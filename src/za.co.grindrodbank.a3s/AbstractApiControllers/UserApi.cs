@@ -223,7 +223,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <param name="size">The size of a page.</param>
         /// <param name="filterName">A search query filter on the User&#39;s name. Will apply the search to first names and surname.</param>
         /// <param name="filterUsername">A search query filter on the User&#39;s username.</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;firstName&#39;, &#39;surname&#39;, &#39;username&#39;.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;name&#39;, &#39;surname&#39;, &#39;username&#39;.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>

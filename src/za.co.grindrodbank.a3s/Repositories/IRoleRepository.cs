@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface IRoleRepository : ITransactableRepository
+    public interface IRoleRepository : ITransactableRepository, IPaginatedRepository<RoleModel>
     {
         Task<RoleModel> GetByNameAsync(string name);
         RoleModel GetByName(string name);
@@ -20,5 +20,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<RoleModel> UpdateAsync(RoleModel role);
         Task DeleteAsync(RoleModel role);
         Task<List<RoleModel>> GetListAsync();
+        public Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

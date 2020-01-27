@@ -75,7 +75,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'firstName', 'surname', 'username'.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name', 'surname', 'username'.",
           "explode" : true,
           "in" : "query",
           "name" : "orderBy",
@@ -1235,10 +1235,10 @@
         "description" : "Search for Roles.",
         "operationId" : "listRoles",
         "parameters" : [ {
-          "description" : "Whether to fill in the users member field",
+          "description" : "Determines whether the entities related to the role are returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "users",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
@@ -1252,9 +1252,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -1273,11 +1273,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the role's description.",
+          "description" : "A search query filter on the role's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -1286,16 +1286,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

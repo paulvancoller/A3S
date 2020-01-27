@@ -13,17 +13,40 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Repositories;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
     public class RoleController_Tests
     {
+        IRoleService roleService;
+        IOrderByHelper orderByHelper;
+        IPaginationHelper paginationHelper;
+        IMapper mapper;
+
+        public RoleController_Tests()
+        {
+            roleService = Substitute.For<IRoleService>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new RoleResourceRoleModelProfile());
+            });
+
+            mapper = config.CreateMapper();
+        }
+
         [Fact]
         public async Task GetRoleAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var roleService = Substitute.For<IRoleService>();
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetRoleAsync(Guid.Empty);
@@ -37,8 +60,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetRoleAsync_WithRandomGuid_ReturnsNotFoundResult()
         {
             // Arrange
-            var roleService = Substitute.For<IRoleService>();
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetRoleAsync(Guid.NewGuid());
@@ -57,7 +79,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             roleService.GetByIdAsync(testGuid).Returns(new Role { Uuid = testGuid, Name = testName });
 
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetRoleAsync(testGuid);
@@ -78,14 +100,25 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             // Arrange
             var roleService = Substitute.For<IRoleService>();
 
-            var inList = new List<Role>();
-            inList.Add(new Role { Name = "Test Roles 1", Uuid = Guid.NewGuid() });
-            inList.Add(new Role { Name = "Test Roles 2", Uuid = Guid.NewGuid() });
-            inList.Add(new Role { Name = "Test Roles 3", Uuid = Guid.NewGuid() });
+            var inList = new List<RoleModel>
+            {
+                new RoleModel { Name = "Test Roles 1", Id = Guid.NewGuid() },
+                new RoleModel { Name = "Test Roles 2", Id = Guid.NewGuid() },
+                new RoleModel { Name = "Test Roles 3", Id = Guid.NewGuid() }
+            };
 
-            roleService.GetListAsync().Returns(inList);
+            PaginatedResult<RoleModel> paginatedResult = new PaginatedResult<RoleModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            var controller = new RoleController(roleService);
+            roleService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+            //roleService.GetListAsync().Returns(inList);
+
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.ListRolesAsync(false, 0, 50, string.Empty, null);
@@ -99,7 +132,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }
@@ -109,7 +142,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var roleService = Substitute.For<IRoleService>();
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateRoleAsync(Guid.Empty, null);
@@ -144,7 +177,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateRoleAsync(inputModel.Uuid, inputModel);
@@ -186,7 +219,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new RoleController(roleService);
+            var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.CreateRoleAsync(inputModel);

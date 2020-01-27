@@ -258,5 +258,10 @@ namespace za.co.grindrodbank.a3s.Services
             functionRepository.RollbackTransaction();
             subRealmRepository.RollbackTransaction();
         }
+
+        public async Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await roleRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
+        }
     }
 }
