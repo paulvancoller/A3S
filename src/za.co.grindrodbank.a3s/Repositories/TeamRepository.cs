@@ -10,10 +10,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class TeamRepository : ITeamRepository
+    public class TeamRepository : PaginatedRepository<TeamModel>, ITeamRepository
     {
         private readonly A3SContext a3SContext;
 
@@ -56,32 +57,18 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<TeamModel> GetByIdAsync(Guid teamId, bool includeRelations)
         {
-            if (includeRelations)
-            {
-                return await a3SContext.Team.Where(t => t.Id == teamId)
-                                      .Include(t => t.UserTeams)
-                                        .ThenInclude(ut => ut.User)
-                                      .Include(t => t.ChildTeams)
-                                        .ThenInclude(ct => ct.ChildTeam)
-                                      .Include(t => t.ApplicationDataPolicies)
-                                        .ThenInclude(adp => adp.ApplicationDataPolicy)
-                                      .Include(t => t.SubRealm)
-                                      .FirstOrDefaultAsync();
-            }
+            IQueryable<TeamModel> query = a3SContext.Team.Where(t => t.Id == teamId);
+            query = includeRelations ? IncludeRelations(query) : query;
 
-            return await a3SContext.Team.Where(t => t.Id == teamId).FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<TeamModel>> GetListAsync()
         {
-            return await a3SContext.Team.Include(t => t.UserTeams)
-                                          .ThenInclude(ut => ut.User)
-                                        .Include(t => t.ChildTeams)
-                                         .ThenInclude(ct => ct.ChildTeam)
-                                        .Include(t => t.ApplicationDataPolicies)
-                                         .ThenInclude(adp => adp.ApplicationDataPolicy)
-                                        .Include(t => t.SubRealm)
-                                        .ToListAsync();
+            IQueryable<TeamModel> query = a3SContext.Team;
+            query = IncludeRelations(query);
+
+            return await query.ToListAsync();
         }
 
         public async Task<TeamModel> UpdateAsync(TeamModel team)
@@ -94,48 +81,82 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<TeamModel> GetByNameAsync(string name, bool includeRelations)
         {
-            if (includeRelations)
-            {
-                return await a3SContext.Team.Where(t => t.Name == name)
-                                      .Include(t => t.UserTeams)
-                                        .ThenInclude(ut => ut.User)
-                                      .Include(t => t.ChildTeams)
-                                        .ThenInclude(ct => ct.ChildTeam)
-                                      .Include(t => t.ApplicationDataPolicies)
-                                        .ThenInclude(adp => adp.ApplicationDataPolicy)
-                                      .Include(t => t.SubRealm)
-                                      .FirstOrDefaultAsync();
-            }
+            IQueryable<TeamModel> query = a3SContext.Team.Where(t => t.Name == name);
+            query = includeRelations ? IncludeRelations(query) : query;
 
-            return await a3SContext.Team.Where(t => t.Name == name).FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<TeamModel>> GetListAsync(Guid teamMemberUserGuid)
         {
-            return await a3SContext.Team.FromSqlRaw("select team.* " +
-                          // Select the teams that users are directly in.
-                          "FROM _a3s.application_user " +
-                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
-                          "JOIN _a3s.team ON team.id = user_team.team_id " +
-                          "WHERE application_user.id = {0} " +
-                          // Select the parent teams where the user is in a child team of the parent.
-                          "UNION " +
-                          "select \"ParentTeam\".* " +
-                          "FROM _a3s.application_user " +
-                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
-                          "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
-                          "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
-                          "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
-                          "WHERE application_user.id = {0} "
-                          , teamMemberUserGuid.ToString())
-                          .Include(t => t.UserTeams)
-                              .ThenInclude(ut => ut.User)
-                          .Include(t => t.ChildTeams)
-                              .ThenInclude(ct => ct.ChildTeam)
-                          .Include(t => t.ApplicationDataPolicies)
-                              .ThenInclude(adp => adp.ApplicationDataPolicy)
-                          .Include(t => t.SubRealm)
-                          .ToListAsync();
+            IQueryable<TeamModel> query = a3SContext.Team.FromSqlRaw(GetParentAndChildTeamMemberShipSql(), teamMemberUserGuid.ToString());
+            query = IncludeRelations(query);
+
+            return await query.ToListAsync();
+        }
+
+        private string GetParentAndChildTeamMemberShipSql()
+        {
+            return "select team.* " +
+                    // Select the teams that users are directly in.
+                    "FROM _a3s.application_user " +
+                    "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                    "JOIN _a3s.team ON team.id = user_team.team_id " +
+                    "WHERE application_user.id = {0} " +
+                    // Select the parent teams where the user is in a child team of the parent.
+                    "UNION " +
+                    "select \"ParentTeam\".* " +
+                    "FROM _a3s.application_user " +
+                    "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                    "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
+                    "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
+                    "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
+                    "WHERE application_user.id = {0} ";
+        }
+
+        private IQueryable<TeamModel> IncludeRelations(IQueryable<TeamModel> query)
+        {
+            return query.Include(t => t.UserTeams)
+                          .ThenInclude(ut => ut.User)
+                        .Include(t => t.ChildTeams)
+                          .ThenInclude(ct => ct.ChildTeam)
+                        .Include(t => t.ApplicationDataPolicies)
+                          .ThenInclude(adp => adp.ApplicationDataPolicy)
+                        .Include(t => t.SubRealm);
+        }
+
+        public async Task<PaginatedResult<TeamModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<TeamModel> query = a3SContext.Team;
+            return await BuildAndReturnPaginatedListAsync(query, page, pageSize, includeRelations, filterName, orderBy);
+        }
+
+        public async Task<PaginatedResult<TeamModel>> GetPaginatedListForMemberUserAsync(Guid teamMemberUserGuid, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<TeamModel> query = a3SContext.Team.FromSqlRaw(GetParentAndChildTeamMemberShipSql(), teamMemberUserGuid.ToString());
+            return await BuildAndReturnPaginatedListAsync(query, page, pageSize, includeRelations, filterName, orderBy);
+        }
+
+        private async Task<PaginatedResult<TeamModel>> BuildAndReturnPaginatedListAsync(IQueryable<TeamModel> query, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(r => r.Name == filterName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
         }
     }
 }

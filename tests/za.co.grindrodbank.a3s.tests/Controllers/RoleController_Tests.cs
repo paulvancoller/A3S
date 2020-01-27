@@ -116,8 +116,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             };
 
             roleService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
-            //roleService.GetListAsync().Returns(inList);
-
             var controller = new RoleController(roleService, orderByHelper, paginationHelper, mapper);
 
             // Act

@@ -272,6 +272,16 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Team>>(await teamRepository.GetListAsync(teamMemberUserGuid));
         }
 
+        public async Task<PaginatedResult<TeamModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await teamRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
+        }
+
+        public async Task<PaginatedResult<TeamModel>> GetPaginatedListForMemberUserAsync(Guid teamMemberUserGuid, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await teamRepository.GetPaginatedListForMemberUserAsync(teamMemberUserGuid, page, pageSize, includeRelations, filterName, orderBy);
+        }
+
         public void InitSharedTransaction()
         {
             teamRepository.InitSharedTransaction();

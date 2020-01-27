@@ -1065,24 +1065,10 @@ paths:
       summary: Search for teams.
       operationId: listTeams
       parameters:
-        - name: users
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the users member field
-          schema:
-            type: boolean
-            default: false
-        - name: teams
-          in: query
-          required: false
-          description: Whether to fill in the teams member field
-          schema:
-            type: boolean
-            default: false
-        - name: policies
-          in: query
-          required: false
-          description: Whether to fill in the policies member field
+          description: Determines whether the team's related entities will be returned.
           schema:
             type: boolean
             default: false
@@ -1092,9 +1078,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1105,10 +1091,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDesciption
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the team's description
+          description: A search query filter on the team's name.
           schema:
             type: string
             minLength: 0
@@ -1121,12 +1107,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK.

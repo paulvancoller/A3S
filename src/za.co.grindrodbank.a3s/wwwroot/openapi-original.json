@@ -1646,32 +1646,10 @@
         "description" : "Search for teams.",
         "operationId" : "listTeams",
         "parameters" : [ {
-          "description" : "Whether to fill in the users member field",
+          "description" : "Determines whether the team's related entities will be returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "users",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the teams member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "teams",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the policies member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "policies",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
@@ -1685,9 +1663,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -1706,11 +1684,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the team's description",
+          "description" : "A search query filter on the team's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDesciption",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -1719,16 +1697,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

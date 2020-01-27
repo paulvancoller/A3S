@@ -82,13 +82,11 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// Search for teams.
         /// </summary>
         /// <remarks>Search for teams.</remarks>
-        /// <param name="users">Whether to fill in the users member field</param>
-        /// <param name="teams">Whether to fill in the teams member field</param>
-        /// <param name="policies">Whether to fill in the policies member field</param>
+        /// <param name="includeRelations">Determines whether the team&#39;s related entities will be returned.</param>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="filterDesciption">A search query filter on the team&#39;s description</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="filterName">A search query filter on the team&#39;s name.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;name&#39;.</param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -104,7 +102,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListTeamsAsync([FromQuery]bool users, [FromQuery]bool teams, [FromQuery]bool policies, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterDesciption, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListTeamsAsync([FromQuery]bool includeRelations, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
         /// Update a team.
