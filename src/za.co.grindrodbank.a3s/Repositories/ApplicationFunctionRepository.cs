@@ -13,10 +13,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class ApplicationFunctionRepository : IApplicationFunctionRepository
+    public class ApplicationFunctionRepository : PaginatedRepository<ApplicationFunctionModel>, IApplicationFunctionRepository
     {
         private readonly A3SContext a3SContext;
 
@@ -59,33 +60,34 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<ApplicationFunctionModel> GetByIdAsync(Guid functionId)
         {
-            return await a3SContext.ApplicationFunction.Where(f => f.Id == functionId)
-                                            .Include(f => f.ApplicationFunctionPermissions)
-                                              .ThenInclude(fp => fp.Permission)
-                                            .FirstOrDefaultAsync();
+            IQueryable<ApplicationFunctionModel> query = a3SContext.ApplicationFunction.Where(f => f.Id == functionId);
+            query = IncludeRelations(query);
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public ApplicationFunctionModel GetByName(string name)
         {
-            return a3SContext.ApplicationFunction.Where(f => f.Name == name)
-                                            .Include(f => f.ApplicationFunctionPermissions)
-                                              .ThenInclude(fp => fp.Permission)
-                                            .FirstOrDefault();
+            IQueryable<ApplicationFunctionModel> query = a3SContext.ApplicationFunction.Where(f => f.Name == name);
+            query = IncludeRelations(query);
+
+            return query.FirstOrDefault();
         }
 
         public async Task<ApplicationFunctionModel> GetByNameAsync(string name)
         {
-            return await a3SContext.ApplicationFunction.Where(f => f.Name == name)
-                                            .Include(f => f.ApplicationFunctionPermissions)
-                                              .ThenInclude(fp => fp.Permission)
-                                            .FirstOrDefaultAsync();
+            IQueryable<ApplicationFunctionModel> query = a3SContext.ApplicationFunction.Where(f => f.Name == name);
+            query = IncludeRelations(query);
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<ApplicationFunctionModel>> GetListAsync()
         {
-            return await a3SContext.ApplicationFunction.Include(f => f.ApplicationFunctionPermissions)
-                                              .ThenInclude(fp => fp.Permission)
-                                             .ToListAsync();
+            IQueryable<ApplicationFunctionModel> query = a3SContext.ApplicationFunction;
+            query = IncludeRelations(query);
+
+            return await query.ToListAsync();
         }
 
         public async Task<ApplicationFunctionModel> UpdateAsync(ApplicationFunctionModel applicationFunction)
@@ -94,6 +96,36 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.SaveChangesAsync();
 
             return applicationFunction;
+        }
+
+        public async Task<PaginatedResult<ApplicationFunctionModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<ApplicationFunctionModel> query = a3SContext.ApplicationFunction;
+
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(p => p.Name == filterName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+
+        IQueryable<ApplicationFunctionModel> IncludeRelations(IQueryable<ApplicationFunctionModel> query)
+        {
+            return query.Include(f => f.ApplicationFunctionPermissions)
+                          .ThenInclude(fp => fp.Permission);
         }
     }
 }

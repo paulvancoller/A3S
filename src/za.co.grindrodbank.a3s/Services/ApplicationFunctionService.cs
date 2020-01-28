@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -32,6 +33,11 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<List<ApplicationFunction>> GetListAsync()
         {
             return mapper.Map<List<ApplicationFunction>>(await applicationFunctionRepository.GetListAsync());
+        }
+
+        public async Task<PaginatedResult<ApplicationFunctionModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await applicationFunctionRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
         }
     }
 }

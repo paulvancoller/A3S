@@ -35,9 +35,9 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Oauth2Client>>(await identityClientRepository.GetListAsync());
         }
 
-        public Task<PaginatedResult<Client>> GetPaginatedListAsync(int page, int pageSize, string filterName, string filterClientId, List<KeyValuePair<string, string>> orderBy)
+        public async Task<PaginatedResult<Client>> GetPaginatedListAsync(int page, int pageSize, string filterName, string filterClientId, List<KeyValuePair<string, string>> orderBy)
         {
-            return identityClientRepository.GetPaginatedListAsync(page, pageSize, filterName, filterClientId, orderBy);
+            return await identityClientRepository.GetPaginatedListAsync(page, pageSize, filterName, filterClientId, orderBy);
         }
     }
 }

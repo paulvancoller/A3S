@@ -3463,17 +3463,6 @@
         "description" : "Search for application functions.",
         "operationId" : "listApplicationFunctions",
         "parameters" : [ {
-          "description" : "If this field is set, then the permission list is filled in\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "permissions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
           "description" : "The page to view.",
           "explode" : true,
           "in" : "query",
@@ -3501,11 +3490,22 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the application function name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -3514,16 +3514,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
