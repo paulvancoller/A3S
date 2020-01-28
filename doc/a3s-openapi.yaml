@@ -1724,9 +1724,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1737,6 +1737,21 @@ paths:
             maximum: 20
             format: int32
             default: 10
+        - name: includeRelations
+          in: query
+          required: false
+          description: Determines whether the related entities, such as teams and which users accepted the agreement, are returned.
+          schema:
+            type: boolean
+            default: false
+        - name: filterAgreementName
+          in: query
+          required: false
+          description: A search query filter on the agreement's name.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
         - name: orderBy
           in: query
           required: false
@@ -1744,12 +1759,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'agreementName'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -1763,7 +1775,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TermsOfService'
+                  $ref: '#/components/schemas/TermsOfServiceListItem'
         '400':
           description: Bad Request.
           content:
@@ -3240,6 +3252,30 @@ components:
         version:
           type: string
         agreementFileData:
+          type: string
+        teamIds:
+          description: Teams linked to this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamId'
+        acceptedUserIds:
+          description: A list of User Id's that have accepted this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+          
+    TermsOfServiceListItem:
+      description: |
+        Models a terms of service agreement returned inside lists.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TermsOfServiceId'
+        agreementName:
+          type: string
+        version:
           type: string
         teamIds:
           description: Teams linked to this terms of service entry.

@@ -125,6 +125,11 @@ namespace za.co.grindrodbank.a3s.Services
             return newVersion;
         }
 
+        public async Task<PaginatedResult<TermsOfServiceModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterAgreementName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await termsOfServiceRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterAgreementName, orderBy);
+        }
+
         private void BeginAllTransactions()
         {
             termsOfServiceRepository.InitSharedTransaction();
@@ -139,6 +144,5 @@ namespace za.co.grindrodbank.a3s.Services
         {
             termsOfServiceRepository.RollbackTransaction();
         }
-
     }
 }

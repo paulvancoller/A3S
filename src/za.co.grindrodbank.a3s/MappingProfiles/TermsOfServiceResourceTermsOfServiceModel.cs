@@ -22,6 +22,10 @@ namespace za.co.grindrodbank.a3s.MappingProfiles
                                         .ForMember(dest => dest.AgreementFileData, opt => opt.MapFrom(src => Convert.ToBase64String(src.AgreementFile)))
                                         .ForMember(dest => dest.TeamIds, opt => opt.MapFrom(src => src.Teams.Select(t => t.Id)))
                                         .ForMember(dest => dest.AcceptedUserIds, opt => opt.MapFrom(src => src.TermsOfServiceAcceptances.Select(a => a.UserId)));
+
+            CreateMap<TermsOfServiceModel, TermsOfServiceListItem>().ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id))
+                                        .ForMember(dest => dest.TeamIds, opt => opt.MapFrom(src => src.Teams.Select(t => t.Id)))
+                                        .ForMember(dest => dest.AcceptedUserIds, opt => opt.MapFrom(src => src.TermsOfServiceAcceptances.Select(a => a.UserId)));
         }
     }
 }

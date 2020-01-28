@@ -22,6 +22,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task Delete(PermissionModel permission);
         Task DeletePermissionsNotAssignedToApplicationFunctionsAsync();
         Task<List<PermissionModel>> GetListAsync();
-        public Task<PaginatedResult<PermissionModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy);
+        Task<PaginatedResult<PermissionModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }
