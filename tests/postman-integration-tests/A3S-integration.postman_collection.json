@@ -1038,12 +1038,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{a3s-host}}/functions",
+							"raw": "{{a3s-host}}/functions?includeRelations=true",
 							"host": [
 								"{{a3s-host}}"
 							],
 							"path": [
 								"functions"
+							],
+							"query": [
+								{
+									"key": "includeRelations",
+									"value": "true"
+								}
 							]
 						},
 						"description": "Gets a list of functions from the API. Three were expected to be created with the earlier application of the security contract. Three element list is expected."
