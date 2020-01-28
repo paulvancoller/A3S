@@ -48,7 +48,7 @@ namespace za.co.grindrodbank.a3s.Controllers
                 new KeyValuePair<string, string>("filterName", filterName)
             };
 
-            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListTermsOfServices", Url, Response);
+            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListApplicationFunctions", Url, Response);
 
             return Ok(mapper.Map<List<ApplicationFunction>>(paginatedResult.Results));
         }
