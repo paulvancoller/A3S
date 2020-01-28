@@ -2063,9 +2063,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -2084,11 +2084,23 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the name",
-          "example" : "FilterByEntityType",
+          "description" : "A search query filter on the name of the client.",
           "explode" : true,
           "in" : "query",
           "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the client ID of the client.",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterClientId",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -2103,10 +2115,7 @@
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

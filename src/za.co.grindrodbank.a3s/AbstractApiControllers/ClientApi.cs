@@ -60,7 +60,8 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <remarks>Search for clients.</remarks>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="filterName">A search query filter on the name</param>
+        /// <param name="filterName">A search query filter on the name of the client.</param>
+        /// <param name="filterClientId">A search query filter on the client ID of the client.</param>
         /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
@@ -77,6 +78,6 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListClientsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListClientsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery][StringLength(255, MinimumLength=0)]string filterClientId, [FromQuery]string orderBy);
     }
 }
