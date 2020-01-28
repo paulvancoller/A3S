@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -16,5 +17,6 @@ namespace za.co.grindrodbank.a3s.Services
     {
         Task<Permission> GetByIdAsync(Guid permissionId);
         Task<List<Permission>> GetListAsync();
+        Task<PaginatedResult<PermissionModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

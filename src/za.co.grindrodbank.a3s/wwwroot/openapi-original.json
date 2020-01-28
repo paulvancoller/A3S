@@ -2109,7 +2109,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name', 'clientId'",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
@@ -2324,7 +2324,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
@@ -2445,11 +2445,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "A search query filter on the permission's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -2458,16 +2458,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

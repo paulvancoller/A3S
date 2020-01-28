@@ -1517,7 +1517,7 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append '_desc' after a field to indicate descending order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
             type: string
       responses:
@@ -1593,10 +1593,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the description
+          description: A search query filter on the permission's name.
           schema:
             type: string
             minLength: 0
@@ -1609,12 +1609,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK

@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.EntityFrameworkCore;
 using NLog;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class PermissionRepository : IPermissionRepository
+    public class PermissionRepository : PaginatedRepository<PermissionModel>, IPermissionRepository
     {
         private readonly A3SContext a3SContext;
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
@@ -71,33 +72,18 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public PermissionModel GetByName(string name, bool includeRelations = false)
         {
-            if (includeRelations)
-            {
-                return a3SContext.Permission.Where(p => p.Name == name)
-                                            .Include(p => p.ApplicationFunctionPermissions)
-                                             .ThenInclude(afp => afp.ApplicationFunction)
-                                             .ThenInclude(af => af.Application)
-                                            .Include(p => p.SubRealmPermissions)
-                                             .ThenInclude(psrp => psrp.SubRealm)
-                                            .FirstOrDefault();
-            }
+            IQueryable<PermissionModel> query = a3SContext.Permission.Where(p => p.Name == name);
+            query = includeRelations ? IncludeRelations(query) : query;
 
-            return a3SContext.Permission.Where(p => p.Name == name).FirstOrDefault();
+            return query.FirstOrDefault();
         }
 
         public async Task<PermissionModel> GetByNameAsync(string name, bool includeRelations = false)
         {
-            if (includeRelations)
-            {
-                return await a3SContext.Permission.Where(p => p.Name == name)
-                                            .Include(p => p.ApplicationFunctionPermissions)
-                                             .ThenInclude(afp => afp.ApplicationFunction)
-                                             .ThenInclude(af => af.Application)
-                                            .Include(p => p.SubRealmPermissions)
-                                             .ThenInclude(psrp => psrp.SubRealm)
-                                            .FirstOrDefaultAsync();
-            }
-            return await a3SContext.Permission.Where(p => p.Name == name).FirstOrDefaultAsync();
+            IQueryable<PermissionModel> query = a3SContext.Permission.Where(p => p.Name == name);
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<PermissionModel> UpdateAsync(PermissionModel permission)
@@ -120,13 +106,41 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<PermissionModel> GetByIdWithApplicationAsync(Guid permissionId)
         {
-            return await a3SContext.Permission.Where(p => p.Id == permissionId)
-                                              .Include(p => p.ApplicationFunctionPermissions)
-                                               .ThenInclude(afp => afp.ApplicationFunction)
-                                               .ThenInclude(af => af.Application)
-                                              .Include(p => p.SubRealmPermissions)
-                                               .ThenInclude(psrp => psrp.SubRealm)
-                                              .FirstOrDefaultAsync();
+            IQueryable<PermissionModel> query = a3SContext.Permission.Where(p => p.Id == permissionId);
+            query = IncludeRelations(query);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<PaginatedResult<PermissionModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<PermissionModel> query = a3SContext.Permission;
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(p => p.Name == filterName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+
+        private IQueryable<PermissionModel> IncludeRelations(IQueryable<PermissionModel> query)
+        {
+            return query.Include(p => p.ApplicationFunctionPermissions)
+                          .ThenInclude(afp => afp.ApplicationFunction)
+                            .ThenInclude(af => af.Application)
+                        .Include(p => p.SubRealmPermissions)
+                          .ThenInclude(psrp => psrp.SubRealm);
         }
     }
 }
