@@ -72,6 +72,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(mapper.Map<List<LdapAuthenticationMode>>(paginatedResult.Results));
         }
 
+        [Authorize(Policy = "permission:a3s.ldapAuthenticationModes.update")]
         public override async Task<IActionResult> TestLdapAuthenticationModeAsync([FromBody] LdapAuthenticationModeSubmit ldapAuthenticationModeSubmit)
         {
             return Ok(await authenticationModeService.TestAsync(ldapAuthenticationModeSubmit));
@@ -87,6 +88,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await authenticationModeService.UpdateAsync(ldapAuthenticationModeSubmit, loggedOnUser));
         }
 
+        [Authorize(Policy = "permission:a3s.ldapAuthenticationModes.delete")]
         public async override Task<IActionResult> DeleteLdapAuthenticationModeAsync([FromRoute, Required] Guid ldapAuthenticationModeId)
         {
             await authenticationModeService.DeleteAsync(ldapAuthenticationModeId);
