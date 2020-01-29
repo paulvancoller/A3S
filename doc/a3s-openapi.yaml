@@ -2507,6 +2507,34 @@ paths:
       summary: Search for LDAP Authentication Modes.
       operationId: listLdapAuthenticationModes
       parameters:
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 0
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the LDAP auth mode's name.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+          example: FilterByEntityType
         - name: orderBy
           in: query
           required: false
@@ -2514,12 +2542,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK

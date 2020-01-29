@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.0",
   "info" : {
-    "description" : "API Definition for the A3S. This service allows authentication, authorisation and accounting.",
+    "description" : "API Definition for A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
     "version" : "1.0.5"
   },
@@ -3833,16 +3833,53 @@
         "description" : "Search for LDAP Authentication Modes.",
         "operationId" : "listLdapAuthenticationModes",
         "parameters" : [ {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the LDAP auth mode's name.",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],

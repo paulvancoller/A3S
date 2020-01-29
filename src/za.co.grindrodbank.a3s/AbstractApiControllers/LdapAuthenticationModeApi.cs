@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -105,7 +105,10 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// Search for LDAP Authentication Modes.
         /// </summary>
         /// <remarks>Search for LDAP Authentication Modes.</remarks>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="page">The page to view.</param>
+        /// <param name="size">The size of a page.</param>
+        /// <param name="filterName">A search query filter on the LDAP auth mode&#39;s name.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;name&#39;.</param>
         /// <response code="200">OK</response>
         /// <response code="204">No Content.</response>
         /// <response code="400">Bad Request.</response>
@@ -122,7 +125,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListLdapAuthenticationModesAsync([FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListLdapAuthenticationModesAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
         /// Test a LDAP Authentication Mode.
