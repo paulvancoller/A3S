@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface ISubRealmRepository : ITransactableRepository
+    public interface ISubRealmRepository : ITransactableRepository, IPaginatedRepository<SubRealmModel>
     {
         Task<SubRealmModel> GetByNameAsync(string name, bool includeRelations);
         Task<SubRealmModel> GetByIdAsync(Guid subRealmId, bool includeRelations);
@@ -19,5 +19,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<SubRealmModel> UpdateAsync(SubRealmModel subRealm);
         Task DeleteAsync(SubRealmModel subRealm);
         Task<List<SubRealmModel>> GetListAsync(bool includeRelations);
+        Task<PaginatedResult<SubRealmModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

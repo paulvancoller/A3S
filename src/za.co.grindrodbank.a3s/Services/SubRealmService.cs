@@ -23,7 +23,6 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IPermissionRepository permissionRepository;
         private readonly IApplicationDataPolicyRepository applicationDataPolicyRepository;
         private readonly IMapper mapper;
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         public SubRealmService(ISubRealmRepository subRealmRepository, IPermissionRepository permissionRepository, IApplicationDataPolicyRepository applicationDataPolicyRepository, IMapper mapper)
         {
@@ -246,6 +245,11 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             await subRealmRepository.DeleteAsync(subRealmToDelete);
+        }
+
+        public async Task<PaginatedResult<SubRealmModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await subRealmRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
         }
     }
 }
