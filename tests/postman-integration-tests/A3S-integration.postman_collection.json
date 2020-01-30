@@ -16255,6 +16255,198 @@
 								"description": "Gets a list of applications from the API."
 							},
 							"response": []
+						},
+						{
+							"name": "GetClients - Filter By ClientID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element is the corrrect one.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].clientId).to.eql(\"a3s-default\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 1 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(1);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?filterClientId=a3s-default",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "filterClientId",
+											"value": "a3s-default"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - Filter By Name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element is the corrrect one.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"Default A3S client.\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 1 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(1);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?filterName=Default A3S client.",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "filterName",
+											"value": "Default A3S client."
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
 						}
 					],
 					"description": "Folder containing all the requests used to test client lists pagination, filtering and ordering.",
