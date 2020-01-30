@@ -195,8 +195,9 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <param name="userId">The UUID of the user.</param>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
+        /// <param name="includeRelations">Determines whether related entities, such as any associated permissions, are returned. </param>
         /// <param name="filterName">A search query filter on the User profile&#39;s name.</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;name&#39;.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -212,7 +213,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListUserProfilesAsync([FromRoute][Required]Guid userId, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListUserProfilesAsync([FromRoute][Required]Guid userId, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]bool includeRelations, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
         /// Search for users.

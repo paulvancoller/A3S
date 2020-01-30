@@ -109,27 +109,45 @@ namespace za.co.grindrodbank.a3s.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = "permission:a3s.users.create")]
         public async override Task<IActionResult> CreateUserProfileAsync([FromRoute, Required] Guid userId, [FromBody] UserProfileSubmit userProfileSubmit)
         {
             return Ok(await profileService.CreateUserProfileAsync(userId, userProfileSubmit, ClaimsHelper.GetUserId(User)));
         }
 
+        [Authorize(Policy = "permission:a3s.users.delete")]
         public async override Task<IActionResult> DeleteUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
         {
             await profileService.DeleteUserProfileAsync(userId, profileId);
             return NoContent();
         }
 
+        [Authorize(Policy = "permission:a3s.users.read")]
         public async override Task<IActionResult> GetUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId)
         {
             return Ok(await profileService.GetUserProfileByIdAsync(profileId));
         }
 
-        public async override Task<IActionResult> ListUserProfilesAsync([FromRoute, Required] Guid userId, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterName, [FromQuery] List<string> orderBy)
+        [Authorize(Policy = "permission:a3s.users.read")]
+        public async override Task<IActionResult> ListUserProfilesAsync([FromRoute][Required]Guid userId, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]bool includeRelations, [FromQuery][StringLength(255, MinimumLength = 0)]string filterName, [FromQuery]string orderBy)
         {
-            return Ok(await profileService.GetUserProfileListForUserAsync(userId));
+            List<KeyValuePair<string, string>> orderByKeyValueList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(orderBy);
+            // Validate only correct order by components were supplied.
+            orderByHelper.ValidateOrderByListOnlyContainsCertainElements(orderByKeyValueList, new List<string> { "name", "surname", "username" });
+            PaginatedResult<ProfileModel> paginatedResult = await profileService.GetPaginatedListForUserAsync(userId, page, size, includeRelations, filterName, orderByKeyValueList);
+            // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
+            List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("includeRelations", includeRelations ? "true" : "false"),
+                new KeyValuePair<string, string>("filterName", filterName)
+            };
+
+            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListUserProfiles", Url, Response);
+
+            return Ok(mapper.Map<List<UserProfile>>(paginatedResult.Results));
         }
 
+        [Authorize(Policy = "permission:a3s.users.update")]
         public async override Task<IActionResult> UpdateUserProfileAsync([FromRoute, Required] Guid userId, [FromRoute, Required] Guid profileId, [FromBody] UserProfileSubmit userProfileSubmit)
         {
             return Ok(await profileService.UpdateUserProfileAsync(userId, profileId, userProfileSubmit, ClaimsHelper.GetUserId(User)));

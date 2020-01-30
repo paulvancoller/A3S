@@ -624,7 +624,19 @@
           },
           "style" : "form"
         }, {
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
           "description" : "A search query filter on the User profile's name.",
+          "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
           "name" : "filterName",
@@ -636,16 +648,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
-          "explode" : false,
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
+          "explode" : true,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -4435,7 +4444,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the name of the function.",
+          "description" : "A search query filter on the name of the sub-realm.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",

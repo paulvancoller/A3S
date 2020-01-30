@@ -404,6 +404,14 @@ paths:
             maximum: 20
             format: int32
             default: 10
+        - name: includeRelations
+          in: query
+          required: false
+          description: |
+            Determines whether related entities, such as any associated permissions, are returned.
+          schema:
+            type: boolean
+            default: false
         - name: filterName
           in: query
           required: false
@@ -412,19 +420,15 @@ paths:
             type: string
             minLength: 0
             maxLength: 255
+          example: FilterByEntityType
         - name: orderBy
           in: query
           required: false
-          style: form
-          explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -2900,7 +2904,7 @@ paths:
         - name: filterName
           in: query
           required: false
-          description: A search query filter on the name of the function.
+          description: A search query filter on the name of the sub-realm.
           schema:
             type: string
             minLength: 0

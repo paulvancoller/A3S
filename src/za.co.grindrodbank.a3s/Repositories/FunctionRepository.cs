@@ -98,7 +98,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<PaginatedResult<FunctionModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
         {
             IQueryable<FunctionModel> query = a3SContext.Function;
-
             query = includeRelations ? IncludeRelations(query) : query;
 
             if (!string.IsNullOrWhiteSpace(filterName))
