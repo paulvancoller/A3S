@@ -15873,7 +15873,7 @@
 							"response": []
 						},
 						{
-							"name": "GetClients - page is 1 and pageSize is 2 and orderBy name_desc",
+							"name": "GetClients - orderBy name_desc",
 							"event": [
 								{
 									"listen": "test",
@@ -15969,7 +15969,7 @@
 							"response": []
 						},
 						{
-							"name": "GetClients - page is 1 and pageSize is 2 and orderBy name_asc",
+							"name": "GetClients - orderBy name_asc",
 							"event": [
 								{
 									"listen": "test",
@@ -16065,7 +16065,7 @@
 							"response": []
 						},
 						{
-							"name": "GetClients - page is 1 and pageSize is 2 and orderBy clientId_desc",
+							"name": "GetClients - orderBy clientId_desc",
 							"event": [
 								{
 									"listen": "test",
@@ -16161,7 +16161,7 @@
 							"response": []
 						},
 						{
-							"name": "GetClients - page is 1 and pageSize is 2 and orderBy clientId_asc",
+							"name": "GetClients - orderBy clientId_asc",
 							"event": [
 								{
 									"listen": "test",
@@ -16450,6 +16450,928 @@
 						}
 					],
 					"description": "Folder containing all the requests used to test client lists pagination, filtering and ordering.",
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Application Functions",
+					"item": [
+						{
+							"name": "GetApplicationFunctions - No additional params",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there are 10 application functions in the repsonse (default page size).\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(10);",
+											"});",
+											"",
+											"pm.test(\"Check no relations are populated.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"    pm.expect(jsonData[0].permissions.length).to.eql(0);",
+											"    ",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											"",
+											"",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - Include Relations",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there are 10 application functions in the repsonse (default page size).\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(10);",
+											"});",
+											"",
+											"pm.test(\"Check relations are populated.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"    pm.expect(jsonData[0].permissions.length).not.eql(0);",
+											"    ",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											"",
+											"",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?includeRelations=true",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "includeRelations",
+											"value": "true"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions  - page and pageSize set to 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there is only 1 element in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('current');",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?page=1&size=1",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "size",
+											"value": "1"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - page is 2 and pageSize set to 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there is only 1 element in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?size=1&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "1"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - page is 2 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are only 2 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?size=2&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - page is 3 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 2 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData.current).to.eql(3);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?size=2&page=3",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "3"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - size is 2 page is last page",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 2 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(8);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?size=2&page=8",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "8"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions -  orderBy name_asc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 10 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(10);",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the smallest name is first\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"a3s.applicationFunctions\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?orderBy=name",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFunctions - orderBy name_desc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 10 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(10);",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the largest name is first\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"breadmaker.crumbs\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(16);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/ApplicationFunctions?orderBy=name_desc",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"ApplicationFunctions"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name_desc"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetApplicationFuncitons - Filter By Name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"    pm.expect(jsonData[0]).to.have.property('permissions');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 1 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the element is the correct one\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"a3s.applicationFunctions\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(1);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/applicationFunctions?filterName=a3s.applicationFunctions",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"applicationFunctions"
+									],
+									"query": [
+										{
+											"key": "filterName",
+											"value": "a3s.applicationFunctions"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						}
+					],
+					"description": "Folder containing all the requests used to test application function lists pagination, filtering and ordering.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9900467d-7937-4e31-a41b-47280c69d6bb",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "b1758bc5-6ada-4cd8-ab53-f2a2b2af13b5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				}
