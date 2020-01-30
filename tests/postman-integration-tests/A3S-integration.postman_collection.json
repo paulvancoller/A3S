@@ -15315,10 +15315,188 @@
 			"name": "Pagination, Filtering and Ordering Lists",
 			"item": [
 				{
+					"name": "Access Token - Admin User",
+					"item": [
+						{
+							"name": "Get Access Token - A3S Admin - Password Grant",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+										"exec": [
+											"pm.test(\"Set session_access_token environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "a3s-admin",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "Password1#",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client-id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client-secret}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "a3s",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{auth-server-base-url}}/connect/token",
+									"host": [
+										"{{auth-server-base-url}}"
+									],
+									"path": [
+										"connect",
+										"token"
+									]
+								},
+								"description": "Obtains an access token from the API using the 'password' grant type. The default user credentials that populate the body of this request are those of the 'bootstrap-admin' user, which is designed to be used purely as a user for applying the initial security contract within the 'SecurityContracts' folder. The user's created when the security contract is applied have been created to have the same credentials, except their usernames, so this request body can easily be updated to fetch tokens for any of the users that are created when the security contract is applied."
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
 					"name": "Clients",
 					"item": [
 						{
 							"name": "GetClients - No additional params",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(5);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											"",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?orderBy=name_desc",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name_desc"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients  - page and pageSize set to 1",
 							"event": [
 								{
 									"listen": "test",
@@ -15342,10 +15520,10 @@
 											"});",
 											"",
 											"",
-											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"pm.test(\"Check that there is only 1 client in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(5);",
+											"    pm.expect(jsonData.length).to.equal(1);",
 											"});",
 											"",
 											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
@@ -15357,6 +15535,12 @@
 											"    var jsonData = JSON.parse(paginationHeader);",
 											"    ",
 											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('current');",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.count).to.eql(5);",
 											"});",
 											""
@@ -15384,12 +15568,688 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{a3s-host}}/clients",
+									"raw": "{{a3s-host}}/clients?size=1&page=1",
 									"host": [
 										"{{a3s-host}}"
 									],
 									"path": [
 										"clients"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "1"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 2 and pageSize set to 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check that there is only 1 client in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?size=1&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "1"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 2 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check that there are only 2 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?size=2&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 3 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there is only 1 client in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData.current).to.eql(3);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?size=2&page=3",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "3"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 1 and pageSize is 2 and orderBy name_desc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the largest name is first.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"Test security contract client\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(5);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?orderBy=name_desc",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name_desc"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 1 and pageSize is 2 and orderBy name_asc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the smallest name is first.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"Bread Knife\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(5);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?orderBy=name",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 1 and pageSize is 2 and orderBy clientId_desc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the largest ID is first.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].clientId).to.eql(\"test-security-contract-api\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(5);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?orderBy=clientId_desc",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "clientId_desc"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetClients - page is 1 and pageSize is 2 and orderBy clientId_asc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that clients are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('clientId');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedGrantTypes');",
+											"    pm.expect(jsonData[0]).to.have.property('redirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedCorsOrigins');",
+											"    pm.expect(jsonData[0]).to.have.property('postLogoutRedirectUris');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedScopes');",
+											"    pm.expect(jsonData[0]).to.have.property('allowedOfflineAccess');",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the smallest client ID is first.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].clientId).to.eql(\"a3s-default\")",
+											"",
+											"});",
+											"",
+											"// Even though the page size is 2, there are only 5 records, so the last page should have 1 result.",
+											"pm.test(\"Check that there are 5 clients in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(5);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(5);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/clients?orderBy=clientId",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"clients"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "clientId"
+										}
 									]
 								},
 								"description": "Gets a list of applications from the API."
