@@ -57,6 +57,31 @@ namespace za.co.grindrodbank.a3s.Repositories
             return await a3SContext.ApplicationDataPolicy.ToListAsync();
         }
 
+        public async Task<List<ApplicationDataPolicyModel>> GetListAsync(Guid userId)
+        {
+            return await a3SContext.ApplicationDataPolicy
+                .FromSqlRaw("select \"application_data_policy\".* " +
+                          // Get data policies associated with teams that the user is directly a member of.
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team ON team.id = user_team.team_id " +
+                          "JOIN _a3s.team_application_data_policy ON team.id = team_application_data_policy.team_id " +
+                          "JOIN _a3s.application_data_policy ON team_application_data_policy.application_data_policy_id = application_data_policy.id " +
+                          "WHERE application_user.id = {0} " +
+                          // Get parent team data policies, where the user is in a child team of the parent team.
+                          "UNION " +
+                          "select \"application_data_policy\".* " +
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_team ON application_user.id = user_team.user_id " +
+                          "JOIN _a3s.team AS \"ChildTeam\" ON \"ChildTeam\".id = user_team.team_id " +
+                          "JOIN _a3s.team_team ON team_team.child_team_id = \"ChildTeam\".id " +
+                          "JOIN _a3s.team AS \"ParentTeam\" ON team_team.parent_team_id = \"ParentTeam\".id " +
+                          "JOIN _a3s.team_application_data_policy ON \"ParentTeam\".id = team_application_data_policy.team_id " +
+                          "JOIN _a3s.application_data_policy ON team_application_data_policy.application_data_policy_id = application_data_policy.id " +
+                          "WHERE application_user.id = {0} "
+                          , userId.ToString()).ToListAsync();
+        }
+
         public async Task<ApplicationDataPolicyModel> UpdateAsync(ApplicationDataPolicyModel applicationDataPolicy)
         {
             a3SContext.Entry(applicationDataPolicy).State = EntityState.Modified;

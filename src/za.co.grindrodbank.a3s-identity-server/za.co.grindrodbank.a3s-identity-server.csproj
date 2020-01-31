@@ -232,5 +232,23 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ProfileRepository.cs">
       <Link>Repositories\ProfileRepository.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IApplicationDataPolicyRepository.cs">
+      <Link>Repositories\IApplicationDataPolicyRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ITeamRepository.cs">
+      <Link>Repositories\ITeamRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ApplicationDataPolicyRepository.cs">
+      <Link>Repositories\ApplicationDataPolicyRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IPermissionRepository.cs">
+      <Link>Repositories\IPermissionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\TeamRepository.cs">
+      <Link>Repositories\TeamRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\PermissionRepository.cs">
+      <Link>Repositories\PermissionRepository.cs</Link>
+    </Compile>
 </ItemGroup>
 </Project>

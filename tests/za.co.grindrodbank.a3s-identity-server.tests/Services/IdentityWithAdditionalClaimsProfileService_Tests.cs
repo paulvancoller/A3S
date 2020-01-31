@@ -19,11 +19,13 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
     public class IdentityWithAdditionalClaimsProfileService_Tests
     {
         private readonly CustomUserManagerFake fakeUserManager;
-        private readonly A3SContextFake a3SContextFake;
         private readonly IUserClaimsPrincipalFactory<UserModel> mockUserClaimsPrincipalFactory;
         private readonly ILogger<IdentityWithAdditionalClaimsProfileService> mockLogger;
         private readonly IConfiguration mockConfiguration;
         private readonly IProfileRepository mockProfileRepository;
+        private readonly IApplicationDataPolicyRepository mockApplicationDataPolicyRepository;
+        private readonly IPermissionRepository mockPermissionRepository;
+        private readonly ITeamRepository mockTeamRepository;
         private readonly ProfileDataRequestContext profileDataRequestContext;
         private readonly UserModel userModel;
 
@@ -45,10 +47,12 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
             fakeUserManager = new CustomUserManagerFake(fakesCustomUserStore, mockOptionsAccessor, mockPasswordHasher, mockUserValidators, mockPasswordValidators, mockKeyNormalizer,
                 mockErrors, mockServices, mockUserLogger);
 
-            a3SContextFake = new A3SContextFake(new Microsoft.EntityFrameworkCore.DbContextOptions<A3SContext>());
             mockUserClaimsPrincipalFactory = Substitute.For<IUserClaimsPrincipalFactory<UserModel>>();
             mockLogger = Substitute.For<ILogger<IdentityWithAdditionalClaimsProfileService>>();
             mockProfileRepository = Substitute.For<IProfileRepository>();
+            mockApplicationDataPolicyRepository = Substitute.For<IApplicationDataPolicyRepository>();
+            mockPermissionRepository = Substitute.For<IPermissionRepository>();
+            mockTeamRepository = Substitute.For<ITeamRepository>();
 
             var id = Guid.NewGuid().ToString();
             profileDataRequestContext = new ProfileDataRequestContext()
@@ -85,7 +89,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
         public async Task GetProfileDataAsync_Executed_GeneratesClaims()
         {
             // Assert
-            var identityWithAdditionalClaimsProfileService = new IdentityWithAdditionalClaimsProfileService(fakeUserManager, mockUserClaimsPrincipalFactory, mockLogger, a3SContextFake, mockProfileRepository);
+            var identityWithAdditionalClaimsProfileService = new IdentityWithAdditionalClaimsProfileService(fakeUserManager, mockUserClaimsPrincipalFactory, mockLogger, mockProfileRepository,
+                mockApplicationDataPolicyRepository, mockPermissionRepository, mockTeamRepository);
             fakeUserManager.SetUserModel(userModel);
             mockUserClaimsPrincipalFactory.CreateAsync(userModel).Returns(profileDataRequestContext.Subject);
 

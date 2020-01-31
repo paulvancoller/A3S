@@ -19,5 +19,11 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<ApplicationDataPolicyModel> UpdateAsync(ApplicationDataPolicyModel applicationDataPolicy);
         Task DeleteAsync(ApplicationDataPolicyModel applicationDataPolicy);
         Task<List<ApplicationDataPolicyModel>> GetListAsync();
+        /// <summary>
+        /// Fetches a list of application data policies that a given user is linked to.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<ApplicationDataPolicyModel>> GetListAsync(Guid userId);
     }
 }
