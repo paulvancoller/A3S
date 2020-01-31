@@ -18637,6 +18637,1060 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Roles",
+					"item": [
+						{
+							"name": "GetRoles - No additional params",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(9);",
+											"});",
+											"",
+											"pm.test(\"Check that there are no populated related fields in returned data.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData[0].functionIds.length).to.equal(0);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(10);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(1);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
+											"});",
+											"",
+											"",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - Include Relations",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(9);",
+											"});",
+											"",
+											"pm.test(\"Check that there are populated related fields in returned data.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData[0].functionIds.length).not.equal(0);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(10);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(1);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true\");",
+											"});",
+											"",
+											"",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?includeRelations=true",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "includeRelations",
+											"value": "true"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - page and pageSize set to 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there is only 1 element in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('current');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(9);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=9&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?page=1&size=1",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "size",
+											"value": "1"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - page is 2 and pageSize set to 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that there is only 1 element in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.size).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(9);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=9&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?size=1&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "1"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - page is 2 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are only 2 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(2);",
+											"    pm.expect(jsonData.size).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(5);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?size=2&page=2",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - page is 3 and pageSize set to 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 2 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(2);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"    pm.expect(jsonData).to.have.property('next');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(3);",
+											"    pm.expect(jsonData.size).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(5);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=2&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?size=2&page=3",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "3"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - size is 2 page is last page",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 1 element in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"    pm.expect(jsonData).to.have.property('prev');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(5);",
+											"    pm.expect(jsonData.size).to.eql(2);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(5);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?size=2&page=5",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "size",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "5"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles -  orderBy name_asc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 9 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(9);",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the smallest name is first\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"A3S Super Admin\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(10);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(1);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?orderBy=name",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - orderBy name_desc",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 9 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(9);",
+											"});",
+											"",
+											"pm.test(\"Check that the element with the largest name is first\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"test-role-updated\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(10);",
+											"    pm.expect(jsonData.count).to.eql(9);",
+											"    pm.expect(jsonData.total).to.eql(1);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?orderBy=name_desc",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "orderBy",
+											"value": "name_desc"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRoles - Filter By Name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "05414abe-5da8-4d3f-8652-5ebf5816e659",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that elements are correctly structured in the first element of the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0]).to.have.property('uuid');",
+											"    pm.expect(jsonData[0]).to.have.property('name');",
+											"    pm.expect(jsonData[0]).to.have.property('description');",
+											"});",
+											"",
+											"pm.test(\"Check that there are 1 elements in the repsonse.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    ",
+											"    pm.expect(jsonData.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the element is the correct one\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData[0].name).to.eql(\"test-role-updated\")",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
+											"    pm.response.to.have.header(\"X-Pagination\");",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header is correctly formed.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData).to.have.property('count');",
+											"    pm.expect(jsonData).to.have.property('first');",
+											"    pm.expect(jsonData).to.have.property('last');",
+											"});",
+											"",
+											"pm.test(\"Check that 'X-Pagination' header has correct values.\", function () {",
+											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
+											"    var jsonData = JSON.parse(paginationHeader);",
+											"    ",
+											"    pm.expect(jsonData.current).to.eql(1);",
+											"    pm.expect(jsonData.size).to.eql(10);",
+											"    pm.expect(jsonData.count).to.eql(1);",
+											"    pm.expect(jsonData.total).to.eql(1);",
+											"    // Check the values of the pagination links.",
+											"    var currentHost = pm.environment.get(\"a3s-host\");",
+											"    var baseUrl = currentHost + \"/roles\"",
+											"    ",
+											"    pm.expect(jsonData.prev).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&filterName=test-role-updated\");",
+											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&filterName=test-role-updated\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles?filterName=test-role-updated",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									],
+									"query": [
+										{
+											"key": "filterName",
+											"value": "test-role-updated"
+										}
+									]
+								},
+								"description": "Gets a list of applications from the API."
+							},
+							"response": []
+						}
+					],
+					"description": "Folder containing all the requests used to test roles lists pagination, filtering and ordering.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9900467d-7937-4e31-a41b-47280c69d6bb",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "b1758bc5-6ada-4cd8-ab53-f2a2b2af13b5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"description": "Contains pagination, filtering and ordering related tests for all the entities that expose APIs wherre lists can be obtained.",
