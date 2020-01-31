@@ -55,7 +55,7 @@ jobs:
             -d:sonar.test.inclusions="tests/**/*" \
             -d:sonar.sourceEncoding=UTF-8 \
             -d:sonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/**,**/shared-libraries/**,**/ConnectionClients/**,**/Quickstart/Consent/**,**/Quickstart/Device/**,**/Quickstart/Grants/**,**/Quickstart/Diagnostics/** \
-            -d:sonar.coverage.exclusions="**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/shared-libraries/**,**/Stores/**,**/MappingProfiles/**,**/Exceptions/**" \
+            -d:sonar.coverage.exclusions="**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/shared-libraries/**,**/Stores/**,**/MappingProfiles/**,**/Exceptions/**,**/MediaTypeHeaders/**,**/AuthorisationPolicies/**" \
             -d:sonar.cs.opencover.reportsPaths="../workspace/tests/za.co.grindrodbank.a3s.tests/coverage.opencover.xml,../workspace/tests/za.co.grindrodbank.a3s-identity-server.tests/coverage.opencover.xml"
           dotnet build A3Service.sln
           dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
