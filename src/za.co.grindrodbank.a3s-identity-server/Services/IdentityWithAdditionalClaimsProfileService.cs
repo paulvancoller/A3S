@@ -13,15 +13,14 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using IdentityServer4;
+using za.co.grindrodbank.a3s.Models;
+using System.Collections.Generic;
+using za.co.grindrodbank.a3s.Repositories;
+
 
 namespace za.co.grindrodbank.a3sidentityserver.Services
 {
-    using IdentityServer4;
-    using za.co.grindrodbank.a3s.Models;
-    using Microsoft.EntityFrameworkCore;
-    using System.Collections.Generic;
-    using za.co.grindrodbank.a3s.Repositories;
-
     public class IdentityWithAdditionalClaimsProfileService : IProfileService
     {
         private readonly IUserClaimsPrincipalFactory<UserModel> _claimsFactory;
