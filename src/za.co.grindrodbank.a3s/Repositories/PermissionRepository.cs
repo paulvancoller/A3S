@@ -128,5 +128,33 @@ namespace za.co.grindrodbank.a3s.Repositories
                                                .ThenInclude(psrp => psrp.SubRealm)
                                               .FirstOrDefaultAsync();
         }
+
+        public async Task<List<PermissionModel>> GetListAsync(Guid userId)
+        {
+            return await a3SContext.Permission
+                .FromSqlRaw("select \"ParentRolePermission\".* " +
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_role ON application_user.id = user_role.user_id " +
+                          "JOIN _a3s.role ON role.id = user_role.role_id " +
+                          "JOIN _a3s.role_function ON role.id = role_function.role_id " +
+                          "JOIN _a3s.function ON role_function.function_id = function.id " +
+                          "JOIN _a3s.function_permission ON function.id = function_permission.function_id " +
+                          "JOIN _a3s.permission AS \"ParentRolePermission\" ON function_permission.permission_id = \"ParentRolePermission\".id " +
+                          "WHERE application_user.id = {0} " +
+                          "UNION " +
+                          "select \"ChildRoleFunctionPermissions\".* " +
+                          "FROM _a3s.application_user " +
+                          "JOIN _a3s.user_role ON application_user.id = user_role.user_id " +
+                          "JOIN _a3s.role AS \"ParentRole\" ON \"ParentRole\".id = user_role.role_id " +
+                          "JOIN _a3s.role_role ON \"ParentRole\".id = role_role.parent_role_id " +
+                          "JOIN _a3s.role AS \"ChildRole\" ON \"ChildRole\".id = role_role.child_role_id " +
+                          "JOIN _a3s.role_function AS \"ChildRoleFunctionMap\" ON \"ChildRole\".id = \"ChildRoleFunctionMap\".role_id " +
+                          "JOIN _a3s.function AS \"ChildRoleFunctions\" ON \"ChildRoleFunctionMap\".function_id = \"ChildRoleFunctions\".id " +
+                          "JOIN _a3s.function_permission AS \"ChildRoleFunctionPermissionsMap\" ON \"ChildRoleFunctions\".id = \"ChildRoleFunctionPermissionsMap\".function_id " +
+                          "JOIN _a3s.permission AS \"ChildRoleFunctionPermissions\" ON \"ChildRoleFunctionPermissionsMap\".permission_id = \"ChildRoleFunctionPermissions\".id " +
+                          "WHERE application_user.id = {0}", userId.ToString())
+                          .OrderBy(p => p.Name)
+                          .ToListAsync();
+        }
     }
 }
