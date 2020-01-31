@@ -40,6 +40,7 @@
     <Folder Include="Managers\" />
     <Folder Include="Extensions\" />
     <Folder Include="Helpers\" />
+    <Folder Include="ContentFormatters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\za.co.grindrodbank.a3s\za.co.grindrodbank.a3s.csproj" />

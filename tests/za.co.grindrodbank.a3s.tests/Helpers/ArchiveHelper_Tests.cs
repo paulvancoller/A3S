@@ -75,7 +75,6 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             // Arrange
             string testFolder = $"{temporaryFolder}{Path.DirectorySeparatorChar}{Guid.NewGuid().ToString()}";
             string filePath = $"{testFolder}{Path.DirectorySeparatorChar}test_archive.tar.gz";
-            string extractedFolder = $"{testFolder}{Path.DirectorySeparatorChar}terms_of_service";
             Directory.CreateDirectory(testFolder);
 
             File.WriteAllBytes(filePath, inValidFileContents);
@@ -93,7 +92,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             }
 
             // Assert
-            Assert.True(caughException is ArchiveException, "Null file specified must throw ArgumentNullException.");
+            Assert.True(caughException is ItemNotProcessableException, "Null file specified must throw ItemNotProcessableException.");
         }
     }
 }
