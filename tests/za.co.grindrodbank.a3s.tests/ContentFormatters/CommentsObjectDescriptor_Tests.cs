@@ -24,11 +24,16 @@ namespace za.co.grindrodbank.a3s.tests.ContentFormatters
             var mockPropertyDescriptor = Substitute.For<IPropertyDescriptor>();
             var mockObjectDescriptor = Substitute.For<IObjectDescriptor>();
             var mockEmitter = Substitute.For<IEmitter>();
+            var commentObjectDescriptor = new CommentsObjectDescriptor(mockObjectDescriptor, "comment");
 
-            bool result = mockCommentsObjectGraphVisitor.EnterMapping(mockPropertyDescriptor, new CommentsObjectDescriptor(mockObjectDescriptor, "comment"), mockEmitter);
+            bool result = mockCommentsObjectGraphVisitor.EnterMapping(mockPropertyDescriptor, commentObjectDescriptor, mockEmitter);
 
             // Assert
             Assert.False(result, "EnterMapping must return false.");
+            Assert.Null(commentObjectDescriptor.Value);
+            Assert.Null(commentObjectDescriptor.Type);
+            Assert.Null(commentObjectDescriptor.StaticType);
+            Assert.True(commentObjectDescriptor.ScalarStyle == ScalarStyle.Any);
         }
     }
 }
