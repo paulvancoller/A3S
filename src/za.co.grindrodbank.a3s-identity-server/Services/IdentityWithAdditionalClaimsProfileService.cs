@@ -112,12 +112,12 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
 
             if (user.FirstName != null)
             {
-                claims.Add(new Claim("firstname", user.FirstName));
+                claims.Add(new Claim("given_name", user.FirstName));
             }
 
             if (user.Surname != null)
             {
-                claims.Add(new Claim("lastname", user.Surname));
+                claims.Add(new Claim("family_name", user.Surname));
             }
         }
 
