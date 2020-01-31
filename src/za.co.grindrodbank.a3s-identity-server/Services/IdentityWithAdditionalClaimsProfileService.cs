@@ -97,7 +97,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             await GenerateDataPolicyClaimMapForUserProfile(claims, user, userProfile);
             await GenerateTeamsClaimMapForUserProfile(claims, user, userProfile);
         }
-
+        
         private void GenerateBaseUserClaimsMap(UserModel user, List<Claim> claims)
         {
             if (user.Email != null)

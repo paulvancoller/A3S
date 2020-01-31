@@ -1,6 +1,6 @@
-{
+﻿{
 	"info": {
-		"_postman_id": "1d5eb912-2873-45bd-afc2-f4d77cf0f2ce",
+		"_postman_id": "24ae7d7b-9f8c-4f96-bf2c-99b6375f453c",
 		"name": "A3S",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -149,7 +149,7 @@
 								},
 								{
 									"key": "scope",
-									"value": "a3s",
+									"value": "a3s profile openid",
 									"type": "text"
 								}
 							]
@@ -165,6 +165,59 @@
 							]
 						},
 						"description": "Obtains an access token from the API using the 'password' grant type. The default user credentials that populate the body of this request are those of the 'bootstrap-admin' user, which is designed to be used purely as a user for applying the initial security contract within the 'SecurityContracts' folder. The user's created when the security contract is applied have been created to have the same credentials, except their usernames, so this request body can easily be updated to fetch tokens for any of the users that are created when the security contract is applied."
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserInfo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{auth-server-base-url}}/connect/userinfo",
+							"host": [
+								"{{auth-server-base-url}}"
+							],
+							"path": [
+								"connect",
+								"userinfo"
+							]
+						},
+						"description": "Obtains claim information regarding the end user of the token presented."
 					},
 					"response": []
 				},
