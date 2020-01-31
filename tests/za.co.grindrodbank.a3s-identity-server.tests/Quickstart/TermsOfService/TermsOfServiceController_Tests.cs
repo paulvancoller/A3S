@@ -43,7 +43,6 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
         private readonly TermsOfServiceModel termsOfServiceModel;
         private readonly AuthorizationRequest authorizationRequest;
         private readonly Client client;
-        private readonly IUserRepository mockUserRepository;
         private readonly IAuthenticationSchemeProvider mockAuthenticationSchemeProvider;
         private readonly CustomSignInManagerFake<UserModel> fakeSignInManager;
 
@@ -70,7 +69,6 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Quickstart.TermsOfService
             var mockContextAccessor = Substitute.For<IHttpContextAccessor>();
             var mocClaimsFactory = Substitute.For<IUserClaimsPrincipalFactory<UserModel>>();
             var mockSignInLogger = Substitute.For<ILogger<SignInManager<UserModel>>>();
-            mockUserRepository = Substitute.For<IUserRepository>();
             var mockLdapAuthenticationModeRepository = Substitute.For<LdapAuthenticationModeRepository>(fakeA3SContext, mockConfiguration);
             var mockLdapConnectionService = Substitute.For<ILdapConnectionService>();
             mockAuthenticationSchemeProvider = Substitute.For<IAuthenticationSchemeProvider>();

@@ -22,5 +22,11 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task Delete(PermissionModel permission);
         Task DeletePermissionsNotAssignedToApplicationFunctionsAsync();
         Task<List<PermissionModel>> GetListAsync();
+        /// <summary>
+        /// Fetches a list of permissions that a given user is linked to.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<PermissionModel>> GetListAsync(Guid userId);
     }
 }
