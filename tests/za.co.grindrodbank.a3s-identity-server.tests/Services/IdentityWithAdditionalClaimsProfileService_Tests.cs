@@ -81,18 +81,50 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
             userModel = new UserModel()
             {
                 UserName = "username",
-                Id = id
+                Id = id,
+                Email = "temp@local",
+                FirstName = "Temp",
+                Surname = "User"
             };
         }
 
         [Fact]
-        public async Task GetProfileDataAsync_Executed_GeneratesClaims()
+        public async Task GetProfileDataAsync_NoProfileNameSpecified_ClaimsMapForUserGenerated()
         {
             // Assert
             var identityWithAdditionalClaimsProfileService = new IdentityWithAdditionalClaimsProfileService(fakeUserManager, mockUserClaimsPrincipalFactory, mockLogger, mockProfileRepository,
                 mockApplicationDataPolicyRepository, mockPermissionRepository, mockTeamRepository);
             fakeUserManager.SetUserModel(userModel);
             mockUserClaimsPrincipalFactory.CreateAsync(userModel).Returns(profileDataRequestContext.Subject);
+            mockPermissionRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<PermissionModel>()
+            {
+                new PermissionModel()
+                {
+                    Name = "Permission 1"
+                },
+                new PermissionModel()
+                {
+                    Name = "Permission 2"
+                }
+            });
+            mockApplicationDataPolicyRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<ApplicationDataPolicyModel>()
+            {
+                new ApplicationDataPolicyModel()
+                {
+                    Name = "DP 1"
+                }
+            });
+            mockTeamRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<TeamModel>()
+            {
+                new TeamModel()
+                {
+                    Name = "Name 1"
+                },
+                new TeamModel()
+                {
+                    Name = "Name 2"
+                }
+            });
 
             // Act
             await identityWithAdditionalClaimsProfileService.GetProfileDataAsync(profileDataRequestContext);
@@ -101,5 +133,59 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
             Assert.True(profileDataRequestContext.IssuedClaims.Count > 0, "Issued claims must be greater than 0");
         }
 
+        [Fact]
+        public async Task GetProfileDataAsync_WithProfileNameSpecified_ClaimsMapForUserProfileGenerated()
+        {
+            // Assert
+            var identityWithAdditionalClaimsProfileService = new IdentityWithAdditionalClaimsProfileService(fakeUserManager, mockUserClaimsPrincipalFactory, mockLogger, mockProfileRepository,
+                mockApplicationDataPolicyRepository, mockPermissionRepository, mockTeamRepository);
+            fakeUserManager.SetUserModel(userModel);
+            mockUserClaimsPrincipalFactory.CreateAsync(userModel).Returns(profileDataRequestContext.Subject);
+            mockPermissionRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<PermissionModel>()
+            {
+                new PermissionModel()
+                {
+                    Name = "Permission 1"
+                },
+                new PermissionModel()
+                {
+                    Name = "Permission 2"
+                }
+            });
+            mockApplicationDataPolicyRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<ApplicationDataPolicyModel>()
+            {
+                new ApplicationDataPolicyModel()
+                {
+                    Name = "DP 1"
+                }
+            });
+            mockTeamRepository.GetListAsync(Arg.Any<Guid>()).Returns(new List<TeamModel>()
+            {
+                new TeamModel()
+                {
+                    Name = "Name 1"
+                },
+                new TeamModel()
+                {
+                    Name = "Name 2"
+                }
+            });
+            mockProfileRepository.GetByNameAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<bool>()).Returns(new ProfileModel()
+            {
+                Id = Guid.NewGuid(),
+                Name = "mock_profile"
+            });
+            profileDataRequestContext.ValidatedRequest = new IdentityServer4.Validation.ValidatedRequest()
+            {
+                Raw = new System.Collections.Specialized.NameValueCollection()
+            };
+            profileDataRequestContext.ValidatedRequest.Raw.Add("profile_name", "mock_profile");
+
+            // Act
+            await identityWithAdditionalClaimsProfileService.GetProfileDataAsync(profileDataRequestContext);
+
+            // Assert
+            Assert.True(profileDataRequestContext.IssuedClaims.Count > 0, "Issued claims must be greater than 0");
+        }
     }
 }
