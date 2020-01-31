@@ -67,6 +67,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
             List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>
             {
+                new KeyValuePair<string, string>("includeRelations", includeRelations ? "true" : "false"),
                 new KeyValuePair<string, string>("filterName", filterName)
             };
 
