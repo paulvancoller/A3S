@@ -50,7 +50,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
                 var claims = principal.Claims.ToList();
                 claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
                 // Attempt to obtain a 'profile_name' from the request to see if the user is obtaining a token for a profile.
-                var profileName = context.ValidatedRequest.Raw["profile_name"];
+                var profileName = context?.ValidatedRequest?.Raw["profile_name"];
 
                 if(profileName == null)
                 {
@@ -108,6 +108,16 @@ namespace za.co.grindrodbank.a3sidentityserver.Services
             if (user.UserName != null)
             {
                 claims.Add(new Claim("username", user.UserName));
+            }
+
+            if (user.FirstName != null)
+            {
+                claims.Add(new Claim("firstname", user.FirstName));
+            }
+
+            if (user.Surname != null)
+            {
+                claims.Add(new Claim("lastname", user.Surname));
             }
         }
 
