@@ -24,7 +24,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
         private readonly ILogger<IdentityWithAdditionalClaimsProfileService> mockLogger;
         private readonly IConfiguration mockConfiguration;
         private readonly IProfileRepository mockProfileRepository;
-        private ProfileDataRequestContext profileDataRequestContext;
+        private readonly ProfileDataRequestContext profileDataRequestContext;
+        private readonly UserModel userModel;
 
         public IdentityWithAdditionalClaimsProfileService_Tests()
         {
@@ -72,6 +73,12 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
                     },
                 Caller = "mockCaller"
             };
+
+            userModel = new UserModel()
+            {
+                UserName = "username",
+                Id = id
+            };
         }
 
         [Fact]
@@ -79,6 +86,8 @@ namespace za.co.grindrodbank.a3sidentityserver.tests.Services
         {
             // Assert
             var identityWithAdditionalClaimsProfileService = new IdentityWithAdditionalClaimsProfileService(fakeUserManager, mockUserClaimsPrincipalFactory, mockLogger, a3SContextFake, mockProfileRepository);
+            fakeUserManager.SetUserModel(userModel);
+            mockUserClaimsPrincipalFactory.CreateAsync(userModel).Returns(profileDataRequestContext.Subject);
 
             // Act
             await identityWithAdditionalClaimsProfileService.GetProfileDataAsync(profileDataRequestContext);
