@@ -10,6 +10,7 @@ using System.IO;
 using Xunit;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Helpers;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Helpers
 {
@@ -66,6 +67,19 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             Assert.True(filesInArchive.Count == 2, $"Extracted archive must contain 2 files.");
             Assert.True(string.Compare(Path.GetFileName(filesInArchive[0]), "terms_of_service.css") == 0, $"Returned file 1 must have name of 'terms_of_service.css'.");
             Assert.True(string.Compare(Path.GetFileName(filesInArchive[1]), "terms_of_service.html") == 0, $"Returned file 1 must have name of 'terms_of_service.html'.");
+        }
+
+        [Fact]
+        public void ExtractFilesFromTarGz_WithGzipTarContentSpecified_ExtractsArchive()
+        {
+            // Arrange
+            // Act
+            List<InMemoryFile> filesInArchive = new ArchiveHelper().ExtractFilesFromTarGz(validFileContents);
+
+            // Assert
+            Assert.True(filesInArchive.Count == 2, $"Extracted archive must contain 2 files.");
+            Assert.True(string.Compare(Path.GetFileName(filesInArchive[0].FileName), "terms_of_service.css") == 0, $"Returned file 1 must have name of 'terms_of_service.css'.");
+            Assert.True(string.Compare(Path.GetFileName(filesInArchive[1].FileName), "terms_of_service.html") == 0, $"Returned file 1 must have name of 'terms_of_service.html'.");
         }
 
 

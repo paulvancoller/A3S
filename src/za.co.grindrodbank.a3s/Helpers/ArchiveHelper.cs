@@ -23,7 +23,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         {
             using var stream = new MemoryStream(bytes);
 
-            var files = new List<InMemoryFile>();
+            List<InMemoryFile> files = null ;
             try
             {
                 files = ExtractFilesInTarGz(stream, flattenFileStructure);
