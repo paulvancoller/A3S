@@ -188,9 +188,10 @@
 								<!--<arg>- -command-fd</arg>
 								<arg>0</arg>-->
 							</gpgArguments> 
-						</configuration> 
 						<keyname>4938B9AEA58854CEA23B57B459CEC294560F9686</keyname><!--TODO: make this a param-->
-						<passphrase>${env.GPG_PASSPHRASE}</passphrase>		
+						<passphrase>${env.GPG_PASSPHRASE}</passphrase>	
+						</configuration> 
+	
 					</execution>
 				</executions>
 			</plugin>
