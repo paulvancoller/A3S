@@ -188,7 +188,7 @@
 								<!--<arg>- -command-fd</arg>
 								<arg>0</arg>-->
 							</gpgArguments> 
-						</configuration> 	-->			
+						</configuration> 				
 					</execution>
 				</executions>
 			</plugin>
