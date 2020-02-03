@@ -200,6 +200,9 @@ jobs:
           name: Verify installations
           command: gpg --version; git version; ssh -V
       - run:
+          name: Git configuration
+          command: git config --global user.email "ci-buildbot-a3s@grindrodbank.co.za"; git config --global user.name "A3S CircleCI Buildbot" 
+      - run:
           name: import GPG key
           command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --import <( echo $GPG_KEY_B64 | base64 -d ) || echo $?
       - run: gpg --list-keys
