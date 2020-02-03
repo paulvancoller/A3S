@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using NLog;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 
@@ -16,10 +17,22 @@ namespace za.co.grindrodbank.a3s.Helpers
 {
     public class ArchiveHelper : IArchiveHelper
     {
+        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
+
         public List<string> ReturnFilesListInTarGz(byte[] bytes, bool flattenFileStructure)
         {
             using var stream = new MemoryStream(bytes);
-            List<InMemoryFile> files = ExtractFilesInTarGz(stream, flattenFileStructure);
+
+            List<InMemoryFile> files = null ;
+            try
+            {
+                files = ExtractFilesInTarGz(stream, flattenFileStructure);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+                throw new ItemNotProcessableException("Error extracting archive. Please check the log files for details.");
+            }
 
             var returnValues = new List<string>();
 
@@ -80,7 +93,8 @@ namespace za.co.grindrodbank.a3s.Helpers
 
                 // Get file size (12 bytes)
                 stream.Read(buffer, 0, 12);
-                var size = Convert.ToInt64(Encoding.ASCII.GetString(buffer, 0, 12).Trim(), 8);
+                string sizeString = Encoding.ASCII.GetString(buffer, 0, 12).Trim();
+                var size = Convert.ToInt64(sizeString.TrimEnd('\0'), 8);
 
                 // Ignore remaining header fields
                 stream.Seek(376L, SeekOrigin.Current);
