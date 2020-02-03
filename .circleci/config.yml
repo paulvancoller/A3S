@@ -212,10 +212,10 @@ jobs:
           command: mvn clean install -s maven-settings.xml
       - run: 
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn -s maven-settings.xml release:prepare -Dresume=false
+          command: mvn  --batch-mode -s maven-settings.xml release:prepare -Dresume=false
       - run: 
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn -s maven-settings.xml release:perform         
+          command: mvn  --batch-mode -s maven-settings.xml release:perform 
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
