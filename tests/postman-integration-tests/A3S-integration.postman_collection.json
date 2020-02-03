@@ -15500,11 +15500,24 @@
 							"script": {
 								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
 								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
 									"pm.test(\"Set profile GUID environment variable.\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property('uuid');",
 									"    pm.environment.set(\"sub-realm-guid\", jsonData.uuid);",
 									"});",
+									"",
+									"pm.test(\"Check that sub-realm is correctly structured.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('applicationDataPolicies');",
+									"    pm.expect(jsonData).to.have.property('permissions');",
+									"});",
+									"",
 									""
 								],
 								"type": "text/javascript"
@@ -15554,85 +15567,43 @@
 					"response": []
 				},
 				{
-					"name": "CreateFunctionWithinSubRealm",
+					"name": "GetSubRealm",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
 								"exec": [
-									"pm.test(\"Set function GUID environment variable.\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('uuid');",
-									"    pm.environment.set(\"function-subrealm-guid\", jsonData.uuid);",
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
 									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{session_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-function-subrealm\",\n    \"description\": \"test-function description subrealm\",\n    \"applicationId\": \"{{application-subrealm-guid}}\",\n    \"permissions\": [\"{{permission-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
-						},
-						"url": {
-							"raw": "{{a3s-host}}/functions",
-							"host": [
-								"{{a3s-host}}"
-							],
-							"path": [
-								"functions"
-							]
-						},
-						"description": "Creates a new function, which is a business friendly collection of permissions. Functions must contain permissions from a single application (micro-services), as defined by the business rules. This application is indicated by the 'applicationId' component of the request body. To obtain a suitable application ID, run the 'GetApplications' function to get a list of all registered applications. Select a UUID from one of these applications and set it as the value of the 'application-guid' environment variable."
-					},
-					"response": []
-				},
-				{
-					"name": "CreateRoleWithinSubRealm",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
-								"exec": [
+									"",
 									"pm.test(\"Set profile GUID environment variable.\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property('uuid');",
-									"    pm.environment.set(\"role-subrealm-guid\", jsonData.uuid);",
+									"    pm.environment.set(\"sub-realm-guid\", jsonData.uuid);",
 									"});",
-									""
+									"",
+									"pm.test(\"Check that sub-realm is correctly structured.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('applicationDataPolicies');",
+									"    pm.expect(jsonData).to.have.property('permissions');",
+									"});",
+									"",
+									"pm.test(\"Check that the correct sub-realm was returned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.uuid).to.eql(pm.environment.get('sub-realm-guid'));",
+									"});"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "oauth2",
@@ -15649,7 +15620,7 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -15660,15 +15631,16 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"test-role-new-subrealmed\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"roleIds\": []\n}"
+							"raw": "{\n    \"name\": \"test-sub-realm-new\",\n    \"description\": \"Test new sub-realm description\",\n    \"permissionIds\": [\"{{permission-subrealm-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-subrealm-guid}}\"]\n}"
 						},
 						"url": {
-							"raw": "{{a3s-host}}/roles",
+							"raw": "{{a3s-host}}/subrealms/{{sub-realm-guid}}",
 							"host": [
 								"{{a3s-host}}"
 							],
 							"path": [
-								"roles"
+								"subrealms",
+								"{{sub-realm-guid}}"
 							]
 						},
 						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
@@ -15677,6 +15649,846 @@
 				}
 			],
 			"description": "Stores all the integration tests pertaining to the testing of sub-realms.",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "UserProfiles",
+			"item": [
+				{
+					"name": "Preparation",
+					"item": [
+						{
+							"name": "CreateFunctionWithinSubRealm",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set function GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"function-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-function-subrealm\",\n    \"description\": \"test-function description subrealm\",\n    \"applicationId\": \"{{application-subrealm-guid}}\",\n    \"permissions\": [\"{{permission-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/functions",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"functions"
+									]
+								},
+								"description": "Creates a new function, which is a business friendly collection of permissions. Functions must contain permissions from a single application (micro-services), as defined by the business rules. This application is indicated by the 'applicationId' component of the request body. To obtain a suitable application ID, run the 'GetApplications' function to get a list of all registered applications. Select a UUID from one of these applications and set it as the value of the 'application-guid' environment variable."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateRoleWithinSubRealm",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"role-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-role-new-subrealmed\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"roleIds\": []\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/roles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									]
+								},
+								"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateTeamWithinSubRealm",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"team-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-team-new-subrealm\",\n    \"description\": \"test new team description - subrealmed\",\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [\"{{application-data-policy-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/teams",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"teams"
+									]
+								},
+								"description": "Creates a new team."
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Tests",
+					"item": [
+						{
+							"name": "CreateUserProfile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "17701951-d606-4279-9b65-a0c54763335f",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"profile-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"New User Profile Name\",\n\t\"description\": \"New User Profile description\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-subrealm-guid}}\"],\n\t\"teamIds\": [\"{{team-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"users",
+										"{{user-guid}}",
+										"profiles"
+									]
+								},
+								"description": "Creates a use with basic attributes set."
+							},
+							"response": []
+						},
+						{
+							"name": "GetUserProfilesListForUser",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "17701951-d606-4279-9b65-a0c54763335f",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"users",
+										"{{user-guid}}",
+										"profiles"
+									]
+								},
+								"description": "Creates a use with basic attributes set."
+							},
+							"response": []
+						},
+						{
+							"name": "GetUserProfileByProfileGuid",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "17701951-d606-4279-9b65-a0c54763335f",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that user-profile is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('subRealmId');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"users",
+										"{{user-guid}}",
+										"profiles",
+										"{{profile-guid}}"
+									]
+								},
+								"description": "Creates a use with basic attributes set."
+							},
+							"response": []
+						},
+						{
+							"name": "UpdateUserProfile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "17701951-d606-4279-9b65-a0c54763335f",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that user-profile is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('subRealmId');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"User Profile Name - Updated\",\n\t\"description\": \"User Profile description - updated\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-subrealm-guid}}\"],\n\t\"teamIds\": [\"{{team-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/users/{{user-guid}}/profiles/{{profile-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"users",
+										"{{user-guid}}",
+										"profiles",
+										"{{profile-guid}}"
+									]
+								},
+								"description": "Creates a use with basic attributes set."
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Pagination Preparation",
+					"item": [
+						{
+							"name": "CreateSubRealm for pagination test",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"sub-realm-guid\", jsonData.uuid);",
+											"});",
+											"",
+											"pm.test(\"Check that sub-realm is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('applicationDataPolicies');",
+											"    pm.expect(jsonData).to.have.property('permissions');",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-sub-realm-new-pagination\",\n    \"description\": \"Test new sub-realm description\",\n    \"permissionIds\": [\"{{permission-subrealm-guid}}\"],\n    \"applicationDataPolicyIds\": [\"{{application-data-policy-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/subrealms",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"subrealms"
+									]
+								},
+								"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateFunctionWithinSubRealm - Pagination",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set function GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"function-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-function-subrealm-pagination\",\n    \"description\": \"test-function description subrealm\",\n    \"applicationId\": \"{{application-subrealm-guid}}\",\n    \"permissions\": [\"{{permission-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\"\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/functions",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"functions"
+									]
+								},
+								"description": "Creates a new function, which is a business friendly collection of permissions. Functions must contain permissions from a single application (micro-services), as defined by the business rules. This application is indicated by the 'applicationId' component of the request body. To obtain a suitable application ID, run the 'GetApplications' function to get a list of all registered applications. Select a UUID from one of these applications and set it as the value of the 'application-guid' environment variable."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateRoleWithinSubRealm - Pagination",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"role-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-role-new-subrealmed-pagination\",\n    \"description\": \"Test new role description\",\n    \"functionIds\": [\"{{function-subrealm-guid}}\"],\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"roleIds\": []\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/roles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									]
+								},
+								"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateTeamWithinSubRealm - Pagination",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "107896b8-e3c5-40b7-a0d7-13e2c7b8ee3c",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.environment.set(\"team-subrealm-guid\", jsonData.uuid);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-team-new-subrealm-pagination\",\n    \"description\": \"test new team description - subrealmed\",\n    \"subRealmId\": \"{{sub-realm-guid}}\",\n    \"teamIds\": [],\n    \"dataPolicyIds\": [\"{{application-data-policy-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/teams",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"teams"
+									]
+								},
+								"description": "Creates a new team."
+							},
+							"response": []
+						},
+						{
+							"name": "CreateUserProfile for pagination tests",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "17701951-d606-4279-9b65-a0c54763335f",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that user-profile is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('subRealmId');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"New User Profile Name two\",\n\t\"description\": \"New User Profile description two\",\n\t\"subRealmId\": \"{{sub-realm-guid}}\",\n\t\"roleIds\": [\"{{role-subrealm-guid}}\"],\n\t\"teamIds\": [\"{{team-subrealm-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/users/{{user-guid}}/profiles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"users",
+										"{{user-guid}}",
+										"profiles"
+									]
+								},
+								"description": "Creates a use with basic attributes set."
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"description": "All the requests pertaining to user profiles.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "561a9ede-c544-4bcd-a451-91a45b162dc7",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "635dc055-7718-4c2b-8ed2-d9382cce7c37",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
 			"protocolProfileBehavior": {}
 		},
 		{
@@ -19043,7 +19855,7 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
 											"    pm.expect(jsonData.length).to.equal(10);",
@@ -19075,15 +19887,15 @@
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false\");",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
 											"});",
 											"",
@@ -19138,7 +19950,7 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
 											"    pm.expect(jsonData.length).to.equal(10);",
@@ -19170,15 +19982,15 @@
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=true&orderBy=name\");",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true&orderBy=name\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=true&orderBy=name\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true&orderBy=name\");",
 											"});",
 											"",
@@ -19277,15 +20089,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(10);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(11);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=10&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=11&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -19381,15 +20193,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(10);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(11);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=10&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=11&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -19485,15 +20297,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -19589,15 +20401,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(3);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=2&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -19666,10 +20478,10 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 2 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there is 1 element in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(2);",
+											"    pm.expect(jsonData.length).to.equal(1);",
 											"});",
 											"",
 											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
@@ -19690,17 +20502,17 @@
 											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
 											"    var jsonData = JSON.parse(paginationHeader);",
 											"    ",
-											"    pm.expect(jsonData.current).to.eql(5);",
+											"    pm.expect(jsonData.current).to.eql(6);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -19728,7 +20540,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{a3s-host}}/roles?size=2&page=5",
+									"raw": "{{a3s-host}}/roles?size=2&page=6",
 									"host": [
 										"{{a3s-host}}"
 									],
@@ -19742,7 +20554,7 @@
 										},
 										{
 											"key": "page",
-											"value": "5"
+											"value": "6"
 										}
 									]
 								},
@@ -19799,15 +20611,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
 											"});",
 											""
@@ -19902,15 +20714,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(10);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/roles\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name_desc\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name_desc\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
 											"});",
 											""
@@ -20101,10 +20913,10 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(9);",
+											"    pm.expect(jsonData.length).to.equal(10);",
 											"});",
 											"",
 											"pm.test(\"Check that there are no populated related fields in returned data.\", function () {",
@@ -20133,16 +20945,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false\");",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false\");",
 											"});",
 											"",
@@ -20197,10 +21008,10 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(9);",
+											"    pm.expect(jsonData.length).to.equal(10);",
 											"});",
 											"",
 											"pm.test(\"Check that there are populated related fields in returned data.\", function () {",
@@ -20230,15 +21041,15 @@
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=true&orderBy=name\");",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true&orderBy=name\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=true&orderBy=name\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=true&orderBy=name\");",
 											"});",
 											"",
@@ -20337,15 +21148,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(9);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(11);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=9&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=11&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -20441,15 +21252,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(9);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(11);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=9&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=11&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -20545,15 +21356,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -20649,15 +21460,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(3);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=2&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -20726,7 +21537,7 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 1 element in the repsonse.\", function () {",
+											"pm.test(\"Check that there is 1 element in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
 											"    pm.expect(jsonData.length).to.equal(1);",
@@ -20750,17 +21561,17 @@
 											"    paginationHeader = pm.response.headers.get(\"X-Pagination\");",
 											"    var jsonData = JSON.parse(paginationHeader);",
 											"    ",
-											"    pm.expect(jsonData.current).to.eql(5);",
+											"    pm.expect(jsonData.current).to.eql(6);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(5);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(6);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=4&size=2&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=5&size=2&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=6&size=2&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=2&includeRelations=false\");",
 											"});",
 											""
@@ -20788,7 +21599,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{a3s-host}}/teams?size=2&page=5",
+									"raw": "{{a3s-host}}/teams?size=2&page=6",
 									"host": [
 										"{{a3s-host}}"
 									],
@@ -20802,7 +21613,7 @@
 										},
 										{
 											"key": "page",
-											"value": "5"
+											"value": "6"
 										}
 									]
 								},
@@ -20829,10 +21640,10 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(9);",
+											"    pm.expect(jsonData.length).to.equal(10);",
 											"});",
 											"",
 											"pm.test(\"Check that the element with the smallest name is first\", function () {",
@@ -20859,15 +21670,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name\");",
 											"});",
 											""
@@ -20932,10 +21743,10 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 9 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there are 10 elements in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(9);",
+											"    pm.expect(jsonData.length).to.equal(10);",
 											"});",
 											"",
 											"pm.test(\"Check that the element with the largest name is first\", function () {",
@@ -20962,15 +21773,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(9);",
-											"    pm.expect(jsonData.total).to.eql(1);",
+											"    pm.expect(jsonData.count).to.eql(11);",
+											"    pm.expect(jsonData.total).to.eql(2);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/teams\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.next).to.eql(undefined);",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
+											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name_desc\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=2&size=10&includeRelations=false&orderBy=name_desc\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=10&includeRelations=false&orderBy=name_desc\");",
 											"});",
 											""
@@ -21161,10 +21972,10 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 7 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 8 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(7);",
+											"    pm.expect(jsonData.length).to.equal(8);",
 											"});",
 											"",
 											"pm.test(\"Check that there are no populated related fields in returned data.\", function () {",
@@ -21193,7 +22004,7 @@
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(1);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21256,10 +22067,10 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"pm.test(\"Check that there are 7 elements in the repsonse (default page size).\", function () {",
+											"pm.test(\"Check that there are 8 elements in the repsonse (default page size).\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(7);",
+											"    pm.expect(jsonData.length).to.equal(8);",
 											"});",
 											"",
 											"pm.test(\"Check that there are populated related fields in returned data.\", function () {",
@@ -21288,7 +22099,7 @@
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(1);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21395,15 +22206,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(7);",
-											"    pm.expect(jsonData.total).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
+											"    pm.expect(jsonData.total).to.eql(8);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/functions\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(undefined);",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=2&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=7&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=8&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -21499,15 +22310,15 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(1);",
-											"    pm.expect(jsonData.count).to.eql(7);",
-											"    pm.expect(jsonData.total).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
+											"    pm.expect(jsonData.total).to.eql(8);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
 											"    var baseUrl = currentHost + \"/functions\"",
 											"    ",
 											"    pm.expect(jsonData.prev).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.next).to.eql(baseUrl + \"?page=3&size=1&includeRelations=false\");",
-											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=7&size=1&includeRelations=false\");",
+											"    pm.expect(jsonData.last).to.eql(baseUrl + \"?page=8&size=1&includeRelations=false\");",
 											"    pm.expect(jsonData.first).to.eql(baseUrl + \"?page=1&size=1&includeRelations=false\");",
 											"});",
 											""
@@ -21603,7 +22414,7 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(2);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(4);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21706,7 +22517,7 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(3);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(4);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21783,10 +22594,10 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 1 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there are 2 elements in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(1);",
+											"    pm.expect(jsonData.length).to.equal(2);",
 											"});",
 											"",
 											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
@@ -21809,7 +22620,7 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(4);",
 											"    pm.expect(jsonData.size).to.eql(2);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(4);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21886,10 +22697,10 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 7 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there are 8 elements in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(7);",
+											"    pm.expect(jsonData.length).to.equal(8);",
 											"});",
 											"",
 											"pm.test(\"Check that the element with the smallest name is first\", function () {",
@@ -21916,7 +22727,7 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(1);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
@@ -21989,15 +22800,15 @@
 											"    pm.expect(jsonData[0]).to.have.property('description');",
 											"});",
 											"",
-											"pm.test(\"Check that there are 7 elements in the repsonse.\", function () {",
+											"pm.test(\"Check that there are 8 elements in the repsonse.\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    ",
-											"    pm.expect(jsonData.length).to.equal(7);",
+											"    pm.expect(jsonData.length).to.equal(8);",
 											"});",
 											"",
 											"pm.test(\"Check that the element with the largest name is first\", function () {",
 											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData[0].name).to.eql(\"test-function-subrealm\")",
+											"    pm.expect(jsonData[0].name).to.eql(\"test-function-subrealm-pagination\")",
 											"});",
 											"",
 											"pm.test(\"Check that 'X-Pagination' header is present.\", function () {",
@@ -22019,7 +22830,7 @@
 											"    ",
 											"    pm.expect(jsonData.current).to.eql(1);",
 											"    pm.expect(jsonData.size).to.eql(10);",
-											"    pm.expect(jsonData.count).to.eql(7);",
+											"    pm.expect(jsonData.count).to.eql(8);",
 											"    pm.expect(jsonData.total).to.eql(1);",
 											"    // Check the values of the pagination links.",
 											"    var currentHost = pm.environment.get(\"a3s-host\");",
