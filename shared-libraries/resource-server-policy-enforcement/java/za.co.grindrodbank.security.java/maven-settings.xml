@@ -23,21 +23,5 @@
             <password>${env.OSSRH_PASSWORD}</password>
         </server>
     </servers>
-    <profiles>
-        <profile>
-            <id>ossrh</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-                <gpg.keyname>4938B9AEA58854CEA23B57B459CEC294560F9686</gpg.keyname>
-                <!-- <gpg.passphraseServerId>${gpg.keyname}</gpg.passphraseServerId>
-                <gpg.defaultKeyring>false</gpg.defaultKeyring> -->
-            </properties>
-        </profile>
-    </profiles>
-        <activeProfiles>
-        <activeProfile>ossrh</activeProfile>
-    </activeProfiles>
+   
 </settings>
