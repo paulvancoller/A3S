@@ -95,6 +95,7 @@
 					<arguments>-Dgpg.passphrase=${env.GPG_PASSPHRASE}</arguments>
 					<checkModificationExcludes>
 						<checkModificationExclude>pom.xml</checkModificationExclude>
+						<checkModificationExclude>maven-settings.xml</checkModificationExclude>
 					</checkModificationExcludes>
 				</configuration>
 				<dependencies>
