@@ -100,6 +100,11 @@ namespace za.co.grindrodbank.a3s.Services
                 logger.Error(ex);
                 throw new ItemNotProcessableException("An archive error occurred during the validation of the agreement file.");
             }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+                throw new ItemNotProcessableException("A general error occurred during the validation of the agreement file.");
+            }
         }
 
         private async Task<string> GetNewAgreementVersion(string agreementName)
