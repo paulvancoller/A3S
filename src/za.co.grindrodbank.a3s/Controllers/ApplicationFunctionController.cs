@@ -4,7 +4,6 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -12,8 +11,6 @@ using za.co.grindrodbank.a3s.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using za.co.grindrodbank.a3s.AbstractApiControllers;
-using za.co.grindrodbank.a3s.Helpers;
-using System.Security.Claims;
 
 namespace za.co.grindrodbank.a3s.Controllers
 {

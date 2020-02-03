@@ -31,4 +31,7 @@ Global
 		{0252654A-3B87-4420-AC71-5287BC7E26E3}.Release|x86.ActiveCfg = Release|Any CPU
 		{0252654A-3B87-4420-AC71-5287BC7E26E3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 1.1
+	EndGlobalSection
 EndGlobal

@@ -1,16 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>a3s_policy_enforcement</RootNamespace>
     <PackageId>a3s-security-policy-enforcement-lib</PackageId>
     <Version>XXX_VERSION_XXX</Version>
     <Company>Grindrod</Company>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <ReleaseVersion>1.1</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.2.0" />
-    <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/>
+    <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" />
   </ItemGroup>
 </Project>

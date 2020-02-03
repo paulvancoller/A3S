@@ -4,8 +4,6 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
