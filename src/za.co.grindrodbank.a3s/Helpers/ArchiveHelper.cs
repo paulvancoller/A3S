@@ -4,12 +4,11 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using NLog;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 
@@ -17,8 +16,6 @@ namespace za.co.grindrodbank.a3s.Helpers
 {
     public class ArchiveHelper : IArchiveHelper
     {
-        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
-
         public List<string> ReturnFilesListInTarGz(byte[] bytes, bool flattenFileStructure)
         {
             using var stream = new MemoryStream(bytes);
