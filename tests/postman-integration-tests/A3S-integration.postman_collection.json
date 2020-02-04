@@ -25845,7 +25845,7 @@
 										"subrealms"
 									]
 								},
-								"description": "Gets a paginated list of subrealms from the API."
+								"description": "Gets a paginated list of subrealms from the API, with no additional filters."
 							},
 							"response": []
 						},
@@ -26050,7 +26050,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of sub-realms from the API, with the page number set to 2, and the page size set to 1."
 							},
 							"response": []
 						},
@@ -26151,7 +26151,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of sub-realms from the API."
+								"description": "Gets a paginated list of sub-realms from the API, with the last page in the paginated result being selected."
 							},
 							"response": []
 						},
@@ -26253,7 +26253,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of sub-realms from the API, where the rersults are ordered by the name of the sub-realm in an ascending order."
 							},
 							"response": []
 						},
@@ -26355,7 +26355,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of sub-realms from the API, where the results are ordered by the name of the sub-realm in an ascending order."
 							},
 							"response": []
 						},
@@ -26457,7 +26457,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of sub-realms from the API, where the results are filtered by a given sub-realm name."
 							},
 							"response": []
 						}
@@ -26585,7 +26585,7 @@
 										"profiles"
 									]
 								},
-								"description": "Gets a paginated list of subrealms from the API."
+								"description": "Gets a paginated list of User Profiles from the API. Contains no additional parameters, which defaults to include relations to be false."
 							},
 							"response": []
 						},
@@ -26689,7 +26689,7 @@
 										}
 									]
 								},
-								"description": "Gets a paginated list of subrealms from the API."
+								"description": "Gets a paginated list of user profiles from the API. The includeRelations flag is set to true, so related entities should be populated."
 							},
 							"response": []
 						},
@@ -26796,7 +26796,7 @@
 										}
 									]
 								},
-								"description": "Gets a paginated list of subrealms from the API, with page number and size set to 1."
+								"description": "Gets a paginated list of user profiles from the API, with page number and size set to 1."
 							},
 							"response": []
 						},
@@ -26908,7 +26908,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of user profiles from the API, with page number being 2 and the page size being 1."
 							},
 							"response": []
 						},
@@ -27019,7 +27019,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of sub-realms from the API."
+								"description": "Gets a paginated list of profiles from the API, with the last page being selected from the pagination options."
 							},
 							"response": []
 						},
@@ -27124,7 +27124,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of user profiles from the API, which are ordered by the name of the user profile in an ascending order."
 							},
 							"response": []
 						},
@@ -27229,7 +27229,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of user profiles from the API, ordered by the name of the user profiles, in a descending order."
 							},
 							"response": []
 						},
@@ -27334,7 +27334,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a list of paginated user profiles from the API, filtered by a particular user profile name."
 							},
 							"response": []
 						}
