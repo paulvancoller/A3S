@@ -16,7 +16,6 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Models;
-using Newtonsoft.Json;
 
 namespace za.co.grindrodbank.a3s.Controllers
 {

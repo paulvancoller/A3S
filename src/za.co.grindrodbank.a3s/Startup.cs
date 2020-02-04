@@ -38,7 +38,6 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Mvc;
 using za.co.grindrodbank.a3s.ConnectionClients;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace za.co.grindrodbank.a3s
 {

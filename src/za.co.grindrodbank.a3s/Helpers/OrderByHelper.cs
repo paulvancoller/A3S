@@ -4,8 +4,7 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Generic;
 using za.co.grindrodbank.a3s.Exceptions;
 
 namespace za.co.grindrodbank.a3s.Helpers

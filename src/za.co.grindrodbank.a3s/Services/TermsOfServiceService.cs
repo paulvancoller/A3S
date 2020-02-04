@@ -84,7 +84,7 @@ namespace za.co.grindrodbank.a3s.Services
 
         private void ValidateFileCompatibility(byte[] fileContents)
         {
-            var archiveFiles = new List<string>();
+            List<string> archiveFiles; 
 
             try
             {
@@ -98,7 +98,7 @@ namespace za.co.grindrodbank.a3s.Services
             catch (Exception ex)
             {
                 logger.Error(ex);
-                throw new SystemException("A general error occurred during the validation of the agreement file.");
+                throw new InvalidOperationException("A general error occurred during the validation of the agreement file.");
             }
 
             if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_HTML_FILE))

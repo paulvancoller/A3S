@@ -87,7 +87,7 @@ namespace za.co.grindrodbank.a3s.Helpers
         private string CreatePageLink(int pageSize, int pageNumber, List<KeyValuePair<string, string>> filters, string orderBy, string pageRouteName, IUrlHelper urlHelper)
         {
             // append the page and size query params to the generated URL.
-            dynamic pageRouteValues = new ExpandoObject() as IDictionary<string, Object>; ;
+            dynamic pageRouteValues = new ExpandoObject() as IDictionary<string, Object>;
             
             pageRouteValues.page = pageNumber;
             pageRouteValues.size = pageSize;
