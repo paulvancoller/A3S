@@ -103,7 +103,7 @@ namespace za.co.grindrodbank.a3s.Services
             catch (Exception ex)
             {
                 logger.Error(ex);
-                throw new ItemNotProcessableException("A general error occurred during the validation of the agreement file.");
+                throw new SystemException("A general error occurred during the validation of the agreement file.");
             }
         }
 
