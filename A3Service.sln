@@ -51,7 +51,7 @@ Global
 		{47FB160E-87CB-4E86-9665-B1CB63A63F59} = {37F0D544-16D6-4F50-B6FF-B9ED929B6792}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		version = 1.0.2
+		version = 1.1.0
 		description = A3S
 	EndGlobalSection
 EndGlobal

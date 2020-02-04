@@ -3,7 +3,7 @@
   "info" : {
     "description" : "API Definition for A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
-    "version" : "1.0.5"
+    "version" : "1.1.0"
   },
   "servers" : [ {
     "url" : "/"
