@@ -23,17 +23,8 @@ namespace za.co.grindrodbank.a3s.Helpers
         {
             using var stream = new MemoryStream(bytes);
 
-            List<InMemoryFile> files = null ;
-            try
-            {
-                files = ExtractFilesInTarGz(stream, flattenFileStructure);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex);
-                throw new ItemNotProcessableException("Error extracting archive. Please check the log files for details.");
-            }
-
+            List<InMemoryFile> files = ExtractFilesInTarGz(stream, flattenFileStructure);
+ 
             var returnValues = new List<string>();
 
             files.ForEach(x =>

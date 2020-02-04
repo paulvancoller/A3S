@@ -106,7 +106,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             }
 
             // Assert
-            Assert.True(caughException is ItemNotProcessableException, "Null file specified must throw ItemNotProcessableException.");
+            Assert.True(caughException is ArchiveException, "Null file specified must throw ItemNotProcessableException.");
         }
     }
 }
