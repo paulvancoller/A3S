@@ -4,12 +4,11 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using NLog;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
@@ -74,7 +73,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach(var permissionId in permissionIds)
             {
                 // Search existing sub-realm permissions state for the permission.
-                var existingSubRealmPermission = subRealm.SubRealmPermissions.Where(SubRealmPermissionModel => SubRealmPermissionModel.PermissionId == permissionId).FirstOrDefault();
+                var existingSubRealmPermission = subRealm.SubRealmPermissions.FirstOrDefault(SubRealmPermissionModel => SubRealmPermissionModel.PermissionId == permissionId);
 
                 if(existingSubRealmPermission != null)
                 {
@@ -112,7 +111,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach (var applicationDataPolicyId in applicationDataPolicyIds)
             {
                 // Search existing sub-realm permissions state for the permission.
-                var existingSubRealmApplicationDataPolicy = subRealm.SubRealmApplicationDataPolicies.Where(SubRealmApplicationDataPolicyModel => SubRealmApplicationDataPolicyModel.ApplicationDataPolicyId == applicationDataPolicyId).FirstOrDefault();
+                var existingSubRealmApplicationDataPolicy = subRealm.SubRealmApplicationDataPolicies.FirstOrDefault(SubRealmApplicationDataPolicyModel => SubRealmApplicationDataPolicyModel.ApplicationDataPolicyId == applicationDataPolicyId);
 
                 if (existingSubRealmApplicationDataPolicy != null)
                 {

@@ -4,11 +4,8 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
 using AutoMapper;
-using IdentityServer4.EntityFramework;
 using System.Collections.Generic;
-using IdentityServer4.Models;
 
 namespace za.co.grindrodbank.a3s.MappingProfiles
 {

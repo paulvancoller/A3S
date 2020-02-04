@@ -4,9 +4,8 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace za.co.grindrodbank.a3sidentityserver.Exceptions
 {

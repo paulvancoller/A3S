@@ -4,13 +4,12 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using YamlDotNet.Serialization;
 using za.co.grindrodbank.a3s.MediaTypeHeaders;
-using NLog;
 
 namespace za.co.grindrodbank.a3s.ContentFormatters
 {

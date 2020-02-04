@@ -50,21 +50,24 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
 
         public override Task<UserModel> FindByNameAsync(string userName)
         {
-            if (userModel == null)
-                return Task.FromResult<UserModel>(null);
-
-            if (userModel.UserName == userName)
+            if (userModel?.UserName == userName)
                 return Task.FromResult(userModel);
 
             return Task.FromResult<UserModel>(null);
         }
 
-        public override Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        public override Task AgreeToTermsOfServiceAsync(UserModel user, Guid termsOfServiceId)
         {
             return Task.Run(() => { Console.WriteLine("AgreeToTermsOfService executed"); });
         }
 
+        public override Task<UserModel> FindByIdAsync(string userId)
+        {
+            if (userModel?.Id == userId)
+                return Task.FromResult(userModel);
 
+            return Task.FromResult<UserModel>(null);
+        }
 
         public void SetAuthenticatorTokenVerified(bool value)
         {

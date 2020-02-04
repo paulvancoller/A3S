@@ -4,7 +4,6 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System;
 using Microsoft.Net.Http.Headers;
 
 namespace za.co.grindrodbank.a3s.MediaTypeHeaders

@@ -72,7 +72,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"User with ID '{userId}' not found.");
                 }
 
-                var existingUserProfile = existingUser.Profiles.Where(up => up.Name == userProfileSubmit.Name).FirstOrDefault();
+                var existingUserProfile = existingUser.Profiles.FirstOrDefault(up => up.Name == userProfileSubmit.Name);
 
                 if (existingUserProfile != null)
                 {
@@ -84,7 +84,7 @@ namespace za.co.grindrodbank.a3s.Services
                 await userRepository.UpdateAsync(existingUser);
                 CommitTransaction();
 
-                return mapper.Map<UserProfile>(existingUser.Profiles.Where(up => up.Name == userProfileSubmit.Name).FirstOrDefault());
+                return mapper.Map<UserProfile>(existingUser.Profiles.FirstOrDefault(up => up.Name == userProfileSubmit.Name));
             }
             catch
             {
@@ -117,7 +117,7 @@ namespace za.co.grindrodbank.a3s.Services
             // If the name is being updated, ensure that the does not have a profile with the new name.
             if(userProfile.Name != userProfileSubmit.Name)
             {
-                var existingUserProfileWithName = user.Profiles.Where(up => up.Name == userProfileSubmit.Name).FirstOrDefault();
+                var existingUserProfileWithName = user.Profiles.FirstOrDefault(up => up.Name == userProfileSubmit.Name);
 
                 if(existingUserProfileWithName != null)
                 {
@@ -157,7 +157,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach (var roleIdToAdd in roleIds)
             {
                 // Search the existing user profile roles state for the role.
-                var existingProfileRole = userProfile.ProfileRoles.Where(upr => upr.RoleId == roleIdToAdd).FirstOrDefault();
+                var existingProfileRole = userProfile.ProfileRoles.FirstOrDefault(upr => upr.RoleId == roleIdToAdd);
 
                 if (existingProfileRole != null)
                 {
@@ -199,7 +199,7 @@ namespace za.co.grindrodbank.a3s.Services
             foreach (var teamIdToAdd in teamIds)
             {
                 // Search the existing user profile roles state for the role.
-                var existingProfileTeam = userProfile.ProfileTeams.Where(upt => upt.TeamId == teamIdToAdd).FirstOrDefault();
+                var existingProfileTeam = userProfile.ProfileTeams.FirstOrDefault(upt => upt.TeamId == teamIdToAdd);
 
                 if (existingProfileTeam != null)
                 {
@@ -293,7 +293,7 @@ namespace za.co.grindrodbank.a3s.Services
                 await userRepository.UpdateAsync(existingUser);
                 CommitTransaction();
 
-                return mapper.Map<UserProfile>(existingUser.Profiles.Where(up => up.Id == userProfileId).FirstOrDefault());
+                return mapper.Map<UserProfile>(existingUser.Profiles.FirstOrDefault(up => up.Id == userProfileId));
             }
             catch
             {

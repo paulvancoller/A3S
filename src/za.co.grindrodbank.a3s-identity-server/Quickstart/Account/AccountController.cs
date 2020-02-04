@@ -134,16 +134,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 }
                 else
                 {
-                    if (result.IsLockedOut)
-                    {
-                        await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "account locked out"));
-                        ModelState.AddModelError(string.Empty, AccountOptions.AccountLockedOutErrorMessage);
-                    }
-                    else
-                    {
-                        await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
-                        ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
-                    }
+                    await HandleFailureLoginResult(result, model.Username);
                 }
             }
 
@@ -325,9 +316,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (button != "validate")
                 return await CancelTokenRequest(model.RedirectUrl);
 
-            // check if we are in the context of an authorization request
-            var context = await _interaction.GetAuthorizationContextAsync(model.RedirectUrl);
-
             if (ModelState.IsValid)
             {
                 model.OTP = model.OTP.Replace(" ", string.Empty).Replace("-", string.Empty);
@@ -362,7 +350,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             // build a model so the logout page knows what to display
             var vm = await BuildLogoutViewModelAsync(logoutId);
 
-            if (vm.ShowLogoutPrompt == false)
+            if (!vm.ShowLogoutPrompt)
             {
                 // if the request for logout was properly authenticated from IdentityServer, then
                 // we don't need to show the prompt and can just log the user out directly.
@@ -411,6 +399,20 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         /*****************************************/
         /* helper APIs for the AccountController */
         /*****************************************/
+
+        private async Task HandleFailureLoginResult(Microsoft.AspNetCore.Identity.SignInResult result, string username)
+        {
+            if (result.IsLockedOut)
+            {
+                await _events.RaiseAsync(new UserLoginFailureEvent(username, "account locked out"));
+                ModelState.AddModelError(string.Empty, AccountOptions.AccountLockedOutErrorMessage);
+            }
+            else
+            {
+                await _events.RaiseAsync(new UserLoginFailureEvent(username, "invalid credentials"));
+                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+            }
+        }
 
         private async Task UpdateUser2faStatus(string userId)
         {
@@ -572,14 +574,14 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             return new RegisterTwoFactorViewModel()
             {
                 RedirectUrl = redirectUrl,
-                AllowRegisterAuthenticator = ShouldAllowAuthenticatorRegistration(userId),
+                AllowRegisterAuthenticator = ShouldAllowAuthenticatorRegistration(),
                 HasAuthenticator = _userManager.IsAuthenticatorTokenVerified(user),
                 TwoFACompulsary = TwoFACompulsary()
             };
 
         }
 
-        private bool ShouldAllowAuthenticatorRegistration(string userId)
+        private bool ShouldAllowAuthenticatorRegistration()
         {
             if (!_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled"))
                 return false;
@@ -590,16 +592,6 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
         private bool TwoFACompulsary()
         {
             return _configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("OrganizationEnforced");
-        }
-
-        private bool ShowAfterSuccessManagementScreen()
-        {
-            bool showAfterSuccessManagementScreen = false;
-
-            if (_configuration.GetSection("TwoFactorAuthentication").GetValue<bool>("AuthenticatorEnabled") == true)
-                showAfterSuccessManagementScreen = true;
-
-            return showAfterSuccessManagementScreen;
         }
 
         private async Task<RegisterTwoFactorAuthenticatorViewModel> GetRegister2FAAuthenticatorViewModel(string redirectUrl, string userId, bool resetUnverifiedAuthenticatorKey)
@@ -706,6 +698,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             }
 
+            // Only redirect to return URL if a valid context is loaded (based on the registered URL).
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
             if (context != null)

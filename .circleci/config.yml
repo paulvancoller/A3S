@@ -32,31 +32,33 @@ jobs:
             - tests/*
   static-analysis:
     docker:
-      - image: newtmitch/sonar-scanner:alpine
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1-alpine
     working_directory: ~/build
     steps:
       # Update, upgrade, then install git and openssh for a clean checkout
       - run: apk update
       - run: apk upgrade
-      - run: apk --no-cache add --update git openssh
+      - run: apk --no-cache add --update git openssh openjdk8
       - checkout
       - attach_workspace:
           at: ~/workspace
       - run: |
-         sonar-scanner \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-          -Dsonar.projectName=$SONAR_PROJECT_KEY \
-          -Dsonar.organization=$SONAR_ORG \
-          -Dsonar.login=$SONAR_AUTH_TOKEN \
-          -Dsonar.branch.name=$CIRCLE_BRANCH \
-          -Dsonar.projectBaseDir=$CI_PROJECT_DIR \
-          -Dsonar.sourceEncoding=UTF-8 \
-          -Dsonar.test.inclusions=tests/**/* \
-          -Dsonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/**,**/shared-libraries/**,**/ConnectionClients/**,**/Quickstart/Consent/**,**/Quickstart/Device/**,**/Quickstart/Grants/**,**/Quickstart/Diagnostics/** \
-          -Dsonar.coverage.exclusions=**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/shared-libraries/** \
-          -Dsonar.sources=. \
-          -Dsonar.cs.opencover.reportsPaths=../workspace/tests/za.co.grindrodbank.a3s.tests/coverage.opencover.xml,../workspace/tests/za.co.grindrodbank.a3s-identity-server.tests/coverage.opencover.xml
+          export TERM="xterm"
+          export PATH="$PATH:/root/.dotnet/tools"
+          dotnet tool install --global dotnet-sonarscanner || true
+          dotnet sonarscanner begin \
+            -k:"$SONAR_PROJECT_KEY" \
+            -o:"$SONAR_ORG" \
+            -d:sonar.host.url=https://sonarcloud.io \
+            -d:sonar.login="$SONAR_AUTH_TOKEN" \
+            -d:sonar.branch.name=$CIRCLE_BRANCH \
+            -d:sonar.test.inclusions="tests/**/*" \
+            -d:sonar.sourceEncoding=UTF-8 \
+            -d:sonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/**,**/shared-libraries/**,**/ConnectionClients/**,**/Quickstart/Consent/**,**/Quickstart/Device/**,**/Quickstart/Grants/**,**/Quickstart/Diagnostics/** \
+            -d:sonar.coverage.exclusions="**/*Context.cs,**/Program.cs,**/Startup.cs,**/Config.cs,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/shared-libraries/**,**/Stores/**,**/MappingProfiles/**,**/Exceptions/**,**/MediaTypeHeaders/**,**/AuthorisationPolicies/**,**/Attributes/**" \
+            -d:sonar.cs.opencover.reportsPaths="../workspace/tests/za.co.grindrodbank.a3s.tests/coverage.opencover.xml,../workspace/tests/za.co.grindrodbank.a3s-identity-server.tests/coverage.opencover.xml"
+          dotnet build A3Service.sln
+          dotnet sonarscanner end /d:sonar.login=${SONAR_AUTH_TOKEN}
 
   license-headers:
     docker:

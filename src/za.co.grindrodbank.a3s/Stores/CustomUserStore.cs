@@ -141,7 +141,7 @@ namespace za.co.grindrodbank.a3s.Stores
             return null;
         }
 
-        public async Task SetAuthenticatorTokenVerifiedAsync(UserModel user)
+        public virtual async Task SetAuthenticatorTokenVerifiedAsync(UserModel user)
         {
             await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.application_user_token SET is_verified = true where user_id = {0} and login_provider = {1} and name = {2};",
                 user.Id,
@@ -150,7 +150,7 @@ namespace za.co.grindrodbank.a3s.Stores
 
         }
 
-        public bool IsAuthenticatorTokenVerified(UserModel user)
+        public virtual bool IsAuthenticatorTokenVerified(UserModel user)
         {
             var tokenEntity =
                 a3SContext.UserToken.SingleOrDefault(
@@ -188,13 +188,9 @@ namespace za.co.grindrodbank.a3s.Stores
             await a3SContext.SaveChangesAsync();
         }
 
-        public async Task AgreeToTermsOfService(string userId, Guid termsOfServiceId)
+        public async virtual Task AgreeToTermsOfServiceAsync(string userId, Guid termsOfServiceId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new ArgumentNullException(nameof(userId));
-
-            if (termsOfServiceId == Guid.Empty)
-                throw new ArgumentNullException(nameof(termsOfServiceId));
+            CheckTermsOfServiceAgreementParameters(userId, termsOfServiceId);
 
             var agreementEntry =
                 await a3SContext.TermsOfServiceUserAcceptance.SingleOrDefaultAsync(
@@ -211,6 +207,16 @@ namespace za.co.grindrodbank.a3s.Stores
                 a3SContext.TermsOfServiceUserAcceptance.Add(agreementEntry);
                 await a3SContext.SaveChangesAsync();
             }
+        }
+
+        private void CheckTermsOfServiceAgreementParameters(string userId, Guid termsOfServiceId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentNullException(nameof(userId));
+
+            if (termsOfServiceId == Guid.Empty)
+                throw new ArgumentNullException(nameof(termsOfServiceId));
+
         }
 
         private async Task StoreEncryptedValue(UserModel user, string loginProvider, string name, string value)

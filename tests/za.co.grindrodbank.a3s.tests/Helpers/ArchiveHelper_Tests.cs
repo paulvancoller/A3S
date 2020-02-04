@@ -10,6 +10,7 @@ using System.IO;
 using Xunit;
 using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Helpers;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.tests.Helpers
 {
@@ -68,6 +69,19 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             Assert.True(string.Compare(Path.GetFileName(filesInArchive[1]), "terms_of_service.html") == 0, $"Returned file 1 must have name of 'terms_of_service.html'.");
         }
 
+        [Fact]
+        public void ExtractFilesFromTarGz_WithGzipTarContentSpecified_ExtractsArchive()
+        {
+            // Arrange
+            // Act
+            List<InMemoryFile> filesInArchive = new ArchiveHelper().ExtractFilesFromTarGz(validFileContents);
+
+            // Assert
+            Assert.True(filesInArchive.Count == 2, $"Extracted archive must contain 2 files.");
+            Assert.True(string.Compare(Path.GetFileName(filesInArchive[0].FileName), "terms_of_service.css") == 0, $"Returned file 1 must have name of 'terms_of_service.css'.");
+            Assert.True(string.Compare(Path.GetFileName(filesInArchive[1].FileName), "terms_of_service.html") == 0, $"Returned file 1 must have name of 'terms_of_service.html'.");
+        }
+
 
         [Fact]
         public void ReturnFilesListInTarGz_WithInvalidArchivespecified_ThrowsArchiveException()
@@ -75,7 +89,6 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             // Arrange
             string testFolder = $"{temporaryFolder}{Path.DirectorySeparatorChar}{Guid.NewGuid().ToString()}";
             string filePath = $"{testFolder}{Path.DirectorySeparatorChar}test_archive.tar.gz";
-            string extractedFolder = $"{testFolder}{Path.DirectorySeparatorChar}terms_of_service";
             Directory.CreateDirectory(testFolder);
 
             File.WriteAllBytes(filePath, inValidFileContents);
@@ -93,7 +106,7 @@ namespace za.co.grindrodbank.a3s.tests.Helpers
             }
 
             // Assert
-            Assert.True(caughException is ArchiveException, "Null file specified must throw ArgumentNullException.");
+            Assert.True(caughException is ItemNotProcessableException, "Null file specified must throw ItemNotProcessableException.");
         }
     }
 }
