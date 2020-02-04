@@ -23936,7 +23936,7 @@
 										"ldap"
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of LDAP auth modes from the API, with all the pagination query params set to their defaults."
 							},
 							"response": []
 						},
@@ -24040,7 +24040,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginatdd list of LDAP auth modes from the API, where the page and page size are set to 1."
 							},
 							"response": []
 						},
@@ -24143,7 +24143,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginatdd list of LDAP auth modes from the API, where the page is set to 1 and page size is set to 1."
 							},
 							"response": []
 						},
@@ -24245,7 +24245,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginatdd list of LDAP auth modes from the API, where the page is the last page, and page size is set to 1."
 							},
 							"response": []
 						},
@@ -24348,7 +24348,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of LDAP auth modes from the API, where the result set is ordered by the names of the LDAP auth modes in an ascending order."
 							},
 							"response": []
 						},
@@ -24451,7 +24451,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of LDAP auth modes from the API, where the result set is ordered by the names of the LDAP auth modes in a descending order."
 							},
 							"response": []
 						},
@@ -24554,7 +24554,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of LDAP auth modes from the API, where the result set is filtered by the name of a specific LDAP auth mode."
 							},
 							"response": []
 						}
@@ -24686,7 +24686,7 @@
 										"users"
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, with all the pagination related query params set to the default."
 							},
 							"response": []
 						},
@@ -24797,7 +24797,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, with the include relations flag set to true, which should result in related entities being populated in the response."
 							},
 							"response": []
 						},
@@ -24901,7 +24901,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of userrs from the API, with the page and the size of the page being set to 1."
 							},
 							"response": []
 						},
@@ -25005,7 +25005,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, with the page number being 2, and the size of the page being set to 1."
 							},
 							"response": []
 						},
@@ -25109,7 +25109,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where both the page and the page size are set to 2."
 							},
 							"response": []
 						},
@@ -25212,7 +25212,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the 3rd page is selected and the page size is 2."
 							},
 							"response": []
 						},
@@ -25315,7 +25315,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the last page is selected and the page size is 2."
 							},
 							"response": []
 						},
@@ -25418,7 +25418,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the result set is ordered by the name of the users in ascending order."
 							},
 							"response": []
 						},
@@ -25521,7 +25521,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the result set is ordered by the name of the users in descending order."
 							},
 							"response": []
 						},
@@ -25624,7 +25624,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the result set is filteredd on the name of a specific user."
 							},
 							"response": []
 						},
@@ -25727,7 +25727,7 @@
 										}
 									]
 								},
-								"description": "Gets a list of applications from the API."
+								"description": "Gets a paginated list of users from the API, where the result set is filtered using the username of a specific user."
 							},
 							"response": []
 						}
