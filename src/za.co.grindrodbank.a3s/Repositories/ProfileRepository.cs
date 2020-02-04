@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Extensions;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class ProfileRepository : IProfileRepository
+    public class ProfileRepository : PaginatedRepository<ProfileModel>, IProfileRepository
     {
         private readonly A3SContext a3SContext;
 
@@ -56,55 +57,28 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<ProfileModel> GetByIdAsync(Guid profileId, bool includeRelations)
         {
-            if (!includeRelations)
-            {
-                return await a3SContext.Profile.Where(p => p.Id == profileId)
-                                                .FirstOrDefaultAsync();
-            }
+            IQueryable<ProfileModel> query = a3SContext.Profile.Where(p => p.Id == profileId);
+            query = includeRelations ? IncludeRelations(query) : query;
 
-            return await a3SContext.Profile.Where(p => p.Id == profileId)
-                                                .Include(p => p.SubRealm)
-                                                .Include(p => p.User)
-                                                .Include(p => p.ProfileRoles)
-                                                  .ThenInclude(pr => pr.Role)
-                                                .Include(p => p.ProfileTeams)
-                                                  .ThenInclude(pt => pt.Team)
-                                                .FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<ProfileModel> GetByNameAsync(Guid userId, string name, bool includeRelations)
         {
-            if (!includeRelations)
-            {
-                return await a3SContext.Profile.Where(p => p.Name == name)
-                                                .FirstOrDefaultAsync();
-            }
+            IQueryable<ProfileModel> query = a3SContext.Profile.Where(p => p.Name == name)
+                                                               .Where(p => p.User.Id == userId.ToString());
 
-            return await a3SContext.Profile.Where(p => p.Name == name)
-                                           .Where(p => p.User.Id == userId.ToString())
-                                           .Include(p => p.SubRealm)
-                                           .Include(p => p.User)
-                                           .Include(p => p.ProfileRoles)
-                                             .ThenInclude(pr => pr.Role)
-                                           .Include(p => p.ProfileTeams)
-                                             .ThenInclude(pt => pt.Team)
-                                           .FirstOrDefaultAsync();
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<ProfileModel>> GetListAsync(bool includeRelations = false)
         {
-            if (!includeRelations)
-            {
-                return await a3SContext.Profile.ToListAsync();
-            }
+            IQueryable<ProfileModel> query = a3SContext.Profile;
+            query = includeRelations ? IncludeRelations(query) : query;
 
-            return await a3SContext.Profile.Include(p => p.SubRealm)
-                                           .Include(p => p.User)
-                                           .Include(p => p.ProfileRoles)
-                                             .ThenInclude(pr => pr.Role)
-                                           .Include(p => p.ProfileTeams)
-                                             .ThenInclude(pt => pt.Team)
-                                           .ToListAsync();
+            return await query.ToListAsync();
         }
 
         public async Task<ProfileModel> UpdateAsync(ProfileModel profile)
@@ -117,19 +91,43 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<List<ProfileModel>> GetListForUserAsync(Guid userId, bool includeRelations)
         {
-            if(!includeRelations)
+            IQueryable<ProfileModel> query = a3SContext.Profile.Where(p => p.User.Id == userId.ToString());
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<PaginatedResult<ProfileModel>> GetPaginatedListForUserAsync(Guid userId, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<ProfileModel> query = a3SContext.Profile.Where(p => p.User.Id == userId.ToString());
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            if (!string.IsNullOrWhiteSpace(filterName))
             {
-                return await a3SContext.Profile.ToListAsync();
+                query = query.Where(p => p.Name == filterName);
             }
 
-            return await a3SContext.Profile.Where(p => p.User.Id == userId.ToString())
-                                           .Include(p => p.SubRealm)
-                                           .Include(p => p.User)
-                                           .Include(p => p.ProfileRoles)
-                                             .ThenInclude(pr => pr.Role)
-                                           .Include(p => p.ProfileTeams)
-                                             .ThenInclude(pt => pt.Team)
-                                           .ToListAsync();
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+
+        private IQueryable<ProfileModel> IncludeRelations(IQueryable<ProfileModel> query)
+        {
+            return query.Include(p => p.SubRealm)
+                        .Include(p => p.User)
+                        .Include(p => p.ProfileRoles)
+                            .ThenInclude(pr => pr.Role)
+                        .Include(p => p.ProfileTeams)
+                            .ThenInclude(pt => pt.Team);
         }
     }
 }

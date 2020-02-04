@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.0",
   "info" : {
-    "description" : "API Definition for the A3S. This service allows authentication, authorisation and accounting.",
+    "description" : "API Definition for A3S. This service allows authentication, authorisation and accounting.",
     "title" : "A3S",
     "version" : "1.0.5"
   },
@@ -14,50 +14,14 @@
         "description" : "Search for users.",
         "operationId" : "listUsers",
         "parameters" : [ {
-          "description" : "Whether to fill in the teams member field",
+          "description" : "Determines whether all entities related to the user are returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "teams",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
             "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the roles member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "roles",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the functions member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "functions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "If this field is set, translate all applicable fields to a specific locale\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "locale",
-          "required" : false,
-          "schema" : {
-            "default" : "en",
-            "example" : "[\"en-za\",\"en-us\",\"af-za\",\"en\"]",
-            "maxLength" : 5,
-            "minLength" : 2,
-            "type" : "string"
           },
           "style" : "form"
         }, {
@@ -67,9 +31,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -88,7 +52,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the User's name.",
+          "description" : "A search query filter on the User's name. Will apply the search to first names and surname.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
@@ -101,7 +65,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the User's username",
+          "description" : "A search query filter on the User's username.",
           "explode" : true,
           "in" : "query",
           "name" : "filterUsername",
@@ -111,16 +75,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
-          "explode" : false,
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name', 'surname', 'username'.",
+          "explode" : true,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -642,9 +603,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -663,7 +624,19 @@
           },
           "style" : "form"
         }, {
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
           "description" : "A search query filter on the User profile's name.",
+          "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
           "name" : "filterName",
@@ -675,16 +648,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
-          "explode" : false,
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
+          "explode" : true,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -1274,10 +1244,10 @@
         "description" : "Search for Roles.",
         "operationId" : "listRoles",
         "parameters" : [ {
-          "description" : "Whether to fill in the users member field",
+          "description" : "Determines whether the entities related to the role are returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "users",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
@@ -1291,9 +1261,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -1312,11 +1282,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the role's description.",
+          "description" : "A search query filter on the role's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -1325,16 +1295,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -1688,32 +1655,10 @@
         "description" : "Search for teams.",
         "operationId" : "listTeams",
         "parameters" : [ {
-          "description" : "Whether to fill in the users member field",
+          "description" : "Determines whether the team's related entities will be returned.",
           "explode" : true,
           "in" : "query",
-          "name" : "users",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the teams member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "teams",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
-          "description" : "Whether to fill in the policies member field",
-          "explode" : true,
-          "in" : "query",
-          "name" : "policies",
+          "name" : "includeRelations",
           "required" : false,
           "schema" : {
             "default" : false,
@@ -1727,9 +1672,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -1748,11 +1693,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the team's description",
+          "description" : "A search query filter on the team's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDesciption",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -1761,16 +1706,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -2130,9 +2072,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -2151,8 +2093,7 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the name",
-          "example" : "FilterByEntityType",
+          "description" : "A search query filter on the name of the client.",
           "explode" : true,
           "in" : "query",
           "name" : "filterName",
@@ -2164,16 +2105,26 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "A search query filter on the client ID of the client.",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterClientId",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name', 'clientId'",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -2342,26 +2293,15 @@
         "description" : "Search for applications.",
         "operationId" : "listApplications",
         "parameters" : [ {
-          "description" : "If this field is set, then fill in the permissions member field\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "permissions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
           "description" : "The page to view.",
           "explode" : true,
           "in" : "query",
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -2380,11 +2320,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "A search query filter on the application's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -2393,16 +2333,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -2496,9 +2433,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -2517,11 +2454,11 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "A search query filter on the permission's name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -2530,16 +2467,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -2714,9 +2648,9 @@
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -2735,16 +2669,36 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "Determines whether the related entities, such as teams and which users accepted the agreement, are returned.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the agreement's name.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterAgreementName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'agreementName'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -2754,7 +2708,7 @@
               "application/json" : {
                 "schema" : {
                   "items" : {
-                    "$ref" : "#/components/schemas/TermsOfService"
+                    "$ref" : "#/components/schemas/TermsOfServiceListItem"
                   },
                   "type" : "array"
                 }
@@ -3052,26 +3006,15 @@
         "description" : "Search for functions.",
         "operationId" : "listFunctions",
         "parameters" : [ {
-          "description" : "If this field is set, then the permission list is filled in\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "permissions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
           "description" : "The page to view.",
           "explode" : true,
           "in" : "query",
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -3090,11 +3033,22 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the name of the function.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -3103,16 +3057,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -3521,26 +3472,15 @@
         "description" : "Search for application functions.",
         "operationId" : "listApplicationFunctions",
         "parameters" : [ {
-          "description" : "If this field is set, then the permission list is filled in\n",
-          "explode" : true,
-          "in" : "query",
-          "name" : "permissions",
-          "required" : false,
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          },
-          "style" : "form"
-        }, {
           "description" : "The page to view.",
           "explode" : true,
           "in" : "query",
           "name" : "page",
           "required" : false,
           "schema" : {
-            "default" : 0,
+            "default" : 1,
             "format" : "int32",
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "integer"
           },
           "style" : "form"
@@ -3559,11 +3499,22 @@
           },
           "style" : "form"
         }, {
-          "description" : "A search query filter on the description",
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the application function name.",
           "example" : "FilterByEntityType",
           "explode" : true,
           "in" : "query",
-          "name" : "filterDescription",
+          "name" : "filterName",
           "required" : false,
           "schema" : {
             "maxLength" : 255,
@@ -3572,16 +3523,13 @@
           },
           "style" : "form"
         }, {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -3894,16 +3842,53 @@
         "description" : "Search for LDAP Authentication Modes.",
         "operationId" : "listLdapAuthenticationModes",
         "parameters" : [ {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 1,
+            "format" : "int32",
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the LDAP auth mode's name.",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -4421,16 +4406,64 @@
         "description" : "Search for Sub-Realms.",
         "operationId" : "listSubRealms",
         "parameters" : [ {
-          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.",
+          "description" : "The page to view.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 1,
+            "format" : "int32",
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The size of a page.",
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 10,
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Determines whether related entities, such as any associated permissions, are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "includeRelations",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          },
+          "style" : "form"
+        }, {
+          "description" : "A search query filter on the name of the sub-realm.",
+          "example" : "FilterByEntityType",
+          "explode" : true,
+          "in" : "query",
+          "name" : "filterName",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "a comma separated list of fields in their sort order. Ascending order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name'.",
           "explode" : false,
           "in" : "query",
           "name" : "orderBy",
           "required" : false,
           "schema" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
+            "type" : "string"
           },
           "style" : "form"
         } ],
@@ -5081,6 +5114,49 @@
             "type" : "string"
           },
           "agreementFileData" : {
+            "type" : "string"
+          },
+          "teamIds" : {
+            "description" : "Teams linked to this terms of service entry.",
+            "items" : {
+              "$ref" : "#/components/schemas/TeamId"
+            },
+            "type" : "array"
+          },
+          "acceptedUserIds" : {
+            "description" : "A list of User Id's that have accepted this terms of service entry.",
+            "items" : {
+              "$ref" : "#/components/schemas/UserId"
+            },
+            "type" : "array"
+          },
+          "subRealmId" : {
+            "description" : "The UUID identifier for a sub-realm.",
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "TermsOfServiceListItem" : {
+        "description" : "Models a terms of service agreement returned inside lists.\n",
+        "example" : {
+          "acceptedUserIds" : [ null, null ],
+          "subRealmId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "agreementName" : "agreementName",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "version" : "version",
+          "teamIds" : [ null, null ]
+        },
+        "properties" : {
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "agreementName" : {
+            "type" : "string"
+          },
+          "version" : {
             "type" : "string"
           },
           "teamIds" : {
@@ -7128,7 +7204,7 @@
             "type" : "string"
           },
           "last" : {
-            "description" : "The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters. If this is the first page in the result set then this will be [null].",
+            "description" : "The link to the last page of results containing [size] results. This link includes the page, size, filter, orderBy and fields query parameters.",
             "format" : "url",
             "type" : "string"
           },

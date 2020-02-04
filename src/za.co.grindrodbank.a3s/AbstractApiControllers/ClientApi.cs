@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -44,7 +44,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Client not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/clients/{clientId}")]
+        [Route("/clients/{clientId}", Name = "GetClient")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Oauth2Client))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -60,8 +60,9 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <remarks>Search for clients.</remarks>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="filterName">A search query filter on the name</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="filterName">A search query filter on the name of the client.</param>
+        /// <param name="filterClientId">A search query filter on the client ID of the client.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order.  Supported fields. &#39;name&#39;, &#39;clientId&#39;</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -69,7 +70,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Client list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/clients")]
+        [Route("/clients", Name = "ListClients")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Oauth2Client>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -77,6 +78,6 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListClientsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListClientsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery][StringLength(255, MinimumLength=0)]string filterClientId, [FromQuery]string orderBy);
     }
 }

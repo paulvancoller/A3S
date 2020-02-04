@@ -13,18 +13,42 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
     public class UserController_Tests
     {
+        IUserService userService;
+        IProfileService profileService;
+        IPaginationHelper paginationHelper;
+        IOrderByHelper orderByHelper;
+        IMapper mapper;
+
+        public UserController_Tests()
+        {
+            userService = Substitute.For<IUserService>();
+            profileService = Substitute.For<IProfileService>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new UserResourceUserModelProfile());
+            });
+
+            mapper = config.CreateMapper();
+        }
+
         [Fact]
         public async Task GetUserAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             var result = await controller.GetUserAsync(Guid.Empty);
@@ -38,9 +62,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetUserAsync_WithRandomGuid_ReturnsNotFoundResult()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             var result = await controller.GetUserAsync(Guid.NewGuid());
@@ -60,7 +82,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             userService.GetByIdAsync(testGuid, true).Returns(new User { Uuid = testGuid, Username = testName });
 
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetUserAsync(testGuid);
@@ -79,20 +101,25 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ListUsersAsync_WithNoInputs_ReturnsList()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
+            var inList = new List<UserModel>();
+            inList.Add(new UserModel { FirstName = "Test Users 1", Id = Guid.NewGuid().ToString() });
+            inList.Add(new UserModel { FirstName = "Test Users 2", Id = Guid.NewGuid().ToString() });
+            inList.Add(new UserModel { FirstName = "Test Users 3", Id = Guid.NewGuid().ToString() });
 
-            var inList = new List<User>();
-            inList.Add(new User { Name = "Test Users 1", Uuid = Guid.NewGuid() });
-            inList.Add(new User { Name = "Test Users 2", Uuid = Guid.NewGuid() });
-            inList.Add(new User { Name = "Test Users 3", Uuid = Guid.NewGuid() });
+            PaginatedResult<UserModel> paginatedResult = new PaginatedResult<UserModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            userService.GetListAsync().Returns(inList);
+            userService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
 
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
-            IActionResult actionResult = await controller.ListUsersAsync(false, false, false, string.Empty, 0, 50, string.Empty, string.Empty, null);
+            IActionResult actionResult = await controller.ListUsersAsync(false, 1, 10, string.Empty, string.Empty, string.Empty);
 
             // Assert
             var okResult = actionResult as OkObjectResult;
@@ -103,8 +130,8 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
-                Assert.Equal(outList[i].Name, inList[i].Name);
+                Assert.Equal(outList[i].Uuid.ToString(), inList[i].Id);
+                Assert.Equal(outList[i].Name, inList[i].FirstName);
             }
         }
 
@@ -112,9 +139,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateUserAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateUserAsync(Guid.Empty, null);
@@ -160,7 +185,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateUserAsync(inputModel.Uuid, inputModel);
@@ -207,7 +232,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.CreateUserAsync(inputModel);
@@ -229,9 +254,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task DeleteUserAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.DeleteUserAsync(Guid.Empty);
@@ -245,9 +268,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task DeleteUserAsync_WithValidGuid_ReturnsNoData()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.DeleteUserAsync(Guid.NewGuid());
@@ -261,9 +282,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ChangePasswordAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.ChangeUserPasswordAsync(Guid.Empty, null);
@@ -277,9 +296,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ChangePassword_GivenUserChangeSubmit_ReturnsNoContent()
         {
             // Arrange
-            var userService = Substitute.For<IUserService>();
-            var profileService = Substitute.For<IProfileService>();
-            var controller = new UserController(userService, profileService);
+            var controller = new UserController(userService, profileService, paginationHelper, orderByHelper, mapper);
 
             var guid = Guid.NewGuid();
             var userPasswordChangeSubmit = new UserPasswordChangeSubmit()

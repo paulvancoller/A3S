@@ -12,12 +12,12 @@ using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using NLog;
 using za.co.grindrodbank.a3s.Services;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : PaginatedRepository<UserModel> , IUserRepository
     {
         private readonly A3SContext a3SContext;
         // This is the underlying identity user store manager. Use this, as it inlcudes numerous operations such as password hashing.
@@ -122,67 +122,24 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<UserModel> GetByIdAsync(Guid userId, bool includeRelations)
         {
-            // Note: Identity User ID type is modelled as a string, even though it is a Guid. This is a quirk of .Net Identity and it's DB models.
-            if (includeRelations)
-            {
-                return await a3SContext.User.Where(u => u.Id == userId.ToString())
-                                            .Include(u => u.UserRoles)
-                                              .ThenInclude(ur => ur.Role)
-                                                .ThenInclude(r => r.RoleFunctions)
-                                                  .ThenInclude(rf => rf.Function)
-                                            .Include(u => u.UserRoles)
-                                              .ThenInclude(ur => ur.Role)
-                                                .ThenInclude(r => r.ChildRoles)
-                                                  .ThenInclude(cr => cr.ChildRole)
-                                            .Include(u => u.UserTeams)
-                                              .ThenInclude(ut => ut.Team)
-                                            .Include(u => u.UserTokens)
-                                            .Include(u => u.Profiles)
-                                            .FirstOrDefaultAsync();
-            }
+            IQueryable<UserModel> query = a3SContext.User.Where(u => u.Id == userId.ToString());
+            query = includeRelations ? IncludeUserRelations(query) : query;
 
-            return await a3SContext.User.FindAsync(userId.ToString());
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<UserModel> GetByUsernameAsync(string username, bool includeRelations)
         {
-            if (includeRelations)
-            {
-                return await a3SContext.User.Where(u => u.UserName == username)
-                                            .Include(u => u.UserRoles)
-                                              .ThenInclude(ur => ur.Role)
-                                                .ThenInclude(r => r.RoleFunctions)
-                                                  .ThenInclude(rf => rf.Function)
-                                            .Include(u => u.UserRoles)
-                                              .ThenInclude(ur => ur.Role)
-                                                .ThenInclude(r => r.ChildRoles)
-                                                  .ThenInclude(cr => cr.ChildRole)
-                                            .Include(u => u.UserTeams)
-                                              .ThenInclude(ut => ut.Team)
-                                            .Include(u => u.UserTokens)
-                                            .Include(u => u.Profiles)
-                                            .FirstOrDefaultAsync();
-            }
+            IQueryable<UserModel> query = a3SContext.User.Where(u => u.UserName == username);
+            query = includeRelations ? IncludeUserRelations(query) : query;
 
-            return await a3SContext.User.Where(u => u.UserName == username).FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<UserModel>> GetListAsync()
         {
-            return await a3SContext.User.Where(x => !x.IsDeleted)
-                                         .Include(u => u.UserRoles)
-                                          .ThenInclude(ur => ur.Role)
-                                            .ThenInclude(r => r.RoleFunctions)
-                                              .ThenInclude(rf => rf.Function)
-                                         .Include(u => u.UserRoles)
-                                            .ThenInclude(ur => ur.Role)
-                                              .ThenInclude(r => r.ChildRoles)
-                                                .ThenInclude(cr => cr.ChildRole)
-                                        .Include(u => u.UserTeams)
-                                          .ThenInclude(ut => ut.Team)
-                                        .Include(u => u.UserTokens)
-                                        .Include(u => u.Profiles)
-                                        .ToListAsync();
+            IQueryable<UserModel> query = a3SContext.User.Where(x => !x.IsDeleted);
+            return await IncludeUserRelations(query).ToListAsync();
         }
 
         public async Task<UserModel> UpdateAsync(UserModel user)
@@ -206,6 +163,60 @@ namespace za.co.grindrodbank.a3s.Repositories
 
             if (!passwordChangeResult.Succeeded)
                 throw new OperationFailedException(string.Join(". ", passwordChangeResult.Errors));
+        }
+
+        public async Task<PaginatedResult<UserModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, string filterUsername, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<UserModel> query = a3SContext.User.Where(x => !x.IsDeleted);
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(u => u.FirstName == filterName || u.Surname == filterName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterUsername))
+            {
+                query = query.Where(u => u.UserName == filterUsername);
+            }
+
+            if (includeRelations)
+            {
+                query = IncludeUserRelations(query);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.FirstName, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                    case "surname":
+                        query = query.AppendOrderBy(a => a.Surname, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                    case "username":
+                        query = query.AppendOrderBy(a => a.UserName, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+
+        private IQueryable<UserModel> IncludeUserRelations(IQueryable<UserModel> query)
+        {
+            return query.Include(u => u.UserRoles)
+                           .ThenInclude(ur => ur.Role)
+                            .ThenInclude(r => r.RoleFunctions)
+                                .ThenInclude(rf => rf.Function)
+                         .Include(u => u.UserRoles)
+                           .ThenInclude(ur => ur.Role)
+                                .ThenInclude(r => r.ChildRoles)
+                                .ThenInclude(cr => cr.ChildRole)
+                         .Include(u => u.UserTeams)
+                            .ThenInclude(ut => ut.Team)
+                         .Include(u => u.UserTokens)
+                         .Include(u => u.Profiles);
         }
     }
 }

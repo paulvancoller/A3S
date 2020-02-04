@@ -108,5 +108,10 @@ namespace za.co.grindrodbank.a3s.Services
 
             await ldapAuthenticationModeRepository.DeleteAsync(authenticationMode);
         }
+
+        public async Task<PaginatedResult<LdapAuthenticationModeModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await ldapAuthenticationModeRepository.GetPaginatedListAsync(page, pageSize, filterName, orderBy);
+        }
     }
 }

@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 

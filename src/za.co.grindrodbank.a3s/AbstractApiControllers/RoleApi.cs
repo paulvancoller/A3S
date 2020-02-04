@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -45,7 +45,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the creation of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/roles")]
+        [Route("/roles", Name = "CreateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(RoleSubmit))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -68,7 +68,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Role not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/roles/{roleId}")]
+        [Route("/roles/{roleId}", Name = "GetRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -82,11 +82,11 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// Search for Roles.
         /// </summary>
         /// <remarks>Search for Roles.</remarks>
-        /// <param name="users">Whether to fill in the users member field</param>
+        /// <param name="includeRelations">Determines whether the entities related to the role are returned.</param>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="filterDescription">A search query filter on the role&#39;s description.</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="filterName">A search query filter on the role&#39;s name.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;name&#39;.</param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -94,7 +94,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Roles list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/roles")]
+        [Route("/roles", Name = "ListRoles")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Role>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -102,7 +102,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListRolesAsync([FromQuery]bool users, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterDescription, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListRolesAsync([FromQuery]bool includeRelations, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
         /// Update a role.
@@ -118,7 +118,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the updating of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/roles/{roleId}")]
+        [Route("/roles/{roleId}", Name = "UpdateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

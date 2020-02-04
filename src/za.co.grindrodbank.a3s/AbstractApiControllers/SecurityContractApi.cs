@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -44,7 +44,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="403">Forbidden - Not authorized to apply Security Contracts.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/securityContracts")]
+        [Route("/securityContracts", Name = "ApplySecurityContract")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -65,7 +65,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Security contract not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/securityContracts")]
+        [Route("/securityContracts", Name = "GetSecurityContract")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(SecurityContract))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -86,7 +86,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="403">Forbidden - Not authorized to validate Security Contracts.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/securityContracts/validate")]
+        [Route("/securityContracts/validate", Name = "ValidateSecurityContract")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(SecurityContractValidationResult))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

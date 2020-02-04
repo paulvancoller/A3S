@@ -13,17 +13,40 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
     public class LdapAuthenticationModeController_Tests
     {
+        private readonly ILdapAuthenticationModeService ldapAuthenticationModeService;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IMapper mapper;
+
+        public LdapAuthenticationModeController_Tests()
+        {
+            ldapAuthenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new LdapAuthenticationModeResourceLdapAuthenticationModeModelProfile());
+            });
+
+            mapper = config.CreateMapper();
+        }
+
         [Fact]
         public async Task GetAuthenticationModeAsync_WithEmptyGuid_ReturnsNotFoundResult()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var actionResult = await controller.GetLdapAuthenticationModeAsync(Guid.Empty);
@@ -36,8 +59,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetAuthenticationModeAsync_WithRandomGuid_ReturnsNotFoundResult()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetLdapAuthenticationModeAsync(Guid.NewGuid());
@@ -50,13 +72,12 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetAuthenticationModeAsync_WithTestGuid_ReturnsCorrectResult()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
             var testGuid = Guid.NewGuid();
             var testName = "TestAuthenticationModeName";
 
-            authenticationModeService.GetByIdAsync(testGuid).Returns(new LdapAuthenticationMode { Uuid = testGuid, Name = testName });
+            ldapAuthenticationModeService.GetByIdAsync(testGuid).Returns(new LdapAuthenticationMode { Uuid = testGuid, Name = testName });
 
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetLdapAuthenticationModeAsync(testGuid);
@@ -75,19 +96,28 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ListAuthenticationModesAsync_WithNoInputs_ReturnsList()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
 
-            var inList = new List<LdapAuthenticationMode>();
-            inList.Add(new LdapAuthenticationMode { Name = "Test AuthenticationModes 1", Uuid = Guid.NewGuid() });
-            inList.Add(new LdapAuthenticationMode { Name = "Test AuthenticationModes 2", Uuid = Guid.NewGuid() });
-            inList.Add(new LdapAuthenticationMode { Name = "Test AuthenticationModes 3", Uuid = Guid.NewGuid() });
+            var inList = new List<LdapAuthenticationModeModel>
+            {
+                new LdapAuthenticationModeModel { Name = "Test AuthenticationModes 1", Id = Guid.NewGuid() },
+                new LdapAuthenticationModeModel { Name = "Test AuthenticationModes 2", Id = Guid.NewGuid() },
+                new LdapAuthenticationModeModel { Name = "Test AuthenticationModes 3", Id = Guid.NewGuid() }
+            };
 
-            authenticationModeService.GetListAsync().Returns(inList);
+            PaginatedResult<LdapAuthenticationModeModel> paginatedResult = new PaginatedResult<LdapAuthenticationModeModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            ldapAuthenticationModeService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
-            IActionResult actionResult = await controller.ListLdapAuthenticationModesAsync(null);
+            IActionResult actionResult = await controller.ListLdapAuthenticationModesAsync(1 ,10, string.Empty, string.Empty);
 
             // Assert
             var okResult = actionResult as OkObjectResult;
@@ -98,7 +128,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }
@@ -107,8 +137,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateAuthenticationModeAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateLdapAuthenticationModeAsync(Guid.Empty, null);
@@ -122,7 +151,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateAuthenticationModeAsync_WithTestAuthenticationMode_ReturnsUpdatedAuthenticationMode()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
             var inputModel = new LdapAuthenticationModeSubmit()
             {
                 Uuid = Guid.NewGuid(),
@@ -135,7 +163,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 Port = 389
             };
 
-            authenticationModeService.UpdateAsync(inputModel, Arg.Any<Guid>())
+            ldapAuthenticationModeService.UpdateAsync(inputModel, Arg.Any<Guid>())
                 .Returns(new LdapAuthenticationMode()
                 {
                     Uuid = inputModel.Uuid,
@@ -148,7 +176,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateLdapAuthenticationModeAsync(inputModel.Uuid, inputModel);
@@ -172,7 +200,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task CreateAuthenticationModeAsync_WithTestAuthenticationMode_ReturnsUpdatedAuthenticationMode()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
             var inputModel = new LdapAuthenticationModeSubmit()
             {
                 Uuid = Guid.NewGuid(),
@@ -185,7 +212,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 Port = 389
             };
 
-            authenticationModeService.CreateAsync(inputModel, Arg.Any<Guid>())
+            ldapAuthenticationModeService.CreateAsync(inputModel, Arg.Any<Guid>())
                 .Returns(new LdapAuthenticationMode()
                 {
                     Uuid = inputModel.Uuid,
@@ -198,7 +225,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.CreateLdapAuthenticationModeAsync(inputModel);
@@ -222,7 +249,6 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task TestAuthenticationModeAsync_WithTestAuthenticationMode_ReturnsUpdatedAuthenticationMode()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
             var inputModel = new LdapAuthenticationModeSubmit()
             {
                 Uuid = Guid.NewGuid(),
@@ -235,7 +261,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 Port = 389
             };
 
-            authenticationModeService.TestAsync(inputModel)
+            ldapAuthenticationModeService.TestAsync(inputModel)
                 .Returns(new ValidationResultResponse()
                 {
                     Success = false,
@@ -246,7 +272,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                     }
                 });
 
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.TestLdapAuthenticationModeAsync(inputModel);
@@ -266,8 +292,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task DeleteLdapAuthenticationModeAsync_WithId_ReturnsNoContent()
         {
             // Arrange
-            var authenticationModeService = Substitute.For<ILdapAuthenticationModeService>();
-            var controller = new LdapAuthenticationModeController(authenticationModeService);
+            var controller = new LdapAuthenticationModeController(ldapAuthenticationModeService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.DeleteLdapAuthenticationModeAsync(Guid.NewGuid());

@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -44,7 +44,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function related entity (such as permissions) not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/functions")]
+        [Route("/functions", Name = "CreateFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -66,7 +66,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "DeleteFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -87,7 +87,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "GetFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -101,11 +101,11 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// Search for functions.
         /// </summary>
         /// <remarks>Search for functions.</remarks>
-        /// <param name="permissions">If this field is set, then the permission list is filled in </param>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="filterDescription">A search query filter on the description</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="includeRelations">Determines whether related entities, such as any associated permissions, are returned. </param>
+        /// <param name="filterName">A search query filter on the name of the function.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order.  Supported fields. &#39;name&#39;.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -113,7 +113,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Function list not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/functions")]
+        [Route("/functions", Name = "ListFunctions")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(List<Function>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -121,7 +121,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListFunctionsAsync([FromQuery]bool permissions, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterDescription, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListFunctionsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]bool includeRelations, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
         /// Update a function.
@@ -137,7 +137,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Functions not found.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/functions/{functionId}")]
+        [Route("/functions/{functionId}", Name = "UpdateFunction")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Function))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

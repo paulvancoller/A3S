@@ -8,6 +8,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -17,5 +19,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<Role> UpdateAsync(RoleSubmit roleSubmit, Guid updatedById);
         Task<Role> CreateAsync(RoleSubmit roleSubmit, Guid createdById);
         Task<List<Role>> GetListAsync();
+        Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

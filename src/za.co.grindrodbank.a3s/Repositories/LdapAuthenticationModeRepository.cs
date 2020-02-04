@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class LdapAuthenticationModeRepository : ILdapAuthenticationModeRepository
+    public class LdapAuthenticationModeRepository : PaginatedRepository<LdapAuthenticationModeModel>, ILdapAuthenticationModeRepository
     {
         private readonly A3SContext a3SContext;
         private readonly string encryptionKey;
@@ -132,5 +133,34 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.Database.ExecuteSqlRawAsync("UPDATE _a3s.ldap_authentication_mode SET password = pgp_sym_encrypt({0}, {1}) WHERE id = {2};", password, encryptionKey, ldapAuthenticationModeId);
             await a3SContext.SaveChangesAsync(); 
         }
-   }
+
+        private IQueryable<LdapAuthenticationModeModel> IncludeRelations(IQueryable<LdapAuthenticationModeModel> query)
+        {
+            return query.Include(a => a.LdapAttributes)
+                        .Include(a => a.Users);
+        }
+
+        public async Task<PaginatedResult<LdapAuthenticationModeModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<LdapAuthenticationModeModel> query = a3SContext.LdapAuthenticationMode;
+            query = IncludeRelations(query);
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(lam => lam.Name == filterName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(lam => lam.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+    }
 }

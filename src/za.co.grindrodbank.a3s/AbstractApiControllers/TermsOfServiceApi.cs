@@ -7,7 +7,7 @@
 /*
  * A3S
  *
- * API Definition for the A3S. This service allows authentication, authorisation and accounting.
+ * API Definition for A3S. This service allows authentication, authorisation and accounting.
  *
  * The version of the OpenAPI document: 1.0.5
  * 
@@ -43,7 +43,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="403">Forbidden - You are not authorized to create terms of service entries.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPost]
-        [Route("/termsOfService")]
+        [Route("/termsOfService", Name = "CreateTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(TermsOfService))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -65,7 +65,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Terms of service entry cannot be deleted.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpDelete]
-        [Route("/termsOfService/{termsOfServiceId}")]
+        [Route("/termsOfService/{termsOfServiceId}", Name = "DeleteTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
@@ -87,7 +87,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="404">Terms of service entry not found.</response>
         /// <response code="500">An unexpected error occurred</response>
         [HttpGet]
-        [Route("/termsOfService/{termsOfServiceId}")]
+        [Route("/termsOfService/{termsOfServiceId}", Name = "GetTermsOfService")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(TermsOfService))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
@@ -103,20 +103,22 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <remarks>Search for terms of service entries.</remarks>
         /// <param name="page">The page to view.</param>
         /// <param name="size">The size of a page.</param>
-        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append desc after a field to indicate descending order.</param>
+        /// <param name="includeRelations">Determines whether the related entities, such as teams and which users accepted the agreement, are returned.</param>
+        /// <param name="filterAgreementName">A search query filter on the agreement&#39;s name.</param>
+        /// <param name="orderBy">a comma separated list of fields in their sort order. Ascending order is assumed. Append &#39;_desc&#39; after a field to indicate descending order. Supported fields. &#39;agreementName&#39;.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
         /// <response code="403">Forbidden - You are not authorized to access the list of terms of service entries.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpGet]
-        [Route("/termsOfService")]
+        [Route("/termsOfService", Name = "ListTermsOfServices")]
         [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(List<TermsOfService>))]
+        [ProducesResponseType(statusCode: 200, type: typeof(List<TermsOfServiceListItem>))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> ListTermsOfServicesAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]List<string> orderBy);
+        public abstract Task<IActionResult> ListTermsOfServicesAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]bool includeRelations, [FromQuery][StringLength(255, MinimumLength=0)]string filterAgreementName, [FromQuery]string orderBy);
     }
 }
