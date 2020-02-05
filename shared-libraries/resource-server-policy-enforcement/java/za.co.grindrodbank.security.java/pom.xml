@@ -70,8 +70,29 @@
 
 	</dependencies>
 
-	<build>
-		<plugins>
+
+	<scm>
+		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
+		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
+		<url>https://github.com/GrindrodBank/A3S</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+<profiles>
+	<!-- the publishing steps are inside a profile named publish -->
+	<!-- these only trigger on:                                  -->
+	<!-- mvn -P publish-->
+    <profile>
+      <id>publish</id>
+      <build>
+        <plugins>
 			<!-- we are publishing to maven central via OSSRH nexus-->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
@@ -140,21 +161,9 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
-	</build>
-
-	<scm>
-		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
-		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
-		<url>https://github.com/GrindrodBank/A3S</url>
-		<tag>HEAD</tag>
-	</scm>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>>
-	</distributionManagement>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
