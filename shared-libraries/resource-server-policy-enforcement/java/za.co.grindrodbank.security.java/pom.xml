@@ -14,7 +14,7 @@
 
 	<groupId>za.co.grindrodbank</groupId>
 	<artifactId>security</artifactId>
-	<version>0.0.5</version>
+	<version>${env.PKG_VERSION}</version>
 	<packaging>jar</packaging>
 
 	<name>security</name>
@@ -86,6 +86,36 @@
 	</distributionManagement>
 
 <profiles>
+	<!-- this profile is used to supply a default PKG_VERSION -->
+	<!-- if this is called without it being specified         -->
+	<profile>
+		<id>default_version</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+			<property>
+				<name>!env.PKG_VERSION</name>
+			</property>
+		</activation>
+		<properties>
+			<env.PKG_VERSION>0.0.5-local</env.PKG_VERSION>
+		</properties>
+	</profile>
+
+	<!-- this profile is used to use a supplied PKG_VERSION -->
+	<!-- if it is specified                                 -->
+	<profile>
+		<id>supplied_version</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+			<property>
+				<name>env.PKG_VERSION</name>
+			</property>
+		</activation>
+		<properties>
+			<env.PKG_VERSION>${env.PKG_VERSION}</env.PKG_VERSION>
+		</properties>
+	</profile>
+
 	<!-- the publishing steps are inside a profile named publish -->
 	<!-- these only trigger on:                                  -->
 	<!-- mvn -P publish-->

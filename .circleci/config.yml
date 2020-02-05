@@ -237,6 +237,9 @@ jobs:
       # Update, upgrade, then install git, openssh and gpg
       # as the container doesn't have these installed
       # and we are using parameters to the checkout command 
+      - run:
+          name: verify CIRCLE_TAG is set for publish-java-libs
+          command: '[ -n "$CIRCLE_TAG" ] || { echo "no CIRCLE_TAG supplied"; exit 1; }'
       - run: 
           name: Install dependencies
           command: apk update; apk upgrade; apk --no-cache add --update git openssh gnupg
@@ -265,7 +268,10 @@ jobs:
       - run: 
           name: publish to maven central via OSSRH
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn clean deploy -s maven-settings.xml -P publish
+          command: |
+              echo "Adding Build $CIRCLE_TAG to version"
+              export PKG_VERSION=${CIRCLE_TAG/v/} #removing v's
+              mvn clean deploy -s maven-settings.xml -P publish
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
