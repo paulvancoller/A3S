@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    *************************************************
+    Copyright (c) 2019, Grindrod Bank Limited
+    License MIT: https://opensource.org/licenses/MIT
+    **************************************************
+
+-->
+<project 	xmlns="http://maven.apache.org/POM/4.0.0" 
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>za.co.grindrodbank</groupId>
+	<artifactId>security</artifactId>
+	<version>${env.PKG_VERSION}</version>
+	<packaging>jar</packaging>
+
+	<name>security</name>
+	<description>Shared library for permission attribute validation</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.8.RELEASE</version>		
+		<!-- NOTE: if this is upgraded make sure to correct/check on the overidden versions within <dependencyManagement> section of pom -->
+		<relativePath />
+		<!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security.oauth.boot</groupId>
+			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
+			<version>2.1.8.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+
+	<scm>
+		<connection>scm:git:git://github.com/GrindrodBank/A3S.git</connection>
+		<developerConnection>scm:git:git@github.com:GrindrodBank/A3S.git</developerConnection>
+		<url>https://github.com/GrindrodBank/A3S</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+<profiles>
+	<!-- this profile is used to supply a default PKG_VERSION -->
+	<!-- if this is called without it being specified         -->
+	<profile>
+		<id>default_version</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+			<property>
+				<name>!env.PKG_VERSION</name>
+			</property>
+		</activation>
+		<properties>
+			<env.PKG_VERSION>0.0.5-local</env.PKG_VERSION>
+		</properties>
+	</profile>
+
+	<!-- this profile is used to use a supplied PKG_VERSION -->
+	<!-- if it is specified                                 -->
+	<profile>
+		<id>supplied_version</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+			<property>
+				<name>env.PKG_VERSION</name>
+			</property>
+		</activation>
+		<properties>
+			<env.PKG_VERSION>${env.PKG_VERSION}</env.PKG_VERSION>
+		</properties>
+	</profile>
+
+	<!-- the publishing steps are inside a profile named publish -->
+	<!-- these only trigger on:                                  -->
+	<!-- mvn -P publish-->
+    <profile>
+      <id>publish</id>
+      <build>
+        <plugins>
+			<!-- we are publishing to maven central via OSSRH nexus-->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<!-- see auth info for ossrh specified in ./maven-settings.xml -->
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+
+			<!-- we are attaching sources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+					<id>attach-sources</id>
+					<goals>
+						<goal>jar-no-fork</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- we are attaching javadocs -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+					<id>attach-javadocs</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- we are signing artifacts for publishing -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+						<configuration>
+							<gpgArguments>
+								<!-- allow running in pipeline without tty prompts: -->
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+							<keyname>${env.GPG_KEYNAME}</keyname>
+							<passphrase>${env.GPG_PASSPHRASE}</passphrase>	
+						</configuration> 
+					</execution>
+				</executions>
+			</plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

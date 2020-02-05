@@ -1,0 +1,30 @@
+<!--
+
+    *************************************************
+    Copyright (c) 2019, Grindrod Bank Limited
+    License MIT: https://opensource.org/licenses/MIT
+    **************************************************
+
+-->
+<!-- This maven setting file is intented to allow specifying the OSSRH       -->
+<!-- username/password information for fully automated used in ci pipelines. -->
+<!--                                                                         -->
+<!-- It is applied to a maven invocation by using:                           -->
+<!-- mvn -s maven-settings.xml ...                                           -->
+<!-- and specifying the env variables it references in the CI engine:        -->
+<!-- i.e. OSSRH_PASSWORD                                                     -->
+<!--                                                                         -->
+<!-- We need to specify the credentials to allow pushing the published       -->
+<!-- artifacts to the Sonatype OSSRH (OSS Repository Hosting) Sonatype Nexus -->
+<!-- Repository Manager -->
+
+<settings>
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <!-- this is the OOSRH account and credentials for publishing -->
+            <username>${env.OSSRH_USERNAME}</username>
+            <password>${env.OSSRH_PASSWORD}</password>
+        </server>
+    </servers> 
+</settings>

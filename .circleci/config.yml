@@ -188,7 +188,90 @@ jobs:
           at: ~/repo/workspace
       - run:
           command: 'dotnet nuget push **/*.nupkg -n true -k ${NUGET_API_KEY} -s https://api.nuget.org/v3/index.json'     
-
+  verify-java-libs:
+  # For normal commits we build the library to be sure it compiles and builds and
+  # passes unit tests.
+    docker:
+      - image: maven:3.5.3-jdk-8-alpine
+    steps:
+      - run:
+          name: verify GPG_KEY_B64 is set for publish-java-libs
+          command: '[ -n "$GPG_KEY_B64" ] || { echo "no base64 encoded GPG key supplied"; exit 1; }'
+      - run:
+          name: verify GPG_KEYNAME is set for publish-java-libs
+          command: '[ -n "$GPG_KEYNAME" ] || { echo "no GPG key name supplied"; exit 1; }'
+      - run:
+          name: verify GPG_PASSPHRASE is set for publish-java-libs
+          command: '[ -n "$GPG_PASSPHRASE" ] || { echo "no GPG passphrase supplied"; exit 1; }'
+      - run:
+          name: verify OSSRH_USERNAME is set for publish-java-libs
+          command: '[ -n "$OSSRH_USERNAME" ] || { echo "no OSSRH username supplied"; exit 1; }' 
+      - run:
+          name: verify OSSRH_PASSWORD is set for publish-java-libs
+          command: '[ -n "$OSSRH_PASSWORD" ] || { echo "no OSSRH password supplied"; exit 1; }'      
+      # Update, upgrade, then install git and openssh 
+      # as the container doesn't have these installed
+      # and we are using parameters to the checkout command 
+      # to be able to build in a non-standard location
+      # (this is a library, not the main project)
+      - run: 
+          name: Install dependencies
+          command: apk update; apk upgrade; apk --no-cache add --update git openssh
+      - run: 
+          name: Verify installations
+          command: git version; ssh -V
+      - run: 
+          name: setup build filesystem layout
+          command: mkdir ~/build && cd ~/build 
+      - checkout:
+          path: ~/build
+      - run: 
+          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
+          command: mvn clean verify
+  publish-java-libs:
+  # On tagged commits (releases) we build the library, attach sources and javadocs, sign it and push 
+  # it to maven central via OSSRH
+    docker:
+      - image: maven:3.5.3-jdk-8-alpine
+    steps:
+      # Update, upgrade, then install git, openssh and gpg
+      # as the container doesn't have these installed
+      # and we are using parameters to the checkout command 
+      - run:
+          name: verify CIRCLE_TAG is set for publish-java-libs
+          command: '[ -n "$CIRCLE_TAG" ] || { echo "no CIRCLE_TAG supplied"; exit 1; }'
+      - run: 
+          name: Install dependencies
+          command: apk update; apk upgrade; apk --no-cache add --update git openssh gnupg
+      - run: 
+          name: Verify installations
+          command: gpg --version; git version; ssh -V
+      - run:
+          name: import GPG key
+          command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --import <( echo $GPG_KEY_B64 | base64 -d ) || echo $?
+          # <( echo $GPG_KEY_B64 | base64 -d )  - the output of the environment variable base64-decoded
+          #                                       passed to the gpg command as a file using process substitution
+          #                                       see https://www.linuxjournal.com/content/shell-process-redirection    
+          #                                       this is not piped as we already need to use the input pipe for the passphrase,
+          #                                       this is base64'ed since the key is newline sensitive and gets mangled otherwise 
+          # for the rest of the callisthenics to get gpg to accept a passphrase programmatically
+          #                                       see https://www.rzegocki.pl/blog/how-to-make-gnupg2-to-fall-in-love-with-docker/
+          # || echo $?                           - we allow failures and warning by echoing the exit code if it is nonzero
+      - run: 
+          name: list gpg keys to verify import
+          command: gpg --list-keys
+      - run: 
+          name: setup build filesystem layout
+          command: mkdir ~/build && cd ~/build 
+      - checkout:
+          path: ~/build
+      - run: 
+          name: publish to maven central via OSSRH
+          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
+          command: |
+              echo "Adding Build $CIRCLE_TAG to version"
+              export PKG_VERSION=${CIRCLE_TAG/v/} #removing v's
+              mvn clean deploy -s maven-settings.xml -P publish
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
@@ -272,6 +355,7 @@ workflows:
       - license-headers
       - postman-integration-tests
       - build-dotnet-libs
+      - verify-java-libs
       - fossa-scan:
           filters:    
             branches:    
@@ -290,6 +374,7 @@ workflows:
       - postman-integration-tests: *only-tags
       - generate-axios-client: *only-tags
       - build-dotnet-libs: *only-tags
+      - verify-java-libs: *only-tags
       - a3s-docker-build-push:
           requires:
           - unit-test
@@ -316,4 +401,7 @@ workflows:
           requires:
           - build-dotnet-libs
           <<: *only-tags
-          
+      - publish-java-libs:
+          requires:
+          - verify-java-libs
+          <<: *only-tags
