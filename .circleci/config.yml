@@ -199,8 +199,8 @@ jobs:
           name: verify GPG_KEYNAME is set for publish-java-libs
           command: '[ -n "$GPG_KEYNAME" ] || { echo "no GPG key name supplied"; exit 1; }'
       - run:
-          name: verify GPG_KEYNAME is set for publish-java-libs
-          command: '[ -n "$GPG_KEYNAME" ] || { echo "no GPG key name supplied"; exit 1; }'
+          name: verify GPG_PASSPHRASE is set for publish-java-libs
+          command: '[ -n "$GPG_PASSPHRASE" ] || { echo "no GPG passphrase supplied"; exit 1; }'
       - run:
           name: verify OSSRH_USERNAME is set for publish-java-libs
           command: '[ -n "$OSSRH_USERNAME" ] || { echo "no OSSRH username supplied"; exit 1; }' 
