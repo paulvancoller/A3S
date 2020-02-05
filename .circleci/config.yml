@@ -262,7 +262,7 @@ jobs:
       - run: 
           name: publish to maven central via OSSRH
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn clean install -s maven-settings.xml -P publish
+          command: mvn clean deploy -s maven-settings.xml -P publish
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
@@ -347,7 +347,9 @@ workflows:
       - postman-integration-tests
       - build-dotnet-libs
       - verify-java-libs
-      - publish-java-libs #testing tagges flow
+      - publish-java-libs: #testing tagges flow
+          requires:
+          - verify-java-libs
       - fossa-scan:
           filters:    
             branches:    
