@@ -301,5 +301,10 @@ namespace za.co.grindrodbank.a3s.Services
                 throw;
             }
         }
+
+        public Task<PaginatedResult<ProfileModel>> GetPaginatedListForUserAsync(Guid userId, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return profileRepository.GetPaginatedListForUserAsync(userId, page, pageSize, includeRelations, filterName, orderBy);
+        }
     }
 }

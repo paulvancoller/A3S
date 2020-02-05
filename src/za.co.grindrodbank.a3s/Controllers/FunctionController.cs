@@ -15,16 +15,25 @@ using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.AbstractApiControllers;
 using za.co.grindrodbank.a3s.Helpers;
 using System.Security.Claims;
+using AutoMapper;
+using za.co.grindrodbank.a3s.Repositories;
+using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Controllers
 {
     public class FunctionController : FunctionApiController
     {
         private readonly IFunctionService functionService;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IMapper mapper;
 
-        public FunctionController(IFunctionService functionService)
+        public FunctionController(IFunctionService functionService, IOrderByHelper orderByHelper, IPaginationHelper paginationHelper, IMapper mapper)
         {
             this.functionService = functionService;
+            this.orderByHelper = orderByHelper;
+            this.paginationHelper = paginationHelper;
+            this.mapper = mapper;
         }
 
         [Authorize(Policy = "permission:a3s.functions.create")]
@@ -49,9 +58,22 @@ namespace za.co.grindrodbank.a3s.Controllers
         }
 
         [Authorize(Policy = "permission:a3s.functions.read")]
-        public async override Task<IActionResult> ListFunctionsAsync([FromQuery] bool permissions, [FromQuery] int page, [FromQuery, Range(1, 20)] int size, [FromQuery, StringLength(255, MinimumLength = 0)] string filterDescription, [FromQuery] List<string> orderBy)
+        public async override Task<IActionResult> ListFunctionsAsync([FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery]bool includeRelations, [FromQuery][StringLength(255, MinimumLength = 0)]string filterName, [FromQuery]string orderBy)
         {
-            return Ok(await functionService.GetListAsync());   
+            List<KeyValuePair<string, string>> orderByKeyValueList = orderByHelper.ConvertCommaSeparateOrderByStringToKeyValuePairList(orderBy);
+            // Validate only correct order by components were supplied.
+            orderByHelper.ValidateOrderByListOnlyContainsCertainElements(orderByKeyValueList, new List<string> { "name" });
+            PaginatedResult<FunctionModel> paginatedResult = await functionService.GetPaginatedListAsync(page, size, includeRelations, filterName, orderByKeyValueList);
+            // Generate a K-V pair of all the current applied filters sent to the controller so that pagination header URLs can include them.
+            List<KeyValuePair<string, string>> currrentFilters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("includeRelations", includeRelations ? "true" : "false"),
+                new KeyValuePair<string, string>("filterName", filterName)
+            };
+
+            paginationHelper.AddPaginationHeaderMetaDataToResponse(paginatedResult, currrentFilters, orderBy, "ListFunctions", Url, Response);
+
+            return Ok(mapper.Map<List<Function>>(paginatedResult.Results));
         }
 
         [Authorize(Policy = "permission:a3s.functions.update")]

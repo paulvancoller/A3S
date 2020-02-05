@@ -10,12 +10,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Extensions;
 using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class TermsOfServiceRepository : ITermsOfServiceRepository
+    public class TermsOfServiceRepository : PaginatedRepository<TermsOfServiceModel>, ITermsOfServiceRepository
     {
         private readonly A3SContext a3SContext;
         private readonly IArchiveHelper archiveHelper;
@@ -68,16 +69,10 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations, bool includeFileContents)
         {
             TermsOfServiceModel termsOfService = null;
+            IQueryable<TermsOfServiceModel> query = a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId);
 
-            if (includeRelations)
-            {
-                termsOfService = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId)
-                                      .Include(t => t.Teams)
-                                      .Include(a => a.TermsOfServiceAcceptances)
-                                      .FirstOrDefaultAsync();
-            }
-
-            termsOfService = await a3SContext.TermsOfService.Where(t => t.Id == termsOfServiceId).FirstOrDefaultAsync();
+            query = includeRelations ? IncludeRelations(query) : query;
+            termsOfService = await query.FirstOrDefaultAsync();
 
             if (includeFileContents)
                 GetFileContents(ref termsOfService);
@@ -88,22 +83,15 @@ namespace za.co.grindrodbank.a3s.Repositories
         public async Task<TermsOfServiceModel> GetByAgreementNameAsync(string name, bool includeRelations, bool includeFileContents)
         {
             TermsOfServiceModel termsOfService = null;
+            IQueryable<TermsOfServiceModel> query = a3SContext.TermsOfService.Where(t => t.AgreementName == name);
 
-            if (includeRelations)
-            {
-                termsOfService = await a3SContext.TermsOfService.Where(t => t.AgreementName == name)
-                                      .Include(t => t.Teams)
-                                      .Include(a => a.TermsOfServiceAcceptances)
-                                      .FirstOrDefaultAsync();
-            }
-
-            termsOfService = await a3SContext.TermsOfService.Where(t => t.AgreementName == name).FirstOrDefaultAsync();
+            query = includeRelations ? IncludeRelations(query) : query;
+            termsOfService = await query.FirstOrDefaultAsync();
 
             if (includeFileContents)
                 GetFileContents(ref termsOfService);
 
             return termsOfService;
-
         }
 
         public async Task<List<TermsOfServiceModel>> GetListAsync()
@@ -205,6 +193,36 @@ namespace za.co.grindrodbank.a3s.Repositories
             // Remove copied records from source
             await a3SContext.Database.ExecuteSqlRawAsync("DELETE FROM _a3s.terms_of_service_user_acceptance WHERE terms_of_service_id in " +
                 "(SELECT id from _a3s.terms_of_service WHERE agreement_name = {0})", agreementName);
+        }
+
+        private IQueryable<TermsOfServiceModel> IncludeRelations(IQueryable<TermsOfServiceModel> query)
+        {
+            return query.Include(t => t.Teams)
+                        .Include(a => a.TermsOfServiceAcceptances);
+        }
+
+        public async Task<PaginatedResult<TermsOfServiceModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterAgreementName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<TermsOfServiceModel> query = a3SContext.TermsOfService;
+
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            if (!string.IsNullOrWhiteSpace(filterAgreementName))
+            {
+                query = query.Where(p => p.AgreementName == filterAgreementName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "agreementName":
+                        query = query.AppendOrderBy(a => a.AgreementName, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
         }
     }
 }

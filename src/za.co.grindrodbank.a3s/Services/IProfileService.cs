@@ -8,6 +8,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -21,5 +23,6 @@ namespace za.co.grindrodbank.a3s.Services
         // A user profile has a compound key consisting of the user ID and the name of the profile.
         Task<UserProfile> GetUserProfileByNameAsync(Guid userId, string userProfileName);
         Task DeleteUserProfileAsync(Guid userId, Guid userProfileId);
+        Task<PaginatedResult<ProfileModel>> GetPaginatedListForUserAsync(Guid userId, int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

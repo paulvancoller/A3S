@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <ReleaseVersion>1.0.2</ReleaseVersion>
+    <ReleaseVersion>1.1.0</ReleaseVersion>
     <Description>A3S Management API</Description>
   </PropertyGroup>
 

@@ -282,7 +282,10 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        
+        public async Task<PaginatedResult<UserModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, string filterUsername, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await userRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, filterUsername, orderBy);
+        }
 
         public void InitSharedTransaction()
         {

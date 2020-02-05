@@ -15,12 +15,21 @@ using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
     public class TeamController_Tests
     {
         private readonly ClaimsPrincipal mockClaimsPrincipal;
+        private readonly ITeamService teamService;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IMapper mapper;
 
         public TeamController_Tests()
         {
@@ -31,6 +40,17 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
                 new Claim("custom-claim", "example claim value"),
             }, "mock"));
+
+            teamService = Substitute.For<ITeamService>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new TeamResourceTeamModelProfile());
+            });
+
+            mapper = config.CreateMapper();
         }
 
         [Fact]
@@ -38,7 +58,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var teamService = Substitute.For<ITeamService>();
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetTeamAsync(Guid.Empty);
@@ -53,7 +73,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var teamService = Substitute.For<ITeamService>();
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetTeamAsync(Guid.NewGuid());
@@ -72,7 +92,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             teamService.GetByIdAsync(testGuid, true).Returns(new Team { Uuid = testGuid, Name = testName });
 
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetTeamAsync(testGuid);
@@ -91,18 +111,26 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ListTeamsAsync_WithNoInputs_ReturnsList()
         {
             // Arrange
-            var teamService = Substitute.For<ITeamService>();
+            var inList = new List<TeamModel>
+            {
+                new TeamModel { Name = "Test Teams 1", Id = Guid.NewGuid() },
+                new TeamModel { Name = "Test Teams 2", Id = Guid.NewGuid() },
+                new TeamModel { Name = "Test Teams 3", Id = Guid.NewGuid() }
+            };
 
-            var inList = new List<Team>();
-            inList.Add(new Team { Name = "Test Teams 1", Uuid = Guid.NewGuid() });
-            inList.Add(new Team { Name = "Test Teams 2", Uuid = Guid.NewGuid() });
-            inList.Add(new Team { Name = "Test Teams 3", Uuid = Guid.NewGuid() });
+            PaginatedResult<TeamModel> paginatedResult = new PaginatedResult<TeamModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            teamService.GetListAsync().Returns(inList);
-            var controller = new TeamController(teamService);
+            teamService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
-            IActionResult actionResult = await controller.ListTeamsAsync(false, false, false, 0, 50, string.Empty, null);
+            IActionResult actionResult = await controller.ListTeamsAsync(false, 1, 10, string.Empty, null);
 
             // Assert
             var okResult = actionResult as OkObjectResult;
@@ -113,7 +141,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }
@@ -122,19 +150,28 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task ListTeamsAsync_WithDataPolicy_ReturnsList()
         {
             // Arrange
-            var teamService = Substitute.For<ITeamService>();
+            var inList = new List<TeamModel>
+            {
+                new TeamModel { Name = "Test Teams 1", Id = Guid.NewGuid() },
+                new TeamModel { Name = "Test Teams 2", Id = Guid.NewGuid() },
+                new TeamModel { Name = "Test Teams 3", Id = Guid.NewGuid() }
+            };
 
-            var inList = new List<Team>();
-            inList.Add(new Team { Name = "Test Teams 1", Uuid = Guid.NewGuid() });
-            inList.Add(new Team { Name = "Test Teams 2", Uuid = Guid.NewGuid() });
-            inList.Add(new Team { Name = "Test Teams 3", Uuid = Guid.NewGuid() });
+            PaginatedResult<TeamModel> paginatedResult = new PaginatedResult<TeamModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
             // setup dataPolicy claim
             var claimsIdentity = (ClaimsIdentity)mockClaimsPrincipal.Identity;
             claimsIdentity.AddClaim(new Claim("dataPolicy", "a3s.viewYourTeamsOnly"));
 
-            teamService.GetListAsync(Arg.Any<Guid>()).Returns(inList);
-            var controller = new TeamController(teamService)
+            teamService.GetPaginatedListForMemberUserAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -143,7 +180,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             };
 
             // Act
-            IActionResult actionResult = await controller.ListTeamsAsync(false, false, false, 0, 50, string.Empty, null);
+            IActionResult actionResult = await controller.ListTeamsAsync(false, 1, 10, string.Empty, null);
 
             // Assert
             var okResult = actionResult as OkObjectResult;
@@ -154,7 +191,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }
@@ -164,7 +201,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var teamService = Substitute.For<ITeamService>();
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateTeamAsync(Guid.Empty, null);
@@ -193,7 +230,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateTeamAsync(inputModel.Uuid, inputModel);
@@ -227,7 +264,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
                 }
                 );
 
-            var controller = new TeamController(teamService);
+            var controller = new TeamController(teamService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.CreateTeamAsync(inputModel);

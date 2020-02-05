@@ -56,7 +56,7 @@ namespace za.co.grindrodbank.a3s.tests.Fakes
             return Task.FromResult<UserModel>(null);
         }
 
-        public override Task AgreeToTermsOfService(UserModel user, Guid termsOfServiceId)
+        public override Task AgreeToTermsOfServiceAsync(UserModel user, Guid termsOfServiceId)
         {
             return Task.Run(() => { Console.WriteLine("AgreeToTermsOfService executed"); });
         }

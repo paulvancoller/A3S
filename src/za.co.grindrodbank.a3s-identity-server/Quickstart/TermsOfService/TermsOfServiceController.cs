@@ -89,7 +89,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
             if (button != "accept" || !model.Accepted)
                 return await CancelTokenRequest(model.ReturnUrl);
 
-            await userManager.AgreeToTermsOfService(user, model.TermsOfServiceId);
+            await userManager.AgreeToTermsOfServiceAsync(user, model.TermsOfServiceId);
 
             return RedirectToAction("Index", new { returnUrl, initialAgreementCount = model.InitialAgreementCount });
         }

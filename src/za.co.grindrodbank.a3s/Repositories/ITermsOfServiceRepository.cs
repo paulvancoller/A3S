@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface ITermsOfServiceRepository : ITransactableRepository
+    public interface ITermsOfServiceRepository : ITransactableRepository, IPaginatedRepository<TermsOfServiceModel>
     {
         Task<TermsOfServiceModel> GetByIdAsync(Guid termsOfServiceId, bool includeRelations, bool includeFileContents);
         Task<TermsOfServiceModel> GetByAgreementNameAsync(string agreementName, bool includeRelations, bool includeFileContents);
@@ -21,5 +21,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<List<TermsOfServiceModel>> GetListAsync();
         Task<string> GetLastestVersionByAgreementName(string agreementName);
         Task<List<Guid>> GetAllOutstandingAgreementsByUserAsync(Guid userId);
+        Task<PaginatedResult<TermsOfServiceModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterAgreementName, List<KeyValuePair<string, string>> orderBy);
     }
 }

@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class IdentityClientRepository : IIdentityClientRepository
+    public class IdentityClientRepository : PaginatedRepository<Client>, IIdentityClientRepository
     {
         private readonly ConfigurationDbContext identityServerConfigurationContext;
 
@@ -52,25 +52,49 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<Client> GetByClientIdAsync(string clientId)
         {
-            return await identityServerConfigurationContext.Clients.Where(c => c.ClientId == clientId)
-                                                                   .Include(c => c.ClientSecrets)
-                                                                   .Include(c => c.AllowedCorsOrigins)
-                                                                   .Include(c => c.AllowedScopes)
-                                                                   .Include(c => c.PostLogoutRedirectUris)
-                                                                   .Include(c => c.RedirectUris)
-                                                                   .Include(c => c.AllowedGrantTypes)
-                                                                   .FirstOrDefaultAsync();
+            IQueryable <Client> query = identityServerConfigurationContext.Clients.Where(c => c.ClientId == clientId);
+            query = IncludeRelations(query);
+
+            return  await query.FirstOrDefaultAsync();                                    
         }
 
         public async Task<List<Client>> GetListAsync()
         {
-            return await identityServerConfigurationContext.Clients.Include(c => c.ClientSecrets)
-                                                                   .Include(c => c.AllowedCorsOrigins)
-                                                                   .Include(c => c.AllowedScopes)
-                                                                   .Include(c => c.PostLogoutRedirectUris)
-                                                                   .Include(c => c.RedirectUris)
-                                                                   .Include(c => c.AllowedGrantTypes)
-                                                                   .ToListAsync();
+            IQueryable<Client> query = identityServerConfigurationContext.Clients;
+            query = IncludeRelations(query);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<PaginatedResult<Client>> GetPaginatedListAsync(int page, int pageSize, string filterName, string filterClientId, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<Client> query = identityServerConfigurationContext.Clients;
+            query = IncludeRelations(query);
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(c => c.ClientName == filterName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterClientId))
+            {
+                query = query.Where(c => c.ClientId == filterClientId);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.ClientName, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                    case "clientId":
+                        query = query.AppendOrderBy(a => a.ClientId, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
         }
 
         public async Task<Client> UpdateAsync(Client client)
@@ -79,6 +103,16 @@ namespace za.co.grindrodbank.a3s.Repositories
             await identityServerConfigurationContext.SaveChangesAsync();
 
             return client;
+        }
+
+        private IQueryable<Client> IncludeRelations(IQueryable<Client> query)
+        {
+            return query.Include(c => c.ClientSecrets)
+                        .Include(c => c.AllowedCorsOrigins)
+                        .Include(c => c.AllowedScopes)
+                        .Include(c => c.PostLogoutRedirectUris)
+                        .Include(c => c.RedirectUris)
+                        .Include(c => c.AllowedGrantTypes);
         }
     }
 }

@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface IApplicationFunctionRepository : ITransactableRepository
+    public interface IApplicationFunctionRepository : ITransactableRepository, IPaginatedRepository<ApplicationFunctionModel>
     {
         Task<ApplicationFunctionModel> GetByNameAsync(string name);
         ApplicationFunctionModel GetByName(string name);
@@ -20,5 +20,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<ApplicationFunctionModel> UpdateAsync(ApplicationFunctionModel function);
         Task DeleteAsync(ApplicationFunctionModel function);
         Task<List<ApplicationFunctionModel>> GetListAsync();
+        Task<PaginatedResult<ApplicationFunctionModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

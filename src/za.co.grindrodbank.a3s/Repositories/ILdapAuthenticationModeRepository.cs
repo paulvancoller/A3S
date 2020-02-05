@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface ILdapAuthenticationModeRepository : ITransactableRepository
+    public interface ILdapAuthenticationModeRepository : ITransactableRepository, IPaginatedRepository<LdapAuthenticationModeModel>
     {
         Task<LdapAuthenticationModeModel> GetByIdAsync(Guid ldapAuthenticationModeId, bool includePassword = false, bool includeUsers = false);
         Task<LdapAuthenticationModeModel> GetByNameAsync(string name, bool includePassword = false);
@@ -19,6 +19,6 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task<LdapAuthenticationModeModel> UpdateAsync(LdapAuthenticationModeModel ldapAuthenticationMode);
         Task DeleteAsync(LdapAuthenticationModeModel authenticationMode);
         Task<List<LdapAuthenticationModeModel>> GetListAsync(bool includePassword = false);
-
+        Task<PaginatedResult<LdapAuthenticationModeModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy);
     }
 }

@@ -33,7 +33,7 @@ namespace {{apiPackage}}
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
-        [Route("{{{basePathWithoutHost}}}{{{path}}}")]{{#hasAuthMethods}}{{#authMethods}}{{#isApiKey}}
+        [Route("{{{basePathWithoutHost}}}{{{path}}}", Name = "{{operationId}}")]{{#hasAuthMethods}}{{#authMethods}}{{#isApiKey}}
         [Authorize(Policy = "{{name}}")]{{/isApiKey}}{{#isBasicBearer}}
         [Authorize{{#hasScopes}}(Roles = "{{#scopes}}{{scope}}{{#hasMore}},{{/hasMore}}{{/scopes}}"){{/hasScopes}}]{{/isBasicBearer}}{{/authMethods}}{{/hasAuthMethods}}
         [ValidateModelState]{{#useSwashbuckle}}

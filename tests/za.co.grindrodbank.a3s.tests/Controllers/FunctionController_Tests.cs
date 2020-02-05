@@ -13,6 +13,11 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
@@ -20,9 +25,24 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
     {
         private readonly Function functionModel;
         private readonly FunctionSubmit functionSubmitModel;
+        private readonly IFunctionService functionService;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IMapper mapper;
 
         public FunctionController_Tests()
         {
+            functionService = Substitute.For<IFunctionService>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new FunctionResourceFunctionModelProfile());
+            });
+
+            mapper = config.CreateMapper();
+
             functionModel = new Function()
             {
                 Uuid = Guid.NewGuid(),
@@ -54,8 +74,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetFunctionAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetFunctionAsync(Guid.Empty);
@@ -69,8 +88,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task GetFunctionAsync_WithRandomGuid_ReturnsNotFoundResult()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetFunctionAsync(Guid.NewGuid());
@@ -89,7 +107,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             functionService.GetByIdAsync(testGuid).Returns(new Function { Uuid = testGuid, Name = testName });
 
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetFunctionAsync(testGuid);
@@ -110,17 +128,25 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             // Arrange
             var functionService = Substitute.For<IFunctionService>();
 
-            var inList = new List<Function>();
-            inList.Add(new Function { Name = "Test Functions 1", Uuid = Guid.NewGuid() });
-            inList.Add(new Function { Name = "Test Functions 2", Uuid = Guid.NewGuid() });
-            inList.Add(new Function { Name = "Test Functions 3", Uuid = Guid.NewGuid() });
+            var inList = new List<FunctionModel>();
+            inList.Add(new FunctionModel { Name = "Test Functions 1", Id = Guid.NewGuid() });
+            inList.Add(new FunctionModel { Name = "Test Functions 2", Id = Guid.NewGuid() });
+            inList.Add(new FunctionModel { Name = "Test Functions 3", Id = Guid.NewGuid() });
 
-            functionService.GetListAsync().Returns(inList);
+            PaginatedResult<FunctionModel> paginatedResult = new PaginatedResult<FunctionModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            var controller = new FunctionController(functionService);
+            functionService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             // Act
-            IActionResult actionResult = await controller.ListFunctionsAsync(false, 0, 50, string.Empty, null);
+            IActionResult actionResult = await controller.ListFunctionsAsync(1, 10, true, string.Empty, string.Empty);
 
             // Assert
             var okResult = actionResult as OkObjectResult;
@@ -131,7 +157,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }
@@ -140,8 +166,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateFunctionAsync_WithRandomGuid_ReturnsNotImplemented()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.UpdateFunctionAsync(Guid.NewGuid(), new FunctionSubmit());
@@ -155,8 +180,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateFunctionAsync_WithBlankGuid_ReturnsNotImplemented()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             functionService.UpdateAsync(functionSubmitModel, Arg.Any<Guid>())
                 .Returns(functionModel);
@@ -173,8 +197,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateFunctionAsync_WithBlankGuidInBody_ReturnsNotImplemented()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             functionService.UpdateAsync(functionSubmitModel, Arg.Any<Guid>())
                 .Returns(functionModel);
@@ -193,8 +216,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         public async Task UpdateFunctionAsync_WithTestFunction_ReturnsFunctionModel()
         {
             // Arrange
-            var functionService = Substitute.For<IFunctionService>();
-            var controller = new FunctionController(functionService);
+            var controller = new FunctionController(functionService, orderByHelper, paginationHelper, mapper);
 
             functionService.UpdateAsync(functionSubmitModel, Arg.Any<Guid>())
                 .Returns(functionModel);

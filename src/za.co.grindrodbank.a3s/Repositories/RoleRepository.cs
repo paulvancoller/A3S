@@ -10,10 +10,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using za.co.grindrodbank.a3s.Models;
 using Microsoft.EntityFrameworkCore;
+using za.co.grindrodbank.a3s.Extensions;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public class RoleRepository : IRoleRepository
+    public class RoleRepository : PaginatedRepository<RoleModel>, IRoleRepository
     {
         private readonly A3SContext a3SContext;
 
@@ -56,17 +57,10 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<RoleModel> GetByIdAsync(Guid roleId)
         {
-            return await a3SContext.Role.Where(r => r.Id == roleId)
-                                        .Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.Role)
-                                        .Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.User)
-                                        .Include(r => r.RoleFunctions)
-                                          .ThenInclude(rf => rf.Function)
-                                        .Include(r => r.ChildRoles)
-                                          .ThenInclude(cr => cr.ChildRole)
-                                        .Include(r => r.SubRealm)
-                                        .FirstOrDefaultAsync();
+            IQueryable<RoleModel> query = a3SContext.Role.Where(r => r.Id == roleId);
+            query = IncludeRelations(query);
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public RoleModel GetByName(string name)
@@ -76,31 +70,18 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<RoleModel> GetByNameAsync(string name)
         {
-            return await a3SContext.Role.Where(r => r.Name == name)
-                                        .Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.Role)
-                                        .Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.User)
-                                        .Include(r => r.RoleFunctions)
-                                          .ThenInclude(rf => rf.Function)
-                                        .Include(r => r.ChildRoles)
-                                          .ThenInclude(cr => cr.ChildRole)
-                                        .Include(r => r.SubRealm)
-                                        .FirstOrDefaultAsync();
+            IQueryable<RoleModel> query = a3SContext.Role.Where(r => r.Name == name);
+            query = IncludeRelations(query);
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<RoleModel>> GetListAsync()
         {
-            return await a3SContext.Role.Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.Role)
-                                        .Include(r => r.UserRoles)
-                                          .ThenInclude(ur => ur.User)
-                                        .Include(r => r.RoleFunctions)
-                                          .ThenInclude(rf => rf.Function)
-                                        .Include(r => r.ChildRoles)
-                                          .ThenInclude(cr => cr.ChildRole)
-                                        .Include(r => r.SubRealm)
-                                        .ToListAsync();
+            IQueryable<RoleModel> query = a3SContext.Role;
+            query = IncludeRelations(query);
+
+            return await query.ToListAsync();
         }
 
         public async Task<RoleModel> UpdateAsync(RoleModel role)
@@ -109,6 +90,43 @@ namespace za.co.grindrodbank.a3s.Repositories
             await a3SContext.SaveChangesAsync();
 
             return role;
+        }
+
+        public async Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            IQueryable<RoleModel> query = a3SContext.Role;
+
+            query = includeRelations ? IncludeRelations(query) : query;
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+            {
+                query = query.Where(r => r.Name == filterName);
+            }
+
+            foreach (var orderByComponent in orderBy)
+            {
+                switch (orderByComponent.Key)
+                {
+                    case "name":
+                        query = query.AppendOrderBy(a => a.Name, orderByComponent.Value == "asc" ? true : false);
+                        break;
+                }
+            }
+
+            return await GetPaginatedListFromQueryAsync(query, page, pageSize);
+        }
+
+        private IQueryable<RoleModel> IncludeRelations(IQueryable<RoleModel> query)
+        {
+            return query.Include(r => r.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                    .Include(r => r.UserRoles)
+                        .ThenInclude(ur => ur.User)
+                    .Include(r => r.RoleFunctions)
+                        .ThenInclude(rf => rf.Function)
+                    .Include(r => r.ChildRoles)
+                        .ThenInclude(cr => cr.ChildRole)
+                    .Include(r => r.SubRealm);
         }
     }
 }

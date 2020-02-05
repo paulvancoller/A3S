@@ -84,22 +84,28 @@ namespace za.co.grindrodbank.a3s.Services
 
         private void ValidateFileCompatibility(byte[] fileContents)
         {
+            List<string> archiveFiles; 
 
             try
             {
-                List<string> archiveFiles = archiveHelper.ReturnFilesListInTarGz(fileContents, true);
-                
-                if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_HTML_FILE))
-                    throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_HTML_FILE}' file.");
-
-                if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_CSS_FILE))
-                    throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_CSS_FILE}' file.");
+                archiveFiles = archiveHelper.ReturnFilesListInTarGz(fileContents, true);
             }
             catch (ArchiveException ex)
             {
                 logger.Error(ex);
                 throw new ItemNotProcessableException("An archive error occurred during the validation of the agreement file.");
             }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+                throw new InvalidOperationException("A general error occurred during the validation of the agreement file.");
+            }
+
+            if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_HTML_FILE))
+                throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_HTML_FILE}' file.");
+
+            if (!archiveFiles.Contains(A3SConstants.TERMS_OF_SERVICE_CSS_FILE))
+                throw new ItemNotProcessableException($"Agreement file archive does not contain a '{A3SConstants.TERMS_OF_SERVICE_CSS_FILE}' file.");
         }
 
         private async Task<string> GetNewAgreementVersion(string agreementName)
@@ -124,6 +130,11 @@ namespace za.co.grindrodbank.a3s.Services
             return newVersion;
         }
 
+        public async Task<PaginatedResult<TermsOfServiceModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterAgreementName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await termsOfServiceRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterAgreementName, orderBy);
+        }
+
         private void BeginAllTransactions()
         {
             termsOfServiceRepository.InitSharedTransaction();
@@ -138,6 +149,5 @@ namespace za.co.grindrodbank.a3s.Services
         {
             termsOfServiceRepository.RollbackTransaction();
         }
-
     }
 }

@@ -179,6 +179,11 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
+        public async Task<PaginatedResult<FunctionModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await functionRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
+        }
+
         private void PerformSubrealmCheck(FunctionModel function, PermissionModel permission)
         {
             // If there is a Sub-Realm associated with function, we must ensure that the permission is associated with the same sub realm.

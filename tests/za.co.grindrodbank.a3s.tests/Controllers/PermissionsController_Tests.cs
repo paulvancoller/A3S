@@ -13,17 +13,40 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using za.co.grindrodbank.a3s.Helpers;
+using AutoMapper;
+using za.co.grindrodbank.a3s.MappingProfiles;
+using za.co.grindrodbank.a3s.Models;
+using za.co.grindrodbank.a3s.Repositories;
 
 namespace za.co.grindrodbank.a3s.tests.Controllers
 {
     public class PermissionController_Tests
     {
+        private IPermissionService permissionService;
+        private readonly IOrderByHelper orderByHelper;
+        private readonly IPaginationHelper paginationHelper;
+        private readonly IMapper mapper;
+
+        public PermissionController_Tests()
+        {
+            permissionService = Substitute.For<IPermissionService>();
+            orderByHelper = Substitute.For<IOrderByHelper>();
+            paginationHelper = Substitute.For<IPaginationHelper>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new PermissionResourcePermisionModelProfile());
+            });
+
+            mapper = config.CreateMapper();
+        }
+
         [Fact]
         public async Task GetPermissionAsync_WithEmptyGuid_ReturnsBadRequest()
         {
             // Arrange
-            var permissionService = Substitute.For<IPermissionService>();
-            var controller = new PermissionController(permissionService);
+            var controller = new PermissionController(permissionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetPermissionAsync(Guid.Empty);
@@ -38,7 +61,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
         {
             // Arrange
             var permissionService = Substitute.For<IPermissionService>();
-            var controller = new PermissionController(permissionService);
+            var controller = new PermissionController(permissionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             var result = await controller.GetPermissionAsync(Guid.NewGuid());
@@ -57,7 +80,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             permissionService.GetByIdAsync(testGuid).Returns(new Permission { Uuid = testGuid, Name = testName });
 
-            var controller = new PermissionController(permissionService);
+            var controller = new PermissionController(permissionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.GetPermissionAsync(testGuid);
@@ -78,14 +101,24 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             // Arrange
             var permissionService = Substitute.For<IPermissionService>();
 
-            var inList = new List<Permission>();
-            inList.Add(new Permission { Name = "Test Permissions 1", Uuid = Guid.NewGuid() });
-            inList.Add(new Permission { Name = "Test Permissions 2", Uuid = Guid.NewGuid() });
-            inList.Add(new Permission { Name = "Test Permissions 3", Uuid = Guid.NewGuid() });
+            var inList = new List<PermissionModel>
+            {
+                new PermissionModel { Name = "Test Permissions 1", Id = Guid.NewGuid() },
+                new PermissionModel { Name = "Test Permissions 2", Id = Guid.NewGuid() },
+                new PermissionModel { Name = "Test Permissions 3", Id = Guid.NewGuid() }
+            };
 
-            permissionService.GetListAsync().Returns(inList);
+            PaginatedResult<PermissionModel> paginatedResult = new PaginatedResult<PermissionModel>
+            {
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 3,
+                Results = inList
+            };
 
-            var controller = new PermissionController(permissionService);
+            permissionService.GetPaginatedListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string>(), Arg.Any<List<KeyValuePair<string, string>>>()).Returns(paginatedResult);
+
+            var controller = new PermissionController(permissionService, orderByHelper, paginationHelper, mapper);
 
             // Act
             IActionResult actionResult = await controller.ListPermissionsAsync(0, 50, string.Empty, null);
@@ -99,7 +132,7 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
 
             for (var i = 0; i < outList.Count; i++)
             {
-                Assert.Equal(outList[i].Uuid, inList[i].Uuid);
+                Assert.Equal(outList[i].Uuid, inList[i].Id);
                 Assert.Equal(outList[i].Name, inList[i].Name);
             }
         }

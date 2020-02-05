@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ReleaseVersion>1.0.2</ReleaseVersion>
+    <ReleaseVersion>1.1.0</ReleaseVersion>
     <Description>IdentityServer4 used and customized by A3S</Description>
   </PropertyGroup>
 
@@ -145,6 +145,18 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\ITransactableRepository.cs">
       <Link>Repositories\ITransactableRepository.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IPaginatedRepository.cs">
+      <Link>Repositories\IPaginatedRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\PaginatedRepository.cs">
+      <Link>Repositories\PaginatedRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\IPaginatedResult.cs">
+      <Link>Repositories\IPaginatedResult.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Repositories\PaginatedResult.cs">
+      <Link>Repositories\PaginatedResult.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Exceptions\ItemNotFoundException.cs">
       <Link>Exceptions\ItemNotFoundException.cs</Link>
     </Compile>
@@ -177,6 +189,9 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Extensions\TokenExtensions.cs">
       <Link>Extensions\TokenExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Extensions\QueryableExtensions.cs">
+      <Link>Extensions\QueryableExtensions.cs</Link>
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Managers\CustomUserManager.cs">
       <Link>Managers\CustomUserManager.cs</Link>

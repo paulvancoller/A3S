@@ -11,7 +11,7 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
-    public interface IPermissionRepository : ITransactableRepository
+    public interface IPermissionRepository : ITransactableRepository, IPaginatedRepository<PermissionModel>
     {
         Task<PermissionModel> GetByNameAsync(string name, bool includeRelations = false);
         Task<PermissionModel> GetByIdAsync(Guid permissionId);
@@ -22,11 +22,7 @@ namespace za.co.grindrodbank.a3s.Repositories
         Task Delete(PermissionModel permission);
         Task DeletePermissionsNotAssignedToApplicationFunctionsAsync();
         Task<List<PermissionModel>> GetListAsync();
-        /// <summary>
-        /// Fetches a list of permissions that a given user is linked to.
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
+        Task<PaginatedResult<PermissionModel>> GetPaginatedListAsync(int page, int pageSize, string filterName, List<KeyValuePair<string, string>> orderBy);
         Task<List<PermissionModel>> GetListAsync(Guid userId);
     }
 }

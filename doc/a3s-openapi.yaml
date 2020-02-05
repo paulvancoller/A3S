@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   description: >-
-    API Definition for the A3S. This service allows authentication, authorisation and accounting.
-  version: 1.0.5
+    API Definition for A3S. This service allows authentication, authorisation and accounting.
+  version: 1.1.0
   title: A3S
 paths:
   #region - User
@@ -14,51 +14,22 @@ paths:
       summary: Search for users.
       operationId: listUsers
       parameters:
-        - name: teams
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the teams member field
+          description: Determines whether all entities related to the user are returned.
           schema:
             type: boolean
             default: false
-        - name: roles
-          in: query
-          required: false
-          description: Whether to fill in the roles member field
-          schema:
-            type: boolean
-            default: false
-        - name: functions
-          in: query
-          required: false
-          description: Whether to fill in the functions member field
-          schema:
-            type: boolean
-            default: false
-        - name: locale
-          in: query
-          required: false
-          description: |
-            If this field is set, translate all applicable fields to a specific locale
-          schema:
-            type: string
-            maxLength: 5
-            minLength: 2
-            default: en
-            example:
-              - en-za
-              - en-us
-              - af-za
-              - en
         - name: page
           in: query
           required: false
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -72,7 +43,7 @@ paths:
         - name: filterName
           in: query
           required: false
-          description: A search query filter on the User's name.
+          description: A search query filter on the User's name. Will apply the search to first names and surname.
           schema:
             type: string
             minLength: 0
@@ -81,22 +52,17 @@ paths:
         - name: filterUsername
           in: query
           required: false
-          description: A search query filter on the User's username
+          description: A search query filter on the User's username.
           schema:
             type: string
         - name: orderBy
           in: query
           required: false
-          style: form
-          explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name', 'surname', 'username'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -425,9 +391,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -438,6 +404,14 @@ paths:
             maximum: 20
             format: int32
             default: 10
+        - name: includeRelations
+          in: query
+          required: false
+          description: |
+            Determines whether related entities, such as any associated permissions, are returned.
+          schema:
+            type: boolean
+            default: false
         - name: filterName
           in: query
           required: false
@@ -446,19 +420,15 @@ paths:
             type: string
             minLength: 0
             maxLength: 255
+          example: FilterByEntityType
         - name: orderBy
           in: query
           required: false
-          style: form
-          explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -833,10 +803,10 @@ paths:
       summary: Search for Roles.
       operationId: listRoles
       parameters:
-        - name: users
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the users member field
+          description: Determines whether the entities related to the role are returned.
           schema:
             type: boolean
             default: false
@@ -846,9 +816,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -859,10 +829,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the role's description.
+          description: A search query filter on the role's name.
           schema:
             type: string
             minLength: 0
@@ -875,12 +845,10 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
+            
       responses:
         '200':
           description: OK.
@@ -1101,24 +1069,10 @@ paths:
       summary: Search for teams.
       operationId: listTeams
       parameters:
-        - name: users
+        - name: includeRelations
           in: query
           required: false
-          description: Whether to fill in the users member field
-          schema:
-            type: boolean
-            default: false
-        - name: teams
-          in: query
-          required: false
-          description: Whether to fill in the teams member field
-          schema:
-            type: boolean
-            default: false
-        - name: policies
-          in: query
-          required: false
-          description: Whether to fill in the policies member field
+          description: Determines whether the team's related entities will be returned.
           schema:
             type: boolean
             default: false
@@ -1128,9 +1082,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1141,10 +1095,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDesciption
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the team's description
+          description: A search query filter on the team's name.
           schema:
             type: string
             minLength: 0
@@ -1157,12 +1111,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK.
@@ -1390,9 +1341,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1406,7 +1357,15 @@ paths:
         - name: filterName
           in: query
           required: false
-          description: A search query filter on the name
+          description: A search query filter on the name of the client.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+        - name: filterClientId
+          in: query
+          required: false
+          description: A search query filter on the client ID of the client.
           schema:
             type: string
             minLength: 0
@@ -1419,12 +1378,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name', 'clientId'
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -1530,23 +1486,15 @@ paths:
       summary: Search for applications.
       operationId: listApplications
       parameters:
-        - name: permissions
-          in: query
-          required: false
-          description: |
-            If this field is set, then fill in the permissions member field
-          schema:
-            type: boolean
-            default: false
         - name: page
           in: query
           required: false
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1557,10 +1505,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the description
+          description: A search query filter on the application's name.
           schema:
             type: string
             minLength: 0
@@ -1573,12 +1521,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -1639,9 +1584,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1652,10 +1597,10 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: filterName
           in: query
           required: false
-          description: A search query filter on the description
+          description: A search query filter on the permission's name.
           schema:
             type: string
             minLength: 0
@@ -1668,12 +1613,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -1786,9 +1728,9 @@ paths:
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -1799,6 +1741,21 @@ paths:
             maximum: 20
             format: int32
             default: 10
+        - name: includeRelations
+          in: query
+          required: false
+          description: Determines whether the related entities, such as teams and which users accepted the agreement, are returned.
+          schema:
+            type: boolean
+            default: false
+        - name: filterAgreementName
+          in: query
+          required: false
+          description: A search query filter on the agreement's name.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
         - name: orderBy
           in: query
           required: false
@@ -1806,12 +1763,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'agreementName'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -1825,7 +1779,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TermsOfService'
+                  $ref: '#/components/schemas/TermsOfServiceListItem'
         '400':
           description: Bad Request.
           content:
@@ -2006,23 +1960,15 @@ paths:
       summary: Search for functions.
       operationId: listFunctions
       parameters:
-        - name: permissions
-          in: query
-          required: false
-          description: |
-            If this field is set, then the permission list is filled in
-          schema:
-            type: boolean
-            default: false
         - name: page
           in: query
           required: false
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -2033,10 +1979,18 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: includeRelations
           in: query
           required: false
-          description: A search query filter on the description
+          description: |
+            Determines whether related entities, such as any associated permissions, are returned.
+          schema:
+            type: boolean
+            default: false
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the name of the function.
           schema:
             type: string
             minLength: 0
@@ -2049,12 +2003,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -2312,23 +2263,15 @@ paths:
       summary: Search for application functions.
       operationId: listApplicationFunctions
       parameters:
-        - name: permissions
-          in: query
-          required: false
-          description: |
-            If this field is set, then the permission list is filled in
-          schema:
-            type: boolean
-            default: false
         - name: page
           in: query
           required: false
           description: The page to view.
           schema:
             type: integer
-            minimum: 0
+            minimum: 1
             format: int32
-            default: 0
+            default: 1
         - name: size
           in: query
           required: false
@@ -2339,10 +2282,18 @@ paths:
             maximum: 20
             format: int32
             default: 10
-        - name: filterDescription
+        - name: includeRelations
           in: query
           required: false
-          description: A search query filter on the description
+          description: |
+            Determines whether related entities, such as any associated permissions, are returned.
+          schema:
+            type: boolean
+            default: false
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the application function name.
           schema:
             type: string
             minLength: 0
@@ -2355,12 +2306,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK.
@@ -2563,6 +2511,34 @@ paths:
       summary: Search for LDAP Authentication Modes.
       operationId: listLdapAuthenticationModes
       parameters:
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 1
+            format: int32
+            default: 1
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the LDAP auth mode's name.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+          example: FilterByEntityType
         - name: orderBy
           in: query
           required: false
@@ -2570,12 +2546,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -2901,6 +2874,42 @@ paths:
       summary: Search for Sub-Realms.
       operationId: listSubRealms
       parameters:
+        - name: page
+          in: query
+          required: false
+          description: The page to view.
+          schema:
+            type: integer
+            minimum: 1
+            format: int32
+            default: 1
+        - name: size
+          in: query
+          required: false
+          description: The size of a page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            format: int32
+            default: 10
+        - name: includeRelations
+          in: query
+          required: false
+          description: |
+            Determines whether related entities, such as any associated permissions, are returned.
+          schema:
+            type: boolean
+            default: false
+        - name: filterName
+          in: query
+          required: false
+          description: A search query filter on the name of the sub-realm.
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 255
+          example: FilterByEntityType
         - name: orderBy
           in: query
           required: false
@@ -2908,12 +2917,9 @@ paths:
           explode: false
           description: >-
             a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append desc after a field to indicate descending
-            order.
+            order is assumed. Append '_desc' after a field to indicate descending order.  Supported fields. 'name'.
           schema:
-            type: array
-            items:
-              type: string
+            type: string
       responses:
         '200':
           description: OK
@@ -3302,6 +3308,30 @@ components:
         version:
           type: string
         agreementFileData:
+          type: string
+        teamIds:
+          description: Teams linked to this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamId'
+        acceptedUserIds:
+          description: A list of User Id's that have accepted this terms of service entry.
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        subRealmId:
+          $ref: '#/components/schemas/SubRealmId'
+          
+    TermsOfServiceListItem:
+      description: |
+        Models a terms of service agreement returned inside lists.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TermsOfServiceId'
+        agreementName:
+          type: string
+        version:
           type: string
         teamIds:
           description: Teams linked to this terms of service entry.
@@ -4376,8 +4406,7 @@ components:
           description: >-
             The link to the last page of results containing [size] results. This
             link includes the page, size, filter, orderBy and fields query
-            parameters. If this is the first page in the result set then this
-            will be [null].
+            parameters.
         prev:
           type: string
           format: url

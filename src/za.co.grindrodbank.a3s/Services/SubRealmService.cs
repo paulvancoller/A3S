@@ -245,5 +245,10 @@ namespace za.co.grindrodbank.a3s.Services
 
             await subRealmRepository.DeleteAsync(subRealmToDelete);
         }
+
+        public async Task<PaginatedResult<SubRealmModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
+        {
+            return await subRealmRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
+        }
     }
 }
