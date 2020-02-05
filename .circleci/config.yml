@@ -196,6 +196,12 @@ jobs:
           name: verify GPG_KEY_B64 is set for publish-java-libs
           command: '[ -n "$GPG_KEY_B64" ] || { echo "no base64 encoded GPG key supplied"; exit 1; }'
       - run:
+          name: verify GPG_KEYNAME is set for publish-java-libs
+          command: '[ -n "$GPG_KEYNAME" ] || { echo "no GPG key name supplied"; exit 1; }'
+      - run:
+          name: verify GPG_KEYNAME is set for publish-java-libs
+          command: '[ -n "$GPG_KEYNAME" ] || { echo "no GPG key name supplied"; exit 1; }'
+      - run:
           name: verify OSSRH_USERNAME is set for publish-java-libs
           command: '[ -n "$OSSRH_USERNAME" ] || { echo "no OSSRH username supplied"; exit 1; }' 
       - run:
