@@ -260,8 +260,9 @@ jobs:
       - checkout:
           path: ~/build
       - run: 
+          name: publish to maven central via OSSRH
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn clean install -s maven-settings.xml
+          command: mvn clean install -s maven-settings.xml -P publish
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
