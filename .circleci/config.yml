@@ -186,7 +186,34 @@ jobs:
           at: ~/repo/workspace
       - run:
           command: 'dotnet nuget push **/*.nupkg -n true -k ${NUGET_API_KEY} -s https://api.nuget.org/v3/index.json'     
-  build-java-libs:
+  verify-java-libs:
+  # For normal commits we build the library to be sure it compiles and builds and
+  # passes unit tests.
+    docker:
+      - image: maven:3.5.3-jdk-8-alpine
+    steps:
+      # Update, upgrade, then install git and openssh 
+      # as the container doesn't have these installed
+      # and we are using parameters to the checkout command 
+      # to be able to build in a non-standard location
+      # (this is a library, not the main project)
+      - run: 
+          name: Install dependencies
+          command: apk update; apk upgrade; apk --no-cache add --update git openssh
+      - run: 
+          name: Verify installations
+          command: git version; ssh -V
+      - run: 
+          name: setup build filesystem layout
+          command: mkdir ~/build && cd ~/build 
+      - checkout:
+          path: ~/build
+      - run: 
+          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
+          command: mvn clean verify
+  publish-java-libs:
+  # On tagged commits (releases) we build the library, attach sources and javadocs, sign it and push 
+  # it to maven central via OSSRH
     docker:
       - image: maven:3.5.3-jdk-8-alpine
     steps:
@@ -200,25 +227,27 @@ jobs:
           name: Verify installations
           command: gpg --version; git version; ssh -V
       - run:
-          name: Git configuration
-          command: git config --global user.email "ci-buildbot-a3s@grindrodbank.co.za"; git config --global user.name "A3S CircleCI Buildbot" 
-      - run:
           name: import GPG key
           command: echo "$GPG_PASSPHRASE" | PASSPHRASE="$GPG_PASSPHRASE" gpg --batch --no-tty --pinentry-mode loopback --command-fd 0 --import <( echo $GPG_KEY_B64 | base64 -d ) || echo $?
-      - run: gpg --list-keys
-      - run: mkdir ~/build && cd ~/build 
+          # <( echo $GPG_KEY_B64 | base64 -d )  - the output of the environment variable base64-decoded
+          #                                       passed to the gpg command as a file using process substitution
+          #                                       see https://www.linuxjournal.com/content/shell-process-redirection    
+          #                                       this is not piped as we allready need to use the input pipe for the passphrase
+          #                                       this is base64'ed since the key is newline sensitive and gets mangled otherwise 
+          # for the rest of the callisthenics to get gpg to accept a passphrase programmatically
+          #                                       see https://www.rzegocki.pl/blog/how-to-make-gnupg2-to-fall-in-love-with-docker/
+          # || echo $?                           - we allow failures and warning by echoing the exit code if it is nonzero
+      - run: 
+          name: list gpg keys to verify import
+          command: gpg --list-keys
+      - run: 
+          name: setup build filesystem layout
+          command: mkdir ~/build && cd ~/build 
       - checkout:
           path: ~/build
-      - run: pwd; ls -l; ls -l ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
       - run: 
           working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
           command: mvn clean install -s maven-settings.xml
-      - run: 
-          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn  --batch-mode -s maven-settings.xml release:prepare -Dresume=false
-      - run: 
-          working_directory: ~/build/shared-libraries/resource-server-policy-enforcement/java/za.co.grindrodbank.security.java/
-          command: mvn  --batch-mode -s maven-settings.xml release:perform 
   a3s-docker-build-push:
     docker:
       - image: docker:18.09.3
@@ -302,7 +331,8 @@ workflows:
       - license-headers
       - postman-integration-tests
       - build-dotnet-libs
-      - build-java-libs
+      - verify-java-libs
+      - publish-java-libs #testing tagges flow
       - fossa-scan:
           filters:    
             branches:    
@@ -321,6 +351,7 @@ workflows:
       - postman-integration-tests: *only-tags
       - generate-axios-client: *only-tags
       - build-dotnet-libs: *only-tags
+      - verify-java-libs: *only-tags
       - a3s-docker-build-push:
           requires:
           - unit-test
@@ -346,4 +377,8 @@ workflows:
       - publish-dotnet-libs:
           requires:
           - build-dotnet-libs
+          <<: *only-tags
+      - publish-java-libs:
+          requires:
+          - verify-java-libs
           <<: *only-tags
