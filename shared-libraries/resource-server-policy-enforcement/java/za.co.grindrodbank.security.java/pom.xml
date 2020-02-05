@@ -14,8 +14,7 @@
 
 	<groupId>za.co.grindrodbank</groupId>
 	<artifactId>security</artifactId>
-	<!--<version>0.0.5</version>-->
-	<version>0.0.0.2</version><!-- verify workflow -->
+	<version>0.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>security</name>
