@@ -43,6 +43,8 @@ jobs:
       - attach_workspace:
           at: ~/workspace
       - run: |
+          SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
+          echo "Sonar branch value is: " $SONAR_BRANCH
           export TERM="xterm"
           export PATH="$PATH:/root/.dotnet/tools"
           dotnet tool install --global dotnet-sonarscanner || true
@@ -51,7 +53,7 @@ jobs:
             -o:"$SONAR_ORG" \
             -d:sonar.host.url=https://sonarcloud.io \
             -d:sonar.login="$SONAR_AUTH_TOKEN" \
-            -d:sonar.branch.name="$CIRCLE_BRANCH" \
+            -d:sonar.branch.name="SONAR_BRANCH" \
             -d:sonar.test.inclusions="tests/**/*" \
             -d:sonar.sourceEncoding=UTF-8 \
             -d:sonar.exclusions=**/Data/**,**/Migrations/**,**/wwwroot/**,**/A3SApiResources/**,**/AbstractApiControllers/**,**/Models/**,**/Repositories/**,**/db/**,**/Views/**,**/shared-libraries/**,**/ConnectionClients/**,**/Quickstart/Consent/**,**/Quickstart/Device/**,**/Quickstart/Grants/**,**/Quickstart/Diagnostics/** \
