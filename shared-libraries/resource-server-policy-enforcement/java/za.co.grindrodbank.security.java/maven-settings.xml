@@ -6,22 +6,27 @@
     **************************************************
 
 -->
+<!-- This maven setting file is intented to allow specifying the OSSRH       -->
+<!-- username/password information for fully automated used in ci pipelines. -->
+<!--                                                                         -->
+<!-- It is applied to a maven invocation by using:                           -->
+<!-- mvn -s maven-settings.xml ...                                           -->
+<!-- and specifying the env variables it references in the CI engine:        -->
+<!-- i.e. OSSRH_PASSWORD                                                     -->
+<!--                                                                         -->
+<!-- We need to specify the credentials to allow pushing the published       -->
+<!-- artifacts to the Sonatype OSSRH (OSS Repository Hosting) Sonatype Nexus -->
+<!-- Repository Manager -->
+
 <settings>
     <servers>
         <server>
             <id>ossrh</id>
-            <!-- from https://stackoverflow.com/a/28074776/1319337 -->
-            <!-- ossrh username/password                           -->
-            <!-- can now be specified using mvn flag of            -->
-            <!-- mvn -s <this settings file> \                     -->
-            <!-- -Dossrh.repo.jira-id=some_username \          -->
-            <!-- -Dossrh.repo.jira-pwd=some_password \         -->
-            <!---    ...etc. etc. etc.                             -->
-            <!-- <username>${ossrh.repo.jira-id}</username>
-            <password>${ossrh.repo.jira-pwd}</password> -->
+            <!-- this is the OOSRH account associated with           -->
+            <!-- maven coordinates:                                  -->
+            <!--  za.co.grindrodbank:security:*                      -->
             <username>grindrod-appdev</username>
             <password>${env.OSSRH_PASSWORD}</password>
         </server>
-    </servers>
-   
+    </servers> 
 </settings>
