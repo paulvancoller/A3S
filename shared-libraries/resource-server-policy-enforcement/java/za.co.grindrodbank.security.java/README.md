@@ -1,6 +1,5 @@
 # Shared library for permission attribute validation
 
-
 # Documentation
 
 ## Getting Started
@@ -12,3 +11,6 @@ To include shared library into your project just update your pom.xml
     <artifactId>security</artifactId>
     <version>0.0.5</version>
 </dependency>
+
+---
+&copy; Copyright 2020, Grindrod Bank Limited, and distributed under the MIT License.
