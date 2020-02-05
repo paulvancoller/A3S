@@ -246,7 +246,7 @@ jobs:
           # <( echo $GPG_KEY_B64 | base64 -d )  - the output of the environment variable base64-decoded
           #                                       passed to the gpg command as a file using process substitution
           #                                       see https://www.linuxjournal.com/content/shell-process-redirection    
-          #                                       this is not piped as we allready need to use the input pipe for the passphrase
+          #                                       this is not piped as we already need to use the input pipe for the passphrase,
           #                                       this is base64'ed since the key is newline sensitive and gets mangled otherwise 
           # for the rest of the callisthenics to get gpg to accept a passphrase programmatically
           #                                       see https://www.rzegocki.pl/blog/how-to-make-gnupg2-to-fall-in-love-with-docker/
@@ -347,9 +347,6 @@ workflows:
       - postman-integration-tests
       - build-dotnet-libs
       - verify-java-libs
-      - publish-java-libs: #testing tagges flow
-          requires:
-          - verify-java-libs
       - fossa-scan:
           filters:    
             branches:    
