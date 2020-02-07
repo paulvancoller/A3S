@@ -10,7 +10,7 @@ services:
   a3s-postgresql:
     networks:
       - a3s-quickstart
-    image: "postgres:10.7-alpine"
+    image: "postgres:11-alpine"
     restart: always
     ports:
       # Use a non standard port mapping to avoid potential collisions with other Postgres instances running on the host.
