@@ -113,24 +113,30 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 AgreementCount = outstandingTerms.Count,
                 AgreementName = termsOfService.AgreementName,
                 TermsOfServiceId = termsOfService.Id,
-                CssContents = LocaliseStyleSheetItems(termsOfService.CssContents),
+                CssContents = LocalizeStyleSheetItems(termsOfService.CssContents),
                 HtmlContents = termsOfService.HtmlContents,
                 ReturnUrl = returnUrl,
                 InitialAgreementCount = (initialAgreementCount > 0 ? initialAgreementCount : outstandingTerms.Count)
             };
         }
 
-        private string LocaliseStyleSheetItems(string stylesheetContents)
+        private string LocalizeStyleSheetItems(string stylesheetContents)
         {
             if (string.IsNullOrWhiteSpace(stylesheetContents))
                 return string.Empty;
 
+            // clear comments
+            string clearStylesheetContents = Regex.Replace(stylesheetContents, A3SConstants.CSS_STYLE_CLEAR_COMMENTS_REGEX, string.Empty, RegexOptions.Multiline);
+
             StringBuilder alteredStylesheetBuilder = new StringBuilder();
 
-            MatchCollection matches = Regex.Matches(stylesheetContents, A3SConstants.CSS_STYLE_RULES_REGEX, RegexOptions.IgnoreCase);
+            // get all styles for ids and classes
+            MatchCollection matches = Regex.Matches(clearStylesheetContents, A3SConstants.CSS_STYLE_RULES_REGEX, RegexOptions.Multiline);
 
             foreach (Match match in matches)
+            {
                 alteredStylesheetBuilder.Append($"#terms-body {match.Value}\n");
+            }
 
             return alteredStylesheetBuilder.ToString();
         }
