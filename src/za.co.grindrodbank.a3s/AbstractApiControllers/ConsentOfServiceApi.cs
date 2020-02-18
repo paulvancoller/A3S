@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using za.co.grindrodbank.a3s.Attributes;
 using Microsoft.AspNetCore.Authorization;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Controllers
