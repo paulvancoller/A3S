@@ -129,20 +129,6 @@ h3 {
     margin: 20px auto;
 }
 
-.login-button {
-    height: 47px;
-    width: 132px;
-    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
-    font-size: 1em;
-    color: #fff;
-    background-color: #001a3c;
-    border-color: #001a3c;
-    text-align: center;
-    letter-spacing: 1px;
-    line-height: 23px;
-    border-radius: 25px;
-}
-
 .spoon-btn-primary {
     height: 47px;
     font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
