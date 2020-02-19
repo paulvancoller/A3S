@@ -3186,68 +3186,24 @@ paths:
     get:
       tags:
         - ConsentOfService
-      description: Search for consent of service entries.
-      summary: Search for consent of service entries.
-      operationId: listConsentOfServices
+      description: Get current consent of service entry.
+      summary: Get current consent of service entry.
+      operationId: getCurrentConsentOfService
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: The page to view.
-          schema:
-            type: integer
-            minimum: 1
-            format: int32
-            default: 1
-        - name: size
-          in: query
-          required: false
-          description: The size of a page.
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 20
-            format: int32
-            default: 10
         - name: includeRelations
           in: query
           required: false
-          description: Determines whether the related entities, such as teams and which users accepted the consent, are returned.
+          description: Determines whether the related entities, such as users accepted the consent, are returned.
           schema:
             type: boolean
             default: false
-        - name: filterConsentName
-          in: query
-          required: false
-          description: A search query filter on the consent's name.
-          schema:
-            type: string
-            minLength: 0
-            maxLength: 255
-        - name: orderBy
-          in: query
-          required: false
-          style: form
-          explode: false
-          description: >-
-            a comma separated list of fields in their sort order. Ascending
-            order is assumed. Append '_desc' after a field to indicate descending order. Supported fields. 'agreementName'.
-          schema:
-            type: string
       responses:
-        '200':
+        '200':    
           description: OK
-          headers:
-            X-Pagination:
-              description: Pagination header.
-              schema:
-                $ref: '#/components/schemas/PaginationHeaderResponse'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ConsentOfServiceListItem'
+                $ref: '#/components/schemas/ConsentOfService'
         '400':
           description: Bad Request.
           content:
@@ -3314,57 +3270,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  '/consentOfService/{consentOfServiceId}':
-    get:
-      tags:
-        - ConsentOfService
-      summary: Get a consent of service entry.
-      description: Get a consent of service entry by its UUID.
-      operationId: getConsentOfService
-      parameters:
-        - name: consentOfServiceId
-          in: path
-          description: Consent of service entry
-          required: true
-          schema:
-            $ref: '#/components/schemas/ConsentOfServiceId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConsentOfService'
-        '400':
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - You are not authorized to access the consent of service entry.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Consent of service entry not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: An unexpected error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+
     delete:
       tags:
         - ConsentOfService
@@ -4683,7 +4589,7 @@ components:
 
     ConsentOfService:
       description: |
-        Models a consent of service that needs to be agreed to by a user.
+        Model a consent of service that needs to be agreed to by a user.
       type: object
       properties:
         uuid:
@@ -4694,11 +4600,6 @@ components:
           type: string
         consentFileData:
           type: string
-        teamIds:
-          description: Teams linked to this consent of service entry.
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamId'
         acceptedUserIds:
           description: A list of User Id's that have accepted this consent of service entry.
           type: array
@@ -4707,33 +4608,9 @@ components:
         subRealmId:
           $ref: '#/components/schemas/SubRealmId'
 
-    ConsentOfServiceListItem:
-      description: |
-        Models a consent of service returned inside lists.
-      type: object
-      properties:
-        uuid:
-          $ref: '#/components/schemas/ConsentOfServiceId'
-        consentName:
-          type: string
-        version:
-          type: string
-        teamIds:
-          description: Teams linked to this consent of service entry.
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamId'
-        acceptedUserIds:
-          description: A list of User Id's that have accepted this consent of service entry.
-          type: array
-          items:
-            $ref: '#/components/schemas/UserId'
-        subRealmId:
-          $ref: '#/components/schemas/SubRealmId'
-
     ConsentOfServiceSubmit:
       description: |
-        Models a consent of service. Used to create or update a consent of service. UUID is required when updating a consent of service. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
+        Model a consent of service. Used to create or update a consent of service. UUID is required when updating a consent of service. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
       required:
         - consentName
         - consentFileData

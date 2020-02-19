@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -27,7 +21,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.Models
 { 
     /// <summary>
-    /// Models a consent of service that needs to be agreed to by a user. 
+    /// Model a consent of service that needs to be agreed to by a user. 
     /// </summary>
     [DataContract]
     public partial class ConsentOfService : IEquatable<ConsentOfService>
@@ -57,13 +51,6 @@ namespace za.co.grindrodbank.a3s.Models
         public string ConsentFileData { get; set; }
 
         /// <summary>
-        /// Teams linked to this consent of service entry.
-        /// </summary>
-        /// <value>Teams linked to this consent of service entry.</value>
-        [DataMember(Name="teamIds", EmitDefaultValue=false)]
-        public List<Guid> TeamIds { get; set; }
-
-        /// <summary>
         /// A list of User Id&#39;s that have accepted this consent of service entry.
         /// </summary>
         /// <value>A list of User Id&#39;s that have accepted this consent of service entry.</value>
@@ -89,7 +76,6 @@ namespace za.co.grindrodbank.a3s.Models
             sb.Append("  ConsentName: ").Append(ConsentName).Append("\n");
             sb.Append("  Version: ").Append(Version).Append("\n");
             sb.Append("  ConsentFileData: ").Append(ConsentFileData).Append("\n");
-            sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
             sb.Append("  AcceptedUserIds: ").Append(AcceptedUserIds).Append("\n");
             sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
@@ -149,12 +135,6 @@ namespace za.co.grindrodbank.a3s.Models
                     ConsentFileData.Equals(other.ConsentFileData)
                 ) && 
                 (
-                    TeamIds == other.TeamIds ||
-                    TeamIds != null &&
-                    other.TeamIds != null &&
-                    TeamIds.SequenceEqual(other.TeamIds)
-                ) && 
-                (
                     AcceptedUserIds == other.AcceptedUserIds ||
                     AcceptedUserIds != null &&
                     other.AcceptedUserIds != null &&
@@ -185,8 +165,6 @@ namespace za.co.grindrodbank.a3s.Models
                     hashCode = hashCode * 59 + Version.GetHashCode();
                     if (ConsentFileData != null)
                     hashCode = hashCode * 59 + ConsentFileData.GetHashCode();
-                    if (TeamIds != null)
-                    hashCode = hashCode * 59 + TeamIds.GetHashCode();
                     if (AcceptedUserIds != null)
                     hashCode = hashCode * 59 + AcceptedUserIds.GetHashCode();
                     if (SubRealmId != null)

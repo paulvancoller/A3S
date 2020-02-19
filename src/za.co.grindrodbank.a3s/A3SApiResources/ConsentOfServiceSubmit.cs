@@ -1,9 +1,3 @@
-/**
- * *************************************************
- * Copyright (c) 2019, Grindrod Bank Limited
- * License MIT: https://opensource.org/licenses/MIT
- * **************************************************
- */
 /*
  * A3S
  *
@@ -27,7 +21,7 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.Models
 { 
     /// <summary>
-    /// Models a consent of service. Used to create or update a consent of service. UUID is required when updating a consent of service. Can be optionally associated with a sub-realm by specifying the &#39;subRealmId&#39; of the sub-realm. 
+    /// Model a consent of service. Used to create or update a consent of service. UUID is required when updating a consent of service. Can be optionally associated with a sub-realm by specifying the &#39;subRealmId&#39; of the sub-realm. 
     /// </summary>
     [DataContract]
     public partial class ConsentOfServiceSubmit : IEquatable<ConsentOfServiceSubmit>
