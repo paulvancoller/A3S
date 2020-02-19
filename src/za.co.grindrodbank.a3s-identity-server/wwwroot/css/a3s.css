@@ -21,3 +21,17 @@ a {
         color: rgba(0, 27, 68, 1.0);
     }
 
+.login-float-outer {
+    width: 100%;
+    height: 100%;
+    margin: 20% auto 0;
+    padding: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.login-float-inner {
+    width: 650px;
+    height: 668px;
+    margin: 0 auto;
+}

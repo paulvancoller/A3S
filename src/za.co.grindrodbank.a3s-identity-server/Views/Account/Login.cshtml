@@ -1,18 +1,11 @@
 ﻿@model LoginViewModel
 
-<div class="login-page">
-    <div class="page-header">
-        <h1>Login</h1>
-    </div>
-
     <partial name="_ValidationSummary" />
 
-    <div class="row">
 
         @if (Model.EnableLocalLogin)
         {
-            <div class="col-sm-6">
-                <div class="panel panel-default">
+                <div class="login-float-inner">
                     <div class="panel-heading">
                         <h3 class="panel-title">Local Login</h3>
                     </div>
@@ -48,7 +41,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
         }
 
         @if (Model.VisibleExternalProviders.Any())
@@ -85,5 +77,3 @@
                 There are no login schemes configured for this client.
             </div>
         }
-    </div>
-</div>
