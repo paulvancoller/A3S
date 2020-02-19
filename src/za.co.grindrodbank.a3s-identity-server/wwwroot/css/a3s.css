@@ -16,14 +16,20 @@
 }
 
 @font-face {
+    font-family: "Source Sans Pro Bold";
+    src: url('../fonts/SourceSansPro-Bold.ttf') format("truetype");
+}
+
+@font-face {
     font-family: "Catalunyademo";
     src: url('../fonts/Catalunya demo.ttf') format("truetype");
 }
 
 body {
     background-image: linear-gradient(to right, #289FCF, #001C44);
-    color: #fff;
     font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    color: #001C44;
+    font-size: 18px;
 }
 
 a {
@@ -44,6 +50,18 @@ a {
         color: rgba(0, 27, 68, 1.0);
     }
 
+h2 {
+    font-family: "Source Sans Pro Bold";
+    font-size: 32px;
+    color: #001C44;
+}
+
+h3 {
+    font-family: "Source Sans Pro Bold";
+    font-size: 23px;
+    color: #001C44;
+}
+
 .login-float-outer {
     width: 100%;
     height: 100%;
@@ -63,8 +81,20 @@ a {
     margin-top: -334px;
     text-align: center;
     border-radius: 7px;
-    background-color: rgba(147,177,214, 0.5);
     box-shadow: 1px 1px 50px 10px rgba(0,37,80,0.2);
+}
+
+.login-float-inner-2 {
+    height: 738px;
+    margin-top: -369px;
+}
+
+.white-background {
+    background-color: #fff
+}
+
+.fifty-percent-alpha-background {
+    background-color: rgba(147,177,214, 0.5);
 }
 
 .a3s-title {
@@ -99,7 +129,7 @@ a {
     margin: 20px auto;
 }
 
-.large-button {
+.login-button {
     height: 47px;
     width: 132px;
     font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
@@ -111,6 +141,34 @@ a {
     letter-spacing: 1px;
     line-height: 23px;
     border-radius: 25px;
+}
+
+.spoon-btn-primary {
+    height: 47px;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    color: #fff;
+    background-color: #001a3c;
+    border-color: #001a3c;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 23px;
+    border-radius: 25px;
+    padding: 0 40px;
+}
+
+.spoon-btn {
+    height: 47px;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    color: #001C44;
+    background-color: #fff;
+    border-color: #001a3c;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 23px;
+    border-radius: 25px;
+    padding: 0 40px;
 }
 
 .right-align {
@@ -127,7 +185,19 @@ ul {
     width: 115px;
 }
 
+.a3s-small-logo {
+    height: 70px;
+    width: 70px;
+}
+
 .gbl-logo {
     height: 28px;
     width: 138px;
+}
+
+.blue-box {
+    border: 1px solid #7db7df;
+    border-radius: 7px;
+    margin: 30px 50px;
+    padding: 30px;
 }

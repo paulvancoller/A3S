@@ -1,38 +1,42 @@
 ﻿@model LoginSuccessfulViewModel
 
-<h1>You are now being returned to the application.</h1>
-<p>Once complete, you may close this tab</p>
+    <div class="login-float-inner login-float-inner-2 white-background">
+        <br />&nbsp;<br />
+        <div><img src="~/img/a3s.svg" class="a3s-small-logo" /></div>
+        <h2>You are now being returned to the application.</h2>
+        <div>Once complete, you may close this tab</div>
 
-@if (Model.Show2FARegMessage)
-{
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Two-Factor Authentication</h3>
-        </div>
+        <br />
 
-        @if (Model.TwoFAAlreadyEnabled)
+        @if (Model.Show2FARegMessage)
         {
-            <div class="panel-body">
-                <p>Two-factor authentication has been set up on your profile.<br /></p>
-                <button class="btn btn-primary" name="btnTwoFA" id="btnTwoFA" value="btnTwoFA">Maintain</button>
+            <div class="blue-box">
+                <h3>Two-Factor Authentication</h3>
+                <br />
+                @if (Model.TwoFAAlreadyEnabled)
+                {
+                    <div class="panel-body">
+                        <p>Two-factor authentication has been set up on your profile.<br /></p>
+                        <button class="btn btn-primary" name="btnTwoFA" id="btnTwoFA" value="btnTwoFA">Maintain</button>
+                    </div>
+                }
+                else
+                {
+                    <p>Register for two factor authentication, where a one-time password will be used as a second security factor. This is recommended for enhanced security.</p>
+                    <br />
+                    <button class="spoon-btn-primary" name="btnTwoFA" id="btnTwoFA" value="btnTwoFA">Register</button>
+                }
             </div>
+
+            <input type="hidden" name="TwoFAUrl" id="TwoFAUrl" value="@Model.TwoFAUrl" />
         }
-        else
-        {
-            <div class="panel-body">
-                <p>Register for two factor authentication, where a one-time password will be used as a second security factor.<br /></p>
-                <p><i>This is recommended for enhanced security.</i></p>
-                <button class="btn btn-primary" name="btnTwoFA" id="btnTwoFA" value="btnTwoFA">Register</button>
-            </div>
-        }
+
+        <input type="hidden" name="RedirectUrl" id="RedirectUrl" value="@Model.RedirectUrl" />
+        <button class="spoon-btn" name="btnContinueWithRedirect" id="btnContinueWithRedirect" value="btnContinueWithRedirect">Continue with Redirect</button>
+
+        <br />&nbsp;<br />
     </div>
 
-     <input type="hidden" name="TwoFAUrl" id="TwoFAUrl" value="@Model.TwoFAUrl" />
-}
-
-<input type="hidden" name="RedirectUrl" id="RedirectUrl" value="@Model.RedirectUrl" />
-<button class="btn btn-default" name="btnContinueWithRedirect" id="btnContinueWithRedirect" value="btnContinueWithRedirect">Continue with Redirect</button>
-
-@section scripts {
-    <script src="~/js/signin-redirect.js"></script>
-}
+    @section scripts {
+        <script src="~/js/signin-redirect.js"></script>
+    }
