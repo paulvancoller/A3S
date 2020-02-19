@@ -1,2 +1,23 @@
 ﻿body {
+    background-image: linear-gradient(to right, #289FCF, #001C44);
+    color: #fff;
 }
+
+a {
+    color: rgba(0, 27, 68, 1.0);
+    text-decoration: none;
+}
+
+    a:hover {
+        color: rgba(0, 27, 68, 1.0);
+        text-decoration: none;
+    }
+
+    a:active {
+        color: rgba(0, 27, 68, 1.0);
+    }
+
+    a:visited {
+        color: rgba(0, 27, 68, 1.0);
+    }
+
