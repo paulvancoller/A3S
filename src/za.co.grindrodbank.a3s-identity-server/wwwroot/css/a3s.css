@@ -1,4 +1,16 @@
-﻿body {
+﻿@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,300');
+
+@font-face {
+    font-family: "SourceSansPro-Italic";
+    src: url('../fonts/SourceSansPro-Italic.ttf') format("truetype");
+}
+
+@font-face {
+    font-family: "Catalunyademo";
+    src: url('../fonts/Catalunya demo.ttf') format("truetype");
+}
+
+body {
     background-image: linear-gradient(to right, #289FCF, #001C44);
     color: #fff;
 }
@@ -33,5 +45,67 @@ a {
 .login-float-inner {
     width: 650px;
     height: 668px;
-    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -325px;
+    margin-top: -334px;
+    text-align: center;
+    border-radius: 7px;
+    background-color: rgba(147,177,214, 0.5);
+    box-shadow: 1px 1px 50px 10px rgba(0,37,80,0.2);
+}
+
+.a3s-title {
+    font-family: "Catalunyademo", Helvetica, Arial, serif;
+    font-size: 6em;
+    letter-spacing: 3.38px;
+    line-height: 47.0px;
+    vertical-align: middle;
+}
+
+.form-control {
+    padding: 12px 13px;
+    border: 1px solid #fff;
+    color: #001c44;
+    background-color: #fff;
+    background-clip: padding-box;
+    font-size: 1em;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    height: auto;
+    line-height: 23px;
+    border-radius: 7px;
+    display: block;
+    width: 100%;
+    overflow: visible;
+    margin: 0;
+    box-shadow: 1px 1px 50px 10px rgba(0,37,80,0.2);
+}
+
+.text-box {
+    height: 53px;
+    width: 471px;
+    margin: 20px auto;
+}
+
+.large-button {
+    height: 47px;
+    width: 132px;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    color: #fff;
+    background-color: #001a3c;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 23px;
+    border-radius: 25px;
+}
+
+.right-align {
+    text-align: right;
+    margin-right: 85px;
+}
+
+ul {
+    list-style: none;
 }
