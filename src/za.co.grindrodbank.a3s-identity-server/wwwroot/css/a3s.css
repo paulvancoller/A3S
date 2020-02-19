@@ -6,6 +6,16 @@
 }
 
 @font-face {
+    font-family: "SourceSansPro-Regular";
+    src: url('../fonts/SourceSansPro-Regular.ttf') format("truetype");
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('../fonts/SourceSansPro-Regular.ttf') format("truetype");
+}
+
+@font-face {
     font-family: "Catalunyademo";
     src: url('../fonts/Catalunya demo.ttf') format("truetype");
 }
@@ -13,6 +23,7 @@
 body {
     background-image: linear-gradient(to right, #289FCF, #001C44);
     color: #fff;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
 }
 
 a {
@@ -95,6 +106,7 @@ a {
     font-size: 1em;
     color: #fff;
     background-color: #001a3c;
+    border-color: #001a3c;
     text-align: center;
     letter-spacing: 1px;
     line-height: 23px;
@@ -108,4 +120,14 @@ a {
 
 ul {
     list-style: none;
+}
+
+.a3s-big-logo {
+    height: 115px;
+    width: 115px;
+}
+
+.gbl-logo {
+    height: 28px;
+    width: 138px;
 }
