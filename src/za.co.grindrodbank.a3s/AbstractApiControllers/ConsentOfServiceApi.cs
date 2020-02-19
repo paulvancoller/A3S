@@ -34,53 +34,9 @@ namespace za.co.grindrodbank.a3s.Controllers
     public abstract class ConsentOfServiceApiController : ControllerBase
     { 
         /// <summary>
-        /// Create a new consent of service entry.
+        /// Get current using consent of service entry.
         /// </summary>
-        /// <remarks>Create a new consent of service entry.</remarks>
-        /// <param name="consentOfServiceSubmit"></param>
-        /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request.</response>
-        /// <response code="401">Not authenticated.</response>
-        /// <response code="403">Forbidden - You are not authorized to create consent of service entries.</response>
-        /// <response code="500">An unexpected error occurred.</response>
-        [HttpPost]
-        [Route("/consentOfService", Name = "CreateConsentOfService")]
-        [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(ConsentOfService))]
-        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> CreateConsentOfServiceAsync([FromBody]ConsentOfServiceSubmit consentOfServiceSubmit);
-
-        /// <summary>
-        /// Delete a consent of service entry.
-        /// </summary>
-        /// <remarks>Deletes a consent of service entry from A3S.</remarks>
-        /// <param name="consentOfServiceId">The UUID of the consent of service entry to delete.</param>
-        /// <response code="204">No Content.</response>
-        /// <response code="400">Invalid parameters.</response>
-        /// <response code="401">Not authenticated.</response>
-        /// <response code="403">Forbidden - Not authorized to delete consent of service entry.</response>
-        /// <response code="404">Consent of service entry not found.</response>
-        /// <response code="422">Consent of service entry cannot be deleted.</response>
-        /// <response code="500">An unexpected error occurred.</response>
-        [HttpDelete]
-        [Route("/consentOfService", Name = "DeleteConsentOfService")]
-        [ValidateModelState]
-        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> DeleteConsentOfServiceAsync([FromRoute][Required]Guid consentOfServiceId);
-
-        /// <summary>
-        /// Get current consent of service entry.
-        /// </summary>
-        /// <remarks>Get current consent of service entry.</remarks>
-        /// <param name="includeRelations">Determines whether the related entities, such as users accepted the consent, are returned.</param>
+        /// <remarks>Get current using consent of service entry.</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Not authenticated.</response>
@@ -94,6 +50,25 @@ namespace za.co.grindrodbank.a3s.Controllers
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
-        public abstract Task<IActionResult> GetCurrentConsentOfServiceAsync([FromQuery]bool includeRelations);
+        public abstract Task<IActionResult> GetCurrentConsentOfServiceAsync();
+
+        /// <summary>
+        /// Update consent of service entry.
+        /// </summary>
+        /// <remarks>Update consent of service entry.</remarks>
+        /// <param name="consentOfService"></param>
+        /// <response code="204">No Content.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to create consent of service entries.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPut]
+        [Route("/consentOfService", Name = "UpdateConsentOfService")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> UpdateConsentOfServiceAsync([FromBody]ConsentOfService consentOfService);
     }
 }

@@ -3186,17 +3186,9 @@ paths:
     get:
       tags:
         - ConsentOfService
-      description: Get current consent of service entry.
-      summary: Get current consent of service entry.
+      description: Get current using consent of service entry.
+      summary: Get current using consent of service entry.
       operationId: getCurrentConsentOfService
-      parameters:
-        - name: includeRelations
-          in: query
-          required: false
-          description: Determines whether the related entities, such as users accepted the consent, are returned.
-          schema:
-            type: boolean
-            default: false
       responses:
         '200':    
           description: OK
@@ -3228,24 +3220,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    post:
+    put:
       tags:
         - ConsentOfService
-      summary: Create a new consent of service entry.
-      description: Create a new consent of service entry.
-      operationId: createConsentOfService
+      summary: Update consent of service entry.
+      description: Update consent of service entry.
+      operationId: updateConsentOfService
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConsentOfServiceSubmit'
+              $ref: '#/components/schemas/ConsentOfService'
       responses:
-        '200':
-          description: OK.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConsentOfService'
+        '204':
+          description: No Content.
         '400':
           description: Bad Request.
           content:
@@ -3260,59 +3248,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden - You are not authorized to create consent of service entries.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: An unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - ConsentOfService
-      summary: Delete a consent of service entry.
-      description: Deletes a consent of service entry from A3S.
-      operationId: deleteConsentOfService
-      parameters:
-        - name: consentOfServiceId
-          description: The UUID of the consent of service entry to delete.
-          required: true
-          in: path
-          schema:
-            $ref: '#/components/schemas/ConsentOfServiceId'
-      responses:
-        '204':
-          description: No Content.
-        '400':
-          description: Invalid parameters.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - Not authorized to delete consent of service entry.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Consent of service entry not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Consent of service entry cannot be deleted.
           content:
             application/json:
               schema:
@@ -4583,49 +4518,12 @@ components:
     #endregion
     
     # Region - ConsentOfService
-    ConsentOfServiceId:
-      type: string
-      format: uuid
-
     ConsentOfService:
       description: |
         Model a consent of service that needs to be agreed to by a user.
       type: object
       properties:
-        uuid:
-          $ref: '#/components/schemas/ConsentOfServiceId'
-        consentName:
-          type: string
-        version:
-          type: string
         consentFileData:
           type: string
-        acceptedUserIds:
-          description: A list of User Id's that have accepted this consent of service entry.
-          type: array
-          items:
-            $ref: '#/components/schemas/UserId'     
-        subRealmId:
-          $ref: '#/components/schemas/SubRealmId'
-
-    ConsentOfServiceSubmit:
-      description: |
-        Model a consent of service. Used to create or update a consent of service. UUID is required when updating a consent of service. Can be optionally associated with a sub-realm by specifying the 'subRealmId' of the sub-realm.
-      required:
-        - consentName
-        - consentFileData
-        - autoUpdate
-      type: object
-      properties:
-        uuid:
-          $ref: '#/components/schemas/ConsentOfServiceId'
-        consentName:
-          type: string
-        consentFileData:
-          type: string
-        autoUpdate:
-          type: boolean
-        subRealmId:
-          $ref: '#/components/schemas/SubRealmId'
     # End Region - ConsentOfService      
 

@@ -33,42 +33,10 @@ namespace za.co.grindrodbank.a3s.Models
     public partial class ConsentOfService : IEquatable<ConsentOfService>
     { 
         /// <summary>
-        /// Gets or Sets Uuid
-        /// </summary>
-        [DataMember(Name="uuid", EmitDefaultValue=false)]
-        public Guid Uuid { get; set; }
-
-        /// <summary>
-        /// Gets or Sets ConsentName
-        /// </summary>
-        [DataMember(Name="consentName", EmitDefaultValue=false)]
-        public string ConsentName { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Version
-        /// </summary>
-        [DataMember(Name="version", EmitDefaultValue=false)]
-        public string Version { get; set; }
-
-        /// <summary>
         /// Gets or Sets ConsentFileData
         /// </summary>
         [DataMember(Name="consentFileData", EmitDefaultValue=false)]
         public string ConsentFileData { get; set; }
-
-        /// <summary>
-        /// A list of User Id&#39;s that have accepted this consent of service entry.
-        /// </summary>
-        /// <value>A list of User Id&#39;s that have accepted this consent of service entry.</value>
-        [DataMember(Name="acceptedUserIds", EmitDefaultValue=false)]
-        public List<Guid> AcceptedUserIds { get; set; }
-
-        /// <summary>
-        /// The UUID identifier for a sub-realm.
-        /// </summary>
-        /// <value>The UUID identifier for a sub-realm.</value>
-        [DataMember(Name="subRealmId", EmitDefaultValue=false)]
-        public Guid SubRealmId { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -78,12 +46,7 @@ namespace za.co.grindrodbank.a3s.Models
         {
             var sb = new StringBuilder();
             sb.Append("class ConsentOfService {\n");
-            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
-            sb.Append("  ConsentName: ").Append(ConsentName).Append("\n");
-            sb.Append("  Version: ").Append(Version).Append("\n");
             sb.Append("  ConsentFileData: ").Append(ConsentFileData).Append("\n");
-            sb.Append("  AcceptedUserIds: ").Append(AcceptedUserIds).Append("\n");
-            sb.Append("  SubRealmId: ").Append(SubRealmId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -121,35 +84,9 @@ namespace za.co.grindrodbank.a3s.Models
 
             return 
                 (
-                    Uuid == other.Uuid ||
-                    Uuid != null &&
-                    Uuid.Equals(other.Uuid)
-                ) && 
-                (
-                    ConsentName == other.ConsentName ||
-                    ConsentName != null &&
-                    ConsentName.Equals(other.ConsentName)
-                ) && 
-                (
-                    Version == other.Version ||
-                    Version != null &&
-                    Version.Equals(other.Version)
-                ) && 
-                (
                     ConsentFileData == other.ConsentFileData ||
                     ConsentFileData != null &&
                     ConsentFileData.Equals(other.ConsentFileData)
-                ) && 
-                (
-                    AcceptedUserIds == other.AcceptedUserIds ||
-                    AcceptedUserIds != null &&
-                    other.AcceptedUserIds != null &&
-                    AcceptedUserIds.SequenceEqual(other.AcceptedUserIds)
-                ) && 
-                (
-                    SubRealmId == other.SubRealmId ||
-                    SubRealmId != null &&
-                    SubRealmId.Equals(other.SubRealmId)
                 );
         }
 
@@ -163,18 +100,8 @@ namespace za.co.grindrodbank.a3s.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Uuid != null)
-                    hashCode = hashCode * 59 + Uuid.GetHashCode();
-                    if (ConsentName != null)
-                    hashCode = hashCode * 59 + ConsentName.GetHashCode();
-                    if (Version != null)
-                    hashCode = hashCode * 59 + Version.GetHashCode();
                     if (ConsentFileData != null)
                     hashCode = hashCode * 59 + ConsentFileData.GetHashCode();
-                    if (AcceptedUserIds != null)
-                    hashCode = hashCode * 59 + AcceptedUserIds.GetHashCode();
-                    if (SubRealmId != null)
-                    hashCode = hashCode * 59 + SubRealmId.GetHashCode();
                 return hashCode;
             }
         }
