@@ -52,6 +52,7 @@ namespace za.co.grindrodbank.a3s.Services
                 newTransientRole.R_State = TransientStateMachineRecord.DatabaseRecordState.Pending;
                 newTransientRole.Name = roleSubmit.Name;
                 newTransientRole.Description = roleSubmit.Description;
+                newTransientRole.RoleId = Guid.NewGuid();
 
 
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.

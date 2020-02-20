@@ -16,6 +16,7 @@ namespace za.co.grindrodbank.a3s.MappingProfiles
         public RoleTransientResourceRoleTransientModelProfile()
         {
             CreateMap<RoleTransientModel, RoleTransient>().ForMember(dest => dest.RState, opt => opt.MapFrom(src => src.R_State))
+                                                          .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.RoleId))
                                                           .ForMember(dest => dest.ApprovalCount, opt => opt.MapFrom(src => src.ApprovalCount));
             CreateMap<RoleTransient, RoleTransientModel>().ForMember(dest => dest.R_State, opt => opt.MapFrom(src => src.RState));
         }
