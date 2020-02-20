@@ -4,7 +4,7 @@ dtf = setTimeout(function () {
     window.location.href = document.getElementById("RedirectUrl").value;
 }, 5000);
 
-// 2FA click event
+// 2FA click event 
 var btn2FA = document.getElementById("btnTwoFA")
 if (btn2FA) {
     btn2FA.addEventListener("click", function () {

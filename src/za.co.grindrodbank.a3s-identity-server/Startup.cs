@@ -74,7 +74,8 @@ namespace za.co.grindrodbank.a3sidentityserver
                {
                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-               });
+               })
+               .AddRazorRuntimeCompilation();
 
             services.Configure<IISOptions>(iis =>
             {
