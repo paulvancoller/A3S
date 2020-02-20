@@ -13,7 +13,7 @@ CREATE TABLE _a3s.role_transient
     name text  NOT NULL,
     description text NOT NULL,
     r_state text NOT NULL,
-    changed_by text NOT NULL,
+    changed_by uuid NOT NULL,
     approval_count int NOT NULL,
     action text NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

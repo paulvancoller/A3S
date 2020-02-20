@@ -21,18 +21,20 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IUserRepository userRepository;
         private readonly IFunctionRepository functionRepository;
         private readonly ISubRealmRepository subRealmRepository;
+        private readonly IRoleTransientRepository roleTransientRepository;
         private readonly IMapper mapper;
 
-        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IMapper mapper)
+        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IRoleTransientRepository roleTransientRepository, IMapper mapper)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
             this.functionRepository = functionRepository;
             this.subRealmRepository = subRealmRepository;
+            this.roleTransientRepository = roleTransientRepository;
             this.mapper = mapper;
         }
 
-        public async Task<Role> CreateAsync(RoleSubmit roleSubmit, Guid createdById)
+        public async Task<RoleTransient> CreateAsync(RoleSubmit roleSubmit, Guid createdById)
         {
             // Start transactions to allow complete rollback in case of an error
             InitSharedTransaction();
@@ -43,20 +45,31 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingRole != null)
                     throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
+                RoleTransientModel newTransientRole = new RoleTransientModel();
+                newTransientRole.Action = "create";
+                newTransientRole.ChangedBy = createdById;
+                newTransientRole.ApprovalCount = 0;
+                newTransientRole.R_State = TransientStateMachineRecord.DatabaseRecordState.Pending;
+                newTransientRole.Name = roleSubmit.Name;
+                newTransientRole.Description = roleSubmit.Description;
+
+
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
-                RoleModel newRole = mapper.Map<RoleModel>(roleSubmit);
-                newRole.ChangedBy = createdById;
+                //RoleModel newRole = mapper.Map<RoleModel>(roleSubmit);
+                ///newRole.ChangedBy = createdById;
 
                 // The potentially assigned sub-realm is used within the 'AssignFunctionsToRoleFromFunctionIdList' function, so perform sub-realm assignmentd first.
-                await CheckForSubRealmAndAssignToRoleIfExists(newRole, roleSubmit);
-                await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
-                await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
+                //await CheckForSubRealmAndAssignToRoleIfExists(newRole, roleSubmit);
+                //await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
+                //await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
                 // All successful
                 CommitTransaction();
 
-                return mapper.Map<Role>(await roleRepository.CreateAsync(newRole));
+                await roleTransientRepository.CreateAsync(newTransientRole);
+
+                return mapper.Map<RoleTransient>(newTransientRole);
             }
             catch
             {

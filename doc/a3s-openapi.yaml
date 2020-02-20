@@ -910,7 +910,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleSubmit'
+                $ref: '#/components/schemas/RoleTransient'
         '400':
           description: Invalid parameters.
           content:
@@ -3242,6 +3242,26 @@ components:
             description: The UUIDS of the functions assigned to this role.
             type: string
             format: uuid
+            
+    RoleTransient:
+      description: |
+        Represents a transient state of a role.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/RoleId'
+        name:
+          type: string
+        description:
+          type: string
+        r_state:
+          type: string
+        action:
+          type: string
+        approvalCount:
+          type: integer
+        changedBy:
+          type: string
         
     # End Region - Roles 
 

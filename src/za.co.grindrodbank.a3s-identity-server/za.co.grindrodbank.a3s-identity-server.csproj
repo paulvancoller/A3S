@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Net.Security" Version="4.3.2" />
+    <PackageReference Include="Stateless" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -132,6 +133,12 @@
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\ProfileTeamModel.cs">
       <Link>Models\ProfileTeamModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\RoleTransientModel.cs">
+      <Link>Models\RoleTransientModel.cs</Link>
+    </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\TransientStateMachineRecord.cs">
+      <Link>Models\TransientStateMachineRecord.cs</Link>
     </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmApplicationDataPolicyModel.cs">
       <Link>Models\SubRealmApplicationDataPolicyModel.cs</Link>

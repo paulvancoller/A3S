@@ -4,7 +4,8 @@
  * License MIT: https://opensource.org/licenses/MIT
  * **************************************************
  */
-﻿using System.ComponentModel.DataAnnotations;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NLog;
 using Stateless;
@@ -45,7 +46,7 @@ namespace za.co.grindrodbank.a3s.Models
         public DatabaseRecordState R_State { get; set; }
 
         [Required]
-        public string ChangedBy { get; set; }
+        public Guid ChangedBy { get; set; }
 
         public int ApprovalCount { get; set; }
 
@@ -159,7 +160,7 @@ namespace za.co.grindrodbank.a3s.Models
             }
 
             // Now increased the approval count and re-assess whether to transition to released.
-            ChangedBy = approver;
+            ChangedBy = Guid.Parse(approver);
             ApprovalCount++;
 
             if (ApprovalCount >= RequiredApprovalCount)
@@ -178,7 +179,7 @@ namespace za.co.grindrodbank.a3s.Models
             if (string.IsNullOrWhiteSpace(pender))
                 throw new System.Exception("Pender must be specified when pending an application");
 
-            ChangedBy = pender;
+            ChangedBy = Guid.Parse(pender);
             ApprovalCount = 0;
         }
 
@@ -189,9 +190,9 @@ namespace za.co.grindrodbank.a3s.Models
         {
             logger.Debug($"ON CAPTURED: with capturerr: '{capturer}'");
             if (string.IsNullOrWhiteSpace(capturer))
-                throw new System.Exception("Capturer must be specified when capturing an application");
+                throw new Exception("Capturer must be specified when capturing an application");
 
-            ChangedBy = capturer;
+            ChangedBy = Guid.Parse(capturer);
             ApprovalCount = 0;
 
             if (RequiredApprovalCount == 0)
@@ -210,7 +211,7 @@ namespace za.co.grindrodbank.a3s.Models
             if (string.IsNullOrWhiteSpace(decliner))
                 throw new System.Exception("Decliner must be specified when declining an application");
 
-            ChangedBy = decliner;
+            ChangedBy = Guid.Parse(decliner);
             ApprovalCount = 0;
         }
 
@@ -224,7 +225,7 @@ namespace za.co.grindrodbank.a3s.Models
             if (string.IsNullOrWhiteSpace(releaser))
                 throw new System.Exception("Releaser must be specified when releasing an application");
 
-            ChangedBy = releaser;
+            ChangedBy = Guid.Parse(releaser);
         }
 
     }

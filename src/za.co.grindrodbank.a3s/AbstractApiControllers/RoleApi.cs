@@ -47,7 +47,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [HttpPost]
         [Route("/roles", Name = "CreateRole")]
         [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(RoleSubmit))]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]

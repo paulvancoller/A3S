@@ -1400,7 +1400,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/RoleSubmit"
+                  "$ref" : "#/components/schemas/RoleTransient"
                 }
               }
             },
@@ -4981,6 +4981,43 @@
           }
         },
         "required" : [ "description", "name", "uuid" ],
+        "type" : "object"
+      },
+      "RoleTransient" : {
+        "description" : "Represents a transient state of a role.\n",
+        "example" : {
+          "changedBy" : "changedBy",
+          "name" : "name",
+          "description" : "description",
+          "r_state" : "r_state",
+          "action" : "action",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "approvalCount" : 0
+        },
+        "properties" : {
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "r_state" : {
+            "type" : "string"
+          },
+          "action" : {
+            "type" : "string"
+          },
+          "approvalCount" : {
+            "type" : "integer"
+          },
+          "changedBy" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "ApplicationId" : {
