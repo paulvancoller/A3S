@@ -49,6 +49,7 @@
     <Compile Remove="Models\TermsOfServiceUserAcceptance.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\ConsentOfServiceModel.cs" Link="Models\ConsentOfServiceModel.cs" />
     <Compile Include="..\za.co.grindrodbank.a3s\Models\PermissionModel.cs">
       <Link>Models\PermissionModel.cs</Link>
     </Compile>
