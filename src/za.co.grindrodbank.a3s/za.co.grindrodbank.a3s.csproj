@@ -30,6 +30,7 @@
     <PackageReference Include="YamlDotNet" Version="8.0.0" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Stateless" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
