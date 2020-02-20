@@ -13,7 +13,6 @@ namespace za.co.grindrodbank.a3s.Models
     [Table("RoleTransient")]
     public class RoleTransientModel : TransientStateMachineRecord
     {
-
         [Required]
         [Key]
         public Guid Id { get; set; }
