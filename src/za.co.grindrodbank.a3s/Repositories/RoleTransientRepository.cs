@@ -34,5 +34,23 @@ namespace za.co.grindrodbank.a3s.Repositories
         {
             return await a3SContext.RoleTransient.Where(rt => rt.RoleId == roleId).OrderBy(rt => rt.Id).ToListAsync();
         }
+
+        public void InitSharedTransaction()
+        {
+            if (a3SContext.Database.CurrentTransaction == null)
+                a3SContext.Database.BeginTransaction();
+        }
+
+        public void CommitTransaction()
+        {
+            if (a3SContext.Database.CurrentTransaction != null)
+                a3SContext.Database.CurrentTransaction.Commit();
+        }
+
+        public void RollbackTransaction()
+        {
+            if (a3SContext.Database.CurrentTransaction != null)
+                a3SContext.Database.CurrentTransaction.Rollback();
+        }
     }
 }

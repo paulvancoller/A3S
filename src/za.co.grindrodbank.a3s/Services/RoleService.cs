@@ -45,15 +45,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingRole != null)
                     throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
-                RoleTransientModel newTransientRole = new RoleTransientModel();
-                newTransientRole.Action = "create";
-                newTransientRole.ChangedBy = createdById;
-                newTransientRole.ApprovalCount = 0;
-                newTransientRole.R_State = TransientStateMachineRecord.DatabaseRecordState.Pending;
-                newTransientRole.Name = roleSubmit.Name;
-                newTransientRole.Description = roleSubmit.Description;
-                newTransientRole.RoleId = Guid.NewGuid();
-
+                RoleTransientModel newTransientRole = await CaptureNewTransientRoleFromRoleSubmitAsync(roleSubmit, createdById);
 
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
@@ -68,8 +60,6 @@ namespace za.co.grindrodbank.a3s.Services
                 // All successful
                 CommitTransaction();
 
-                await roleTransientRepository.CreateAsync(newTransientRole);
-
                 return mapper.Map<RoleTransient>(newTransientRole);
             }
             catch
@@ -77,6 +67,24 @@ namespace za.co.grindrodbank.a3s.Services
                 RollbackTransaction();
                 throw;
             }
+        }
+
+        private async Task<RoleTransientModel> CaptureNewTransientRoleFromRoleSubmitAsync(RoleSubmit roleSubmit, Guid createdById)
+        {
+            RoleTransientModel newTransientRole = new RoleTransientModel
+            {
+                Action = "create",
+                ChangedBy = createdById,
+                ApprovalCount = 0,
+                // Pending is the initial state of the state machine for all transient records.
+                R_State = TransientStateMachineRecord.DatabaseRecordState.Pending,
+                Name = roleSubmit.Name,
+                Description = roleSubmit.Description,
+                RoleId = Guid.NewGuid()
+            };
+
+            newTransientRole.Capture(createdById.ToString());
+            return await roleTransientRepository.CreateAsync(newTransientRole);
         }
 
         public async Task<Role> GetByIdAsync(Guid roleId)
@@ -264,6 +272,7 @@ namespace za.co.grindrodbank.a3s.Services
             roleRepository.InitSharedTransaction();
             functionRepository.InitSharedTransaction();
             subRealmRepository.InitSharedTransaction();
+            roleTransientRepository.InitSharedTransaction();
         }
 
         public void CommitTransaction()
@@ -272,6 +281,7 @@ namespace za.co.grindrodbank.a3s.Services
             roleRepository.CommitTransaction();
             functionRepository.CommitTransaction();
             subRealmRepository.CommitTransaction();
+            roleTransientRepository.CommitTransaction();
         }
 
         public void RollbackTransaction()
@@ -280,6 +290,7 @@ namespace za.co.grindrodbank.a3s.Services
             roleRepository.RollbackTransaction();
             functionRepository.RollbackTransaction();
             subRealmRepository.RollbackTransaction();
+            roleTransientRepository.RollbackTransaction();
         }
 
         public async Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)

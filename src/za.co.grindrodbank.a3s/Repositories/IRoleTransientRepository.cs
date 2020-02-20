@@ -12,7 +12,7 @@ using za.co.grindrodbank.a3s.Models;
 namespace za.co.grindrodbank.a3s.Repositories
 {
 
-    public interface IRoleTransientRepository
+    public interface IRoleTransientRepository : ITransactableRepository
     {
         Task<List<RoleTransientModel>> GetTransientsForRoleAsync(Guid roleId);
         Task<RoleTransientModel> CreateAsync(RoleTransientModel roleTransient);
