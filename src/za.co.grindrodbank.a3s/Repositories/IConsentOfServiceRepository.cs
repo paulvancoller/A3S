@@ -10,6 +10,9 @@ using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
 {
+    /// <summary>
+    ///     Consent of service repository
+    /// </summary>
     public interface IConsentOfServiceRepository
     {
         /// <summary>

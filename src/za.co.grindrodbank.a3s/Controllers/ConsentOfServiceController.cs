@@ -6,16 +6,12 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using za.co.grindrodbank.a3s.Exceptions;
 using za.co.grindrodbank.a3s.Helpers;
 using za.co.grindrodbank.a3s.Models;
-using za.co.grindrodbank.a3s.Repositories;
 using za.co.grindrodbank.a3s.Services;
 
 namespace za.co.grindrodbank.a3s.Controllers
@@ -23,19 +19,12 @@ namespace za.co.grindrodbank.a3s.Controllers
     public class ConsentOfServiceController : ConsentOfServiceApiController
     {
         private readonly IConsentOfServiceService consentOfServiceService;
-        private readonly IMapper mapper;
-        private readonly IOrderByHelper orderByHelper;
-        private readonly IPaginationHelper paginationHelper;
 
-        public ConsentOfServiceController(IConsentOfServiceService consentOfServiceService,
-            IOrderByHelper orderByHelper, IPaginationHelper paginationHelper, IMapper mapper)
+        public ConsentOfServiceController(IConsentOfServiceService consentOfServiceService)
         {
             this.consentOfServiceService = consentOfServiceService;
-            this.orderByHelper = orderByHelper;
-            this.paginationHelper = paginationHelper;
-            this.mapper = mapper;
         }
-        
+
         //[Authorize(Policy = "permission:a3s.ConsentOfService.read")]
         public override async Task<IActionResult> GetCurrentConsentOfServiceAsync()
         {
@@ -50,8 +39,19 @@ namespace za.co.grindrodbank.a3s.Controllers
         //[Authorize(Policy = "permission:a3s.ConsentOfService.create")]
         public override async Task<IActionResult> UpdateConsentOfServiceAsync(ConsentOfService consentOfService)
         {
+            if (consentOfService == null)
+            {
+                return BadRequest();
+            }
+
+            if (string.IsNullOrWhiteSpace(consentOfService.ConsentFileData))
+            {
+                return BadRequest();
+            }
+
             var loggedOnUser = ClaimsHelper.GetScalarClaimValue(User, ClaimTypes.NameIdentifier, Guid.Empty);
-            return Ok(await consentOfServiceService.UpdateCurrentConsentAsync(consentOfService, loggedOnUser));
+            var isUpdated = await consentOfServiceService.UpdateCurrentConsentAsync(consentOfService, loggedOnUser);
+            return isUpdated ? NoContent() : throw new OperationFailedException("Save consent css file failed.");
         }
     }
 }
