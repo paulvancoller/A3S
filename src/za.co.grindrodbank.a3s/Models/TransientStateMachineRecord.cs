@@ -1,9 +1,15 @@
+/**
+ * *************************************************
+ * Copyright (c) 2019, Grindrod Bank Limited
+ * License MIT: https://opensource.org/licenses/MIT
+ * **************************************************
+ */
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NLog;
 using Stateless;
 
-namespace genericstatemachinecs.StateMachines
+namespace za.co.grindrodbank.a3s.Models
 {
     public abstract class TransientStateMachineRecord
     {
