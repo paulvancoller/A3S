@@ -1646,7 +1646,189 @@
             "description" : "An unexpected error occurred."
           }
         },
-        "summary" : "Update a role.",
+        "summary" : "Captures an update to a role.",
+        "tags" : [ "Role" ]
+      }
+    },
+    "/roles/{roleId}/approve" : {
+      "patch" : {
+        "description" : "Approves a role by its Id.",
+        "operationId" : "approveRole",
+        "parameters" : [ {
+          "description" : "The Id of the role.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "roleId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/RoleId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleTransient"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to approve a role."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Role related entity not found."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Approves the creation of a role or change to a role.",
+        "tags" : [ "Role" ]
+      }
+    },
+    "/roles/{roleId}/decline" : {
+      "patch" : {
+        "description" : "Approves a role by its Id.",
+        "operationId" : "declineRole",
+        "parameters" : [ {
+          "description" : "The Id of the role.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "roleId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/RoleId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleTransient"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to approve a role."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Role related entity not found."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred."
+          }
+        },
+        "summary" : "Declines the creation of role or a change to a role.",
         "tags" : [ "Role" ]
       }
     },
@@ -4986,7 +5168,7 @@
       "RoleTransient" : {
         "description" : "Represents a transient state of a role.\n",
         "example" : {
-          "changedBy" : "changedBy",
+          "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "name" : "name",
           "description" : "description",
           "r_state" : "r_state",
@@ -5015,6 +5197,7 @@
             "type" : "integer"
           },
           "changedBy" : {
+            "format" : "uuid",
             "type" : "string"
           }
         },

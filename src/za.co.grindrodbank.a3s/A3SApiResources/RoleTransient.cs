@@ -72,7 +72,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         /// Gets or Sets ChangedBy
         /// </summary>
         [DataMember(Name="changedBy", EmitDefaultValue=false)]
-        public string ChangedBy { get; set; }
+        public Guid ChangedBy { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

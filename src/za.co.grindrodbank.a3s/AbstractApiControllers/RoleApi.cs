@@ -33,6 +33,30 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
     public abstract class RoleApiController : ControllerBase
     { 
         /// <summary>
+        /// Approves the creation of a role or change to a role.
+        /// </summary>
+        /// <remarks>Approves a role by its Id.</remarks>
+        /// <param name="roleId">The Id of the role.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to approve a role.</response>
+        /// <response code="404">Role related entity not found.</response>
+        /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPatch]
+        [Route("/roles/{roleId}/approve", Name = "ApproveRole")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> ApproveRoleAsync([FromRoute][Required]Guid roleId);
+
+        /// <summary>
         /// Create a Role.
         /// </summary>
         /// <remarks>Create a new Role.</remarks>
@@ -55,6 +79,30 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> CreateRoleAsync([FromBody]RoleSubmit roleSubmit);
+
+        /// <summary>
+        /// Declines the creation of role or a change to a role.
+        /// </summary>
+        /// <remarks>Approves a role by its Id.</remarks>
+        /// <param name="roleId">The Id of the role.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to approve a role.</response>
+        /// <response code="404">Role related entity not found.</response>
+        /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role.</response>
+        /// <response code="500">An unexpected error occurred.</response>
+        [HttpPatch]
+        [Route("/roles/{roleId}/decline", Name = "DeclineRole")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 422, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> DeclineRoleAsync([FromRoute][Required]Guid roleId);
 
         /// <summary>
         /// Get a role.
@@ -105,7 +153,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         public abstract Task<IActionResult> ListRolesAsync([FromQuery]bool includeRelations, [FromQuery]int page, [FromQuery][Range(1, 20)]int size, [FromQuery][StringLength(255, MinimumLength=0)]string filterName, [FromQuery]string orderBy);
 
         /// <summary>
-        /// Update a role.
+        /// Captures an update to a role.
         /// </summary>
         /// <remarks>Update a role by its UUID.</remarks>
         /// <param name="roleId">The UUID of the role.</param>

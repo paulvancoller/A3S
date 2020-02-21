@@ -1001,7 +1001,7 @@ paths:
     put:
       tags:
         - Role
-      summary: Update a role.
+      summary: Captures an update to a role.
       description: Update a role by its UUID.
       operationId: updateRole
       parameters:
@@ -1049,6 +1049,120 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the updating of the role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/roles/{roleId}/approve':
+    patch:
+      tags:
+        - Role
+      summary: Approves the creation of a role or change to a role.
+      description:  Approves a role by its Id.
+      operationId: approveRole
+      parameters:
+        - name: roleId
+          in: path
+          description: The Id of the role.
+          required: true
+          schema:
+            $ref: '#/components/schemas/RoleId'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleTransient'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to approve a role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Role related entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: An unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/roles/{roleId}/decline':
+    patch:
+      tags:
+        - Role
+      summary: Declines the creation of role or a change to a role.
+      description:  Approves a role by its Id.
+      operationId: declineRole
+      parameters:
+        - name: roleId
+          in: path
+          description: The Id of the role.
+          required: true
+          schema:
+            $ref: '#/components/schemas/RoleId'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleTransient'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - You are not authorized to approve a role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Role related entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the approval of the role.
           content:
             application/json:
               schema:
@@ -3262,6 +3376,7 @@ components:
           type: integer
         changedBy:
           type: string
+          format: uuid
         
     # End Region - Roles 
 
