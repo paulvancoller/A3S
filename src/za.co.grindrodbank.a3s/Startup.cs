@@ -182,6 +182,9 @@ namespace za.co.grindrodbank.a3s
                 options.AddPolicy("permission:a3s.termsOfService.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.read")));
                 options.AddPolicy("permission:a3s.termsOfService.create", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.create")));
                 options.AddPolicy("permission:a3s.termsOfService.delete", policy => policy.Requirements.Add(new PermissionRequirement("a3s.termsOfService.delete")));
+                options.AddPolicy("permission:a3s.consentOfService.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.consentOfService.read")));
+                options.AddPolicy("permission:a3s.consentOfService.create", policy => policy.Requirements.Add(new PermissionRequirement("a3s.consentOfService.create")));
+                options.AddPolicy("permission:a3s.consentOfService.delete", policy => policy.Requirements.Add(new PermissionRequirement("a3s.consentOfService.delete")));
             });
 
             // Add policy handler services
@@ -202,6 +205,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<ITermsOfServiceRepository, TermsOfServiceRepository>();
             services.AddScoped<ISubRealmRepository, SubRealmRepository>();
             services.AddScoped<IProfileRepository, ProfileRepository>();
+            services.AddScoped<IConsentOfServiceRepository, ConsentOfServiceRepository>();
 
             // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();
@@ -223,6 +227,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<ISubRealmService, SubRealmService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IConsentOfServiceService, ConsentOfServiceService>();
 
             // Register Helpers
             services.AddScoped<IArchiveHelper, ArchiveHelper>();
