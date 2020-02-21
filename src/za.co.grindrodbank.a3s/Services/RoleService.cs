@@ -111,7 +111,8 @@ namespace za.co.grindrodbank.a3s.Services
             RoleModel roleToCreate = new RoleModel
             {
                 Name = transientRole.Name,
-                Description = transientRole.Description
+                Description = transientRole.Description,
+                Id = transientRole.RoleId
             };
 
             return await roleRepository.CreateAsync(roleToCreate);
@@ -177,7 +178,6 @@ namespace za.co.grindrodbank.a3s.Services
 
                 role.Name = roleSubmit.Name;
                 role.Description = roleSubmit.Description;
-                role.ChangedBy = updatedById;
 
                 await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
                 // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.

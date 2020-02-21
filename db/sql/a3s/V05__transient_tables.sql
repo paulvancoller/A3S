@@ -23,3 +23,8 @@ CREATE TABLE _a3s.role_transient
 ALTER TABLE _a3s.role_transient
     OWNER to postgres;
 
+-- Remove superflous change related columns from the role table.
+
+ALTER TABLE _a3s.role
+DROP COLUMN changed_by,
+DROP COLUMN sys_period;

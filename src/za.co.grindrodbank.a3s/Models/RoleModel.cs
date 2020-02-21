@@ -11,7 +11,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace za.co.grindrodbank.a3s.Models
 {
     [Table("Role")]
-    public class RoleModel : AuditableModel
+    public class RoleModel
 {
         public Guid Id { get; set; }
         public string Name { get; set; }

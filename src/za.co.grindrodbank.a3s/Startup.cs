@@ -371,7 +371,6 @@ namespace za.co.grindrodbank.a3s
                     bootstrapRole.RoleFunctions = new List<RoleFunctionModel>();
                     bootstrapRole.Name = "a3s-bootstrap";
                     bootstrapRole.Description = "A3S bootstrap role for applying security contracts.";
-                    bootstrapRole.ChangedBy = Guid.Empty;
                     bootstrapRole.RoleFunctions.Add(new RoleFunctionModel
                     {
                         Role = bootstrapRole,
