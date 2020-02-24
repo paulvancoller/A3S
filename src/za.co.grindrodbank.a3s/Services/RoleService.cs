@@ -67,7 +67,7 @@ namespace za.co.grindrodbank.a3s.Services
                 //await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
                 //await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
-                // It is possible that the assigned functions state has changed. Update the model, but only if it has an ID.
+                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
                 if(role.Id != Guid.Empty)
                 {
                     await roleRepository.UpdateAsync(role);
@@ -88,6 +88,7 @@ namespace za.co.grindrodbank.a3s.Services
         private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
         {
             await DetectAndCaptureNewRoleFunctionsAssignments(roleModel, roleId, roleSubmit, capturedBy);
+            await DetectAndCaptureFunctionsRemovedFromRole(roleModel, roleId, roleSubmit, capturedBy);
         }
  
 
@@ -102,9 +103,33 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingRoleFunction == null)
                 {
-                    var newTransientRoleFunctionRecord = await CaptureNewRoleFunctionAssignment(roleId, functionId, capturedBy);
+                    var newTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, functionId, capturedBy, "create");
                     CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, newTransientRoleFunctionRecord);
                 }
+            }
+        }
+
+        private async Task DetectAndCaptureFunctionsRemovedFromRole(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
+        {
+            var currentReleasedRoleFunctions = roleModel.RoleFunctions ?? new List<RoleFunctionModel>();
+            // Extract the IDs of the currently assigned functions, as we want to iterate through this array, as opposed to the actual
+            // role functions collection, as we are looking to modify the role functions collection.
+            var currentReleasedRoleFunctionIds = currentReleasedRoleFunctions.Select(rf => rf.FunctionId).ToArray();
+
+            foreach(var assignedFunctionId in currentReleasedRoleFunctionIds)
+            {
+                var functionIdFromSubmitList = roleSubmit.FunctionIds.Where(f => f == assignedFunctionId).FirstOrDefault();
+
+                if(functionIdFromSubmitList != null)
+                {
+                    // Continue if the currently assigned function is within the role submit function IDs.
+                    continue;
+                }
+
+                // If this portion of the execution is reached, we have a function this is currently assigned to the role. but no longer
+                // appears within the newly declared associated functions list within the role submit. Capture a deletion of the currently aassigned function.
+                var removedTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, assignedFunctionId, capturedBy, "delete");
+                CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, removedTransientRoleFunctionRecord);
             }
         }
 
@@ -141,7 +166,7 @@ namespace za.co.grindrodbank.a3s.Services
         }
 
 
-        private async Task<RoleFunctionTransientModel> CaptureNewRoleFunctionAssignment(Guid roleId, Guid functionId, Guid capturedBy)
+        private async Task<RoleFunctionTransientModel> CaptureRoleFunctionAssignmentChange(Guid roleId, Guid functionId, Guid capturedBy, string action)
         {
             var functionToAdd = await functionRepository.GetByIdAsync(functionId);
 
@@ -153,27 +178,27 @@ namespace za.co.grindrodbank.a3s.Services
             var roleFunctionTransientRecords = await roleFunctionTransientRepository.GetTransientFunctionRelationsForRoleAsync(roleId, functionId);
             var latestRoleFunctionTransientState = roleFunctionTransientRecords.LastOrDefault();
 
-            var newTransientRoleFunction = new RoleFunctionTransientModel
+            var transientRoleFunction = new RoleFunctionTransientModel
             {
                 RoleId = roleId,
                 FunctionId = functionId,
                 R_State = latestRoleFunctionTransientState == null ? DatabaseRecordState.Pending : latestRoleFunctionTransientState.R_State,
                 ChangedBy = capturedBy,
                 ApprovalCount = latestRoleFunctionTransientState == null ? 0 : latestRoleFunctionTransientState.ApprovalCount,
-                Action = "create"
+                Action = action
             };
 
             try // Attempt to transition the state of the transient role function, but be prepared for a possible state transition exception.
             {
-                newTransientRoleFunction.Capture(capturedBy.ToString());
+                transientRoleFunction.Capture(capturedBy.ToString());
             } catch (Exception e)
             {
                 throw new InvalidStateTransitionException(e.Message);
             }
 
-            await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(newTransientRoleFunction);
+            await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(transientRoleFunction);
 
-            return newTransientRoleFunction;
+            return transientRoleFunction;
         }
 
 
