@@ -201,13 +201,11 @@ namespace za.co.grindrodbank.a3s.Services
             return transientRoleFunction;
         }
 
-
-
         private async Task<RoleModel> UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(RoleTransientModel roleTransientModel)
         {
             RoleModel roleToUpdate = new RoleModel();
 
-            if (roleTransientModel.R_State != TransientStateMachineRecord.DatabaseRecordState.Released)
+            if (roleTransientModel.R_State != DatabaseRecordState.Released)
             {
                 return roleToUpdate;
             }
