@@ -32,7 +32,9 @@ namespace za.co.grindrodbank.a3s.Repositories
 
         public async Task<List<RoleTransientModel>> GetTransientsForRoleAsync(Guid roleId)
         {
-            return await a3SContext.RoleTransient.Where(rt => rt.RoleId == roleId).OrderBy(rt => rt.Id).ToListAsync();
+            return await a3SContext.RoleTransient.Where(rt => rt.RoleId == roleId)
+                                                 .OrderBy(rt => rt.CreatedAt)
+                                                 .ToListAsync();
         }
 
         public void InitSharedTransaction()

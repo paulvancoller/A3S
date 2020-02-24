@@ -12,6 +12,8 @@ using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 using AutoMapper;
 using za.co.grindrodbank.a3s.A3SApiResources;
+using System.Linq;
+using static za.co.grindrodbank.a3s.Models.TransientStateMachineRecord;
 
 namespace za.co.grindrodbank.a3s.Services
 {
@@ -22,15 +24,17 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly IFunctionRepository functionRepository;
         private readonly ISubRealmRepository subRealmRepository;
         private readonly IRoleTransientRepository roleTransientRepository;
+        private readonly IRoleFunctionTransientRepository roleFunctionTransientRepository;
         private readonly IMapper mapper;
 
-        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IRoleTransientRepository roleTransientRepository, IMapper mapper)
+        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IRoleTransientRepository roleTransientRepository, IRoleFunctionTransientRepository roleFunctionTransientRepository, IMapper mapper)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
             this.functionRepository = functionRepository;
             this.subRealmRepository = subRealmRepository;
             this.roleTransientRepository = roleTransientRepository;
+            this.roleFunctionTransientRepository = roleFunctionTransientRepository;
             this.mapper = mapper;
         }
 
@@ -48,7 +52,10 @@ namespace za.co.grindrodbank.a3s.Services
                 RoleTransientModel newTransientRole = await CaptureNewTransientRoleFromRoleSubmitAsync(roleSubmit, createdById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
-                await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
+                // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
+                RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
+
+                await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById);
 
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
@@ -72,14 +79,73 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(RoleTransientModel roleTransientModel)
+        private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
         {
-            if(roleTransientModel.R_State != TransientStateMachineRecord.DatabaseRecordState.Released)
+            await DetectAndCaptureNewRoleFunctionsAssignments(roleModel, roleId, roleSubmit, capturedBy);
+        }
+ 
+
+        private async Task DetectAndCaptureNewRoleFunctionsAssignments(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
+        {
+            // Recall, the role might not actually exist at this stage, so safely get access to a role function list.
+            var currentReleasedRoleFunctions = roleModel.RoleFunctions ?? new List<RoleFunctionModel>();
+
+            foreach (var functionId in roleSubmit.FunctionIds)
             {
-                return;
+                var existingRoleFunction = currentReleasedRoleFunctions.Where(rf => rf.FunctionId == functionId).FirstOrDefault();
+
+                if(existingRoleFunction == null)
+                {
+                    await CaptureNewRoleFunctionAssignment(roleId, functionId, capturedBy);
+                }
+            }
+        }
+
+        private async Task<RoleFunctionTransientModel> CaptureNewRoleFunctionAssignment(Guid roleId, Guid functionId, Guid capturedBy)
+        {
+            var functionToAdd = await functionRepository.GetByIdAsync(functionId);
+
+            if (functionToAdd == null)
+            {
+                throw new ItemNotFoundException($"Function with ID '{functionId}' not found when attempting to assign it to a role.");
             }
 
+            var roleFunctionTransientRecords = await roleFunctionTransientRepository.GetTransientFunctionRelationsForRoleAsync(roleId, functionId);
+            var latestRoleFunctionTransientState = roleFunctionTransientRecords.LastOrDefault();
+
+            var newTransientRoleFunction = new RoleFunctionTransientModel
+            {
+                RoleId = roleId,
+                FunctionId = functionId,
+                R_State = latestRoleFunctionTransientState == null ? DatabaseRecordState.Pending : latestRoleFunctionTransientState.R_State,
+                ChangedBy = capturedBy,
+                ApprovalCount = latestRoleFunctionTransientState == null ? 0 : latestRoleFunctionTransientState.ApprovalCount,
+                Action = "create"
+            };
+
+            try // Attempt to transition the state of the transient role function, but be prepared for a possible state transition exception.
+            {
+                newTransientRoleFunction.Capture(capturedBy.ToString());
+            } catch (Exception e)
+            {
+                throw new InvalidStateTransitionException(e.Message);
+            }
+
+            await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(newTransientRoleFunction);
+
+            return newTransientRoleFunction;
+        }
+
+
+
+        private async Task<RoleModel> UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(RoleTransientModel roleTransientModel)
+        {
             RoleModel roleToUpdate = new RoleModel();
+
+            if (roleTransientModel.R_State != TransientStateMachineRecord.DatabaseRecordState.Released)
+            {
+                return roleToUpdate;
+            }
 
             if (roleTransientModel.Action != "create")
             {
@@ -94,16 +160,16 @@ namespace za.co.grindrodbank.a3s.Services
             if(roleTransientModel.Action == "modify")
             {
                 await UpdateRoleWithCurrentTransientState(roleToUpdate, roleTransientModel);
-                return;
+                return roleToUpdate;
             }
 
             if(roleTransientModel.Action == "delete")
             {
                 await roleRepository.DeleteAsync(roleToUpdate);
-                return;
+                return roleToUpdate;
             }
 
-            await CreateRoleFromCurrentTransientState(roleTransientModel);
+            return await CreateRoleFromCurrentTransientState(roleTransientModel);
         }
 
         private async Task<RoleModel> CreateRoleFromCurrentTransientState(RoleTransientModel transientRole)
@@ -134,13 +200,20 @@ namespace za.co.grindrodbank.a3s.Services
                 ChangedBy = createdById,
                 ApprovalCount = 0,
                 // Pending is the initial state of the state machine for all transient records.
-                R_State = TransientStateMachineRecord.DatabaseRecordState.Pending,
+                R_State = DatabaseRecordState.Pending,
                 Name = roleSubmit.Name,
                 Description = roleSubmit.Description,
                 RoleId = Guid.NewGuid()
             };
 
-            newTransientRole.Capture(createdById.ToString());
+            try
+            {
+                newTransientRole.Capture(createdById.ToString());
+            } catch(Exception e)
+            {
+                throw new InvalidStateTransitionException(e.Message);
+            }
+            
             return await roleTransientRepository.CreateAsync(newTransientRole);
         }
 

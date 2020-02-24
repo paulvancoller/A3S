@@ -82,8 +82,8 @@ namespace GlobalErrorHandling.Extensions
                 return;
             }
 
-            // Check for a Item not processable error
-            if (contextFeature.Error is ItemNotProcessableException)
+            // Check for a Item not processable error OR Invalid State Exception - both should return 422.
+            if (contextFeature.Error is ItemNotProcessableException || contextFeature.Error is InvalidStateTransitionException)
             {
                 WriteException(contextFeature.Error);
                 context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;

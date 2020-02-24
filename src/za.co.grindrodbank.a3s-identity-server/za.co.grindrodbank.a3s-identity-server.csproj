@@ -143,6 +143,9 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\SubRealmApplicationDataPolicyModel.cs">
       <Link>Models\SubRealmApplicationDataPolicyModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\RoleFunctionTransientModel.cs">
+      <Link>Models\RoleFunctionTransientModel.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\UserRepository.cs">
       <Link>Repositories\UserRepository.cs</Link>
     </Compile>

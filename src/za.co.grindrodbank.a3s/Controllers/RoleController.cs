@@ -36,11 +36,21 @@ namespace za.co.grindrodbank.a3s.Controllers
             this.mapper = mapper;
         }
 
+        public override Task<IActionResult> ApproveRoleAsync([FromRoute, Required] Guid roleId)
+        {
+            throw new NotImplementedException();
+        }
+
         [Authorize(Policy = "permission:a3s.roles.create")]
         public async override Task<IActionResult> CreateRoleAsync([FromBody] RoleSubmit roleSubmit)
         {
             var loggedOnUser = ClaimsHelper.GetScalarClaimValue<Guid>(User, ClaimTypes.NameIdentifier, Guid.Empty);
             return Ok(await roleService.CreateAsync(roleSubmit, loggedOnUser));
+        }
+
+        public override Task<IActionResult> DeclineRoleAsync([FromRoute, Required] Guid roleId)
+        {
+            throw new NotImplementedException();
         }
 
         [Authorize(Policy = "permission:a3s.roles.read")]

@@ -54,7 +54,7 @@ namespace za.co.grindrodbank.a3s.Models
 
         public string Action { get; set; }
 
-        //public abstract void UpdateRelations();
+        public DateTime CreatedAt { get; set; }
 
         public TransientStateMachineRecord()
         {
