@@ -42,3 +42,7 @@ CREATE TABLE _a3s.role_function_transient
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_role_function_transient PRIMARY KEY (id)
 );
+
+ALTER TABLE _a3s.role_function
+DROP COLUMN changed_by,
+DROP COLUMN sys_period;

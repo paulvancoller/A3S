@@ -333,8 +333,7 @@ namespace za.co.grindrodbank.a3s.Services
                     defaultRoleToApply.RoleFunctions.Add(new RoleFunctionModel
                     {
                         Role = defaultRoleToApply,
-                        Function = existingFunction,
-                        ChangedBy = updatedById
+                        Function = existingFunction
                     });
                 }
             }

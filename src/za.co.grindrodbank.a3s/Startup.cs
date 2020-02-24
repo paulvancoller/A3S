@@ -375,8 +375,7 @@ namespace za.co.grindrodbank.a3s
                     bootstrapRole.RoleFunctions.Add(new RoleFunctionModel
                     {
                         Role = bootstrapRole,
-                        Function = function,
-                        ChangedBy = Guid.Empty
+                        Function = function
                     });
 
                     context.Role.Add(bootstrapRole);

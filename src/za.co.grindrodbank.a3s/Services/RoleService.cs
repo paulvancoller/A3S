@@ -67,6 +67,12 @@ namespace za.co.grindrodbank.a3s.Services
                 //await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
                 //await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
+                // It is possible that the assigned functions state has changed. Update the model, but only if it has an ID.
+                if(role.Id != Guid.Empty)
+                {
+                    await roleRepository.UpdateAsync(role);
+                }
+
                 // All successful
                 CommitTransaction();
 
@@ -96,10 +102,44 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingRoleFunction == null)
                 {
-                    await CaptureNewRoleFunctionAssignment(roleId, functionId, capturedBy);
+                    var newTransientRoleFunctionRecord = await CaptureNewRoleFunctionAssignment(roleId, functionId, capturedBy);
+                    CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, newTransientRoleFunctionRecord);
                 }
             }
         }
+
+        private void CheckForAndProcessReleasedRoleFunctionTransientRecord(RoleModel roleModel, RoleFunctionTransientModel roleFunctionTransientModel)
+        {
+            if(roleFunctionTransientModel.R_State != DatabaseRecordState.Released)
+            {
+                return;
+            }
+
+            // It is important to check that the associated role actually exists.
+            if(roleModel.Id == Guid.Empty)
+            {
+                throw new InvalidStateTransitionException($"Attempting to process a released transient role function assignment update for function with ID '{roleFunctionTransientModel.FunctionId}' and role with ID '{roleFunctionTransientModel.RoleId}', but the role does not exist or is not released yet");
+            }
+
+            // Ensure there is a role functions relation.
+            roleModel.RoleFunctions ??= new List<RoleFunctionModel>();
+
+            if(roleFunctionTransientModel.Action == "create")
+            {
+                roleModel.RoleFunctions.Add(new RoleFunctionModel
+                {
+                    FunctionId = roleFunctionTransientModel.FunctionId,
+                    RoleId = roleFunctionTransientModel.RoleId
+                });
+
+                return;
+            }
+
+            // The only remaining action is the removal of the function from the role.
+            var roleFunctionToRemove = roleModel.RoleFunctions.Where(rf => rf.FunctionId == roleFunctionTransientModel.FunctionId).FirstOrDefault();
+            roleModel.RoleFunctions.Remove(roleFunctionToRemove);
+        }
+
 
         private async Task<RoleFunctionTransientModel> CaptureNewRoleFunctionAssignment(Guid roleId, Guid functionId, Guid capturedBy)
         {

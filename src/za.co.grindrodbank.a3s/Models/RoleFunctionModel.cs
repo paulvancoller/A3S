@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace za.co.grindrodbank.a3s.Models
 {
     [Table("RoleFunction")]
-    public class RoleFunctionModel : AuditableModel
+    public class RoleFunctionModel
     {
         [JsonIgnore]
         public Guid RoleId { get; set; }

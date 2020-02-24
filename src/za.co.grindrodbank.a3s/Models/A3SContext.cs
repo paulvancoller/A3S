@@ -293,6 +293,14 @@ namespace za.co.grindrodbank.a3s.Models
                 .WithMany(p => p.ProfileTeams)
                 .HasForeignKey(fp => fp.TeamId);
 
+            modelBuilder.Entity<RoleTransientModel>()
+                .Property(b => b.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            modelBuilder.Entity<RoleFunctionTransientModel>()
+                .Property(b => b.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
         }
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)
