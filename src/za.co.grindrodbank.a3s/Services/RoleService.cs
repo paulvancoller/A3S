@@ -49,7 +49,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingRole != null)
                     throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
-                RoleTransientModel newTransientRole = await CaptureNewTransientRoleFromRoleSubmitAsync(roleSubmit, createdById);
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(Guid.Empty, roleSubmit.Name, roleSubmit.Description, "create", createdById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
                 // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
@@ -255,28 +255,38 @@ namespace za.co.grindrodbank.a3s.Services
             await roleRepository.UpdateAsync(roleToRelease);
         }
 
-        private async Task<RoleTransientModel> CaptureNewTransientRoleFromRoleSubmitAsync(RoleSubmit roleSubmit, Guid createdById)
+        private async Task<RoleTransientModel> CaptureTransientRoleAsync(Guid roleId, string roleName, string roleDescription, string action, Guid createdById)
         {
+            RoleTransientModel latestTransientRole = null;
+
+            // Recall - there might not be a Guid for the role if we are creating it.
+            if(roleId != Guid.Empty)
+            {
+                var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
+                latestTransientRole = transientRoles.LastOrDefault();
+            }
+
             RoleTransientModel newTransientRole = new RoleTransientModel
             {
-                Action = "create",
+                Action = action,
                 ChangedBy = createdById,
-                ApprovalCount = 0,
+                ApprovalCount = latestTransientRole == null ? 0 : latestTransientRole.ApprovalCount,
                 // Pending is the initial state of the state machine for all transient records.
-                R_State = DatabaseRecordState.Pending,
-                Name = roleSubmit.Name,
-                Description = roleSubmit.Description,
-                RoleId = Guid.NewGuid()
+                R_State = latestTransientRole == null ? DatabaseRecordState.Pending : latestTransientRole.R_State,
+                Name = roleName,
+                Description = roleDescription,
+                RoleId = roleId == Guid.Empty ? Guid.NewGuid() : roleId
             };
 
             try
             {
                 newTransientRole.Capture(createdById.ToString());
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new InvalidStateTransitionException(e.Message);
             }
-            
+
             return await roleTransientRepository.CreateAsync(newTransientRole);
         }
 
