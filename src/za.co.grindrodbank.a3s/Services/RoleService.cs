@@ -49,13 +49,13 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingRole != null)
                     throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
-                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(Guid.Empty, roleSubmit.Name, roleSubmit.Description, "create", createdById);
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(Guid.Empty, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, "create", createdById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
                 // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
                 RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
 
-                await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById);
+                await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById, roleSubmit.SubRealmId);
 
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
@@ -76,7 +76,7 @@ namespace za.co.grindrodbank.a3s.Services
                 // All successful
                 CommitTransaction();
 
-                return mapper.Map<RoleTransient>(newTransientRole);
+                return mapper.Map<RoleTransient>(newTransientRole); 
             }
             catch
             {
@@ -85,14 +85,14 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
+        private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid roleSubRealmId)
         {
-            await DetectAndCaptureNewRoleFunctionsAssignments(roleModel, roleId, roleSubmit, capturedBy);
+            await DetectAndCaptureNewRoleFunctionsAssignments(roleModel, roleId, roleSubmit, capturedBy, roleSubRealmId);
             await DetectAndCaptureFunctionsRemovedFromRole(roleModel, roleId, roleSubmit, capturedBy);
         }
  
 
-        private async Task DetectAndCaptureNewRoleFunctionsAssignments(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy)
+        private async Task DetectAndCaptureNewRoleFunctionsAssignments(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid roleSubRealm)
         {
             // Recall, the role might not actually exist at this stage, so safely get access to a role function list.
             var currentReleasedRoleFunctions = roleModel.RoleFunctions ?? new List<RoleFunctionModel>();
@@ -103,7 +103,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingRoleFunction == null)
                 {
-                    var newTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, functionId, capturedBy, "create");
+                    var newTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, functionId, capturedBy, "create", roleSubmit.SubRealmId);
                     CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, newTransientRoleFunctionRecord);
                 }
             }
@@ -128,7 +128,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // If this portion of the execution is reached, we have a function this is currently assigned to the role. but no longer
                 // appears within the newly declared associated functions list within the role submit. Capture a deletion of the currently aassigned function.
-                var removedTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, assignedFunctionId, capturedBy, "delete");
+                var removedTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, assignedFunctionId, capturedBy, "delete", roleSubmit.SubRealmId);
                 CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, removedTransientRoleFunctionRecord);
             }
         }
@@ -165,8 +165,7 @@ namespace za.co.grindrodbank.a3s.Services
             roleModel.RoleFunctions.Remove(roleFunctionToRemove);
         }
 
-
-        private async Task<RoleFunctionTransientModel> CaptureRoleFunctionAssignmentChange(Guid roleId, Guid functionId, Guid capturedBy, string action)
+        private async Task<RoleFunctionTransientModel> CaptureRoleFunctionAssignmentChange(Guid roleId, Guid functionId, Guid capturedBy, string action, Guid roleSubRealmId)
         {
             var functionToAdd = await functionRepository.GetByIdAsync(functionId);
 
@@ -174,6 +173,8 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 throw new ItemNotFoundException($"Function with ID '{functionId}' not found when attempting to assign it to a role.");
             }
+
+            ConfirmSubRealmAssociation(roleSubRealmId, functionToAdd);
 
             var roleFunctionTransientRecords = await roleFunctionTransientRepository.GetTransientFunctionRelationsForRoleAsync(roleId, functionId);
             var latestRoleFunctionTransientState = roleFunctionTransientRecords.LastOrDefault();
@@ -255,7 +256,7 @@ namespace za.co.grindrodbank.a3s.Services
             await roleRepository.UpdateAsync(roleToRelease);
         }
 
-        private async Task<RoleTransientModel> CaptureTransientRoleAsync(Guid roleId, string roleName, string roleDescription, string action, Guid createdById)
+        private async Task<RoleTransientModel> CaptureTransientRoleAsync(Guid roleId, string roleName, string roleDescription, Guid subRealmId, string action, Guid createdById)
         {
             RoleTransientModel latestTransientRole = null;
 
@@ -264,6 +265,11 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
                 latestTransientRole = transientRoles.LastOrDefault();
+            }
+
+            if(subRealmId != Guid.Empty)
+            {
+                await CheckSubRealmIdIsValid(subRealmId);
             }
 
             RoleTransientModel newTransientRole = new RoleTransientModel
@@ -275,6 +281,7 @@ namespace za.co.grindrodbank.a3s.Services
                 R_State = latestTransientRole == null ? DatabaseRecordState.Pending : latestTransientRole.R_State,
                 Name = roleName,
                 Description = roleDescription,
+                SubRealmId = subRealmId,
                 RoleId = roleId == Guid.Empty ? Guid.NewGuid() : roleId
             };
 
@@ -288,6 +295,16 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             return await roleTransientRepository.CreateAsync(newTransientRole);
+        }
+
+        private async Task CheckSubRealmIdIsValid(Guid subRealmId)
+        {
+            var subRealm = await subRealmRepository.GetByIdAsync(subRealmId, false);
+
+            if(subRealm == null)
+            {
+                throw new ItemNotFoundException($"Sub-realm with ID '{subRealmId}' not found when attempting to assign it to a role.");
+            }
         }
 
         public async Task<Role> GetByIdAsync(Guid roleId)
@@ -357,7 +374,7 @@ namespace za.co.grindrodbank.a3s.Services
                         throw new ItemNotFoundException("Unable to find a function with ID: " + functionId + "when attempting to assign it to a role.");
                     }
 
-                    ConfirmSubRealmAssociation(role, function);
+                    ConfirmSubRealmAssociation(role.SubRealm == null ? Guid.Empty : role.SubRealm.Id, function);
 
                     role.RoleFunctions.Add(new RoleFunctionModel
                     {
@@ -368,21 +385,21 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void ConfirmSubRealmAssociation(RoleModel role, FunctionModel function)
+        private void ConfirmSubRealmAssociation(Guid roleSubRealmId, FunctionModel function)
         {
             // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
-            if (role.SubRealm != null)
+            if (roleSubRealmId != Guid.Empty)
             {
-                if (function.SubRealm == null || function.SubRealm.Id != role.SubRealm.Id)
+                if (function.SubRealm == null || function.SubRealm.Id != roleSubRealmId)
                 {
-                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the sub-realm with ID '{roleSubRealmId}', but the function does not exist within that sub-realm.");
                 }
             }
             else
             {
                 if (function.SubRealm != null)
                 {
-                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the '{role.SubRealm.Name}' sub-realm but the function does not exist within that sub-realm.");
+                    throw new ItemNotProcessableException($"Attempting to add a function with ID '{function.Id}' to a role within the sub-realm with ID '{roleSubRealmId}', but the function does not exist within that sub-realm.");
                 }
             }
         }

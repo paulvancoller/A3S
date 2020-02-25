@@ -12,6 +12,7 @@ CREATE TABLE _a3s.role_transient
     role_id uuid NOT NULL,
     name text  NOT NULL,
     description text NOT NULL,
+    sub_realm_id uuid,
     r_state text NOT NULL,
     changed_by uuid NOT NULL,
     approval_count int NOT NULL,
