@@ -102,7 +102,7 @@ namespace za.co.grindrodbank.a3s.Models
                 .Permit(DatabaseRecordTrigger.Capture, DatabaseRecordState.Captured);
 
             // Set this from configuration later.
-            RequiredApprovalCount = 2;
+            RequiredApprovalCount = 0;
         }
 
         public void Capture(string capturer)

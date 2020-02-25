@@ -245,7 +245,21 @@ namespace za.co.grindrodbank.a3s.Services
                 Id = transientRole.RoleId
             };
 
+            await AssignSubRealmToRoleFromTransientRoleIfSubRealmNotEmpty(roleToCreate, transientRole);
+
             return await roleRepository.CreateAsync(roleToCreate);
+        }
+
+        private async Task AssignSubRealmToRoleFromTransientRoleIfSubRealmNotEmpty(RoleModel roleModel, RoleTransientModel transientRole)
+        {
+            if(transientRole.SubRealmId == Guid.Empty)
+            {
+                return;
+            }
+
+            var subRealm = await subRealmRepository.GetByIdAsync(transientRole.SubRealmId, false);
+
+            roleModel.SubRealm = subRealm ?? throw new ItemNotProcessableException($"Sub-Realm with ID '{transientRole.SubRealmId}' not found when attempting to assign it to a role with ID '{roleModel.Id}' from a transient state.");
         }
 
         private async Task UpdateRoleWithCurrentTransientState(RoleModel roleToRelease, RoleTransientModel transientRole)
