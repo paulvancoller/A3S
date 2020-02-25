@@ -25,9 +25,10 @@ namespace za.co.grindrodbank.a3s.Services
         private readonly ISubRealmRepository subRealmRepository;
         private readonly IRoleTransientRepository roleTransientRepository;
         private readonly IRoleFunctionTransientRepository roleFunctionTransientRepository;
+        private readonly IRoleRoleTransientRepository roleRoleTransientRepository;
         private readonly IMapper mapper;
 
-        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IRoleTransientRepository roleTransientRepository, IRoleFunctionTransientRepository roleFunctionTransientRepository, IMapper mapper)
+        public RoleService(IRoleRepository roleRepository, IUserRepository userRepository, IFunctionRepository functionRepository, ISubRealmRepository subRealmRepository, IRoleTransientRepository roleTransientRepository, IRoleFunctionTransientRepository roleFunctionTransientRepository, IRoleRoleTransientRepository roleRoleTransientRepository, IMapper mapper)
         {
             this.roleRepository = roleRepository;
             this.userRepository = userRepository;
@@ -35,6 +36,7 @@ namespace za.co.grindrodbank.a3s.Services
             this.subRealmRepository = subRealmRepository;
             this.roleTransientRepository = roleTransientRepository;
             this.roleFunctionTransientRepository = roleFunctionTransientRepository;
+            this.roleRoleTransientRepository = roleRoleTransientRepository;
             this.mapper = mapper;
         }
 
@@ -83,6 +85,42 @@ namespace za.co.grindrodbank.a3s.Services
                 RollbackTransaction();
                 throw;
             }
+        }
+
+        private async Task CaptureChildRoleAssignmentChanges(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId)
+        {
+            
+        }
+
+        private async Task DetectAndCaptureNewChildRoleAssignments(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId)
+        {
+            var currentChildRoles = role.ChildRoles ?? new List<RoleRoleModel>();
+
+            foreach(var childRoleId in roleSubmit.RoleIds)
+            {
+                var existingChildRole = currentChildRoles.Where(cr => cr.ChildRole.Id == childRoleId).FirstOrDefault();
+
+                if(existingChildRole == null)
+                {
+                    return;
+                }
+
+
+            }
+        }
+
+        private async Task CaptureChildRoleAssignmentChange(Guid roleId, Guid childRoleId, Guid capturedBy, Guid subRealmId)
+        {
+            RoleModel childRole = await roleRepository.GetByIdAsync(childRoleId);
+
+            if(childRole == null)
+            {
+                throw new ItemNotFoundException($"Role with ID '{childRoleId}' not found when attempting to assign it as a child role of role with ID '{roleId}'.");
+            }
+
+            ConfirmSubRealmAssociation(subRealmId, childRole);
+
+
         }
 
         private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid roleSubRealmId)
@@ -402,7 +440,7 @@ namespace za.co.grindrodbank.a3s.Services
         private void ConfirmSubRealmAssociation(Guid roleSubRealmId, FunctionModel function)
         {
             // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
-            if (roleSubRealmId != Guid.Empty)
+            if (roleSubRealmId != null && roleSubRealmId != Guid.Empty) 
             {
                 if (function.SubRealm == null || function.SubRealm.Id != roleSubRealmId)
                 {
@@ -418,21 +456,21 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private void ConfirmSubRealmAssociation(RoleModel roleModel, RoleModel roleToAddAsChildRole)
+        private void ConfirmSubRealmAssociation(Guid roleSubRealmId, RoleModel roleToAddAsChildRole)
         {
             // If there is a Sub-Realm associated with role, we must ensure that the child role we are attempting to add to the role is associated with the same sub realm.
-            if (roleModel.SubRealm != null)
+            if (roleSubRealmId != null && roleSubRealmId != Guid.Empty)
             {
-                if (roleToAddAsChildRole.SubRealm == null || roleModel.SubRealm.Id != roleToAddAsChildRole.SubRealm.Id)
+                if (roleToAddAsChildRole.SubRealm == null || roleSubRealmId != roleToAddAsChildRole.SubRealm.Id)
                 {
-                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role but the roles are not within the same sub-realm.");
                 }
             }
             else
             {
                 if (roleToAddAsChildRole.SubRealm != null)
                 {
-                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child role of role with ID '{roleModel.Id}' but the roles are not within the same sub-realm.");
+                    throw new ItemNotProcessableException($"Attempting to add a role with ID '{roleToAddAsChildRole.Id}' as a child of a role but the roles are not within the same sub-realm.");
                 }
             }
         }
@@ -477,7 +515,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
                 }
 
-                ConfirmSubRealmAssociation(roleModel, roleToAddAsChildRole);
+                ConfirmSubRealmAssociation(roleModel.Id, roleToAddAsChildRole);
 
                 roleModel.ChildRoles.Add(new RoleRoleModel
                 {
