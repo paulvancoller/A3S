@@ -748,7 +748,7 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task AssignIndividualUserToTeam(string userName, TeamModel team, Guid updatedById, bool dryRun, SecurityContractDryRunResult securityContractDryRunResult, string defaultConfigurationName)
         {
-            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attmepting to add user '{userName}' to tea, '{team.Name}'");
+            logger.Debug($"[defaultConfigurations.name: '{defaultConfigurationName}'].[teams.name: '{team.Name}'][users.username: '{userName}']: Attempting to add user '{userName}' to team, '{team.Name}'");
             var user = await userRepository.GetByUsernameAsync(userName, false);
 
             if (user == null)
