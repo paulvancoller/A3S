@@ -6,8 +6,10 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Models;
 using za.co.grindrodbank.a3s.Repositories;
 
@@ -36,6 +38,11 @@ namespace za.co.grindrodbank.a3s.Services
             consentOfServiceModel.ChangedBy = changedById;
             var databaseObj = await consentOfServiceRepository.UpdateCurrentConsentAsync(consentOfServiceModel);
             return databaseObj != null;
+        }
+
+        public Task<List<Permission>> GetListOfPermissionsToConsentAsync(int userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

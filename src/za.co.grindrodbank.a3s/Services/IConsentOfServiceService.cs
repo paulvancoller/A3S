@@ -6,7 +6,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using za.co.grindrodbank.a3s.A3SApiResources;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Services
@@ -28,5 +30,12 @@ namespace za.co.grindrodbank.a3s.Services
         /// <param name="changedById">user id that update consent</param>
         /// <returns></returns>
         Task<bool> UpdateCurrentConsentAsync(ConsentOfService consentOfService, Guid changedById);
+
+        /// <summary>
+        ///     Get list of permissions to consent by user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<Permission>> GetListOfPermissionsToConsentAsync(int userId);
     }
 }

@@ -42,7 +42,8 @@ namespace za.co.grindrodbank.a3s.Models
         public DbSet<SubRealmModel> SubRealm { get; set; }
         public DbSet<ProfileModel> Profile { get; set; }
         public DbSet<ConsentOfServiceModel> ConsentOfService { get; set; }
-
+        public DbSet<ConsentOfServiceUserAcceptanceModel> ConsentOfServiceUserAcceptance { get; set; }
+        public DbSet<ConsentOfServiceUserAcceptancePermissionsModel> ConsentOfServiceUserAcceptancePermissions { get; set; }
         // Identity specific database tables. We want to operate on these, but let them be managed by Identity.
         public DbSet<UserClaimModel> ApplicationUserClaims { get; set; }
 
@@ -292,6 +293,16 @@ namespace za.co.grindrodbank.a3s.Models
                 .WithMany(p => p.ProfileTeams)
                 .HasForeignKey(fp => fp.TeamId);
 
+            // Customisations for many to many relationship between consents
+            modelBuilder.Entity<ConsentOfServiceUserAcceptanceModel>()
+                .HasOne(fp => fp.User)
+                .WithMany(p => p.ConsentOfServiceAcceptances)
+                .HasForeignKey(fp => fp.UserId);
+
+            modelBuilder.Entity<ConsentOfServiceUserAcceptancePermissionsModel>()
+                .HasOne(fp => fp.ConsentAcceptance)
+                .WithMany(p => p.ConsentOfServiceAcceptancePermissions)
+                .HasForeignKey(fp => fp.ConsentOfServiceUserAcceptanceId);
         }
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)
