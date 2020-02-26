@@ -343,9 +343,9 @@ public class AccessTokenPermissionsServiceImpl implements AccessTokenPermissions
 
 ## Protecting Resources in C#
 
-A library, containing all the required security annotations, [JWT](./glossary.md#jwt) manipulation, and [permission](./glossary.md#permission) enforcement code is currently being developed. This will be made available as a NuGet package in the near future.
+A library called a3s-security-policy-enforcement-lib, containing all the required security annotations, [JWT](./glossary.md#jwt) manipulation, and [permission](./glossary.md#permission) enforcement code is currently available as a NuGet package.
 
-The classes in this library will enable any function within a Dotnet C# application to be annotated with an annotation as follows:
+This library enables any function within a Dotnet C# application to be annotated as follows:
 
 ```csharp
 [Authorize(Policy = "permission:a3s.applicationFunctions.read")]
@@ -359,21 +359,35 @@ This will result in the application:
 
 **Note!** [A3S](https://github.com/GrindrodBank/A3S) uses these annotations to protect it's own APIs.
 
-Until the library is complete, you will require the following classes inside your Dotnet C# [application](./glossary.md#application) to use the annotations. These are located within this repository:
+The following will  need to be added to the `ConfigureServices` function in `Startup.cs` of the [application](./glossary.md#application), as demonstrated in Figure 8:
+ 
+- Registration of the policies that are referenced within the annotations. 
+- A singleton lifetime service registration for the `PermissionsAuthorisationHandler`.
 
-* [PermissionRequirement.cs](../src/za.co.grindrodbank.a3s/AuthorisationPolicies/PermissionRequirement.cs)
-* [PermissionsAuthorisationHandler.cs](../src/za.co.grindrodbank.a3s/AuthorisationPolicies/PermissionsAuthorisationHandler.cs)
-* Registration of the policies that are referenced within the annotations, within the Startup.cs of the [application](./glossary.md#application). Figure 8 is an example from the [A3S](https://github.com/GrindrodBank/A3S) [Startup.cs](../src/za.co.grindrodbank.a3s/Startup.cs).
 
 ```csharp
-services.AddAuthorization(options =>
-            {
-                options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
-                options.AddPolicy("permission:a3s.securityContracts.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.update")));
-                options.AddPolicy("permission:a3s.applications.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.applications.read")));
-                options.AddPolicy("permission:a3s.clientRegistration.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clientRegistration.update")));
-                options.AddPolicy("permission:a3s.functions.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.read")));
-            });
+public void ConfigureServices(IServiceCollection services)
+{
+	// Earlier code removed for brevity
+
+	services.AddAuthorization(options =>
+	{
+		options.AddPolicy("permission:a3s.securityContracts.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.read")));
+		options.AddPolicy("permission:a3s.securityContracts.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.securityContracts.update")));
+		options.AddPolicy("permission:a3s.applications.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.applications.read")));
+		options.AddPolicy("permission:a3s.clientRegistration.update", policy => policy.Requirements.Add(new PermissionRequirement("a3s.clientRegistration.update")));
+		options.AddPolicy("permission:a3s.functions.read", policy => policy.Requirements.Add(new PermissionRequirement("a3s.functions.read")));
+	});
+
+	services.AddSingleton<IAuthorizationHandler, PermissionsAuthorisationHandler>();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+	// Earlier code removed for brevity;
+	
+	app.UseAuthorization();
+}
 ```
 *Figure 8: An excerpt from the A3S Startup.cs file demostrating how policies are registered.*
 
