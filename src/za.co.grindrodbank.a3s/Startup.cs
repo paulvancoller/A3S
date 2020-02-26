@@ -204,6 +204,7 @@ namespace za.co.grindrodbank.a3s
             services.AddScoped<IProfileRepository, ProfileRepository>();
             services.AddScoped<IRoleTransientRepository, RoleTransientRepository>();
             services.AddScoped<IRoleFunctionTransientRepository, RoleFunctionTransientRepository>();
+            services.AddScoped<IRoleRoleTransientRepository, RoleRoleTransientRepository>();
 
             // Register all the services.
             services.AddScoped<IPermissionService, PermissionService>();

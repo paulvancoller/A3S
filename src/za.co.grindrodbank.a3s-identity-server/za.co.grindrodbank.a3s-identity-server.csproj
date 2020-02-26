@@ -146,6 +146,9 @@
     <Compile Include="..\za.co.grindrodbank.a3s\Models\RoleFunctionTransientModel.cs">
       <Link>Models\RoleFunctionTransientModel.cs</Link>
     </Compile>
+    <Compile Include="..\za.co.grindrodbank.a3s\Models\RoleRoleTransientModel.cs">
+      <Link>Models\RoleRoleTransientModel.cs</Link>
+    </Compile>
     <Compile Include="..\za.co.grindrodbank.a3s\Repositories\UserRepository.cs">
       <Link>Repositories\UserRepository.cs</Link>
     </Compile>

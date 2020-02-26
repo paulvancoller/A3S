@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace za.co.grindrodbank.a3s.Models
 {
     [Table("RoleRole")]
-    public class RoleRoleModel : AuditableModel
+    public class RoleRoleModel
 {
         public Guid ParentRoleId { get; set; }
         public RoleModel ParentRole { get; set; }

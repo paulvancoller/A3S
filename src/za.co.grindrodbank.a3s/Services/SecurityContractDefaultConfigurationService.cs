@@ -392,8 +392,7 @@ namespace za.co.grindrodbank.a3s.Services
             defaultRoleToApply.ChildRoles.Add(new RoleRoleModel
             {
                 ParentRole = defaultRoleToApply,
-                ChildRole = existingChildRole,
-                ChangedBy = updatedById
+                ChildRole = existingChildRole
             });
         }
 

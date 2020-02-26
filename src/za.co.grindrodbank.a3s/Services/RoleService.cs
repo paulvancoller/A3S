@@ -58,7 +58,7 @@ namespace za.co.grindrodbank.a3s.Services
                 RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
 
                 await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById, roleSubmit.SubRealmId);
-
+                await CaptureChildRoleAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById, roleSubmit.SubRealmId);
                 // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
                 // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
                 //RoleModel newRole = mapper.Map<RoleModel>(roleSubmit);
@@ -89,7 +89,8 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task CaptureChildRoleAssignmentChanges(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId)
         {
-            
+            await DetectAndCaptureNewChildRoleAssignments(role, roleId, roleSubmit, createdBy, subRealmId);
+            await DetectAndCaptureChildRolesRemovedFromRole(role, roleId, roleSubmit, createdBy, subRealmId);
         }
 
         private async Task DetectAndCaptureNewChildRoleAssignments(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId)
@@ -99,17 +100,75 @@ namespace za.co.grindrodbank.a3s.Services
             foreach(var childRoleId in roleSubmit.RoleIds)
             {
                 var existingChildRole = currentChildRoles.Where(cr => cr.ChildRole.Id == childRoleId).FirstOrDefault();
-
-                if(existingChildRole == null)
+                // If a role is found withing the existing child roles, return, as there is nothing more to do.
+                if(existingChildRole != null)
                 {
                     return;
                 }
 
-
+                var transientChildRole = await CaptureChildRoleAssignmentChange(roleId, childRoleId, createdBy, subRealmId, "create");
+                CheckForAndProcessReleasedChildRoleTransientRecord(role, transientChildRole);
             }
         }
 
-        private async Task CaptureChildRoleAssignmentChange(Guid roleId, Guid childRoleId, Guid capturedBy, Guid subRealmId)
+        private async Task DetectAndCaptureChildRolesRemovedFromRole(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid subRealmId)
+        {
+            var currentReleasedChildRoles = roleModel.ChildRoles ?? new List<RoleRoleModel>();
+            // Extract the IDs of the currently assigned child roles, as we want to iterate through this array, as opposed to the actual
+            // child role collection, as we are looking to modify the child collection.
+            var currentReleasedChildRoleIds = currentReleasedChildRoles.Select(cr => cr.ParentRoleId).ToArray();
+
+            foreach (var assignedChildRoleId in currentReleasedChildRoleIds)
+            {
+                var childRoleIdFromSubmitList = roleSubmit.RoleIds.Where(r => r == assignedChildRoleId).FirstOrDefault();
+
+                if (childRoleIdFromSubmitList != null)
+                {
+                    // Continue if the currently assigned function is within the role submit function IDs.
+                    continue;
+                }
+
+                // If this portion of the execution is reached, we have a child this is currently assigned to the role, but no longer
+                // appears within the newly declared associated child roles list within the role submit. Capture a deletion of the currently aassigned child role.
+                var removeCapturedTransientChildRole = await CaptureChildRoleAssignmentChange(roleId, assignedChildRoleId, capturedBy, subRealmId, "delete");
+                CheckForAndProcessReleasedChildRoleTransientRecord(roleModel, removeCapturedTransientChildRole);
+            }
+        }
+
+        private void CheckForAndProcessReleasedChildRoleTransientRecord(RoleModel roleModel, RoleRoleTransientModel childRoleTransientModel)
+        {
+            if(childRoleTransientModel.R_State != DatabaseRecordState.Released)
+            {
+                return;
+            }
+
+            // It is important to ensure that the associated role actually exists by asserting there is an assigned ID.
+            if (roleModel.Id == Guid.Empty)
+            {
+                throw new InvalidStateTransitionException($"Attempting to process a released transient child role with ID '{childRoleTransientModel.ChildRoleId}', but the parent role, with ID '{childRoleTransientModel.ParentRoleId}', does not exist or is not released yet");
+            }
+
+            // Ensure there is a role functions relation.
+            roleModel.ChildRoles ??= new List<RoleRoleModel>();
+
+            if (childRoleTransientModel.Action == "create")
+            {
+                roleModel.ChildRoles.Add(new RoleRoleModel
+                {
+                    ParentRoleId = childRoleTransientModel.ParentRoleId,
+                    ChildRoleId = childRoleTransientModel.ChildRoleId
+                });
+
+                return;
+            }
+
+            // The only remaining action is the removal of the child role from the role.
+            var childRoleToRemove = roleModel.ChildRoles.Where(cr => cr.ChildRoleId == childRoleTransientModel.ChildRoleId).FirstOrDefault();
+            roleModel.ChildRoles.Remove(childRoleToRemove);
+        }
+
+
+        private async Task<RoleRoleTransientModel> CaptureChildRoleAssignmentChange(Guid roleId, Guid childRoleId, Guid capturedBy, Guid subRealmId, string action)
         {
             RoleModel childRole = await roleRepository.GetByIdAsync(childRoleId);
 
@@ -120,7 +179,31 @@ namespace za.co.grindrodbank.a3s.Services
 
             ConfirmSubRealmAssociation(subRealmId, childRole);
 
+            var childRoleTransientRecords = await roleRoleTransientRepository.GetTransientChildRoleRelationsForRoleAsync(roleId, childRoleId);
+            var latestTransientChildRoleState = childRoleTransientRecords.LastOrDefault();
 
+            var transientChildRole = new RoleRoleTransientModel
+            {
+                ParentRoleId = roleId,
+                ChildRoleId = childRoleId,
+                R_State = latestTransientChildRoleState == null ? DatabaseRecordState.Pending : latestTransientChildRoleState.R_State,
+                ChangedBy = capturedBy,
+                ApprovalCount = latestTransientChildRoleState == null ? 0 : latestTransientChildRoleState.ApprovalCount,
+                Action = action
+            };
+
+            try // Attempt to transition the state of the transient role function, but be prepared for a possible state transition exception.
+            {
+                transientChildRole.Capture(capturedBy.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new InvalidStateTransitionException(e.Message);
+            }
+
+            await roleRoleTransientRepository.CreateNewTransientStateForRoleChildRoleAsync(transientChildRole);
+
+            return transientChildRole;
         }
 
         private async Task CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid roleSubRealmId)

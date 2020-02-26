@@ -302,6 +302,10 @@ namespace za.co.grindrodbank.a3s.Models
                 .Property(b => b.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+            modelBuilder.Entity<RoleRoleTransientModel>()
+                .Property(b => b.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
         }
 
         public void SetDbNamingConvention(ModelBuilder modelBuilder)

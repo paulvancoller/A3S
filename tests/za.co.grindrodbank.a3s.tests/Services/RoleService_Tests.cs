@@ -30,11 +30,11 @@ namespace za.co.grindrodbank.a3s.tests.Services
 
         private readonly IRoleTransientRepository roleTransientRepository;
         private readonly IRoleFunctionTransientRepository roleFunctionTransientRepository;
+        private readonly IRoleRoleTransientRepository roleRoleTransientRepository;
         private readonly IRoleRepository roleRepository;
         private readonly IUserRepository userRepository;
         private readonly IFunctionRepository functionRepository;
         private readonly ISubRealmRepository subRealmRepository;
-
 
         public RoleService_Tests()
         {
@@ -44,6 +44,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             subRealmRepository = Substitute.For<ISubRealmRepository>();
             roleTransientRepository = Substitute.For<IRoleTransientRepository>();
             roleFunctionTransientRepository = Substitute.For<IRoleFunctionTransientRepository>();
+            roleRoleTransientRepository = Substitute.For<IRoleRoleTransientRepository>();
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -111,7 +112,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
         {
             roleRepository.GetByIdAsync(roleGuid).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
             var roleResource = await roleService.GetByIdAsync(roleGuid);
 
             Assert.NotNull(roleResource);
@@ -133,7 +134,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             var roleResource = await roleService.CreateAsync(mockedRoleSubmitModel, Guid.NewGuid());
@@ -154,7 +155,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             // Add a random new Guid as a function to the role submit.
             mockedRoleSubmitModel.FunctionIds.Add(Guid.NewGuid());
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -181,7 +182,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
             roleRepository.When(x => x.GetByIdAsync(Arg.Any<Guid>())).Do(x => throw new ItemNotFoundException());
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
             // Act
             Exception caughtException = null;
 
@@ -207,7 +208,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.GetByNameAsync(mockedRoleSubmitModel.Name).Returns(mockedRoleModel);
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -232,7 +233,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.CreateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -268,7 +269,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     }
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughtException = null;
@@ -297,7 +298,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     mockedRoleModel
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             var roleList = await roleService.GetListAsync();
@@ -323,7 +324,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());
@@ -342,7 +343,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                 .Returns(mockedRoleModel.RoleFunctions[0].Function);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -372,7 +373,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
             // Act
             Exception caughEx = null;
             try
@@ -397,7 +398,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.GetByIdAsync(mockedRoleModel.Id).Returns(mockedRoleModel);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -433,7 +434,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     }
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -462,7 +463,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
             roleRepository.GetByNameAsync(mockedRoleSubmitModel.Name).Returns(mockedRoleModel);
             roleRepository.UpdateAsync(Arg.Any<RoleModel>()).Returns(mockedRoleModel);
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             Exception caughEx = null;
@@ -496,7 +497,7 @@ namespace za.co.grindrodbank.a3s.tests.Services
                     ChildRoles = new List<RoleRoleModel>()
                 });
 
-            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, mapper);
+            var roleService = new RoleService(roleRepository, userRepository, functionRepository, subRealmRepository, roleTransientRepository, roleFunctionTransientRepository, roleRoleTransientRepository, mapper);
 
             // Act
             var roleResource = await roleService.UpdateAsync(mockedRoleSubmitModel, Guid.NewGuid());
