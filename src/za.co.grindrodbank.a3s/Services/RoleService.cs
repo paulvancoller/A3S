@@ -107,13 +107,13 @@ namespace za.co.grindrodbank.a3s.Services
             var currentReleasedChildRoles = roleModel.ChildRoles ?? new List<RoleRoleModel>();
             // Extract the IDs of the currently assigned child roles, as we want to iterate through this array, as opposed to the actual
             // child role collection, as we are looking to modify the child collection.
-            var currentReleasedChildRoleIds = currentReleasedChildRoles.Select(cr => cr.ParentRoleId).ToArray();
+            var currentReleasedChildRoleIds = currentReleasedChildRoles.Select(cr => cr.ChildRoleId).ToArray();
 
             foreach (var assignedChildRoleId in currentReleasedChildRoleIds)
             {
                 var childRoleIdFromSubmitList = roleSubmit.RoleIds.Where(r => r == assignedChildRoleId).FirstOrDefault();
 
-                if (childRoleIdFromSubmitList != null)
+                if (childRoleIdFromSubmitList != Guid.Empty)
                 {
                     // Continue if the currently assigned function is within the role submit function IDs.
                     continue;
