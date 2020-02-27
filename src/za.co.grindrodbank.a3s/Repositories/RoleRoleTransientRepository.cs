@@ -30,6 +30,13 @@ namespace za.co.grindrodbank.a3s.Repositories
             return roleRoleTransient;
         }
 
+        public async Task<List<RoleRoleTransientModel>> GetAllTransientChildRoleRelationsForRoleAsync(Guid roleId)
+        {
+            return await a3SContext.RoleRoleTransient
+                                   .Where(rrt => rrt.ParentRoleId == roleId)
+                                   .OrderBy(rrt => rrt.CreatedAt).ToListAsync();
+        }
+
         public async Task<List<RoleRoleTransientModel>> GetTransientChildRoleRelationsForRoleAsync(Guid roleId, Guid childRoleId)
         {
             return await a3SContext.RoleRoleTransient
