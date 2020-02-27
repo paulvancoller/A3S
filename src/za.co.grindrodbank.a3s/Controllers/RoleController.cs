@@ -92,8 +92,7 @@ namespace za.co.grindrodbank.a3s.Controllers
             if (roleId == Guid.Empty || roleSubmit.Uuid == Guid.Empty)
                 return BadRequest();
 
-            var loggedOnUser = ClaimsHelper.GetScalarClaimValue<Guid>(User, ClaimTypes.NameIdentifier, Guid.Empty);
-            return Ok(await roleService.UpdateAsync(roleSubmit, loggedOnUser));
+            return Ok(await roleService.UpdateAsync(roleSubmit, roleId, ClaimsHelper.GetUserId(User)));
         }
     }
 }

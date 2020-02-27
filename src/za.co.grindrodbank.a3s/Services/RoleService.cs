@@ -500,6 +500,8 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // Reset the ID of the now approved child role transition record so we can persist a new record with it's current state.
                 latestTransientChildRole.Id = Guid.Empty;
+                // Null the created at field so it can be re-created by the DB.
+                latestTransientChildRole.CreatedAt = new DateTime();
 
                 await roleRoleTransientRepository.CreateNewTransientStateForRoleChildRoleAsync(latestTransientChildRole);
                 CheckForAndProcessReleasedChildRoleTransientRecord(role, latestTransientChildRole);
@@ -575,6 +577,8 @@ namespace za.co.grindrodbank.a3s.Services
                 
                 // reset the ID of the transient role function so a new one can be persisted from it's current state.
                 latestTransientRoleFunctionRecord.Id = Guid.Empty;
+                // Null the created At date on the object so that it can be recreated.
+                latestTransientRoleFunctionRecord.CreatedAt = new DateTime();
 
                 await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(latestTransientRoleFunctionRecord);
                 CheckForAndProcessReleasedRoleFunctionTransientRecord(role, latestTransientRoleFunctionRecord);
@@ -648,6 +652,8 @@ namespace za.co.grindrodbank.a3s.Services
 
             // Reset the Transient Role ID to force the creation of a new transient record.
             latestTransientRole.Id = Guid.Empty;
+            // Clear the createAt column so that the DDB can set it.
+            latestTransientRole.CreatedAt = new DateTime();
 
             return await roleTransientRepository.CreateAsync(latestTransientRole);
         }
@@ -702,39 +708,83 @@ namespace za.co.grindrodbank.a3s.Services
             return mapper.Map<List<Role>>(await roleRepository.GetListAsync());
         }
 
-        public async Task<Role> UpdateAsync(RoleSubmit roleSubmit, Guid updatedById)
+        public async Task<RoleTransient> UpdateAsync(RoleSubmit roleSubmit, Guid roleId, Guid updatedById)
         {
+            // Start transactions to allow complete rollback in case of an error
+            //InitSharedTransaction();
+
+            //try
+            //{
+            //    // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
+            //    // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
+            //    RoleModel role = await roleRepository.GetByIdAsync(roleSubmit.Uuid);
+
+            //    if (role == null)
+            //        throw new ItemNotFoundException($"Role with ID '{roleSubmit.Uuid}' not found when attempting to update a role using this ID!");
+
+            //    if (role.Name != roleSubmit.Name)
+            //    {
+            //        // Confirm the new name is available
+            //        var checkExistingNameModel = await roleRepository.GetByNameAsync(roleSubmit.Name);
+            //        if (checkExistingNameModel != null)
+            //            throw new ItemNotProcessableException($"Role with name '{roleSubmit.Name}' already exists.");
+            //    }
+
+            //    role.Name = roleSubmit.Name;
+            //    role.Description = roleSubmit.Description;
+
+            //    await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
+            //    // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.
+            //    await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
+
+            //    // All successful
+            //    CommitTransaction();
+
+            //    return mapper.Map<Role>(await roleRepository.UpdateAsync(role));
+            //}
+            //catch
+            //{
+            //    RollbackTransaction();
+            //    throw;
+            //}
+
             // Start transactions to allow complete rollback in case of an error
             InitSharedTransaction();
 
             try
             {
-                // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
-                // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
-                RoleModel role = await roleRepository.GetByIdAsync(roleSubmit.Uuid);
+                RoleModel existingRole = await roleRepository.GetByIdAsync(roleId);
 
-                if (role == null)
-                    throw new ItemNotFoundException($"Role with ID '{roleSubmit.Uuid}' not found when attempting to update a role using this ID!");
-
-                if (role.Name != roleSubmit.Name)
+                if (existingRole == null)
                 {
-                    // Confirm the new name is available
-                    var checkExistingNameModel = await roleRepository.GetByNameAsync(roleSubmit.Name);
-                    if (checkExistingNameModel != null)
-                        throw new ItemNotProcessableException($"Role with name '{roleSubmit.Name}' already exists.");
+                    throw new ItemNotFoundException($"Role with ID '{roleId}' not found.");
+                }
+                    
+
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(roleId, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, "modify", updatedById);
+                // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
+                // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
+                // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
+                RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
+
+                if (role.Id == Guid.Empty)
+                {
+                    role = existingRole;
                 }
 
-                role.Name = roleSubmit.Name;
-                role.Description = roleSubmit.Description;
+                await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, updatedById, roleSubmit.SubRealmId);
+                await CaptureChildRoleAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, updatedById, roleSubmit.SubRealmId);
 
-                await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
-                // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.
-                await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
+                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
+                if (role.Id != Guid.Empty)
+                {
+                    await roleRepository.UpdateAsync(role);
+                }
 
                 // All successful
                 CommitTransaction();
 
-                return mapper.Map<Role>(await roleRepository.UpdateAsync(role));
+                return mapper.Map<RoleTransient>(newTransientRole);
             }
             catch
             {
