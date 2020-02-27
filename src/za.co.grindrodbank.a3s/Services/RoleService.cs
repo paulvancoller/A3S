@@ -323,14 +323,11 @@ namespace za.co.grindrodbank.a3s.Services
                 return roleToUpdate;
             }
 
-            if (roleTransientModel.Action != "create")
-            {
-                roleToUpdate = await roleRepository.GetByIdAsync(roleTransientModel.RoleId);
+            roleToUpdate = await roleRepository.GetByIdAsync(roleTransientModel.RoleId);
 
-                if(roleToUpdate == null)
-                {
-                    throw new ItemNotFoundException($"Role with ID '{roleTransientModel.RoleId}' not found when attempting to release role.");
-                }
+            if(roleToUpdate == null && roleTransientModel.Action != "create")
+            {
+                throw new ItemNotFoundException($"Role with ID '{roleTransientModel.RoleId}' not found when attempting to release role.");
             }
 
             if(roleTransientModel.Action == "modify")
@@ -345,7 +342,13 @@ namespace za.co.grindrodbank.a3s.Services
                 return roleToUpdate;
             }
 
-            return await CreateRoleFromCurrentTransientState(roleTransientModel);
+            // Only attempt to re-create the role if there is no existing role.
+            if(roleToUpdate == null)
+            {
+                return await CreateRoleFromCurrentTransientState(roleTransientModel);
+            }
+
+            return roleToUpdate;
         }
 
         private async Task<RoleModel> CreateRoleFromCurrentTransientState(RoleTransientModel transientRole)
@@ -423,16 +426,61 @@ namespace za.co.grindrodbank.a3s.Services
             return await roleTransientRepository.CreateAsync(newTransientRole);
         }
 
-        public async Task<RoleTransientModel> ApproveRole(Guid roleId, Guid approvedBy)
+        public async Task<RoleTransient> ApproveRole(Guid roleId, Guid approvedBy)
         {
-            var latestTransientRole = await ApproveRoleTransientState(roleId, approvedBy);
-            RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(latestTransientRole);
+            InitSharedTransaction();
 
+            try
+            {
+                var latestTransientRole = await ApproveRoleTransientState(roleId, approvedBy);
+                RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(latestTransientRole);
+                await FindTransientRoleFunctionsForRoleAndApproveThem(role, roleId, approvedBy);
 
-            return latestTransientRole;
+                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
+                if (role.Id != Guid.Empty)
+                {
+                    await roleRepository.UpdateAsync(role);
+                }
+
+                CommitTransaction();
+                return mapper.Map<RoleTransient>(latestTransientRole);
+            } catch(Exception e)
+            {
+                RollbackTransaction();
+                throw e;
+            }
         }
 
+        private async Task<List<RoleFunctionTransientModel>> FindTransientRoleFunctionsForRoleAndApproveThem(RoleModel role, Guid roleId, Guid approvedBy)
+        {
+            List<RoleFunctionTransientModel> affectedRoleFunctionTransientRecords = new List<RoleFunctionTransientModel>();
+            var allTransientRoleFunctions = await roleFunctionTransientRepository.GetAllTransientFunctionRelationsForRoleAsync(roleId);
 
+            // Extract a distinct list of function IDs from this all the role function transients records.
+            var distinctFunctionIds = allTransientRoleFunctions.Select(trf => trf.FunctionId).Distinct();
+
+            // Iterate through all the distinc function IDs, find the latest transient record for each function, and process accordingly.
+            foreach(var functionId in distinctFunctionIds)
+            {
+                var latestTransientRoleFunctionRecord = allTransientRoleFunctions.Where(trf => trf.FunctionId == functionId).LastOrDefault();
+
+                if(latestTransientRoleFunctionRecord.R_State == DatabaseRecordState.Released)
+                {
+                    // This must be an old - already released transient, so ignore.
+                    continue;
+                }
+
+                latestTransientRoleFunctionRecord.Approve(approvedBy.ToString());
+                // reset the ID of the transient role function so a new one can be persisted from it's current state.
+                latestTransientRoleFunctionRecord.Id = Guid.Empty;
+
+                await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(latestTransientRoleFunctionRecord);
+                CheckForAndProcessReleasedRoleFunctionTransientRecord(role, latestTransientRoleFunctionRecord);
+                affectedRoleFunctionTransientRecords.Add(latestTransientRoleFunctionRecord);
+            }
+
+            return affectedRoleFunctionTransientRecords;
+        }
 
         private async Task <RoleTransientModel> ApproveRoleTransientState(Guid roleId, Guid approvedBy)
         {

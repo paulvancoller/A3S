@@ -36,12 +36,19 @@ namespace za.co.grindrodbank.a3s.Repositories
             return roleFunctionTransient;
         }
 
+        public async Task<List<RoleFunctionTransientModel>> GetAllTransientFunctionRelationsForRoleAsync(Guid roleId)
+        {
+            return await a3SContext.RoleFunctionTransient
+                                   .Where(rft => rft.RoleId == roleId)
+                                   .OrderBy(rft => rft.CreatedAt).ToListAsync();
+        }
+
         public async Task<List<RoleFunctionTransientModel>> GetTransientFunctionRelationsForRoleAsync(Guid roleId, Guid functionId)
         {
             return await a3SContext.RoleFunctionTransient
                                    .Where(rft => rft.RoleId == roleId)
                                    .Where(rft => rft.FunctionId == functionId)
-                                   .OrderBy(rt => rt.CreatedAt).ToListAsync();
+                                   .OrderBy(rft => rft.CreatedAt).ToListAsync();
         }
 
         public void InitSharedTransaction()
