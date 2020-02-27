@@ -48,9 +48,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await roleService.CreateAsync(roleSubmit, loggedOnUser));
         }
 
-        public override Task<IActionResult> DeclineRoleAsync([FromRoute, Required] Guid roleId)
+        public async override Task<IActionResult> DeclineRoleAsync([FromRoute, Required] Guid roleId)
         {
-            throw new NotImplementedException();
+            return Ok(await roleService.DeclineRole(roleId, ClaimsHelper.GetUserId(User)));
         }
 
         [Authorize(Policy = "permission:a3s.roles.read")]

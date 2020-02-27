@@ -426,6 +426,26 @@ namespace za.co.grindrodbank.a3s.Services
             return await roleTransientRepository.CreateAsync(newTransientRole);
         }
 
+        public async Task<RoleTransient> DeclineRole(Guid roleId, Guid approvedBy)
+        {
+            InitSharedTransaction();
+
+            try
+            {
+                var latestTransientRole = await DeclineRoleTransientState(roleId, approvedBy);
+                await FindTransientRoleFunctionsForRoleAndDeclineThem(roleId, approvedBy);
+                await FindTransientChildRolesForRoleAndDeclineThem(roleId, approvedBy);
+
+                CommitTransaction();
+                return mapper.Map<RoleTransient>(latestTransientRole);
+            }
+            catch (Exception e)
+            {
+                RollbackTransaction();
+                throw e;
+            }
+        }
+
         public async Task<RoleTransient> ApproveRole(Guid roleId, Guid approvedBy)
         {
             InitSharedTransaction();
@@ -489,6 +509,43 @@ namespace za.co.grindrodbank.a3s.Services
             return affectedTransientChildRoles;
         }
 
+        private async Task<List<RoleRoleTransientModel>> FindTransientChildRolesForRoleAndDeclineThem(Guid roleId, Guid approvedBy)
+        {
+            List<RoleRoleTransientModel> affectedTransientChildRoles = new List<RoleRoleTransientModel>();
+            var allTransientChildRoles = await roleRoleTransientRepository.GetAllTransientChildRoleRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of child role IDs from this all the child rolee transients records.
+            var distinctTransientChildRoleIds = allTransientChildRoles.Select(trf => trf.ChildRoleId).Distinct();
+
+            foreach (var childRoleId in distinctTransientChildRoleIds)
+            {
+                var latestTransientChildRole = allTransientChildRoles.Where(tcr => tcr.ChildRoleId == childRoleId).LastOrDefault();
+
+                if (latestTransientChildRole.R_State == DatabaseRecordState.Released)
+                {
+                    // This must be a an old - already released transient child role, so ignore.
+                    continue;
+                }
+
+                try
+                {
+                    latestTransientChildRole.Decline(approvedBy.ToString());
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidStateTransitionException($"Error declining transient child role with ID '{latestTransientChildRole.ChildRoleId}' assignment updates for role with ID '{latestTransientChildRole.ParentRoleId}' owing to invalid state transition. Error: {e.Message}");
+                }
+
+                // Reset the ID of the now approved child role transition record so we can persist a new record with it's current state.
+                latestTransientChildRole.Id = Guid.Empty;
+
+                await roleRoleTransientRepository.CreateNewTransientStateForRoleChildRoleAsync(latestTransientChildRole);
+                affectedTransientChildRoles.Add(latestTransientChildRole);
+            }
+
+            return affectedTransientChildRoles;
+        }
+
         private async Task<List<RoleFunctionTransientModel>> FindTransientRoleFunctionsForRoleAndApproveThem(RoleModel role, Guid roleId, Guid approvedBy)
         {
             List<RoleFunctionTransientModel> affectedRoleFunctionTransientRecords = new List<RoleFunctionTransientModel>();
@@ -527,6 +584,44 @@ namespace za.co.grindrodbank.a3s.Services
             return affectedRoleFunctionTransientRecords;
         }
 
+        private async Task<List<RoleFunctionTransientModel>> FindTransientRoleFunctionsForRoleAndDeclineThem(Guid roleId, Guid approvedBy)
+        {
+            List<RoleFunctionTransientModel> affectedRoleFunctionTransientRecords = new List<RoleFunctionTransientModel>();
+            var allTransientRoleFunctions = await roleFunctionTransientRepository.GetAllTransientFunctionRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of function IDs from this all the role function transients records.
+            var distinctFunctionIds = allTransientRoleFunctions.Select(trf => trf.FunctionId).Distinct();
+
+            // Iterate through all the distinc function IDs, find the latest transient record for each function, and process accordingly.
+            foreach (var functionId in distinctFunctionIds)
+            {
+                var latestTransientRoleFunctionRecord = allTransientRoleFunctions.Where(trf => trf.FunctionId == functionId).LastOrDefault();
+
+                if (latestTransientRoleFunctionRecord.R_State == DatabaseRecordState.Released)
+                {
+                    // This must be an old - already released transient, so ignore.
+                    continue;
+                }
+
+                try
+                {
+                    latestTransientRoleFunctionRecord.Decline(approvedBy.ToString());
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidStateTransitionException($"Error declining transient role function for role '{latestTransientRoleFunctionRecord.RoleId} and function '{latestTransientRoleFunctionRecord.FunctionId} owing to invalid state transition. Error: {e.Message}''");
+                }
+
+                // reset the ID of the transient role function so a new one can be persisted from it's current state.
+                latestTransientRoleFunctionRecord.Id = Guid.Empty;
+
+                await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(latestTransientRoleFunctionRecord);
+                affectedRoleFunctionTransientRecords.Add(latestTransientRoleFunctionRecord);
+            }
+
+            return affectedRoleFunctionTransientRecords;
+        }
+
         private async Task <RoleTransientModel> ApproveRoleTransientState(Guid roleId, Guid approvedBy)
         {
             var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
@@ -545,6 +640,36 @@ namespace za.co.grindrodbank.a3s.Services
             try
             {
                 latestTransientRole.Approve(approvedBy.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new InvalidStateTransitionException(e.Message);
+            }
+
+            // Reset the Transient Role ID to force the creation of a new transient record.
+            latestTransientRole.Id = Guid.Empty;
+
+            return await roleTransientRepository.CreateAsync(latestTransientRole);
+        }
+
+        private async Task<RoleTransientModel> DeclineRoleTransientState(Guid roleId, Guid approvedBy)
+        {
+            var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
+            var latestTransientRole = transientRoles.LastOrDefault();
+
+            if (latestTransientRole == null)
+            {
+                throw new InvalidStateTransitionException($"Cannot approve role with ID '{roleId}' as it has no previous transient states.");
+            }
+            // Recall, that there may be no transient record changes when approving a role-function or role-child-role assignment change.
+            if (latestTransientRole.R_State == DatabaseRecordState.Released)
+            {
+                return latestTransientRole;
+            }
+
+            try
+            {
+                latestTransientRole.Decline(approvedBy.ToString());
             }
             catch (Exception e)
             {
