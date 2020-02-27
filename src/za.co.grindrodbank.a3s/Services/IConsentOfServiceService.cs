@@ -36,6 +36,6 @@ namespace za.co.grindrodbank.a3s.Services
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<Permission>> GetListOfPermissionsToConsentAsync(int userId);
+        Task<List<Permission>> GetListOfPermissionsToConsentAsync(Guid userId);
     }
 }

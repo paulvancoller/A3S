@@ -18,11 +18,13 @@ namespace za.co.grindrodbank.a3s.Services
     public class ConsentOfServiceService : IConsentOfServiceService
     {
         private readonly IConsentOfServiceRepository consentOfServiceRepository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public ConsentOfServiceService(IConsentOfServiceRepository consentOfServiceRepository, IMapper mapper)
+        public ConsentOfServiceService(IConsentOfServiceRepository consentOfServiceRepository, IUserRepository userRepository, IMapper mapper)
         {
             this.consentOfServiceRepository = consentOfServiceRepository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
@@ -40,9 +42,10 @@ namespace za.co.grindrodbank.a3s.Services
             return databaseObj != null;
         }
 
-        public Task<List<Permission>> GetListOfPermissionsToConsentAsync(int userId)
+        public async Task<List<Permission>> GetListOfPermissionsToConsentAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            var permissions = await consentOfServiceRepository.GetListOfPermissionsToConsentAsync(userId.ToString());
+            return mapper.Map<List<Permission>>(permissions);
         }
     }
 }

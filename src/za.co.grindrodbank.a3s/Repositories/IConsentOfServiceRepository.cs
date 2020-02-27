@@ -36,5 +36,13 @@ namespace za.co.grindrodbank.a3s.Repositories
         /// <param name="userId"></param>
         /// <returns></returns>
         Task<List<PermissionModel>> GetListOfPermissionsToConsentAsync(string userId);
+
+        /// <summary>
+        /// Consent user choice registration
+        /// </summary>
+        /// <param name="userModel">user data</param>
+        /// <param name="permissions">permissions</param>
+        /// <returns></returns>
+        Task<ConsentOfServiceUserAcceptanceModel> ConsentRegistration(UserModel userModel, List<PermissionModel> permissions);
     }
 }

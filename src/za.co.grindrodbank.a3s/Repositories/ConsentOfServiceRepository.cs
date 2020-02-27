@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using za.co.grindrodbank.a3s.Models;
 
 namespace za.co.grindrodbank.a3s.Repositories
@@ -55,25 +56,72 @@ namespace za.co.grindrodbank.a3s.Repositories
             if (user == null)
                 throw new ArgumentException("User Id not defined");
 
-            // get user permissions
-            var userRoles = user.UserRoles.Select(x => x.RoleId);
-            var roles = a3SContext.Role.Where(x => userRoles.Contains(x.Id)).Include(x => x.RoleFunctions).ToList();
-            
-            // role functions
-            var roleFunctions = a3SContext.RoleFunction.Select(x => x.FunctionId).ToList();//a3SContext.RoleFunction.Where(x => roles.Contains(x.RoleId)).ToList();
-            var functions = a3SContext.Function.Where(x => roleFunctions.Contains(x.Id)).ToList();
+            // get user roles
+            var userRoleIds = user.UserRoles.Select(x => x.RoleId).Distinct();
+            var userRoles = a3SContext.Role.Where(x => userRoleIds.Contains(x.Id)).Include(x => x.RoleFunctions).ToList();
 
-            // function permission
-            var functionPermissions = a3SContext.FunctionPermission.Include(x => x.Function).Include(x => x.Permission)
-                .ToList(); //
-            var permissions = functionPermissions.Select(x => x.Permission).ToList();
+            // get role functions
+            var userRoleFunctionsIds = userRoles.SelectMany(x => x.RoleFunctions).Select(x => x.FunctionId).Distinct();
+            var userRoleFunctions = a3SContext.Function.Where(x => userRoleFunctionsIds.Contains(x.Id))
+                .Include(x => x.FunctionPermissions).ThenInclude(x => x.Permission).ToList();
+            
+            // function permissions
+            var functionPermissions = userRoleFunctions.SelectMany(x => x.FunctionPermissions);
+            var userPermissions = functionPermissions.Select(x => x.Permission).ToList();
 
             // get already accepted consents
-            a3SContext.ConsentOfServiceUserAcceptance.Where(x => x.UserId == userId)
-                .Include(x => x.ConsentOfServiceAcceptancePermissions);
+            var userConsentAcceptance = a3SContext.ConsentOfServiceUserAcceptance.Where(x => x.UserId == userId)
+                .Include(x => x.ConsentOfServiceAcceptancePermissions).ThenInclude(x => x.Permission).ToList();
 
             // merge permissions
-            return new List<PermissionModel>(permissions);
+            foreach (var acceptance in userConsentAcceptance)
+            {
+                // get all already accepted permissions
+                var acceptedPermissionsIds = acceptance.ConsentOfServiceAcceptancePermissions.Select(x => x.PermissionId)
+                    .Distinct().ToList();
+
+                // remove all already accepted permissions
+                userPermissions.RemoveAll(x => acceptedPermissionsIds.Contains(x.Id));
+            }
+            
+            return new List<PermissionModel>(userPermissions);
+        }
+
+        public async Task<ConsentOfServiceUserAcceptanceModel> ConsentRegistration(UserModel userModel, List<PermissionModel> permissions)
+        {
+            // create consent
+            var consent = new ConsentOfServiceUserAcceptanceModel()
+            {
+                Email = userModel.Email,
+                FirstName = userModel.FirstName,
+                Surname = userModel.Surname,
+                UserId = userModel.Id,
+                UserName = userModel.UserName,
+                User = userModel,
+                ConsentOfServiceAcceptancePermissions = new List<ConsentOfServiceUserAcceptancePermissionsModel>()
+            };
+            
+            // add consent permissions
+            foreach (var permission in permissions)
+            {
+                consent.ConsentOfServiceAcceptancePermissions.Add(new ConsentOfServiceUserAcceptancePermissionsModel()
+                {
+                    ConsentAcceptance = consent,
+                    Permission = permission,
+                    PermissionId = permission.Id
+                });
+            }
+
+            // add
+            var addResult = await a3SContext.ConsentOfServiceUserAcceptance.AddAsync(consent);
+            var changes = await a3SContext.SaveChangesAsync();
+
+            if (changes != 1)
+            {
+                throw new NpgsqlException("Save consent failed");
+            }
+
+            return addResult.Entity;
         }
     }
 }
