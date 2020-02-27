@@ -232,7 +232,7 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 var functionIdFromSubmitList = roleSubmit.FunctionIds.Where(f => f == assignedFunctionId).FirstOrDefault();
 
-                if(functionIdFromSubmitList != null)
+                if(functionIdFromSubmitList != Guid.Empty)
                 {
                     // Continue if the currently assigned function is within the role submit function IDs.
                     continue;
