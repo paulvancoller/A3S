@@ -59,15 +59,6 @@ namespace za.co.grindrodbank.a3s.Services
 
                 await CaptureRoleFunctionAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById, roleSubmit.SubRealmId);
                 await CaptureChildRoleAssignmentChanges(role, newTransientRole.RoleId, roleSubmit, createdById, roleSubmit.SubRealmId);
-                // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
-                // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
-                //RoleModel newRole = mapper.Map<RoleModel>(roleSubmit);
-                ///newRole.ChangedBy = createdById;
-
-                // The potentially assigned sub-realm is used within the 'AssignFunctionsToRoleFromFunctionIdList' function, so perform sub-realm assignmentd first.
-                //await CheckForSubRealmAndAssignToRoleIfExists(newRole, roleSubmit);
-                //await AssignFunctionsToRoleFromFunctionIdList(newRole, roleSubmit.FunctionIds);
-                //await AssignRolesToRoleFromRolesIdList(newRole, roleSubmit.RoleIds);
 
                 // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
                 if(role.Id != Guid.Empty)
@@ -430,6 +421,47 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             return await roleTransientRepository.CreateAsync(newTransientRole);
+        }
+
+        public async Task<RoleTransientModel> ApproveRole(Guid roleId, Guid approvedBy)
+        {
+            var latestTransientRole = await ApproveRoleTransientState(roleId, approvedBy);
+            RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(latestTransientRole);
+
+
+            return latestTransientRole;
+        }
+
+
+
+        private async Task <RoleTransientModel> ApproveRoleTransientState(Guid roleId, Guid approvedBy)
+        {
+            var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
+            var latestTransientRole = transientRoles.LastOrDefault();
+
+            if(latestTransientRole == null)
+            {
+                throw new InvalidStateTransitionException($"Cannot approve role with ID '{roleId}' as it has no previous transient states.");
+            }
+            // Recall, that there may be no transient record changes when approving a role-function or role-child-role assignment change.
+            if(latestTransientRole.R_State == DatabaseRecordState.Released)
+            {
+                return latestTransientRole;
+            }
+
+            try
+            {
+                latestTransientRole.Approve(approvedBy.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new InvalidStateTransitionException(e.Message);
+            }
+
+            // Reset the Transient Role ID to force the creation of a new transient record.
+            latestTransientRole.Id = Guid.Empty;
+
+            return await roleTransientRepository.CreateAsync(latestTransientRole);
         }
 
         private async Task CheckSubRealmIdIsValid(Guid subRealmId)

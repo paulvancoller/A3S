@@ -36,9 +36,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             this.mapper = mapper;
         }
 
-        public override Task<IActionResult> ApproveRoleAsync([FromRoute, Required] Guid roleId)
+        public async override Task<IActionResult> ApproveRoleAsync([FromRoute, Required] Guid roleId)
         {
-            throw new NotImplementedException();
+            return Ok(await roleService.ApproveRole(roleId, ClaimsHelper.GetUserId(User)));
         }
 
         [Authorize(Policy = "permission:a3s.roles.create")]

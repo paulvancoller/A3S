@@ -20,5 +20,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<RoleTransient> CreateAsync(RoleSubmit roleSubmit, Guid createdById);
         Task<List<Role>> GetListAsync();
         Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
+        Task<RoleTransientModel> ApproveRole(Guid roleId, Guid approvedBy);
     }
 }
