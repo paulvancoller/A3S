@@ -189,7 +189,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             catch (Exception e)
             {
-                throw new InvalidStateTransitionException(e.Message);
+                throw new InvalidStateTransitionException($"Cannot capture child role assignment change for Parent Role with ID '{roleId}', ChildRole with ID '{childRoleId}'. Error: {e.Message}");
             }
 
             await roleRoleTransientRepository.CreateNewTransientStateForRoleChildRoleAsync(transientChildRole);
@@ -306,7 +306,7 @@ namespace za.co.grindrodbank.a3s.Services
                 transientRoleFunction.Capture(capturedBy.ToString());
             } catch (Exception e)
             {
-                throw new InvalidStateTransitionException(e.Message);
+                throw new InvalidStateTransitionException($"Cannot capture role function assignment change for role with ID '{roleId}', Function with ID '{functionId}'. Assignment Action: '{action}'. Error: {e.Message}");
             }
 
             await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(transientRoleFunction);
@@ -420,7 +420,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             catch (Exception e)
             {
-                throw new InvalidStateTransitionException(e.Message);
+                throw new InvalidStateTransitionException($"Cannot capture role with ID '{roleId}'. Error: {e.Message}");
             }
 
             // Only persist the new captured state of the role if it actually different.
@@ -553,6 +553,8 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // Reset the ID of the now approved child role transition record so we can persist a new record with it's current state.
                 latestTransientChildRole.Id = Guid.Empty;
+                // Clear the timestamp so a new one is created.
+                latestTransientChildRole.CreatedAt = new DateTime();
 
                 await roleRoleTransientRepository.CreateNewTransientStateForRoleChildRoleAsync(latestTransientChildRole);
                 affectedTransientChildRoles.Add(latestTransientChildRole);
@@ -631,6 +633,8 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // reset the ID of the transient role function so a new one can be persisted from it's current state.
                 latestTransientRoleFunctionRecord.Id = Guid.Empty;
+                // reset the createAt timestamp so a new one is created.
+                latestTransientRoleFunctionRecord.CreatedAt = new DateTime();
 
                 await roleFunctionTransientRepository.CreateNewTransientStateForRoleFunctionAsync(latestTransientRoleFunctionRecord);
                 affectedRoleFunctionTransientRecords.Add(latestTransientRoleFunctionRecord);
@@ -660,7 +664,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
             catch (Exception e)
             {
-                throw new InvalidStateTransitionException(e.Message);
+                throw new InvalidStateTransitionException($"Cannot approve a transient role state for role with ID '{roleId}'. Error: {e.Message}");
             }
 
             // Reset the Transient Role ID to force the creation of a new transient record.
@@ -692,11 +696,13 @@ namespace za.co.grindrodbank.a3s.Services
             }
             catch (Exception e)
             {
-                throw new InvalidStateTransitionException(e.Message);
+                throw new InvalidStateTransitionException($"Cannot decline a transient role state for role with ID '{roleId}'. Error: '{e.Message}'");
             }
 
             // Reset the Transient Role ID to force the creation of a new transient record.
             latestTransientRole.Id = Guid.Empty;
+            // Reset the created_at time so a newe timestamp is generated.
+            latestTransientRole.CreatedAt = new DateTime();
 
             return await roleTransientRepository.CreateAsync(latestTransientRole);
         }

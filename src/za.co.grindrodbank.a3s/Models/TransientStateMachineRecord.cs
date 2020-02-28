@@ -93,7 +93,9 @@ namespace za.co.grindrodbank.a3s.Models
 
             // Configure the Declined state
             stateMachine.Configure(DatabaseRecordState.Declined)
-                .OnEntryFrom(declineTrigger, OnDeclined);
+                .OnEntryFrom(declineTrigger, OnDeclined)
+                // Added this configuration to enable going from declined to captured.
+                .Permit(DatabaseRecordTrigger.Capture, DatabaseRecordState.Captured);
 
             // Configure the Released state
             stateMachine.Configure(DatabaseRecordState.Released)
