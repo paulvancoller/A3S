@@ -3301,6 +3301,21 @@ components:
     RoleId:
       type: string
       format: uuid
+      
+    TransientRoleId:
+      description: A unique ID for a transient role record.
+      type: string
+      format: uuid
+      
+    TransientRoleFunctionId:
+      description: A unique ID for a transient role function assignment record.
+      type: string
+      format: uuid
+      
+    TransientRoleChildRoleId:
+      description: A unique ID for a transient role function assignment record.
+      type: string
+      format: uuid
 
     Role:
       description: |
@@ -3363,11 +3378,65 @@ components:
       type: object
       properties:
         uuid:
+          $ref: '#/components/schemas/TransientRoleId'
+        roleId:
           $ref: '#/components/schemas/RoleId'
         name:
           type: string
         description:
           type: string
+        r_state:
+          type: string
+        action:
+          type: string
+        approvalCount:
+          type: integer
+        changedBy:
+          type: string
+          format: uuid
+        latestTransientRoleFunctions:
+          description: A list of the latest transient role function assignments for this transient role.
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleFunctionTransient'
+        latestTransientRoleChildRoles:
+          description: A list of the latest transient role - child role assignments for this transient role.
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleChildRoleTransient'
+          
+    RoleFunctionTransient:
+      description: |
+        Represents a transient state of a role function assignment.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TransientRoleFunctionId'
+        roleId:
+          $ref: '#/components/schemas/RoleId'
+        functionId:
+          $ref: '#/components/schemas/FunctionId'
+        r_state:
+          type: string
+        action:
+          type: string
+        approvalCount:
+          type: integer
+        changedBy:
+          type: string
+          format: uuid
+          
+    RoleChildRoleTransient:
+      description: |
+        Represents a transient state of a role - child role assignment.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TransientRoleChildRoleId'
+        roleId:
+          $ref: '#/components/schemas/RoleId'
+        childRoleId:
+          $ref: '#/components/schemas/RoleId'
         r_state:
           type: string
         action:

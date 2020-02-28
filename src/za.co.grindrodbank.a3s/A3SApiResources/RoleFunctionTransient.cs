@@ -27,15 +27,15 @@ using za.co.grindrodbank.a3s.Converters;
 namespace za.co.grindrodbank.a3s.A3SApiResources
 { 
     /// <summary>
-    /// Represents a transient state of a role. 
+    /// Represents a transient state of a role function assignment. 
     /// </summary>
     [DataContract]
-    public partial class RoleTransient : IEquatable<RoleTransient>
+    public partial class RoleFunctionTransient : IEquatable<RoleFunctionTransient>
     { 
         /// <summary>
-        /// A unique ID for a transient role record.
+        /// A unique ID for a transient role function assignment record.
         /// </summary>
-        /// <value>A unique ID for a transient role record.</value>
+        /// <value>A unique ID for a transient role function assignment record.</value>
         [DataMember(Name="uuid", EmitDefaultValue=false)]
         public Guid Uuid { get; set; }
 
@@ -46,16 +46,10 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public Guid RoleId { get; set; }
 
         /// <summary>
-        /// Gets or Sets Name
+        /// Gets or Sets FunctionId
         /// </summary>
-        [DataMember(Name="name", EmitDefaultValue=false)]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Description
-        /// </summary>
-        [DataMember(Name="description", EmitDefaultValue=false)]
-        public string Description { get; set; }
+        [DataMember(Name="functionId", EmitDefaultValue=false)]
+        public Guid FunctionId { get; set; }
 
         /// <summary>
         /// Gets or Sets RState
@@ -82,37 +76,20 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public Guid ChangedBy { get; set; }
 
         /// <summary>
-        /// A list of the latest transient role function assignments for this transient role.
-        /// </summary>
-        /// <value>A list of the latest transient role function assignments for this transient role.</value>
-        [DataMember(Name="latestTransientRoleFunctions", EmitDefaultValue=false)]
-        public List<RoleFunctionTransient> LatestTransientRoleFunctions { get; set; }
-
-        /// <summary>
-        /// A list of the latest transient role - child role assignments for this transient role.
-        /// </summary>
-        /// <value>A list of the latest transient role - child role assignments for this transient role.</value>
-        [DataMember(Name="latestTransientRoleChildRoles", EmitDefaultValue=false)]
-        public List<RoleChildRoleTransient> LatestTransientRoleChildRoles { get; set; }
-
-        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class RoleTransient {\n");
+            sb.Append("class RoleFunctionTransient {\n");
             sb.Append("  Uuid: ").Append(Uuid).Append("\n");
             sb.Append("  RoleId: ").Append(RoleId).Append("\n");
-            sb.Append("  Name: ").Append(Name).Append("\n");
-            sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  FunctionId: ").Append(FunctionId).Append("\n");
             sb.Append("  RState: ").Append(RState).Append("\n");
             sb.Append("  Action: ").Append(Action).Append("\n");
             sb.Append("  ApprovalCount: ").Append(ApprovalCount).Append("\n");
             sb.Append("  ChangedBy: ").Append(ChangedBy).Append("\n");
-            sb.Append("  LatestTransientRoleFunctions: ").Append(LatestTransientRoleFunctions).Append("\n");
-            sb.Append("  LatestTransientRoleChildRoles: ").Append(LatestTransientRoleChildRoles).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -135,15 +112,15 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((RoleTransient)obj);
+            return obj.GetType() == GetType() && Equals((RoleFunctionTransient)obj);
         }
 
         /// <summary>
-        /// Returns true if RoleTransient instances are equal
+        /// Returns true if RoleFunctionTransient instances are equal
         /// </summary>
-        /// <param name="other">Instance of RoleTransient to be compared</param>
+        /// <param name="other">Instance of RoleFunctionTransient to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(RoleTransient other)
+        public bool Equals(RoleFunctionTransient other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -160,14 +137,9 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     RoleId.Equals(other.RoleId)
                 ) && 
                 (
-                    Name == other.Name ||
-                    Name != null &&
-                    Name.Equals(other.Name)
-                ) && 
-                (
-                    Description == other.Description ||
-                    Description != null &&
-                    Description.Equals(other.Description)
+                    FunctionId == other.FunctionId ||
+                    FunctionId != null &&
+                    FunctionId.Equals(other.FunctionId)
                 ) && 
                 (
                     RState == other.RState ||
@@ -188,18 +160,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     ChangedBy == other.ChangedBy ||
                     ChangedBy != null &&
                     ChangedBy.Equals(other.ChangedBy)
-                ) && 
-                (
-                    LatestTransientRoleFunctions == other.LatestTransientRoleFunctions ||
-                    LatestTransientRoleFunctions != null &&
-                    other.LatestTransientRoleFunctions != null &&
-                    LatestTransientRoleFunctions.SequenceEqual(other.LatestTransientRoleFunctions)
-                ) && 
-                (
-                    LatestTransientRoleChildRoles == other.LatestTransientRoleChildRoles ||
-                    LatestTransientRoleChildRoles != null &&
-                    other.LatestTransientRoleChildRoles != null &&
-                    LatestTransientRoleChildRoles.SequenceEqual(other.LatestTransientRoleChildRoles)
                 );
         }
 
@@ -217,10 +177,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + Uuid.GetHashCode();
                     if (RoleId != null)
                     hashCode = hashCode * 59 + RoleId.GetHashCode();
-                    if (Name != null)
-                    hashCode = hashCode * 59 + Name.GetHashCode();
-                    if (Description != null)
-                    hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (FunctionId != null)
+                    hashCode = hashCode * 59 + FunctionId.GetHashCode();
                     if (RState != null)
                     hashCode = hashCode * 59 + RState.GetHashCode();
                     if (Action != null)
@@ -229,10 +187,6 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + ApprovalCount.GetHashCode();
                     if (ChangedBy != null)
                     hashCode = hashCode * 59 + ChangedBy.GetHashCode();
-                    if (LatestTransientRoleFunctions != null)
-                    hashCode = hashCode * 59 + LatestTransientRoleFunctions.GetHashCode();
-                    if (LatestTransientRoleChildRoles != null)
-                    hashCode = hashCode * 59 + LatestTransientRoleChildRoles.GetHashCode();
                 return hashCode;
             }
         }
@@ -240,12 +194,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(RoleTransient left, RoleTransient right)
+        public static bool operator ==(RoleFunctionTransient left, RoleFunctionTransient right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(RoleTransient left, RoleTransient right)
+        public static bool operator !=(RoleFunctionTransient left, RoleFunctionTransient right)
         {
             return !Equals(left, right);
         }

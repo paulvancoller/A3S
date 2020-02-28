@@ -5,6 +5,7 @@
  * **************************************************
  */
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -28,6 +29,12 @@ namespace za.co.grindrodbank.a3s.Models
 
         [Required]
         public Guid SubRealmId { get; set; }
+
+        [NotMapped]
+        public List<RoleFunctionTransientModel> LatestTransientRoleFunctions { get; set; }
+
+        [NotMapped]
+        public List<RoleRoleTransientModel> LatestTransientRoleChildRoles { get; set; }
 
         public RoleTransientModel()
         {

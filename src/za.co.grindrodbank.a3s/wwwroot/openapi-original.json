@@ -5076,6 +5076,21 @@
         "format" : "uuid",
         "type" : "string"
       },
+      "TransientRoleId" : {
+        "description" : "A unique ID for a transient role record.",
+        "format" : "uuid",
+        "type" : "string"
+      },
+      "TransientRoleFunctionId" : {
+        "description" : "A unique ID for a transient role function assignment record.",
+        "format" : "uuid",
+        "type" : "string"
+      },
+      "TransientRoleChildRoleId" : {
+        "description" : "A unique ID for a transient role function assignment record.",
+        "format" : "uuid",
+        "type" : "string"
+      },
       "Role" : {
         "description" : "A Role within A3S. Roles can have functions assigned to them. Roles can be assigned to users.\n",
         "example" : {
@@ -5168,16 +5183,56 @@
       "RoleTransient" : {
         "description" : "Represents a transient state of a role.\n",
         "example" : {
+          "latestTransientRoleChildRoles" : [ {
+            "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "r_state" : "r_state",
+            "action" : "action",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "childRoleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "approvalCount" : 1
+          }, {
+            "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "r_state" : "r_state",
+            "action" : "action",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "childRoleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "approvalCount" : 1
+          } ],
+          "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "name" : "name",
           "description" : "description",
           "r_state" : "r_state",
           "action" : "action",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "latestTransientRoleFunctions" : [ {
+            "functionId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "r_state" : "r_state",
+            "action" : "action",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "approvalCount" : 6
+          }, {
+            "functionId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "r_state" : "r_state",
+            "action" : "action",
+            "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "approvalCount" : 6
+          } ],
           "approvalCount" : 0
         },
         "properties" : {
           "uuid" : {
+            "description" : "A unique ID for a transient role record.",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roleId" : {
             "format" : "uuid",
             "type" : "string"
           },
@@ -5185,6 +5240,102 @@
             "type" : "string"
           },
           "description" : {
+            "type" : "string"
+          },
+          "r_state" : {
+            "type" : "string"
+          },
+          "action" : {
+            "type" : "string"
+          },
+          "approvalCount" : {
+            "type" : "integer"
+          },
+          "changedBy" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "latestTransientRoleFunctions" : {
+            "description" : "A list of the latest transient role function assignments for this transient role.",
+            "items" : {
+              "$ref" : "#/components/schemas/RoleFunctionTransient"
+            },
+            "type" : "array"
+          },
+          "latestTransientRoleChildRoles" : {
+            "description" : "A list of the latest transient role - child role assignments for this transient role.",
+            "items" : {
+              "$ref" : "#/components/schemas/RoleChildRoleTransient"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "RoleFunctionTransient" : {
+        "description" : "Represents a transient state of a role function assignment.\n",
+        "example" : {
+          "functionId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "r_state" : "r_state",
+          "action" : "action",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "approvalCount" : 6
+        },
+        "properties" : {
+          "uuid" : {
+            "description" : "A unique ID for a transient role function assignment record.",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roleId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "functionId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "r_state" : {
+            "type" : "string"
+          },
+          "action" : {
+            "type" : "string"
+          },
+          "approvalCount" : {
+            "type" : "integer"
+          },
+          "changedBy" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RoleChildRoleTransient" : {
+        "description" : "Represents a transient state of a role - child role assignment.\n",
+        "example" : {
+          "roleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "changedBy" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "r_state" : "r_state",
+          "action" : "action",
+          "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "childRoleId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "approvalCount" : 1
+        },
+        "properties" : {
+          "uuid" : {
+            "description" : "A unique ID for a transient role function assignment record.",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roleId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "childRoleId" : {
+            "format" : "uuid",
             "type" : "string"
           },
           "r_state" : {
