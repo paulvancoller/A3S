@@ -730,44 +730,6 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<RoleTransient> UpdateAsync(RoleSubmit roleSubmit, Guid roleId, Guid updatedById)
         {
             // Start transactions to allow complete rollback in case of an error
-            //InitSharedTransaction();
-
-            //try
-            //{
-            //    // Note: The mapper will only map the basic first level members of the RoleSubmit to the Role.
-            //    // The RoleSubmit contains a list of User UUIDs that will need to be found and converted into actual user representations.
-            //    RoleModel role = await roleRepository.GetByIdAsync(roleSubmit.Uuid);
-
-            //    if (role == null)
-            //        throw new ItemNotFoundException($"Role with ID '{roleSubmit.Uuid}' not found when attempting to update a role using this ID!");
-
-            //    if (role.Name != roleSubmit.Name)
-            //    {
-            //        // Confirm the new name is available
-            //        var checkExistingNameModel = await roleRepository.GetByNameAsync(roleSubmit.Name);
-            //        if (checkExistingNameModel != null)
-            //            throw new ItemNotProcessableException($"Role with name '{roleSubmit.Name}' already exists.");
-            //    }
-
-            //    role.Name = roleSubmit.Name;
-            //    role.Description = roleSubmit.Description;
-
-            //    await AssignFunctionsToRoleFromFunctionIdList(role, roleSubmit.FunctionIds);
-            //    // Note: Sub-realm of a role cannot be changed once created. Hence the absence of a call to 'CheckForSubRealmAndAssignToRoleIfExists'.
-            //    await AssignRolesToRoleFromRolesIdList(role, roleSubmit.RoleIds);
-
-            //    // All successful
-            //    CommitTransaction();
-
-            //    return mapper.Map<Role>(await roleRepository.UpdateAsync(role));
-            //}
-            //catch
-            //{
-            //    RollbackTransaction();
-            //    throw;
-            //}
-
-            // Start transactions to allow complete rollback in case of an error
             InitSharedTransaction();
 
             try
@@ -812,33 +774,6 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        private async Task AssignFunctionsToRoleFromFunctionIdList(RoleModel role, List<Guid> functionIds)
-        {
-            // The user associations for this role are going to be created or overwritten, its easier to rebuild it that apply a diff.
-            role.RoleFunctions = new List<RoleFunctionModel>();
-
-            if (functionIds != null && functionIds.Count > 0)
-            {
-                foreach (var functionId in functionIds)
-                {
-                    var function = await functionRepository.GetByIdAsync(functionId);
-
-                    if (function == null)
-                    {
-                        throw new ItemNotFoundException("Unable to find a function with ID: " + functionId + "when attempting to assign it to a role.");
-                    }
-
-                    ConfirmSubRealmAssociation(role.SubRealm == null ? Guid.Empty : role.SubRealm.Id, function);
-
-                    role.RoleFunctions.Add(new RoleFunctionModel
-                    {
-                        Role = role,
-                        Function = function
-                    });
-                }
-            }
-        }
-
         private void ConfirmSubRealmAssociation(Guid roleSubRealmId, FunctionModel function)
         {
             // If there is a Sub-Realm associated with role, we must ensure that the function we are attempting to add to the role is associated with the same sub realm.
@@ -877,68 +812,6 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        /// <summary>
-        /// Assigns child roles to a role from a List of child role IDs. This methid will check that there is a legitimate role associated with each supplied
-        /// Role ID within the list.
-        /// </summary>
-        /// <param name="roleModel"></param>
-        /// <param name="roleIds"></param>
-        /// <returns></returns>
-        private async Task AssignRolesToRoleFromRolesIdList(RoleModel roleModel, List<Guid> roleIds)
-        {
-            // Child Roles are not mandatory. If the role IDs are null, return without resetting their state
-            if (roleIds == null)
-            {
-                return;
-            }
-
-            // If the child roles element is set, reset the association list, even if there are no elements in it.
-            roleModel.ChildRoles = new List<RoleRoleModel>();
-
-            if (roleIds.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var roleIdToAddAsChildRole in roleIds)
-            {
-                var roleToAddAsChildRole = await roleRepository.GetByIdAsync(roleIdToAddAsChildRole);
-
-                if (roleToAddAsChildRole == null)
-                {
-                    throw new ItemNotFoundException($"Unable to find role with ID: '{roleIdToAddAsChildRole}' when attempting to assign this role as a child of role: '{roleModel.Name}'.");
-                }
-
-                // Only non-compound roles can be added to compound roles. Therefore, prior to adding the potential child role to the parent role, it must be
-                // asserted that the child row has no child roles attached to it.
-                if (roleToAddAsChildRole.ChildRoles.Count > 0)
-                {
-                    // Note. This function is called by create role and update role functions within this class. Therefore, the 'roleModel' object will not have an ID set if called from the create context. Use it's name.
-                    throw new ItemNotProcessableException($"Assigning a compound role as a child of a role is prohibited. Attempting to add Role '{roleToAddAsChildRole.Name} with ID: '{roleToAddAsChildRole.Id}' as a child role of Role: '{roleModel.Name}'. However, it already has '{roleToAddAsChildRole.ChildRoles.Count}' child roles assigned to it! Not adding it.");
-                }
-
-                ConfirmSubRealmAssociation(roleModel.Id, roleToAddAsChildRole);
-
-                roleModel.ChildRoles.Add(new RoleRoleModel
-                {
-                    ParentRole = roleModel,
-                    ChildRole = roleToAddAsChildRole
-                });
-            }
-        }
-
-        private async Task CheckForSubRealmAndAssignToRoleIfExists(RoleModel role, RoleSubmit roleSubmit)
-        {
-            // Recall that submit models with empty GUIDs will not be null but rather Guid.Empty.
-            if (roleSubmit.SubRealmId == null || roleSubmit.SubRealmId == Guid.Empty)
-            {
-                return;
-            }
-
-            var existingSubRealm = await subRealmRepository.GetByIdAsync(roleSubmit.SubRealmId, false);
-            role.SubRealm = existingSubRealm ?? throw new ItemNotFoundException($"Sub-realm with ID '{roleSubmit.SubRealmId}' does not exist.");
-        }
-
         public void InitSharedTransaction()
         {
             userRepository.InitSharedTransaction();
@@ -946,6 +819,8 @@ namespace za.co.grindrodbank.a3s.Services
             functionRepository.InitSharedTransaction();
             subRealmRepository.InitSharedTransaction();
             roleTransientRepository.InitSharedTransaction();
+            roleFunctionTransientRepository.InitSharedTransaction();
+            roleRoleTransientRepository.InitSharedTransaction();
         }
 
         public void CommitTransaction()
@@ -955,6 +830,8 @@ namespace za.co.grindrodbank.a3s.Services
             functionRepository.CommitTransaction();
             subRealmRepository.CommitTransaction();
             roleTransientRepository.CommitTransaction();
+            roleFunctionTransientRepository.CommitTransaction();
+            roleRoleTransientRepository.CommitTransaction();
         }
 
         public void RollbackTransaction()
@@ -964,6 +841,8 @@ namespace za.co.grindrodbank.a3s.Services
             functionRepository.RollbackTransaction();
             subRealmRepository.RollbackTransaction();
             roleTransientRepository.RollbackTransaction();
+            roleFunctionTransientRepository.RollbackTransaction();
+            roleRoleTransientRepository.RollbackTransaction();
         }
 
         public async Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
