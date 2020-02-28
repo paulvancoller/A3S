@@ -37,6 +37,8 @@ Body:
 |agreementFileData|A base64 string with the terms of service archive file binary contents|
 |autoUpdate|Indicates that the newly created entry should replace any previous version links to teams.|
 
+The `a3s.termsOfService.create` permission is required to use this end point.
+
 #### Archive file
 
 The terms of service archive file must conform to the following rules:
@@ -44,6 +46,10 @@ The terms of service archive file must conform to the following rules:
 * It must be a tarball, meaning a .tar.gz file.
 * It must contain a `terms_of_service.html` file, containing the wording of the agreement.
 * It must contain a `terms_of_service.css` file, containing the style sheet information for the agreement.
+
+An example file can be downloaded and inspected [here](./resources/terms_of_service.tar.gz).
+
+*Note: For now, no other files inside the archive will be used. Images will need to be specified as base64 strings.*
 
 To create a tarball and retrieve it's base 64 string value in *Nix:
 
@@ -54,7 +60,6 @@ To create a tarball and retrieve it's base 64 string value in *Nix:
 
 3. Enter the following command to get the base64 string of the file:
 `openssl base64 -in terms_of_service.tar.gz`
-
 
 ### 2. Record the new termsOfServiceId
 
@@ -71,14 +76,14 @@ A successful create in step 1 will return the following response:
 }
 ```
 
-Map the returned uuid into the next call's termsOfServiceId property.
+Map the returned uuid into the next call's termsOfServiceId property. The `a3s.termsOfService.create` permission is required to use this end point.
 
 ### 3. Update a team with the new termsOfServiceId
 
-Update an existing user (or create a new user) by calling the `UpdateTeam` API method:
+Update an existing team (or create a new user) by calling the `UpdateTeam` API method:
 
 ```JSON
-URL: {{a3s-host}}/teams
+URL: {{a3s-host}}/teams/{{team-guid}}
 Method: PUT
 Body:
 {
@@ -90,6 +95,8 @@ Body:
  "termsOfServiceId": "{{termsOfServiceId}}"
 }
 ```
+
+The `a3s.teams.update` permission is required to use this end point.
 
 #### Body properties
 
