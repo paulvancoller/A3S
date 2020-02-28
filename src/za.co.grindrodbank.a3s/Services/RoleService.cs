@@ -51,7 +51,7 @@ namespace za.co.grindrodbank.a3s.Services
                 if (existingRole != null)
                     throw new ItemNotProcessableException($"Role with Name '{roleSubmit.Name}' already exist.");
 
-                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(Guid.Empty, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, "create", createdById);
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(Guid.Empty, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, TransientAction.Create, createdById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
                 // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
@@ -101,7 +101,7 @@ namespace za.co.grindrodbank.a3s.Services
                     continue;
                 }
 
-                var transientChildRole = await CaptureChildRoleAssignmentChange(roleId, childRoleId, createdBy, subRealmId, "create");
+                var transientChildRole = await CaptureChildRoleAssignmentChange(roleId, childRoleId, createdBy, subRealmId, TransientAction.Create);
                 CheckForAndProcessReleasedChildRoleTransientRecord(role, transientChildRole);
                 latestRoleChildRoleTransients.Add(transientChildRole);
             }
@@ -126,7 +126,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // If this portion of the execution is reached, we have a child this is currently assigned to the role, but no longer
                 // appears within the newly declared associated child roles list within the role submit. Capture a deletion of the currently aassigned child role.
-                var removeCapturedTransientChildRole = await CaptureChildRoleAssignmentChange(roleId, assignedChildRoleId, capturedBy, subRealmId, "delete");
+                var removeCapturedTransientChildRole = await CaptureChildRoleAssignmentChange(roleId, assignedChildRoleId, capturedBy, subRealmId, TransientAction.Delete);
                 CheckForAndProcessReleasedChildRoleTransientRecord(roleModel, removeCapturedTransientChildRole);
                 latestRoleChildRoleTransients.Add(removeCapturedTransientChildRole);
             }
@@ -148,7 +148,7 @@ namespace za.co.grindrodbank.a3s.Services
             // Ensure there is a role functions relation.
             roleModel.ChildRoles ??= new List<RoleRoleModel>();
 
-            if (childRoleTransientModel.Action == "create")
+            if (childRoleTransientModel.Action == TransientAction.Create)
             {
                 roleModel.ChildRoles.Add(new RoleRoleModel
                 {
@@ -165,7 +165,7 @@ namespace za.co.grindrodbank.a3s.Services
         }
 
 
-        private async Task<RoleRoleTransientModel> CaptureChildRoleAssignmentChange(Guid roleId, Guid childRoleId, Guid capturedBy, Guid subRealmId, string action)
+        private async Task<RoleRoleTransientModel> CaptureChildRoleAssignmentChange(Guid roleId, Guid childRoleId, Guid capturedBy, Guid subRealmId, TransientAction action)
         {
             RoleModel childRole = await roleRepository.GetByIdAsync(childRoleId);
 
@@ -225,7 +225,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 if(existingRoleFunction == null)
                 {
-                    var newTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, functionId, capturedBy, "create", roleSubRealm);
+                    var newTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, functionId, capturedBy, TransientAction.Create, roleSubRealm);
                     CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, newTransientRoleFunctionRecord);
                     affectedRoleFunctionTransientRecords.Add(newTransientRoleFunctionRecord);
                 }
@@ -253,7 +253,7 @@ namespace za.co.grindrodbank.a3s.Services
 
                 // If this portion of the execution is reached, we have a function this is currently assigned to the role. but no longer
                 // appears within the newly declared associated functions list within the role submit. Capture a deletion of the currently aassigned function.
-                var removedTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, assignedFunctionId, capturedBy, "delete", roleSubmit.SubRealmId);
+                var removedTransientRoleFunctionRecord = await CaptureRoleFunctionAssignmentChange(roleId, assignedFunctionId, capturedBy, TransientAction.Delete, roleSubmit.SubRealmId);
                 CheckForAndProcessReleasedRoleFunctionTransientRecord(roleModel, removedTransientRoleFunctionRecord);
                 affectedRoleFunctionTransientRecords.Add(removedTransientRoleFunctionRecord);
             }
@@ -277,7 +277,7 @@ namespace za.co.grindrodbank.a3s.Services
             // Ensure there is a role functions relation.
             roleModel.RoleFunctions ??= new List<RoleFunctionModel>();
 
-            if(roleFunctionTransientModel.Action == "create")
+            if(roleFunctionTransientModel.Action == TransientAction.Create)
             {
                 roleModel.RoleFunctions.Add(new RoleFunctionModel
                 {
@@ -293,7 +293,7 @@ namespace za.co.grindrodbank.a3s.Services
             roleModel.RoleFunctions.Remove(roleFunctionToRemove);
         }
 
-        private async Task<RoleFunctionTransientModel> CaptureRoleFunctionAssignmentChange(Guid roleId, Guid functionId, Guid capturedBy, string action, Guid roleSubRealmId)
+        private async Task<RoleFunctionTransientModel> CaptureRoleFunctionAssignmentChange(Guid roleId, Guid functionId, Guid capturedBy, TransientAction action, Guid roleSubRealmId)
         {
             var functionToAdd = await functionRepository.GetByIdAsync(functionId);
 
@@ -341,18 +341,18 @@ namespace za.co.grindrodbank.a3s.Services
 
             roleToUpdate = await roleRepository.GetByIdAsync(roleTransientModel.RoleId);
 
-            if(roleToUpdate == null && roleTransientModel.Action != "create")
+            if(roleToUpdate == null && roleTransientModel.Action != TransientAction.Create)
             {
                 throw new ItemNotFoundException($"Role with ID '{roleTransientModel.RoleId}' not found when attempting to release role.");
             }
 
-            if(roleTransientModel.Action == "modify")
+            if(roleTransientModel.Action == TransientAction.Modify)
             {
                 await UpdateRoleWithCurrentTransientState(roleToUpdate, roleTransientModel);
                 return roleToUpdate;
             }
 
-            if(roleTransientModel.Action == "delete")
+            if(roleTransientModel.Action == TransientAction.Delete)
             {
                 await roleRepository.DeleteAsync(roleToUpdate);
                 return roleToUpdate;
@@ -401,7 +401,7 @@ namespace za.co.grindrodbank.a3s.Services
             await roleRepository.UpdateAsync(roleToRelease);
         }
 
-        private async Task<RoleTransientModel> CaptureTransientRoleAsync(Guid roleId, string roleName, string roleDescription, Guid subRealmId, string action, Guid createdById)
+        private async Task<RoleTransientModel> CaptureTransientRoleAsync(Guid roleId, string roleName, string roleDescription, Guid subRealmId, TransientAction action, Guid createdById)
         {
             RoleTransientModel latestTransientRole = null;
 
@@ -759,7 +759,7 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Role with ID '{roleId}' not found.");
                 }
 
-                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(roleId, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, "modify", updatedById);
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(roleId, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, TransientAction.Modify, updatedById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
                 // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.

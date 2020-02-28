@@ -25,6 +25,13 @@ namespace za.co.grindrodbank.a3s.Models
             Declined
         }
 
+        public enum TransientAction
+        {
+            Create,
+            Modify,
+            Delete
+        }
+
         public enum DatabaseRecordTrigger
         {
             Pend,
@@ -52,7 +59,9 @@ namespace za.co.grindrodbank.a3s.Models
 
         private int RequiredApprovalCount { get; set; }
 
-        public string Action { get; set; }
+        [Required]
+        [Column(TypeName = "text")]
+        public TransientAction Action { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
