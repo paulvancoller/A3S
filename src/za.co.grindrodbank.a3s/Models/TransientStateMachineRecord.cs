@@ -77,7 +77,7 @@ namespace za.co.grindrodbank.a3s.Models
             // Configure the Captured state
             stateMachine.Configure(DatabaseRecordState.Captured)
                 .OnEntryFrom(captureTrigger, OnCaptured)
-                .PermitReentry(DatabaseRecordTrigger.Capture)
+                //.PermitReentry(DatabaseRecordTrigger.Capture)
                 .Permit(DatabaseRecordTrigger.Pend, DatabaseRecordState.Pending)
                 .Permit(DatabaseRecordTrigger.Approve, DatabaseRecordState.Approved)
                 .Permit(DatabaseRecordTrigger.Decline, DatabaseRecordState.Declined);

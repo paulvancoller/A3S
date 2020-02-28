@@ -423,7 +423,20 @@ namespace za.co.grindrodbank.a3s.Services
                 throw new InvalidStateTransitionException(e.Message);
             }
 
-            return await roleTransientRepository.CreateAsync(newTransientRole);
+            // Only persist the new captured state of the role if it actually different.
+            return IsCapturedRoleDifferentFromLatestTransientRoleState(latestTransientRole, roleName, roleDescription, subRealmId) ? await roleTransientRepository.CreateAsync(newTransientRole) : latestTransientRole;
+        }
+
+        private bool IsCapturedRoleDifferentFromLatestTransientRoleState(RoleTransientModel latestTransientRoleState, string currentRoleName, string currentRoleDescription, Guid currentRoleSubRealmId)
+        {
+            if(latestTransientRoleState == null)
+            {
+                return true;
+            }
+
+            return (latestTransientRoleState.Name != currentRoleName
+                   || latestTransientRoleState.Description != currentRoleDescription
+                   || latestTransientRoleState.SubRealmId != currentRoleSubRealmId);
         }
 
         public async Task<RoleTransient> DeclineRole(Guid roleId, Guid approvedBy)
