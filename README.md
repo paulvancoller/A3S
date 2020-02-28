@@ -41,7 +41,7 @@ Classic AAA systems limits access-control to roles and the applications need to 
 * Single-Sign-On allows your user to log in once and be authenticated across multiple applications.
 * LDAP and Active Directory connectivity is supported to allow for easy integration into existing user stores. *[Learn more](./doc/ldap-setup.md)*
 * A3S has centralized management for users via a friendly API.
-* Two-factor authentication with Time-based One-time Password (TOTP) allows even more secure user authentication.
+* Two-factor authentication with Time-based One-time Password (TOTP) allows even more secure user authentication. *[Learn more](./doc/two-factor-auth.md)*
 * Terms of Service functionality allows agreement-based authentication. *[Learn more](./doc/terms-of-service.md)*
 
 ---
