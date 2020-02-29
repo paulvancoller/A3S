@@ -62,6 +62,9 @@ namespace za.co.grindrodbank.a3s.Services
                 client.IdentityTokenLifetime = oauth2ClientSubmit.IdentityTokenLifetime;
             }
 
+            client.RefreshTokenExpiration = (int)TokenExpiration.Absolute;
+            client.RefreshTokenUsage = (int)TokenUsage.OneTimeOnly;
+
             ApplyClientAllowedScopes(client, oauth2ClientSubmit);
             ApplyClientAllowedGrantTypes(client, oauth2ClientSubmit);
             ApplyClientSecrets(client, oauth2ClientSubmit);
