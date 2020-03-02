@@ -711,11 +711,14 @@ namespace za.co.grindrodbank.a3s.Services
             {
                 throw new InvalidStateTransitionException($"Cannot approve role with ID '{roleId}' as it has no previous transient states.");
             }
+
             // Recall, that there may be no transient record changes when approving a role-function or role-child-role assignment change.
             if(latestTransientRole.R_State == DatabaseRecordState.Released)
             {
                 return latestTransientRole;
             }
+
+            EnsureRoleApproverIsDistinct(transientRoles, approvedBy);
 
             try
             {
@@ -732,6 +735,36 @@ namespace za.co.grindrodbank.a3s.Services
             latestTransientRole.CreatedAt = new DateTime();
 
             return await roleTransientRepository.CreateAsync(latestTransientRole);
+        }
+
+        private List<RoleTransientModel> GetLatestActiveTransientRolesSincePreviousReleasedState(List<RoleTransientModel> allTransientRoles)
+        {
+            List<RoleTransientModel> lastestActiveTransients = new List<RoleTransientModel>();
+
+            // Iterate backwards through the transients to get to the last 'released' or 'declined', or the the beginning of the
+            // collection if the role was captured for the first time.
+            for (int i = allTransientRoles.Count - 1; i >= 0; i--)
+            {
+                if(allTransientRoles.ElementAt(i).R_State == DatabaseRecordState.Released || allTransientRoles.ElementAt(i).R_State == DatabaseRecordState.Declined)
+                {
+                    return lastestActiveTransients;
+                }
+
+                lastestActiveTransients.Add(allTransientRoles.ElementAt(i));
+            }
+
+            return lastestActiveTransients;
+        }
+
+        private void EnsureRoleApproverIsDistinct(List<RoleTransientModel> transientRoles, Guid approverId)
+        {
+            var latestActiveTransientRoles = GetLatestActiveTransientRolesSincePreviousReleasedState(transientRoles);
+            var transientRoleWithApprover = latestActiveTransientRoles.Where(rt => rt.ChangedBy == approverId && rt.R_State == DatabaseRecordState.Approved ).FirstOrDefault();
+
+            if(transientRoleWithApprover != null)
+            {
+                throw new ItemNotProcessableException($"Cannot approve role as it has already been approved by this approver.");
+            }
         }
 
         private async Task<RoleTransientModel> DeclineRoleTransientState(Guid roleId, Guid approvedBy)
