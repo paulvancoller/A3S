@@ -205,12 +205,32 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task<List<RoleFunctionTransientModel>> CaptureRoleFunctionAssignmentChanges(RoleModel roleModel, Guid roleId, RoleSubmit roleSubmit, Guid capturedBy, Guid roleSubRealmId)
         {
+            await CheckIfThereAreExistingCapturedOrApprovedTransientRoleFunctionsForRoleAndThrowExceptionIfThereAre(roleId);
             List<RoleFunctionTransientModel> affectedRoleFunctionTransientRecords = new List<RoleFunctionTransientModel>();
 
             await DetectAndCaptureNewRoleFunctionsAssignments(roleModel, roleId, roleSubmit, capturedBy, roleSubRealmId, affectedRoleFunctionTransientRecords);
             await DetectAndCaptureFunctionsRemovedFromRole(roleModel, roleId, roleSubmit, capturedBy, affectedRoleFunctionTransientRecords);
 
             return affectedRoleFunctionTransientRecords;
+        }
+
+        private async Task CheckIfThereAreExistingCapturedOrApprovedTransientRoleFunctionsForRoleAndThrowExceptionIfThereAre(Guid roleId)
+        {
+            var allTransientRoleFunctions = await roleFunctionTransientRepository.GetAllTransientFunctionRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of function IDs from this all the role function transients records.
+            var distinctFunctionIds = allTransientRoleFunctions.Select(trf => trf.FunctionId).Distinct();
+
+            // Iterate through all the distinc function IDs, find the latest transient record for each function, and process accordingly.
+            foreach (var functionId in distinctFunctionIds)
+            {
+                var latestTransientRoleFunctionRecord = allTransientRoleFunctions.Where(trf => trf.FunctionId == functionId).LastOrDefault();
+
+                if (latestTransientRoleFunctionRecord.R_State == DatabaseRecordState.Captured || latestTransientRoleFunctionRecord.R_State == DatabaseRecordState.Approved)
+                {
+                    throw new ItemNotProcessableException($"Cannot capture new state for role with ID '{roleId}' as there is a transient role function for function with ID '{functionId}' in a '{latestTransientRoleFunctionRecord.R_State}' state.");
+                }
+            }
         }
  
 
