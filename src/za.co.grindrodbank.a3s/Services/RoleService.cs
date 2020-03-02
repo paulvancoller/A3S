@@ -80,12 +80,33 @@ namespace za.co.grindrodbank.a3s.Services
 
         private async Task<List<RoleRoleTransientModel>> CaptureChildRoleAssignmentChanges(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId)
         {
+            await CheckIfThereAreExistingCapturedOrApprovedTransientChildRolesForRoleAndThrowExceptionIfThereAre(roleId);
+
             List<RoleRoleTransientModel> latestRoleChildRoleTransients = new List<RoleRoleTransientModel>();
 
             await DetectAndCaptureNewChildRoleAssignments(role, roleId, roleSubmit, createdBy, subRealmId, latestRoleChildRoleTransients);
             await DetectAndCaptureChildRolesRemovedFromRole(role, roleId, roleSubmit, createdBy, subRealmId, latestRoleChildRoleTransients);
 
             return latestRoleChildRoleTransients;
+        }
+
+        private async Task CheckIfThereAreExistingCapturedOrApprovedTransientChildRolesForRoleAndThrowExceptionIfThereAre(Guid roleId)
+        {
+            List<RoleRoleTransientModel> affectedTransientChildRoles = new List<RoleRoleTransientModel>();
+            var allTransientChildRoles = await roleRoleTransientRepository.GetAllTransientChildRoleRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of child role IDs from this all the child rolee transients records.
+            var distinctTransientChildRoleIds = allTransientChildRoles.Select(trf => trf.ChildRoleId).Distinct();
+
+            foreach (var childRoleId in distinctTransientChildRoleIds)
+            {
+                var latestTransientChildRole = allTransientChildRoles.Where(tcr => tcr.ChildRoleId == childRoleId).LastOrDefault();
+
+                if (latestTransientChildRole.R_State == DatabaseRecordState.Captured || latestTransientChildRole.R_State == DatabaseRecordState.Approved)
+                {
+                    throw new ItemNotProcessableException($"Unable to capture new state for role with ID '{roleId}' as there is a transient child role with ID '{childRoleId}' that is still in an '{latestTransientChildRole.R_State}' state.");
+                }
+            }
         }
 
         private async Task DetectAndCaptureNewChildRoleAssignments(RoleModel role, Guid roleId, RoleSubmit roleSubmit, Guid createdBy, Guid subRealmId, List<RoleRoleTransientModel> latestRoleChildRoleTransients)
