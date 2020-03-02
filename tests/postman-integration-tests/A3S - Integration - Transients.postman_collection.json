@@ -1120,6 +1120,72 @@
 					"response": []
 				},
 				{
+					"name": "GetRole By UUID - Role now released",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that role is correctly structured.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('roleIds');",
+									"    pm.expect(jsonData).to.have.property('functionIds');",
+									"});",
+									"",
+									"pm.test(\"Check that the correct role was returned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.uuid).to.eql(pm.environment.get('role-guid'));",
+									"    pm.expect(jsonData.name).to.eql(\"test-role-new 55\");",
+									"    pm.expect(jsonData.description).to.eql(\"Test new role description 55\");",
+									"    pm.expect(jsonData.functionIds.length).to.eql(0);",
+									"    pm.expect(jsonData.roleIds.length).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Gets a role by it's UUID."
+					},
+					"response": []
+				},
+				{
 					"name": "CreateRole - 1 Function - 1 Child Role - Expect New TransientRole",
 					"event": [
 						{
@@ -1216,6 +1282,54 @@
 							]
 						},
 						"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+					},
+					"response": []
+				},
+				{
+					"name": "GetRole By UUID - Role Not Released - Expect 404 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is 404 - Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Gets a role by it's UUID."
 					},
 					"response": []
 				},
@@ -1494,6 +1608,74 @@
 							]
 						},
 						"description": "Approves role and all it's current transient states."
+					},
+					"response": []
+				},
+				{
+					"name": "GetRole By UUID - Role now released",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+								"exec": [
+									"pm.test(\"Response is OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check that role is correctly structured.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('uuid');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('roleIds');",
+									"    pm.expect(jsonData).to.have.property('functionIds');",
+									"});",
+									"",
+									"pm.test(\"Check that the correct role was returned.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.uuid).to.eql(pm.environment.get('role-guid'));",
+									"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+									"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+									"    pm.expect(jsonData.functionIds.length).to.eql(1);",
+									"    pm.expect(jsonData.functionIds[0]).to.eql(pm.environment.get('function-guid'));",
+									"    pm.expect(jsonData.roleIds.length).to.eql(1);",
+									"    pm.expect(jsonData.roleIds[0]).to.eql(pm.environment.get('child-role-guid'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "{{session_access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{a3s-host}}/roles/{{role-guid}}",
+							"host": [
+								"{{a3s-host}}"
+							],
+							"path": [
+								"roles",
+								"{{role-guid}}"
+							]
+						},
+						"description": "Gets a role by it's UUID."
 					},
 					"response": []
 				}
