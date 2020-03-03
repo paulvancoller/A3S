@@ -210,7 +210,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the updating of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/roles/{roleId}/transients", Name = "UpdateRole")]
+        [Route("/roles/{roleId}", Name = "UpdateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]

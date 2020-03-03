@@ -1629,87 +1629,6 @@
         },
         "summary" : "Get a role.",
         "tags" : [ "Role" ]
-      }
-    },
-    "/roles/{roleId}/transients" : {
-      "get" : {
-        "description" : "Get the transient records for a role by the role UUID.",
-        "operationId" : "getRoleTransients",
-        "parameters" : [ {
-          "description" : "The UUID of the role.",
-          "explode" : false,
-          "in" : "path",
-          "name" : "roleId",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/components/schemas/RoleId"
-          },
-          "style" : "simple"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RoleTransient"
-                }
-              }
-            },
-            "description" : "OK."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Not authenticated."
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Forbidden - You are not authorized to access this role."
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "Role not found."
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description" : "An unexpected error occurred"
-          }
-        },
-        "summary" : "Get a role's transient states.",
-        "tags" : [ "Role" ]
       },
       "put" : {
         "description" : "Update a role by its UUID.",
@@ -1807,6 +1726,87 @@
           }
         },
         "summary" : "Captures an update to a role.",
+        "tags" : [ "Role" ]
+      }
+    },
+    "/roles/{roleId}/transients" : {
+      "get" : {
+        "description" : "Get the transient records for a role by the role UUID.",
+        "operationId" : "getRoleTransients",
+        "parameters" : [ {
+          "description" : "The UUID of the role.",
+          "explode" : false,
+          "in" : "path",
+          "name" : "roleId",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/RoleId"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleTransient"
+                }
+              }
+            },
+            "description" : "OK."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Not authenticated."
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Forbidden - You are not authorized to access this role."
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Role not found."
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "An unexpected error occurred"
+          }
+        },
+        "summary" : "Get a role's transient states.",
         "tags" : [ "Role" ]
       }
     },

@@ -533,7 +533,7 @@ namespace za.co.grindrodbank.a3s.Services
                 latestTransientRole.LatestTransientRoleFunctions = await FindTransientRoleFunctionsForRoleAndApproveThem(role, roleId, approvedBy);
                 latestTransientRole.LatestTransientRoleChildRoles = await FindTransientChildRolesForRoleAndApproveThem(role, roleId, approvedBy);
 
-                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
+                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID and the role is not being deleted!
                 if (role.Id != Guid.Empty && (latestTransientRole.Action != TransientAction.Delete))
                 {
                     await roleRepository.UpdateAsync(role);
@@ -987,6 +987,94 @@ namespace za.co.grindrodbank.a3s.Services
                 RollbackTransaction();
                 throw;
             }
+        }
+
+        public async Task<LatestActiveTransientsForRoleModel> GetLatestRoleTransientsAsync(Guid roleId)
+        {
+            LatestActiveTransientsForRoleModel latestActiveTransientsForRoleModel = new LatestActiveTransientsForRoleModel();
+
+            var allTransientsForRole = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
+            latestActiveTransientsForRoleModel.LatestActiveRoleTransients = GetLatestActiveTransientRolesSincePreviousReleasedState(allTransientsForRole);
+            latestActiveTransientsForRoleModel.LatestActiveRoleFunctionTransients = await GetLatestActiveTransientRoleFunctionsSincePreviousReleasedState(roleId);
+            latestActiveTransientsForRoleModel.LatestActiveChildRoleTransients = await GetLatestActiveTransientChildRolesSincePreviousReleasedState(roleId);
+
+            return latestActiveTransientsForRoleModel;
+        }
+
+        private async Task<List<RoleFunctionTransientModel>> GetLatestActiveTransientRoleFunctionsSincePreviousReleasedState(Guid roleId)
+        {    
+            List<RoleFunctionTransientModel> affectedRoleFunctionTransientRecords = new List<RoleFunctionTransientModel>();
+            var allTransientRoleFunctions = await roleFunctionTransientRepository.GetAllTransientFunctionRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of function IDs from this all the role function transients records.
+            var distinctFunctionIds = allTransientRoleFunctions.Select(trf => trf.FunctionId).Distinct();
+
+            // Iterate through all the distinc function IDs, find the latest transient record for each function, and process accordingly.
+            foreach (var functionId in distinctFunctionIds)
+            {
+                var allTransientRoleFunctionRecordsForFunction = allTransientRoleFunctions.Where(trf => trf.FunctionId == functionId).ToList();
+                var latestActiveTransientRoleFunctionsForFunction = GetAllLatestActiveTransientRoleFunctionsForRoleFunctionAsync(allTransientRoleFunctionRecordsForFunction);
+                latestActiveTransientRoleFunctionsForFunction.ForEach(item => affectedRoleFunctionTransientRecords.Add(item));
+            }
+
+            return affectedRoleFunctionTransientRecords;
+        }
+
+        private List<RoleFunctionTransientModel> GetAllLatestActiveTransientRoleFunctionsForRoleFunctionAsync(List<RoleFunctionTransientModel> allTransientRoleFuntionsForFunction)
+        {
+            List<RoleFunctionTransientModel> lastestActiveTransients = new List<RoleFunctionTransientModel>();
+
+            // Iterate backwards through the transients to get to the last 'released' or 'declined', or the the beginning of the
+            // collection if the role was captured for the first time.
+            for (int i = allTransientRoleFuntionsForFunction.Count - 1; i >= 0; i--)
+            {
+                if (allTransientRoleFuntionsForFunction.ElementAt(i).R_State == DatabaseRecordState.Released || allTransientRoleFuntionsForFunction.ElementAt(i).R_State == DatabaseRecordState.Declined)
+                {
+                    return lastestActiveTransients;
+                }
+
+                lastestActiveTransients.Add(allTransientRoleFuntionsForFunction.ElementAt(i));
+            }
+
+            return lastestActiveTransients;
+        }
+
+        private async Task<List<RoleRoleTransientModel>> GetLatestActiveTransientChildRolesSincePreviousReleasedState(Guid roleId)
+        {
+            List<RoleRoleTransientModel> affectedChildRoleTransientRecords = new List<RoleRoleTransientModel>();
+            var allTransientChildRoles = await roleRoleTransientRepository.GetAllTransientChildRoleRelationsForRoleAsync(roleId);
+
+            // Extract a distinct list of function IDs from this all the role function transients records.
+            var distinctChildRoleIds = allTransientChildRoles.Select(trf => trf.ChildRoleId).Distinct();
+
+            // Iterate through all the distinc function IDs, find the latest transient record for each function, and process accordingly.
+            foreach (var childRoleId in distinctChildRoleIds)
+            {
+                var allTransientChildRoleRecordsForChildRole = allTransientChildRoles.Where(trf => trf.ChildRoleId == childRoleId).ToList();
+                var latestActiveTransientChildRolesForChildRole = GetAllLatestActiveTransientChildRolesForChildRoleAsync(allTransientChildRoleRecordsForChildRole);
+                latestActiveTransientChildRolesForChildRole.ForEach(item => affectedChildRoleTransientRecords.Add(item));
+            }
+
+            return affectedChildRoleTransientRecords;
+        }
+
+        private List<RoleRoleTransientModel> GetAllLatestActiveTransientChildRolesForChildRoleAsync(List<RoleRoleTransientModel> allTransientChildRolesForChildRole)
+        {
+            List<RoleRoleTransientModel> lastestActiveTransients = new List<RoleRoleTransientModel>();
+
+            // Iterate backwards through the transients to get to the last 'released' or 'declined', or the the beginning of the
+            // collection if the role was captured for the first time.
+            for (int i = allTransientChildRolesForChildRole.Count - 1; i >= 0; i--)
+            {
+                if (allTransientChildRolesForChildRole.ElementAt(i).R_State == DatabaseRecordState.Released || allTransientChildRolesForChildRole.ElementAt(i).R_State == DatabaseRecordState.Declined)
+                {
+                    return lastestActiveTransients;
+                }
+
+                lastestActiveTransients.Add(allTransientChildRolesForChildRole.ElementAt(i));
+            }
+
+            return lastestActiveTransients;
         }
     }
 }

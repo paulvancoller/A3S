@@ -73,9 +73,9 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(role);
         }
 
-        public override Task<IActionResult> GetRoleTransientsAsync([FromRoute, Required] Guid roleId)
+        public async override Task<IActionResult> GetRoleTransientsAsync([FromRoute, Required] Guid roleId)
         {
-            throw new NotImplementedException();
+            return Ok(await roleService.GetLatestRoleTransientsAsync(roleId));
         }
 
         [Authorize(Policy = "permission:a3s.roles.read")]
