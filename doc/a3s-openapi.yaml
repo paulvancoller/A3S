@@ -1130,7 +1130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleTransient'
+                $ref: '#/components/schemas/RoleTransients'
         '400':
           description: Bad Request
           content:
@@ -3497,6 +3497,49 @@ components:
         changedBy:
           type: string
           format: uuid
+        latestTransientRoleFunctions:
+          description: A list of the latest transient role function assignments for this transient role.
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleFunctionTransient'
+        latestTransientRoleChildRoles:
+          description: A list of the latest transient role - child role assignments for this transient role.
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleChildRoleTransient'
+            
+    RoleTransientsItem:
+      description: |
+        Represents a transient state of a role.
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/TransientRoleId'
+        roleId:
+          $ref: '#/components/schemas/RoleId'
+        name:
+          type: string
+        description:
+          type: string
+        r_state:
+          type: string
+        action:
+          type: string
+        approvalCount:
+          type: integer
+        changedBy:
+          type: string
+          format: uuid
+            
+    RoleTransients:
+      description: |
+        Represents the current active transients for a role and it's relations.
+      type: object
+      properties:
+        latestActiveRoleTransients:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleTransientsItem'
         latestTransientRoleFunctions:
           description: A list of the latest transient role function assignments for this transient role.
           type: array

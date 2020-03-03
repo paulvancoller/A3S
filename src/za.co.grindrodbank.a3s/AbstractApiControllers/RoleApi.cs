@@ -162,7 +162,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [HttpGet]
         [Route("/roles/{roleId}/transients", Name = "GetRoleTransients")]
         [ValidateModelState]
-        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransients))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]

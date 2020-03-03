@@ -989,7 +989,7 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
-        public async Task<LatestActiveTransientsForRoleModel> GetLatestRoleTransientsAsync(Guid roleId)
+        public async Task<RoleTransients> GetLatestRoleTransientsAsync(Guid roleId)
         {
             LatestActiveTransientsForRoleModel latestActiveTransientsForRoleModel = new LatestActiveTransientsForRoleModel();
 
@@ -998,7 +998,7 @@ namespace za.co.grindrodbank.a3s.Services
             latestActiveTransientsForRoleModel.LatestActiveRoleFunctionTransients = await GetLatestActiveTransientRoleFunctionsSincePreviousReleasedState(roleId);
             latestActiveTransientsForRoleModel.LatestActiveChildRoleTransients = await GetLatestActiveTransientChildRolesSincePreviousReleasedState(roleId);
 
-            return latestActiveTransientsForRoleModel;
+            return mapper.Map<RoleTransients>(latestActiveTransientsForRoleModel);
         }
 
         private async Task<List<RoleFunctionTransientModel>> GetLatestActiveTransientRoleFunctionsSincePreviousReleasedState(Guid roleId)

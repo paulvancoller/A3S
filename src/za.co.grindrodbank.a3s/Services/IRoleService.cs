@@ -23,6 +23,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<RoleTransient> ApproveRole(Guid roleId, Guid approvedBy);
         Task<RoleTransient> DeclineRole(Guid roleId, Guid approvedBy);
         Task<RoleTransient> DeleteAsync(Guid roleId, Guid deletedById);
-        Task<LatestActiveTransientsForRoleModel> GetLatestRoleTransientsAsync(Guid roleId);
+        Task<RoleTransients> GetLatestRoleTransientsAsync(Guid roleId);
     }
 }
