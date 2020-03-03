@@ -966,17 +966,6 @@ namespace za.co.grindrodbank.a3s.Services
                 // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
                 RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
 
-                if (role.Id == Guid.Empty)
-                {
-                    role = existingRole;
-                }
-
-                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
-                if (role.Id != Guid.Empty)
-                {
-                    await roleRepository.UpdateAsync(role);
-                }
-
                 // All successful
                 CommitTransaction();
 
@@ -989,6 +978,12 @@ namespace za.co.grindrodbank.a3s.Services
             }
         }
 
+        /// <summary>
+        /// Gets all the transient records for a role, as well as the function and child role relations, that have been generated for the role since
+        /// the last transient termination state (decline or released).
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
         public async Task<RoleTransients> GetLatestRoleTransientsAsync(Guid roleId)
         {
             LatestActiveTransientsForRoleModel latestActiveTransientsForRoleModel = new LatestActiveTransientsForRoleModel();
