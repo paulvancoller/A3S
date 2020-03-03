@@ -22,5 +22,6 @@ namespace za.co.grindrodbank.a3s.Services
         Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy);
         Task<RoleTransient> ApproveRole(Guid roleId, Guid approvedBy);
         Task<RoleTransient> DeclineRole(Guid roleId, Guid approvedBy);
+        Task<RoleTransient> DeleteAsync(Guid roleId, Guid deletedById);
     }
 }

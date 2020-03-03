@@ -53,6 +53,12 @@ namespace za.co.grindrodbank.a3s.Controllers
             return Ok(await roleService.DeclineRole(roleId, ClaimsHelper.GetUserId(User)));
         }
 
+        [Authorize(Policy = "permission:a3s.roles.delete")]
+        public async override Task<IActionResult> DeleteRoleAsync([FromRoute, Required] Guid roleId)
+        {
+            return Ok(await roleService.DeleteAsync(roleId, ClaimsHelper.GetUserId(User)));
+        }
+
         [Authorize(Policy = "permission:a3s.roles.read")]
         public async override Task<IActionResult> GetRoleAsync([FromRoute, Required] Guid roleId)
         {
@@ -65,6 +71,11 @@ namespace za.co.grindrodbank.a3s.Controllers
                 return NotFound();
 
             return Ok(role);
+        }
+
+        public override Task<IActionResult> GetRoleTransientsAsync([FromRoute, Required] Guid roleId)
+        {
+            throw new NotImplementedException();
         }
 
         [Authorize(Policy = "permission:a3s.roles.read")]

@@ -481,12 +481,17 @@ namespace za.co.grindrodbank.a3s.Services
             }
 
             // Only persist the new captured state of the role if it actually different.
-            return IsCapturedRoleDifferentFromLatestTransientRoleState(latestTransientRole, roleName, roleDescription, subRealmId) ? await roleTransientRepository.CreateAsync(newTransientRole) : latestTransientRole;
+            return IsCapturedRoleDifferentFromLatestTransientRoleState(latestTransientRole, roleName, roleDescription, subRealmId, action) ? await roleTransientRepository.CreateAsync(newTransientRole) : latestTransientRole;
         }
 
-        private bool IsCapturedRoleDifferentFromLatestTransientRoleState(RoleTransientModel latestTransientRoleState, string currentRoleName, string currentRoleDescription, Guid currentRoleSubRealmId)
+        private bool IsCapturedRoleDifferentFromLatestTransientRoleState(RoleTransientModel latestTransientRoleState, string currentRoleName, string currentRoleDescription, Guid currentRoleSubRealmId, TransientAction action)
         {
             if(latestTransientRoleState == null)
+            {
+                return true;
+            }
+
+            if(latestTransientRoleState.Action != action)
             {
                 return true;
             }
@@ -529,7 +534,7 @@ namespace za.co.grindrodbank.a3s.Services
                 latestTransientRole.LatestTransientRoleChildRoles = await FindTransientChildRolesForRoleAndApproveThem(role, roleId, approvedBy);
 
                 // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
-                if (role.Id != Guid.Empty)
+                if (role.Id != Guid.Empty && (latestTransientRole.Action != TransientAction.Delete))
                 {
                     await roleRepository.UpdateAsync(role);
                 }
@@ -731,7 +736,7 @@ namespace za.co.grindrodbank.a3s.Services
 
             // Reset the Transient Role ID to force the creation of a new transient record.
             latestTransientRole.Id = Guid.Empty;
-            // Clear the createAt column so that the DDB can set it.
+            // Clear the createAt column so that the DB can set it.
             latestTransientRole.CreatedAt = new DateTime();
 
             return await roleTransientRepository.CreateAsync(latestTransientRole);
@@ -939,6 +944,49 @@ namespace za.co.grindrodbank.a3s.Services
         public async Task<PaginatedResult<RoleModel>> GetPaginatedListAsync(int page, int pageSize, bool includeRelations, string filterName, List<KeyValuePair<string, string>> orderBy)
         {
             return await roleRepository.GetPaginatedListAsync(page, pageSize, includeRelations, filterName, orderBy);
+        }
+
+        public async Task<RoleTransient> DeleteAsync(Guid roleId, Guid deletedById)
+        {
+            // Start transactions to allow complete rollback in case of an error.
+            InitSharedTransaction();
+
+            try
+            {
+                RoleModel existingRole = await roleRepository.GetByIdAsync(roleId);
+
+                if (existingRole == null)
+                {
+                    throw new ItemNotFoundException($"Role with ID '{roleId}' not found.");
+                }
+
+                RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(roleId, existingRole.Name, existingRole.Description, existingRole.SubRealm == null ? Guid.Empty : existingRole.SubRealm.Id, TransientAction.Delete, deletedById);
+                // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
+                // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
+                // NOTE: It is possible for an empty role (not persisted) to be returned if the role is not released in the following step.
+                RoleModel role = await UpdateRoleBasedOnTransientActionIfTransientRoleStateIsReleased(newTransientRole);
+
+                if (role.Id == Guid.Empty)
+                {
+                    role = existingRole;
+                }
+
+                // It is possible that the assigned functions, roles or sub-realms state has changed. Update the model, but only if it has an ID.
+                if (role.Id != Guid.Empty)
+                {
+                    await roleRepository.UpdateAsync(role);
+                }
+
+                // All successful
+                CommitTransaction();
+
+                return mapper.Map<RoleTransient>(newTransientRole);
+            }
+            catch
+            {
+                RollbackTransaction();
+                throw;
+            }
         }
     }
 }

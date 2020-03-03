@@ -105,6 +105,28 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         public abstract Task<IActionResult> DeclineRoleAsync([FromRoute][Required]Guid roleId);
 
         /// <summary>
+        /// Deletes a role.
+        /// </summary>
+        /// <remarks>Get a role by its UUID.</remarks>
+        /// <param name="roleId">The UUID of the role.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to access this role.</response>
+        /// <response code="404">Role not found.</response>
+        /// <response code="500">An unexpected error occurred</response>
+        [HttpDelete]
+        [Route("/roles/{roleId}", Name = "DeleteRole")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> DeleteRoleAsync([FromRoute][Required]Guid roleId);
+
+        /// <summary>
         /// Get a role.
         /// </summary>
         /// <remarks>Get a role by its UUID.</remarks>
@@ -125,6 +147,28 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
         [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
         public abstract Task<IActionResult> GetRoleAsync([FromRoute][Required]Guid roleId);
+
+        /// <summary>
+        /// Get a role&#39;s transient states.
+        /// </summary>
+        /// <remarks>Get the transient records for a role by the role UUID.</remarks>
+        /// <param name="roleId">The UUID of the role.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">Forbidden - You are not authorized to access this role.</response>
+        /// <response code="404">Role not found.</response>
+        /// <response code="500">An unexpected error occurred</response>
+        [HttpGet]
+        [Route("/roles/{roleId}/transients", Name = "GetRoleTransients")]
+        [ValidateModelState]
+        [ProducesResponseType(statusCode: 200, type: typeof(RoleTransient))]
+        [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 401, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 403, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404, type: typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 500, type: typeof(ErrorResponse))]
+        public abstract Task<IActionResult> GetRoleTransientsAsync([FromRoute][Required]Guid roleId);
 
         /// <summary>
         /// Search for Roles.
@@ -166,7 +210,7 @@ namespace za.co.grindrodbank.a3s.AbstractApiControllers
         /// <response code="422">Non-Processible Entity. The request was correctly structured, but some business rules were violated, preventing the updating of the role.</response>
         /// <response code="500">An unexpected error occurred.</response>
         [HttpPut]
-        [Route("/roles/{roleId}", Name = "UpdateRole")]
+        [Route("/roles/{roleId}/transients", Name = "UpdateRole")]
         [ValidateModelState]
         [ProducesResponseType(statusCode: 200, type: typeof(Role))]
         [ProducesResponseType(statusCode: 400, type: typeof(ErrorResponse))]
