@@ -74,7 +74,7 @@ namespace za.co.grindrodbank.a3sidentityserver.Quickstart.UI
                 if (controller == "TermsOfService" && action == "Index")
                 {
                     // Allow inline styling for terms of service
-                    csp = "default-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts allow-modals; base-uri 'self';font-src 'self' data:;";
+                    csp = "default-src 'self'; img-src 'self' http: data:; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts allow-modals; base-uri 'self';font-src 'self' data:;";
                 }
             }
 
