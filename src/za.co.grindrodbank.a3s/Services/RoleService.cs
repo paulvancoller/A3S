@@ -195,6 +195,12 @@ namespace za.co.grindrodbank.a3s.Services
                 throw new ItemNotFoundException($"Role with ID '{childRoleId}' not found when attempting to assign it as a child role of role with ID '{roleId}'.");
             }
 
+            //Ensure the child role, does not have any children of it's own (Child roles cannot be complex themselves).
+            if (childRole.ChildRoles.Any())
+            {
+                throw new ItemNotProcessableException($"Cannot assign a role with ID '{childRoleId}' as a child of role with ID '{roleId}', as the child role already has it's own child roles assigned.");
+            }
+
             ConfirmSubRealmAssociation(subRealmId, childRole);
 
             var childRoleTransientRecords = await roleRoleTransientRepository.GetTransientChildRoleRelationsForRoleAsync(roleId, childRoleId);
