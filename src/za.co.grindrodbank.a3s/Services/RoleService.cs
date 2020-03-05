@@ -729,7 +729,7 @@ namespace za.co.grindrodbank.a3s.Services
                 return latestTransientRole;
             }
 
-            EnsureRoleApproverIsDistinct(transientRoles, approvedBy);
+            EnsureRoleNotAlreadyApprovedByUser(transientRoles, approvedBy);
 
             try
             {
@@ -767,18 +767,18 @@ namespace za.co.grindrodbank.a3s.Services
             return lastestActiveTransients;
         }
 
-        private void EnsureRoleApproverIsDistinct(List<RoleTransientModel> transientRoles, Guid approverId)
+        private void EnsureRoleNotAlreadyApprovedByUser(List<RoleTransientModel> transientRoles, Guid userId)
         {
             var latestActiveTransientRoles = GetLatestActiveTransientRolesSincePreviousReleasedState(transientRoles);
-            var transientRoleWithApprover = latestActiveTransientRoles.Where(rt => rt.ChangedBy == approverId && rt.R_State == DatabaseRecordState.Approved ).FirstOrDefault();
+            var transientRoleWithApprover = latestActiveTransientRoles.Where(rt => rt.ChangedBy == userId && rt.R_State == DatabaseRecordState.Approved ).FirstOrDefault();
 
             if(transientRoleWithApprover != null)
             {
-                throw new ItemNotProcessableException($"Cannot approve role as it has already been approved by this approver.");
+                throw new ItemNotProcessableException($"Cannot execute action. Role with ID '{transientRoleWithApprover.RoleId}' has already been approved by this approver.");
             }
         }
 
-        private async Task<RoleTransientModel> DeclineRoleTransientState(Guid roleId, Guid approvedBy)
+        private async Task<RoleTransientModel> DeclineRoleTransientState(Guid roleId, Guid declinedBy)
         {
             var transientRoles = await roleTransientRepository.GetTransientsForRoleAsync(roleId);
             var latestTransientRole = transientRoles.LastOrDefault();
@@ -793,9 +793,11 @@ namespace za.co.grindrodbank.a3s.Services
                 return latestTransientRole;
             }
 
+            EnsureRoleNotAlreadyApprovedByUser(transientRoles, declinedBy);
+
             try
             {
-                latestTransientRole.Decline(approvedBy.ToString());
+                latestTransientRole.Decline(declinedBy.ToString());
             }
             catch (Exception e)
             {
