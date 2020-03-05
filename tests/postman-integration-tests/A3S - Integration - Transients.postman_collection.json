@@ -2675,6 +2675,267 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Create Role - Approve Twice - Same Approver - Expect 422",
+					"item": [
+						{
+							"name": "CreateRole - 1 Function - 1 Child Role - Expect New TransientRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.environment.set(\"role-guid\", jsonData.roleId);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Captured\");",
+											"    pm.expect(jsonData.action).to.eql(\"Create\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(1);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient functions were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].functionId).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].r_state).to.eql(\"Captured\");",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient child roles were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].childRoleId).to.eql(pm.environment.get('child-role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].r_state).to.eql(\"Captured\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-role-new 56\",\n    \"description\": \"Test new role description 56\",\n    \"functionIds\": [\"{{function-guid}}\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/roles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									]
+								},
+								"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveRole - Expect 200 with transient role returned",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"    pm.expect(jsonData).to.have.property('approvalCount');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.action).to.eql(\"Create\");",
+											"    pm.expect(jsonData.approvalCount).to.eql(1);",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(1);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient functions were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].functionId).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].approvalCount).to.eql(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient child roles were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].childRoleId).to.eql(pm.environment.get('child-role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].approvalCount).to.eql(1);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/approve",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"approve"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveRole - Expect 422 - Duplicate approver error",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 422\", function () {",
+											"    pm.response.to.have.status(422);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/approve",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"approve"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						}
+					],
+					"description": "Distinct approvers are required for approving any changes to an entity and it's relations. If the same approver attempts to approve the same change set, an error should be thrown.",
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"description": "Stores all the requests required for roles, assigned functions and assigned child roles CRUD APIs.",
