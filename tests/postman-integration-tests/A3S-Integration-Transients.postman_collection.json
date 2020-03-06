@@ -3219,6 +3219,1017 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Create Role - 1 Function Added - 1 Child Role",
+					"item": [
+						{
+							"name": "CreateRole - 1 Function - 1 Child Role - Expect New TransientRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b5992873-e926-4977-bbdf-5bcdc932fb4d",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set profile GUID environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.environment.set(\"role-guid\", jsonData.roleId);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Captured\");",
+											"    pm.expect(jsonData.action).to.eql(\"Create\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(1);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient functions were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].functionId).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].r_state).to.eql(\"Captured\");",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient child roles were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].childRoleId).to.eql(pm.environment.get('child-role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].r_state).to.eql(\"Captured\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-role-new 56\",\n    \"description\": \"Test new role description 56\",\n    \"functionIds\": [\"{{function-guid}}\"],\n    \"roleIds\": [\"{{child-role-guid}}\"]\n}"
+								},
+								"url": {
+									"raw": "{{a3s-host}}/roles",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles"
+									]
+								},
+								"description": "Creaets a new Role via the API. Roles are comprised of functions (which themselves are comprised of permissions)."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRole By UUID - Role Not Released - Expect 404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+										"exec": [
+											"pm.test(\"Response is 404 - Not Found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID."
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"    pm.expect(jsonData).to.have.property('approvalCount');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.action).to.eql(\"Create\");",
+											"    pm.expect(jsonData.approvalCount).to.eql(1);",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(1);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient functions were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].functionId).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].approvalCount).to.eql(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient child roles were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].childRoleId).to.eql(pm.environment.get('child-role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].approvalCount).to.eql(1);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/approve",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"approve"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Access Token - A3S Admin 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+										"exec": [
+											"pm.test(\"Response is 200.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set session_access_token environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "a3s-admin2",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "Password1#",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client-id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client-secret}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "a3s",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{auth-server-base-url}}/connect/token",
+									"host": [
+										"{{auth-server-base-url}}"
+									],
+									"path": [
+										"connect",
+										"token"
+									]
+								},
+								"description": "Obtains an access token for the A3S Bootstrap admin user, which only has permissions to apply Security Contract definitions."
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"    pm.expect(jsonData).to.have.property('approvalCount');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Released\");",
+											"    pm.expect(jsonData.action).to.eql(\"Create\");",
+											"    pm.expect(jsonData.approvalCount).to.eql(2);",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(1);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(1);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient functions were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].functionId).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].r_state).to.eql(\"Released\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions[0].approvalCount).to.eql(2);",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient child roles were retured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].childRoleId).to.eql(pm.environment.get('child-role-guid'));",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].r_state).to.eql(\"Released\");",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles[0].approvalCount).to.eql(2);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/approve",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"approve"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRole By UUID - Role now released",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+										"exec": [
+											"pm.test(\"Response is OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('roleIds');",
+											"    pm.expect(jsonData).to.have.property('functionIds');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.uuid).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.functionIds.length).to.eql(1);",
+											"    pm.expect(jsonData.functionIds[0]).to.eql(pm.environment.get('function-guid'));",
+											"    pm.expect(jsonData.roleIds.length).to.eql(1);",
+											"    pm.expect(jsonData.roleIds[0]).to.eql(pm.environment.get('child-role-guid'));",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID."
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "c7851c6f-75ef-4fe2-9cba-72dc8e8b265e",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "7d5799d5-ce49-4664-8a2d-8e9a46f36350",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Delete Row - Approve Once - Decline Once - Expect Role Decline Transient Role",
+					"item": [
+						{
+							"name": "DeleteRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "aa5e2269-c2d9-4e89-9e77-84928d020ed3",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Captured\");",
+											"    pm.expect(jsonData.action).to.eql(\"Delete\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(0);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(0);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID. In order to find a UUID for a role, run the 'GetRoles' function to obtain a list of all roles from the API. Select the UUID field of a desired role, and set it as the value of the 'role-guid' within the Postman environment variable. This function references the value of that environment variable as it's Role UUID."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRole By UUID - Deletion Not Released - Expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+										"exec": [
+											"pm.test(\"Response is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID."
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"    pm.expect(jsonData).to.have.property('approvalCount');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Approved\");",
+											"    pm.expect(jsonData.action).to.eql(\"Delete\");",
+											"    pm.expect(jsonData.approvalCount).to.eql(1);",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(0);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(0);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/approve",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"approve"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRole By UUID - Deletion Not Released - Expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+										"exec": [
+											"pm.test(\"Response is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Access Token - A3S Admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7c5b79eb-dff1-4dee-bfda-9da489ae5edb",
+										"exec": [
+											"pm.test(\"Response is 200.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Set session_access_token environment variable.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    pm.environment.set(\"session_access_token\", jsonData.access_token);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "a3s-admin",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "Password1#",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client-id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client-secret}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "a3s",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{auth-server-base-url}}/connect/token",
+									"host": [
+										"{{auth-server-base-url}}"
+									],
+									"path": [
+										"connect",
+										"token"
+									]
+								},
+								"description": "Obtains an access token for the A3S Bootstrap admin user, which only has permissions to apply Security Contract definitions."
+							},
+							"response": []
+						},
+						{
+							"name": "DeclineRole",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "cda3c24c-43fc-4351-bb8f-f66c18dab7f2",
+										"exec": [
+											"pm.test(\"Response is 200 - Ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check that returned transient role is correctly structured.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('roleId');",
+											"    pm.expect(jsonData).to.have.property('uuid');",
+											"    pm.expect(jsonData).to.have.property('name');",
+											"    pm.expect(jsonData).to.have.property('description');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleFunctions');",
+											"    pm.expect(jsonData).to.have.property('latestTransientRoleChildRoles');",
+											"    pm.expect(jsonData).to.have.property('r_state');",
+											"    pm.expect(jsonData).to.have.property('action');",
+											"});",
+											"",
+											"pm.test(\"Check that the correct transient role was returned.\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.roleId).to.eql(pm.environment.get('role-guid'));",
+											"    pm.expect(jsonData.name).to.eql(\"test-role-new 56\");",
+											"    pm.expect(jsonData.description).to.eql(\"Test new role description 56\");",
+											"    pm.expect(jsonData.r_state).to.eql(\"Declined\");",
+											"    pm.expect(jsonData.action).to.eql(\"Delete\");",
+											"    pm.expect(jsonData.latestTransientRoleFunctions.length).to.equal(0);",
+											"    pm.expect(jsonData.latestTransientRoleChildRoles.length).to.equal(0);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}/decline",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}",
+										"decline"
+									]
+								},
+								"description": "Approves role and all it's current transient states."
+							},
+							"response": []
+						},
+						{
+							"name": "GetRole By UUID - Deletion Not Released - Expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "541ee953-a2a5-40c6-983c-415bd7935897",
+										"exec": [
+											"pm.test(\"Response is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{session_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{a3s-host}}/roles/{{role-guid}}",
+									"host": [
+										"{{a3s-host}}"
+									],
+									"path": [
+										"roles",
+										"{{role-guid}}"
+									]
+								},
+								"description": "Gets a role by it's UUID."
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "da7e4240-ff88-432b-ae2f-0ff5df48220b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "1977d2db-648f-4f6d-9fcd-dba490b9d3ba",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"description": "Stores all the requests required for roles, assigned functions and assigned child roles CRUD APIs.",

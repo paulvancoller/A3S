@@ -774,7 +774,7 @@ namespace za.co.grindrodbank.a3s.Services
 
             if(transientRoleWithApprover != null)
             {
-                throw new ItemNotProcessableException($"Cannot execute action. Role with ID '{transientRoleWithApprover.RoleId}' has already been approved by this approver.");
+                throw new ItemNotProcessableException($"Cannot execute action. Role with ID '{transientRoleWithApprover.RoleId}' has already been approved by this user.");
             }
         }
 
