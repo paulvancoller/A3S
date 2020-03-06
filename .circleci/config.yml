@@ -112,7 +112,7 @@ jobs:
       - run: docker-compose -f ~/repo/quickstart/docker-compose.yml up -d
       - run: sleep 5
       # # Run the Newman orb to execute the collection against the quickstart environment.
-      - run: newman run ~/repo/tests/postman-integration-tests/A3S-integration.postman_collection.json -r cli -e ~/repo/postman/A3S-quickstart.postman_environment.json
+      - run: newman run ~/repo/tests/postman-integration-tests/A3S-Integration-Transients.postman_collection.json -r cli -e ~/repo/postman/A3S-quickstart.postman_environment.json
 
   generate-axios-client:
     working_directory: ~/repo
