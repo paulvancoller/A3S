@@ -846,6 +846,13 @@ namespace za.co.grindrodbank.a3s.Services
                     throw new ItemNotFoundException($"Role with ID '{roleId}' not found.");
                 }
 
+                RoleModel roleWithUpdateName = await roleRepository.GetByNameAsync(roleSubmit.Name);
+
+                if(roleWithUpdateName != null && roleWithUpdateName.Id != existingRole.Id)
+                {
+                    throw new ItemNotProcessableException($"Cannot update role with ID '{roleId}' as the intended update name of '{roleSubmit.Name}' is already taken by another role.");
+                }
+
                 RoleTransientModel newTransientRole = await CaptureTransientRoleAsync(roleId, roleSubmit.Name, roleSubmit.Description, roleSubmit.SubRealmId, TransientAction.Modify, updatedById);
                 // Even though we are creating/capturing the role here, it is possible that the configured approval count is 0,
                 // which means that we need to check for whether the transient state is released, and process the affected role accrodingly.
