@@ -184,12 +184,11 @@ namespace za.co.grindrodbank.a3s.tests.Controllers
             var okResult = actionResult as OkObjectResult;
             Assert.NotNull(okResult);
 
-            var role = okResult.Value as RoleTransient;
-            Assert.NotNull(role);
-            Assert.True(role.Uuid == inputModel.Uuid, $"Retrieved Id {role.Uuid} not the same as sample id {inputModel.Uuid}.");
-            Assert.True(role.Name == inputModel.Name, $"Retrieved Name {role.Name} not the same as sample Name {inputModel.Name}.");
-            //Assert.True(role.FunctionIds[0] == inputModel.FunctionIds[0], $"Retrieved function id {role.FunctionIds[0]} not the same as sample function id {inputModel.FunctionIds[0]}.");
-            //Assert.True(role.FunctionIds[1] == inputModel.FunctionIds[1], $"Retrieved function id {role.FunctionIds[1]} not the same as sample function id {inputModel.FunctionIds[1]}.");
+            var roleTransient = okResult.Value as RoleTransient;
+            Assert.NotNull(roleTransient);
+            Assert.True(roleTransient.RoleId == inputModel.Uuid, $"Retrieved Id {roleTransient.Uuid} not the same as sample id {inputModel.Uuid}.");
+            Assert.True(roleTransient.Name == inputModel.Name, $"Retrieved Name {roleTransient.Name} not the same as sample Name {inputModel.Name}.");
+            Assert.True(roleTransient is RoleTransient);
         }
 
         [Fact]
