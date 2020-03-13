@@ -128,6 +128,13 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<string> Roles { get; set; }
 
         /// <summary>
+        /// An array of all custom claims for the user.
+        /// </summary>
+        /// <value>An array of all custom claims for the user.</value>
+        [DataMember(Name="customAttributes", EmitDefaultValue=false)]
+        public List<UserCustomAttributes> CustomAttributes { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -148,6 +155,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  Avatar: ").Append(Avatar).Append("\n");
             sb.Append("  LdapAuthenticationMode: ").Append(LdapAuthenticationMode).Append("\n");
             sb.Append("  Roles: ").Append(Roles).Append("\n");
+            sb.Append("  CustomAttributes: ").Append(CustomAttributes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -249,6 +257,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     Roles != null &&
                     other.Roles != null &&
                     Roles.SequenceEqual(other.Roles)
+                ) && 
+                (
+                    CustomAttributes == other.CustomAttributes ||
+                    CustomAttributes != null &&
+                    other.CustomAttributes != null &&
+                    CustomAttributes.SequenceEqual(other.CustomAttributes)
                 );
         }
 
@@ -288,6 +302,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + LdapAuthenticationMode.GetHashCode();
                     if (Roles != null)
                     hashCode = hashCode * 59 + Roles.GetHashCode();
+                    if (CustomAttributes != null)
+                    hashCode = hashCode * 59 + CustomAttributes.GetHashCode();
                 return hashCode;
             }
         }

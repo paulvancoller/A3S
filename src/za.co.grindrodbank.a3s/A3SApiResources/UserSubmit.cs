@@ -105,6 +105,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
         public List<Guid> TeamIds { get; set; }
 
         /// <summary>
+        /// Gets or Sets CustomAttributes
+        /// </summary>
+        [DataMember(Name="customAttributes", EmitDefaultValue=false)]
+        public List<UserCustomAttributes> CustomAttributes { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -123,6 +129,7 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
             sb.Append("  LdapAuthenticationModeId: ").Append(LdapAuthenticationModeId).Append("\n");
             sb.Append("  RoleIds: ").Append(RoleIds).Append("\n");
             sb.Append("  TeamIds: ").Append(TeamIds).Append("\n");
+            sb.Append("  CustomAttributes: ").Append(CustomAttributes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -215,6 +222,12 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     TeamIds != null &&
                     other.TeamIds != null &&
                     TeamIds.SequenceEqual(other.TeamIds)
+                ) && 
+                (
+                    CustomAttributes == other.CustomAttributes ||
+                    CustomAttributes != null &&
+                    other.CustomAttributes != null &&
+                    CustomAttributes.SequenceEqual(other.CustomAttributes)
                 );
         }
 
@@ -250,6 +263,8 @@ namespace za.co.grindrodbank.a3s.A3SApiResources
                     hashCode = hashCode * 59 + RoleIds.GetHashCode();
                     if (TeamIds != null)
                     hashCode = hashCode * 59 + TeamIds.GetHashCode();
+                    if (CustomAttributes != null)
+                    hashCode = hashCode * 59 + CustomAttributes.GetHashCode();
                 return hashCode;
             }
         }

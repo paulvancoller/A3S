@@ -5405,7 +5405,14 @@
           "ldapAuthenticationModeId" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "email" : "email",
-          "username" : "username"
+          "username" : "username",
+          "customAttributes" : [ {
+            "value" : "value",
+            "key" : "key"
+          }, {
+            "value" : "value",
+            "key" : "key"
+          } ]
         },
         "properties" : {
           "uuid" : {
@@ -5451,6 +5458,12 @@
               "$ref" : "#/components/schemas/Team"
             },
             "type" : "array"
+          },
+          "customAttributes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/User_customAttributes"
+            },
+            "type" : "array"
           }
         },
         "type" : "object"
@@ -5468,7 +5481,14 @@
           "uuid" : "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
           "email" : "email",
           "teamIds" : [ null, null ],
-          "username" : "username"
+          "username" : "username",
+          "customAttributes" : [ {
+            "value" : "value",
+            "key" : "key"
+          }, {
+            "value" : "value",
+            "key" : "key"
+          } ]
         },
         "properties" : {
           "uuid" : {
@@ -5513,6 +5533,12 @@
           "teamIds" : {
             "items" : {
               "$ref" : "#/components/schemas/TeamId"
+            },
+            "type" : "array"
+          },
+          "customAttributes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/User_customAttributes"
             },
             "type" : "array"
           }
@@ -6109,7 +6135,14 @@
           "name" : "name",
           "deletedTime" : "2000-01-23T04:56:07.000+00:00",
           "email" : "email",
-          "username" : "username"
+          "username" : "username",
+          "customAttributes" : [ {
+            "value" : "value",
+            "key" : "key"
+          }, {
+            "value" : "value",
+            "key" : "key"
+          } ]
         },
         "properties" : {
           "uuid" : {
@@ -6171,6 +6204,13 @@
             "description" : "An array of all the role names that are to be added to the user. The user must already exist or be defined in other sections of the security contract.",
             "items" : {
               "type" : "string"
+            },
+            "type" : "array"
+          },
+          "customAttributes" : {
+            "description" : "An array of all custom claims for the user.",
+            "items" : {
+              "$ref" : "#/components/schemas/User_customAttributes"
             },
             "type" : "array"
           }
@@ -6415,7 +6455,14 @@
             "name" : "name",
             "deletedTime" : "2000-01-23T04:56:07.000+00:00",
             "email" : "email",
-            "username" : "username"
+            "username" : "username",
+            "customAttributes" : [ {
+              "value" : "value",
+              "key" : "key"
+            }, {
+              "value" : "value",
+              "key" : "key"
+            } ]
           }, {
             "hashedPassword" : "hashedPassword",
             "roles" : [ "roles", "roles" ],
@@ -6429,7 +6476,14 @@
             "name" : "name",
             "deletedTime" : "2000-01-23T04:56:07.000+00:00",
             "email" : "email",
-            "username" : "username"
+            "username" : "username",
+            "customAttributes" : [ {
+              "value" : "value",
+              "key" : "key"
+            }, {
+              "value" : "value",
+              "key" : "key"
+            } ]
           } ],
           "applications" : [ {
             "functions" : [ {
@@ -6592,7 +6646,14 @@
               "name" : "name",
               "deletedTime" : "2000-01-23T04:56:07.000+00:00",
               "email" : "email",
-              "username" : "username"
+              "username" : "username",
+              "customAttributes" : [ {
+                "value" : "value",
+                "key" : "key"
+              }, {
+                "value" : "value",
+                "key" : "key"
+              } ]
             }, {
               "hashedPassword" : "hashedPassword",
               "roles" : [ "roles", "roles" ],
@@ -6606,7 +6667,14 @@
               "name" : "name",
               "deletedTime" : "2000-01-23T04:56:07.000+00:00",
               "email" : "email",
-              "username" : "username"
+              "username" : "username",
+              "customAttributes" : [ {
+                "value" : "value",
+                "key" : "key"
+              }, {
+                "value" : "value",
+                "key" : "key"
+              } ]
             } ],
             "applications" : [ {
               "functions" : [ {
@@ -6701,7 +6769,14 @@
               "name" : "name",
               "deletedTime" : "2000-01-23T04:56:07.000+00:00",
               "email" : "email",
-              "username" : "username"
+              "username" : "username",
+              "customAttributes" : [ {
+                "value" : "value",
+                "key" : "key"
+              }, {
+                "value" : "value",
+                "key" : "key"
+              } ]
             }, {
               "hashedPassword" : "hashedPassword",
               "roles" : [ "roles", "roles" ],
@@ -6715,7 +6790,14 @@
               "name" : "name",
               "deletedTime" : "2000-01-23T04:56:07.000+00:00",
               "email" : "email",
-              "username" : "username"
+              "username" : "username",
+              "customAttributes" : [ {
+                "value" : "value",
+                "key" : "key"
+              }, {
+                "value" : "value",
+                "key" : "key"
+              } ]
             } ],
             "applications" : [ {
               "functions" : [ {
@@ -7239,6 +7321,20 @@
           }
         },
         "type" : "object"
+      },
+      "User_customAttributes" : {
+        "example" : {
+          "value" : "value",
+          "key" : "key"
+        },
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
       }
     }
   }
